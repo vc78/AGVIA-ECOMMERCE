@@ -557,7 +557,7 @@ export default function Profile() {
         )}
 
         {/* Mobile Horizontal Tabs Bar */}
-        <div className="lg:hidden mb-6 overflow-x-auto pb-2 scrollbar-none flex gap-2">
+        <div className="lg:hidden mb-6 w-full min-w-0 overflow-x-auto pb-2 scrollbar-none no-scrollbar flex gap-2">
           {NAV_TABS.map(tab => {
             const Icon = tab.icon
             const isCurrent = activeTab === tab.id
@@ -565,7 +565,7 @@ export default function Profile() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   isCurrent
                     ? 'bg-[#8B0000] text-white shadow'
                     : 'bg-white border border-[#B8860B]/15 text-[#3A2D23]/70 hover:text-[#8B0000]'

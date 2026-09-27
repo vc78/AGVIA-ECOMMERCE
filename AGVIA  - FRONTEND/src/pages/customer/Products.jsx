@@ -118,23 +118,25 @@ export default function Products() {
           </div>
 
           {/* Quick Category Badges in Header */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {['All', ...categories.slice(0, 5)].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => {
-                  setActiveCategory(cat)
-                  setSearchParams(cat === 'All' ? {} : { category: cat })
-                }}
-                className={`min-h-[38px] text-[11px] font-bold tracking-wider px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap touch-target ${
-                  activeCategory === cat
-                    ? 'bg-[#C9A45C] text-[#211D1E] shadow-sm'
-                    : 'bg-white/10 hover:bg-white/20 text-white/90 border border-white/15'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="w-full min-w-0 overflow-x-auto scrollbar-none no-scrollbar py-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex items-center gap-2.5 min-w-max">
+              {['All', ...categories].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setActiveCategory(cat)
+                    setSearchParams(cat === 'All' ? {} : { category: cat })
+                  }}
+                  className={`shrink-0 min-h-[38px] text-[11.5px] font-bold tracking-wider px-4 py-2 rounded-full transition-all whitespace-nowrap flex items-center justify-center select-none ${
+                    activeCategory === cat
+                      ? 'bg-[#C9A45C] text-[#211D1E] shadow-md font-extrabold ring-1 ring-[#C9A45C]'
+                      : 'bg-white/10 hover:bg-white/20 text-white/90 border border-white/20 active:scale-95'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>

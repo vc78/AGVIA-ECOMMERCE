@@ -116,6 +116,19 @@ body {
   ::-webkit-scrollbar-thumb:hover {
     background: var(--agvia-gold-soft);
   }
+
+  /* Utility classes to hide scrollbars for clean luxury touch horizontal scrolling */
+  .scrollbar-none::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  .scrollbar-none,
+  .no-scrollbar {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
 }
 
 @layer components {
