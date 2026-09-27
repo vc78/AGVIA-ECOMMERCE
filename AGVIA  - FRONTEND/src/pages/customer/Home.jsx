@@ -25,6 +25,7 @@ import InteractiveItemsReel from '../../components/customer/InteractiveItemsReel
 import BestsellerCurvedCarousel from '../../components/customer/BestsellerCurvedCarousel'
 import RangoliDivider from '../../components/customer/RangoliDivider'
 import TestimonialsCarousel from '../../components/customer/TestimonialsCarousel'
+import BespokeTrousseauBanner from '../../components/customer/BespokeTrousseauBanner'
 import { productService } from '../../services/productService'
 import { useCart } from '../../hooks/useCart'
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
@@ -431,86 +432,9 @@ export default function Home() {
       <RangoliDivider flip />
 
       {/* ══════════════════════════════════════════════════════════════
-          3. BRIDAL TROUSSEAU, ELEVATED (EXACT REFERENCE DESIGN)
+          3. BRIDAL TROUSSEAU, ELEVATED (INTERACTIVE CONSULTATION & ATELIER SCHEDULING)
       ══════════════════════════════════════════════════════════════ */}
-      <section className="container-luxury my-6 md:my-10 relative z-10">
-        <div className="rounded-3xl overflow-hidden relative shadow-2xl bg-gradient-to-r from-[#24040B] via-[#480A17] to-[#24040B] border border-[#C9A45C]/35 py-[clamp(24px,4vw,44px)] px-[clamp(16px,3.5vw,44px)]">
-          
-          {/* Subtle background damask & warm golden radial glow */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(201,164,92,0.12),transparent_70%)] pointer-events-none" />
-          
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
-            
-            {/* Left 4 Cols: Headings & Action Buttons */}
-            <div className="lg:col-span-4 text-left space-y-3.5">
-              <div className="inline-flex items-center gap-1.5 text-[#C9A45C] text-[9.5px] font-bold tracking-[0.24em] uppercase">
-                <span>BESPOKE TROUSSEAU CURATION</span>
-                <span>•</span>
-              </div>
-
-              <h2 className="font-serif text-[clamp(1.75rem,3.2vw,2.6rem)] text-white font-bold leading-tight tracking-tight">
-                Bridal Trousseau,<br />Elevated.
-              </h2>
-
-              <p className="font-sans text-xs sm:text-[13px] text-white/80 leading-relaxed max-w-sm">
-                Handpicked heirloom silks and embroidered ensembles delivered in a bespoke keepsake presentation.
-              </p>
-
-              <div className="flex flex-wrap gap-2.5 pt-2">
-                <Link
-                  to="/products?category=Lehengas"
-                  className="inline-flex items-center justify-center gap-2 bg-[#C9A45C] hover:bg-white text-[#211D1E] font-bold text-xs tracking-widest uppercase px-6 py-3.5 rounded-full shadow-lg transition-all active:scale-95 min-h-[44px]"
-                >
-                  <span>EXPLORE TROUSSEAU</span>
-                  <ArrowRight size={13} className="stroke-[2.5]" />
-                </Link>
-
-                <Link
-                  to="/products?category=Sarees"
-                  className="inline-flex items-center justify-center gap-2 border border-white/40 hover:border-[#C9A45C] text-white hover:text-[#C9A45C] font-semibold text-xs tracking-widest uppercase px-5 py-3.5 rounded-full transition-all min-h-[44px]"
-                >
-                  <span>HEIRLOOM SAREES</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Center 5 Cols: Royal Indian Bride Seated on Velvet Sofa Photo */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-[#C9A45C]/40 max-w-[420px] w-full aspect-[16/10] group">
-                <img
-                  src="/images/bridal_trousseau_banner.jpg"
-                  alt="Royal Bridal Trousseau"
-                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Right 3 Cols: 4 Vertical Features */}
-            <div className="lg:col-span-3 space-y-2.5 sm:space-y-3 pt-2 lg:pt-0">
-              {[
-                { icon: Scissors, label: 'Custom Styling' },
-                { icon: Sparkles, label: 'Personal Consultation' },
-                { icon: Package, label: 'Premium Packaging' },
-                { icon: Ruler, label: 'Made-to-Measure' },
-              ].map((feat, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#C9A45C]/50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-[#C9A45C]/15 border border-[#C9A45C]/40 flex items-center justify-center text-[#C9A45C] shrink-0">
-                    <feat.icon size={15} />
-                  </div>
-                  <span className="font-serif text-xs sm:text-sm font-semibold text-white tracking-wide">
-                    {feat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      </section>
+      <BespokeTrousseauBanner />
 
       {/* Rangoli Divider — between Bridal Trousseau and AGVIA Edit */}
       <RangoliDivider />
