@@ -109,19 +109,19 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-center items-center px-4 font-body relative">
+    <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-center items-center px-4 py-8 sm:py-12 font-body relative">
       <Link
         to="/"
-        className="absolute top-6 left-6 text-xs text-[#B8860B] hover:text-[#8B0000] font-bold uppercase flex items-center gap-1.5 transition-colors"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 text-xs text-[#B8860B] hover:text-[#8B0000] font-bold uppercase flex items-center gap-1.5 transition-colors touch-target min-h-[44px] px-2"
       >
-        <ArrowLeft size={14} /> Back to Store
+        <ArrowLeft size={15} /> <span>Back to Store</span>
       </Link>
 
       {step === 'FORM' ? (
-        <div className="w-full max-w-md p-8 bg-white border border-[#B8860B]/15 rounded-3xl shadow-sm relative overflow-hidden">
+        <div className="w-full max-w-md p-5 sm:p-8 bg-white border border-[#B8860B]/15 rounded-3xl shadow-sm relative overflow-hidden mt-8 sm:mt-0">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
 
-          <Link to="/" className="flex flex-col items-center mb-8 select-none group">
+          <Link to="/" className="flex flex-col items-center mb-6 sm:mb-8 select-none group">
             <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#8B0000] leading-none group-hover:text-[#B8860B] transition-colors duration-300">
               AGVIA
             </span>
@@ -171,7 +171,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full text-xs font-bold tracking-widest py-4 mt-2 flex items-center justify-center gap-2"
+              className="btn-primary w-full text-xs font-bold tracking-widest min-h-[48px] py-3.5 mt-2 flex items-center justify-center gap-2 touch-target"
             >
               {loading ? (
                 <>

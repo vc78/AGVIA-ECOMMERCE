@@ -34,8 +34,8 @@ export default function AdminSidebar({ isOpen, onClose }) {
             </span>
           </div>
         </Link>
-        <button className="lg:hidden text-white/60 hover:text-white p-1" onClick={onClose}>
-          <X size={16} />
+        <button className="lg:hidden text-white/60 hover:text-white touch-target w-10 h-10 flex items-center justify-center rounded-lg" onClick={onClose}>
+          <X size={18} />
         </button>
       </div>
 
@@ -51,22 +51,22 @@ export default function AdminSidebar({ isOpen, onClose }) {
             to={to}
             onClick={onClose}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans tracking-wide uppercase transition-all duration-200 min-h-[38px] ${
+              `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-sans tracking-wide uppercase transition-all duration-200 min-h-[44px] touch-target ${
                 isActive 
                   ? 'bg-[#5A1020] text-[#FAF7F2] border-r-3 border-[#C9A45C] shadow-xs font-semibold' 
                   : 'hover:bg-white/5 text-white/70 hover:text-white'
               }`
             }
           >
-            <Icon size={15} className="text-[#C9A45C] shrink-0" />
+            <Icon size={16} className="text-[#C9A45C] shrink-0" />
             <span>{label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Footer Info */}
-      <div className="p-2.5 border-t border-white/10 text-center select-none bg-[#14060B]">
-        <span className="font-sans text-[7.5px] tracking-widest text-white/40 uppercase block">
+      <div className="p-3 border-t border-white/10 text-center select-none bg-[#14060B]">
+        <span className="font-sans text-[8px] tracking-widest text-white/40 uppercase block">
           AGVIA ATELIER ERP v2.0
         </span>
       </div>
@@ -98,7 +98,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden shadow-lg"
+              className="fixed inset-y-0 left-0 z-50 w-full max-w-[min(280px,calc(100vw-32px))] lg:hidden shadow-2xl"
             >
               {content}
             </motion.div>

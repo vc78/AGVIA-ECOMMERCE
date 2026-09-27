@@ -65,13 +65,13 @@ export const authService = {
       const { data } = await api.post('/auth/login', payload)
       const res = data.data
 
-      // If backend requires OTP challenge
       if (res.requiresOtp) {
         return {
           requiresOtp: true,
           challengeId: res.challengeId,
           phoneMasked: res.phoneMasked,
           expiresIn: res.expiresIn || 300,
+          devOtp: res.devOtp, // Add devOtp for testing
           message: res.message || 'OTP sent to your verified mobile number'
         }
       }
@@ -195,6 +195,7 @@ export const authService = {
         name: data.data.fullName,
         email: data.data.email,
         phone: data.data.phone,
+        phoneVerified: data.data.phoneVerified,
         address: data.data.address,
         role: data.data.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
       }
@@ -222,6 +223,7 @@ export const authService = {
         name: data.data.fullName,
         email: data.data.email,
         phone: data.data.phone,
+        phoneVerified: data.data.phoneVerified,
         address: data.data.address,
         role: data.data.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
       }

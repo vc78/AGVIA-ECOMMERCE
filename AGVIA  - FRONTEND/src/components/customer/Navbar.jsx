@@ -134,6 +134,18 @@ export default function Navbar() {
     setActiveDropdown(null)
   }, [location.pathname, location.search])
 
+  // Prevent background scrolling when mobile menu drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
+
   const handleLogout = () => {
     dispatch(loggedOut())
     navigate('/')
@@ -174,7 +186,7 @@ export default function Navbar() {
           <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black/20 to-transparent pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black/20 to-transparent pointer-events-none" />
 
-          <div className="w-full max-w-[1280px] mx-auto px-4 min-[481px]:px-5 md:px-6 lg:px-7 xl:px-8 h-7 sm:h-8 flex items-center justify-between text-[10px] sm:text-[10.5px] tracking-[0.16em] uppercase font-medium">
+          <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] h-7 sm:h-8 flex items-center justify-between text-[10px] sm:text-[10.5px] tracking-[0.16em] uppercase font-medium">
             
             {/* Left: Free Shipping & Easy Returns */}
             <div className="flex items-center gap-1.5 text-[#E6C894]">
@@ -215,7 +227,7 @@ export default function Navbar() {
           <BotanicalCornerDecor className="absolute -left-4 -bottom-2 w-32 h-20 transform -scale-x-100 hidden lg:block" />
           <BotanicalCornerDecor className="absolute -right-2 -bottom-2 w-36 h-22 hidden lg:block" />
 
-          <div className="w-full max-w-[1280px] mx-auto px-4 min-[481px]:px-5 md:px-6 lg:px-7 xl:px-8 flex items-center justify-between gap-3">
+          <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] flex items-center justify-between gap-3">
 
             {/* ── Left: AGVIA Official Brand Logo ── */}
             <Link to="/" className="flex items-center shrink-0 group py-0.5">
@@ -389,10 +401,10 @@ export default function Navbar() {
                 <div className="relative group/user flex items-center">
                   <Link
                     to="/profile"
-                    className="p-1.5 text-[#382820] hover:text-[#4A0A16] transition-colors"
+                    className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
                     title={`Signed in as ${user?.name || 'Account'}`}
                   >
-                    <User size={18} strokeWidth={1.75} />
+                    <User size={19} strokeWidth={1.75} />
                   </Link>
                   {/* Subtle hover menu */}
                   <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
@@ -415,31 +427,31 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="p-1.5 text-[#382820] hover:text-[#4A0A16] transition-colors"
+                  className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
                   title="Sign In / Register"
                 >
-                  <User size={18} strokeWidth={1.75} />
+                  <User size={19} strokeWidth={1.75} />
                 </Link>
               )}
 
               {/* Wishlist Icon */}
               <Link
                 to="/wishlist"
-                className="p-1.5 text-[#382820] hover:text-[#4A0A16] transition-colors"
+                className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
                 title="Wishlist"
               >
-                <Heart size={18} strokeWidth={1.75} />
+                <Heart size={19} strokeWidth={1.75} />
               </Link>
 
               {/* Shopping Bag Icon with Cart Count Badge */}
               <Link
                 to="/cart"
-                className="relative p-2 text-[#382820] hover:text-[#4A0A16] transition-colors"
+                className="touch-target relative p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
                 title="Shopping Bag"
               >
-                <ShoppingBag size={18} strokeWidth={1.75} />
+                <ShoppingBag size={19} strokeWidth={1.75} />
                 {count > 0 && (
-                  <span className="absolute 0 top-0.5 right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-[#5A1020] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#5A1020] text-white text-[9.5px] font-bold flex items-center justify-center shadow-xs">
                     {count > 99 ? '99+' : count}
                   </span>
                 )}
@@ -447,11 +459,11 @@ export default function Navbar() {
 
               {/* Mobile Menu Hamburger */}
               <button
-                className="xl:hidden p-1.5 text-[#382820] hover:text-[#4A0A16] transition-colors"
+                className="xl:hidden touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Open Mobile Menu"
               >
-                <Menu size={20} />
+                <Menu size={22} />
               </button>
 
             </div>
@@ -479,7 +491,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              className="fixed inset-y-0 right-0 z-[60] w-full max-w-xs bg-[#FFFDF9] flex flex-col shadow-2xl"
+              className="fixed inset-y-0 right-0 z-[60] w-full max-w-[min(340px,calc(100vw-32px))] bg-[#FFFDF9] flex flex-col shadow-2xl"
             >
               {/* Drawer Header */}
               <div className="flex justify-between items-center px-4 py-3 border-b border-[#EAE0D2] bg-[#FAF6F0]">
@@ -492,18 +504,18 @@ export default function Navbar() {
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 text-[#4A0A16] hover:bg-white rounded-full transition-colors"
+                  className="touch-target p-2 text-[#4A0A16] hover:bg-white rounded-full transition-colors"
                   aria-label="Close menu"
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               </div>
 
               {/* Mobile Search */}
               <div className="p-3 border-b border-[#EAE0D2]">
                 <form onSubmit={(e) => { handleSearchSubmit(e); setMobileMenuOpen(false); }}>
-                  <div className="flex items-center gap-2 rounded-full border border-[#DFD3C5] bg-[#FAF6F0] px-3 py-1.5">
-                    <Search size={13} className="text-[#8C7A6B]" />
+                  <div className="flex items-center gap-2 rounded-full border border-[#DFD3C5] bg-[#FAF6F0] px-3.5 py-2">
+                    <Search size={14} className="text-[#8C7A6B]" />
                     <input
                       type="text"
                       value={searchQuery}
@@ -516,11 +528,11 @@ export default function Navbar() {
               </div>
 
               {/* Drawer Links */}
-              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+              <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1">
                 <Link
                   to="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[15px] font-semibold text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all"
+                  className="flex items-center justify-between font-serif text-[15px] font-semibold text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
                 >
                   <span>Home</span>
                   <ArrowRight size={14} className="text-[#B68C48]" />
@@ -537,7 +549,7 @@ export default function Navbar() {
                     <Link
                       to={cat.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-between font-serif text-[14px] font-medium text-[#382820] hover:text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-2.5 rounded-xl transition-all"
+                      className="flex items-center justify-between font-serif text-[14px] font-medium text-[#382820] hover:text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
                     >
                       <span>{cat.label}</span>
                       <ArrowRight size={13} className="text-[#B68C48]/60" />
@@ -554,25 +566,25 @@ export default function Navbar() {
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-2.5 rounded-xl transition-all"
+                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
                 >
-                  <span className="flex items-center gap-2"><Heart size={14} className="text-[#4A0A16]" /> Wishlist</span>
+                  <span className="flex items-center gap-2"><Heart size={15} className="text-[#4A0A16]" /> Wishlist</span>
                   <ArrowRight size={13} className="text-[#B68C48]/60" />
                 </Link>
 
                 <Link
                   to="/cart"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-2.5 rounded-xl transition-all"
+                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
                 >
-                  <span className="flex items-center gap-2"><ShoppingBag size={14} className="text-[#4A0A16]" /> Shopping Bag</span>
+                  <span className="flex items-center gap-2"><ShoppingBag size={15} className="text-[#4A0A16]" /> Shopping Bag</span>
                   <ArrowRight size={13} className="text-[#B68C48]/60" />
                 </Link>
 
                 <Link
                   to="/orders"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-2.5 rounded-xl transition-all"
+                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
                 >
                   <span>My Orders</span>
                   <ArrowRight size={13} className="text-[#B68C48]/60" />

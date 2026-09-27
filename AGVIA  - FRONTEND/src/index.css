@@ -19,41 +19,42 @@
   --agvia-muted: #756B6C;
   --agvia-border: #E4D8D2;
 
-  /* 12-step Compact Spacing Scale */
+  /* 12-step Master Spacing Scale */
   --space-1: 4px;
-  --space-2: 6px;
-  --space-3: 8px;
-  --space-4: 10px;
-  --space-5: 12px;
-  --space-6: 16px;
-  --space-7: 20px;
-  --space-8: 24px;
-  --space-9: 28px;
-  --space-10: 32px;
-  --space-11: 40px;
-  --space-12: 48px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 112px;
 
-  /* Responsive Page & Container Padding */
-  --page-padding-mobile: 14px;
-  --page-padding-tablet: 20px;
-  --page-padding-desktop: 28px;
-  --page-padding-wide: 36px;
+  /* Responsive Page & Container Padding Scale */
+  --page-padding-mobile: 16px;
+  --page-padding-tablet: 24px;
+  --page-padding-laptop: 28px;
+  --page-padding-desktop: 32px;
+  --page-padding-wide: 40px;
+  --container-padding: clamp(16px, 3vw, 40px);
 
-  /* Responsive Section Vertical Padding */
-  --section-padding-mobile: 24px;
-  --section-padding-tablet: 36px;
-  --section-padding-desktop: 48px;
-  --section-padding-max: 56px;
+  /* Responsive Section Vertical Padding System */
+  --section-padding: clamp(48px, 6vw, 112px);
+  --section-padding-compact: clamp(32px, 4vw, 64px);
+  --section-padding-hero: clamp(48px, 7vw, 120px);
 
   /* Content Max Widths */
-  --content-max-width: 1280px;
-  --content-max-width-wide: 1320px;
-  --text-max-width: 620px;
-  --hero-text-max-width: 680px;
+  --content-max-width: 1320px;
+  --content-max-width-narrow: 1180px;
+  --text-max-width: 68ch;
+  --hero-text-max-width: 72ch;
 
-  /* Button Dimensions (40px-44px desktop & mobile) */
-  --btn-height-desktop: 42px;
-  --btn-height-mobile: 42px;
+  /* Button Dimensions (44px min touch target, 48px mobile optimal) */
+  --btn-height-desktop: 44px;
+  --btn-height-mobile: 48px;
 }
 
 /* Global Box-Sizing & Body Reset */
@@ -67,6 +68,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 @layer base {
@@ -81,6 +84,8 @@ body {
     color: var(--agvia-text);
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100%;
+    width: 100%;
+    max-width: 100vw;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -89,6 +94,11 @@ body {
     letter-spacing: 0.02em;
     font-weight: 600;
     margin-top: 0;
+    overflow-wrap: break-word;
+  }
+
+  p, span, a, label {
+    overflow-wrap: break-word;
   }
 
   /* Custom AGVIA Gold Scrollbar */
@@ -109,50 +119,25 @@ body {
 }
 
 @layer components {
-  /* ── Responsive Layout & Spacing Utilities (Master AGVIA Spec) ── */
+  /* ── Master Global Content Container System ── */
   .container-luxury,
   .agvia-container {
     width: 100%;
-    max-width: 1280px;
+    max-width: var(--content-max-width);
     margin-inline: auto;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-inline: var(--container-padding);
     box-sizing: border-box;
   }
 
-  @media (min-width: 481px) {
-    .container-luxury,
-    .agvia-container {
-      padding-left: 20px;
-      padding-right: 20px;
-    }
+  .container-luxury--narrow {
+    width: 100%;
+    max-width: var(--content-max-width-narrow);
+    margin-inline: auto;
+    padding-inline: var(--container-padding);
+    box-sizing: border-box;
   }
 
-  @media (min-width: 768px) {
-    .container-luxury,
-    .agvia-container {
-      padding-left: 24px;
-      padding-right: 24px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .container-luxury,
-    .agvia-container {
-      padding-left: 28px;
-      padding-right: 28px;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .container-luxury,
-    .agvia-container {
-      padding-left: 32px;
-      padding-right: 32px;
-    }
-  }
-
-  /* Accessible Touch Target Utility (Minimum 44x44px) */
+  /* Accessible Touch Target Utility (Minimum 44x44px per spec) */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
@@ -161,49 +146,59 @@ body {
     justify-content: center;
   }
 
-  /* Fluid Typography */
+  /* Fluid Responsive Typography System */
+  .fluid-hero-title {
+    font-size: clamp(2rem, 5vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
   .fluid-title {
-    font-size: clamp(1.5rem, 3.8vw, 2.75rem);
+    font-size: clamp(1.75rem, 3.5vw, 3.25rem);
     line-height: 1.15;
   }
   .fluid-subtitle {
-    font-size: clamp(0.85rem, 1.4vw, 1.05rem);
-    line-height: 1.5;
+    font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+    line-height: 1.55;
+    max-width: var(--text-max-width);
+  }
+  .fluid-body {
+    font-size: clamp(0.9rem, 1vw, 1.05rem);
+    line-height: 1.6;
   }
 
-  /* Fluid Responsive Section Spacing */
+  /* Fluid Responsive Section Vertical Rhythm System */
   .section {
-    padding-block: clamp(24px, 3.5vw, 48px);
+    padding-block: var(--section-padding);
   }
 
   .section--compact {
-    padding-block: clamp(16px, 2vw, 32px);
+    padding-block: var(--section-padding-compact);
   }
 
   .section--hero {
-    padding-block: clamp(28px, 3.5vw, 48px);
+    padding-block: var(--section-padding-hero);
   }
 
   /* Normalized Section Typography Hierarchy */
   .section-header {
     text-align: center;
-    margin-bottom: clamp(16px, 2vw, 28px);
+    margin-bottom: clamp(20px, 3vw, 36px);
   }
 
   .section-eyebrow {
     display: inline-block;
     font-family: var(--font-body, inherit);
-    font-size: 10px;
+    font-size: clamp(9.5px, 0.9vw, 11px);
     letter-spacing: 0.35em;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--agvia-gold);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .section-title {
     font-family: var(--font-display, serif);
-    font-size: clamp(1.5rem, 3vw, 2.35rem);
+    font-size: clamp(1.75rem, 3vw, 2.75rem);
     line-height: 1.15;
     color: var(--agvia-burgundy);
     font-weight: 700;
@@ -212,27 +207,32 @@ body {
 
   .section-description {
     font-family: var(--font-body, inherit);
-    font-size: clamp(0.8125rem, 1.1vw, 0.9rem);
+    font-size: clamp(0.85rem, 1.1vw, 1rem);
     color: var(--agvia-muted);
     max-width: var(--text-max-width);
     margin-inline: auto;
-    margin-top: 8px;
-    line-height: 1.5;
+    margin-top: 10px;
+    line-height: 1.6;
   }
 
   /* Section CTA Container */
   .section-cta {
     text-align: center;
-    margin-top: clamp(16px, 2vw, 24px);
+    margin-top: clamp(24px, 3vw, 36px);
   }
 
-  /* Premium AGVIA buttons */
+  /* Master Responsive Button System (44px min desktop, 48px mobile touch) */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 font-semibold px-5 py-2.5 rounded-full border transition-all duration-300 shadow-sm hover:shadow-md relative overflow-hidden tracking-wider text-xs uppercase;
+    @apply inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-full border transition-all duration-300 shadow-sm hover:shadow-md relative overflow-hidden tracking-wider text-xs uppercase select-none;
     background-color: var(--agvia-burgundy);
     border-color: var(--agvia-burgundy);
     color: var(--agvia-ivory);
     min-height: var(--btn-height-desktop);
+  }
+  @media (max-width: 767px) {
+    .btn-primary {
+      min-height: var(--btn-height-mobile);
+    }
   }
   .btn-primary:hover {
     background-color: var(--agvia-burgundy-deep);
@@ -241,10 +241,15 @@ body {
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 font-semibold px-5 py-2.5 rounded-full border transition-all duration-300 relative overflow-hidden tracking-wider text-xs uppercase;
+    @apply inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-full border transition-all duration-300 relative overflow-hidden tracking-wider text-xs uppercase select-none;
     border-color: var(--agvia-gold);
     color: var(--agvia-burgundy);
     min-height: var(--btn-height-desktop);
+  }
+  @media (max-width: 767px) {
+    .btn-outline {
+      min-height: var(--btn-height-mobile);
+    }
   }
   .btn-outline:hover {
     background-color: var(--agvia-gold);
@@ -252,31 +257,42 @@ body {
   }
 
   .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 font-bold px-5 py-2.5 rounded-full transition-all duration-300 tracking-wider text-xs uppercase;
+    @apply inline-flex items-center justify-center gap-2 font-bold px-6 py-3 rounded-full transition-all duration-300 tracking-wider text-xs uppercase select-none;
     background-color: var(--agvia-gold);
     color: var(--agvia-burgundy-deep);
     min-height: var(--btn-height-desktop);
+  }
+  @media (max-width: 767px) {
+    .btn-accent {
+      min-height: var(--btn-height-mobile);
+    }
   }
   .btn-accent:hover {
     background-color: var(--agvia-burgundy);
     color: var(--agvia-ivory);
   }
 
+  /* Master Form Field System */
   .input-field {
-    @apply w-full px-3.5 py-2.5 rounded-lg border bg-white transition-all duration-300 font-body text-sm;
+    @apply w-full px-4 py-3 rounded-xl border bg-white transition-all duration-300 font-body text-sm;
     border-color: var(--agvia-border);
     color: var(--agvia-text);
-    min-height: 42px;
+    min-height: 44px;
   }
-  @media (max-width: 767px) {
+  @media (min-width: 768px) {
     .input-field {
-      min-height: 44px;
+      min-height: 48px;
     }
   }
   .input-field:focus {
     outline: none;
     border-color: var(--agvia-burgundy);
-    box-shadow: 0 0 0 2px rgba(90, 16, 32, 0.1);
+    box-shadow: 0 0 0 3px rgba(90, 16, 32, 0.12);
+  }
+
+  /* Responsive Container Queries for Cards */
+  .card-container-query {
+    container-type: inline-size;
   }
 
   .card-luxury {

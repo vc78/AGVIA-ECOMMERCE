@@ -41,10 +41,10 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
         )}
         <button
           onClick={e => { e.preventDefault(); setIsFavorite(v => !v) }}
-          className="absolute top-2.5 right-2.5 z-10 w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center transition-all hover:bg-white shadow-sm active:scale-90"
+          className="absolute top-2.5 right-2.5 z-10 w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center transition-all hover:bg-white shadow-sm active:scale-90"
           aria-label="Wishlist"
         >
-          <Heart size={14} fill={isFavorite ? '#5A1020' : 'none'} className={isFavorite ? 'text-[#5A1020]' : 'text-[#211D1E]/50'} />
+          <Heart size={15} fill={isFavorite ? '#5A1020' : 'none'} className={isFavorite ? 'text-[#5A1020]' : 'text-[#211D1E]/50'} />
         </button>
 
         {/* Photo */}
@@ -119,7 +119,7 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
           <motion.button
             onClick={handleAdd}
             whileTap={{ scale: 0.92 }}
-            className={`flex items-center gap-1 font-sans text-[10px] sm:text-[9.5px] tracking-wider font-bold uppercase transition-all px-3.5 py-1.5 sm:px-3 sm:py-1 min-h-[34px] rounded-full border ${
+            className={`flex items-center gap-1 font-sans text-[10px] sm:text-[9.5px] tracking-wider font-bold uppercase transition-all px-3.5 py-1.5 min-h-[38px] sm:min-h-[34px] rounded-full border ${
               adding
                 ? 'bg-green-700 text-white border-green-700'
                 : 'text-[#5A1020] border-[#5A1020]/30 hover:bg-[#5A1020] hover:text-white hover:border-[#5A1020] active:bg-[#5A1020] active:text-white'

@@ -92,7 +92,7 @@ export default function OtpInput({
   }
 
   return (
-    <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 my-5 select-none" onPaste={handlePaste}>
+    <div className="flex items-center justify-center gap-1.5 min-[360px]:gap-2 sm:gap-3.5 my-4 sm:my-5 select-none" onPaste={handlePaste}>
       {Array.from({ length: 6 }).map((_, i) => (
         <input
           key={i}
@@ -108,7 +108,7 @@ export default function OtpInput({
           onChange={(e) => handleDigitChange(i, e)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onFocus={(e) => e.target.select()}
-          className={`w-11 h-14 sm:w-13 sm:h-16 text-center text-xl sm:text-2xl font-bold font-mono rounded-2xl border transition-all duration-200 outline-none shadow-sm ${
+          className={`w-9 min-[360px]:w-10 sm:w-12 md:w-13 h-12 sm:h-14 md:h-16 text-center text-lg sm:text-2xl font-bold font-mono rounded-xl sm:rounded-2xl border transition-all duration-200 outline-none shadow-sm ${
             hasError
               ? 'border-red-500 bg-red-50/50 text-red-900 focus:ring-2 focus:ring-red-300'
               : value[i]

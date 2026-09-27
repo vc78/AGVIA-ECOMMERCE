@@ -290,7 +290,7 @@ export default function Cart() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans antialiased selection:bg-[#5A1020] selection:text-white">
       <Navbar />
 
-      <main className="w-full max-w-[1280px] mx-auto px-4 min-[481px]:px-5 md:px-6 lg:px-7 xl:px-8 py-5 sm:py-6 md:py-8 pb-20 sm:pb-8">
+      <main className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] py-5 sm:py-6 md:py-8 pb-20 sm:pb-8">
         {/* ══ TOP HEADER & PROGRESS STEPPER ═════════════════════════ */}
         <div className="mb-4 md:mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#E6C687]/30">
@@ -672,20 +672,20 @@ export default function Cart() {
                       },
                     })
                   }
-                  className={`w-full py-2.5 px-5 rounded-full font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all duration-300 shadow-sm ${
+                  className={`w-full py-3 px-5 rounded-full font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-2 transition-all duration-300 shadow-sm min-h-[48px] ${
                     selectedItems.length === 0
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-[#5A1020] text-white hover:bg-[#8B0000] hover:shadow-md active:scale-[0.99]'
                   }`}
                 >
-                  <Lock size={12} />
-                  Proceed to Checkout <ArrowRight size={12} />
+                  <Lock size={13} />
+                  Proceed to Checkout <ArrowRight size={13} />
                 </button>
 
                 {/* Secondary Action Button: Continue Shopping */}
                 <Link
                   to="/products"
-                  className="w-full py-2 px-4 rounded-full border border-[#5A1020]/25 text-[#5A1020] hover:border-[#5A1020] hover:bg-[#FAF7F2] font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all duration-200"
+                  className="w-full py-2.5 px-4 rounded-full border border-[#5A1020]/25 text-[#5A1020] hover:border-[#5A1020] hover:bg-[#FAF7F2] font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all duration-200 min-h-[44px]"
                 >
                   ← Continue Shopping
                 </Link>

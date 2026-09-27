@@ -63,6 +63,18 @@ export default function Products() {
       .finally(() => setLoading(false))
   }, [activeCategory, search, priceRange, sortBy])
 
+  // Prevent background scrolling when mobile filter drawer is open
+  useEffect(() => {
+    if (showFiltersMobile) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showFiltersMobile])
+
   const handleAdd = (product) => {
     addToCart(product)
     toast.success(`${product.name} added to cart!`, {
@@ -83,24 +95,24 @@ export default function Products() {
       <Navbar />
 
       {/* Streamlined Boutique Header */}
-      <section className="bg-gradient-to-r from-[#5A1020] via-[#7A1F32] to-[#4A0D1A] text-white pt-4 sm:pt-5 pb-3.5 sm:pb-4 px-4 sm:px-6 md:px-8 relative overflow-hidden select-none border-b border-[#C9A45C]/30 shadow-sm">
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <section className="bg-gradient-to-r from-[#5A1020] via-[#7A1F32] to-[#4A0D1A] text-white pt-5 sm:pt-6 pb-4 sm:pb-5 px-[clamp(16px,3vw,40px)] relative overflow-hidden select-none border-b border-[#C9A45C]/30 shadow-sm">
+        <div className="max-w-[1320px] mx-auto relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-1.5 text-[8px] tracking-[0.25em] text-[#C9A45C] font-bold uppercase mb-0.5">
+            <div className="flex items-center gap-1.5 text-[9px] tracking-[0.25em] text-[#C9A45C] font-bold uppercase mb-1">
               <Link to="/" className="hover:text-white transition-colors">Home</Link>
-              <ChevronRight size={10} />
+              <ChevronRight size={11} />
               <span className="text-white/70">Collections</span>
             </div>
-            <h1 className="font-serif text-xl sm:text-2xl md:text-2xl text-white font-bold leading-tight flex items-center gap-2">
+            <h1 className="font-serif text-2xl sm:text-3xl text-white font-bold leading-tight flex items-center gap-2">
               The Atelier <span className="italic font-normal text-[#C9A45C]">Collections</span>
             </h1>
-            <p className="text-[11px] sm:text-xs text-white/80 mt-0.5 max-w-lg leading-normal">
+            <p className="text-xs sm:text-sm text-white/80 mt-1 max-w-lg leading-relaxed">
               Curated drapes of pure handloom silk, hand-embroidered bridal lehengas, regal anarkalis, and occasion gowns.
             </p>
           </div>
 
           {/* Quick Category Badges in Header */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {['All', ...categories.slice(0, 5)].map((cat) => (
               <button
                 key={cat}
@@ -108,7 +120,7 @@ export default function Products() {
                   setActiveCategory(cat)
                   setSearchParams(cat === 'All' ? {} : { category: cat })
                 }}
-                className={`text-[9.5px] font-bold tracking-wider px-2.5 py-0.5 rounded-full transition-all whitespace-nowrap ${
+                className={`min-h-[38px] text-[11px] font-bold tracking-wider px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap touch-target ${
                   activeCategory === cat
                     ? 'bg-[#C9A45C] text-[#211D1E] shadow-sm'
                     : 'bg-white/10 hover:bg-white/20 text-white/90 border border-white/15'
@@ -235,29 +247,29 @@ export default function Products() {
                 </div>
 
                 {/* Grid View toggle controls */}
-                <div className="flex items-center gap-1 border border-[#B8860B]/15 rounded-xl p-0.5 bg-white">
+                <div className="flex items-center gap-1 border border-[#B8860B]/20 rounded-xl p-1 bg-white">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-1 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#8B0000] text-white shadow-sm' : 'text-[#3A2D23]/50 hover:text-[#8B0000]'}`}
+                    className={`touch-target w-9 h-9 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#5A1020] text-white shadow-xs' : 'text-[#3A2D23]/50 hover:text-[#5A1020]'}`}
                     title="Grid View"
                   >
-                    <Grid size={13} />
+                    <Grid size={15} />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-1 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#8B0000] text-white shadow-sm' : 'text-[#3A2D23]/50 hover:text-[#8B0000]'}`}
+                    className={`touch-target w-9 h-9 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#5A1020] text-white shadow-xs' : 'text-[#3A2D23]/50 hover:text-[#5A1020]'}`}
                     title="List View"
                   >
-                    <List size={13} />
+                    <List size={15} />
                   </button>
                 </div>
 
                 {/* Mobile Filter Button */}
                 <button
                   onClick={() => setShowFiltersMobile(true)}
-                  className="lg:hidden flex items-center gap-1.5 border border-[#B8860B]/20 bg-white rounded-xl px-2.5 py-1.5 text-xs text-[#3A2D23]/80 hover:border-[#8B0000]"
+                  className="lg:hidden flex items-center justify-center gap-1.5 border border-[#B8860B]/20 bg-white rounded-xl px-3.5 min-h-[44px] text-xs font-semibold text-[#5A1020] hover:border-[#5A1020] touch-target shadow-xs"
                 >
-                  <SlidersHorizontal size={13} /> Filters
+                  <SlidersHorizontal size={14} /> <span>Filters</span>
                 </button>
               </div>
 
@@ -413,18 +425,22 @@ export default function Products() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.35 }}
-              className="fixed inset-y-0 left-0 z-50 w-full max-w-xs bg-[#FFFDF8] p-4 sm:p-5 flex flex-col justify-between lg:hidden shadow-luxury"
+              className="fixed inset-y-0 left-0 z-50 w-full max-w-[min(340px,calc(100vw-32px))] bg-[#FFFDF8] p-5 flex flex-col justify-between lg:hidden shadow-luxury"
             >
-              <div className="space-y-5">
-                <div className="flex justify-between items-center border-b border-[#B8860B]/15 pb-2.5">
-                  <span className="font-serif text-base tracking-wider text-[#8B0000] font-bold uppercase">Filters</span>
-                  <button onClick={() => setShowFiltersMobile(false)} className="p-1"><X size={16} /></button>
+              <div className="space-y-6 overflow-y-auto">
+                <div className="flex justify-between items-center border-b border-[#C9A45C]/20 pb-3">
+                  <span className="font-serif text-lg tracking-wider text-[#5A1020] font-bold uppercase flex items-center gap-2">
+                    <SlidersHorizontal size={16} /> Filters
+                  </span>
+                  <button onClick={() => setShowFiltersMobile(false)} className="touch-target w-10 h-10 min-w-[40px] min-h-[40px] rounded-full hover:bg-[#F2ECE4] text-[#5A1020] flex items-center justify-center">
+                    <X size={18} />
+                  </button>
                 </div>
 
                 {/* Mobile Categories */}
-                <div className="space-y-2">
-                  <h4 className="font-serif text-xs tracking-widest text-[#8B0000] font-bold uppercase">Collections</h4>
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="space-y-3">
+                  <h4 className="font-serif text-xs tracking-widest text-[#5A1020] font-bold uppercase">Collections</h4>
+                  <div className="flex flex-wrap gap-2">
                     {['All', ...categories].map((cat) => (
                       <button
                         key={cat}
@@ -433,8 +449,8 @@ export default function Products() {
                           setSearchParams(cat === 'All' ? {} : { category: cat })
                           setShowFiltersMobile(false)
                         }}
-                        className={`text-[10px] tracking-wider px-2.5 py-1 rounded-full border transition-all ${
-                          activeCategory === cat ? 'bg-[#8B0000] text-[#FFFDF8] border-[#8B0000] font-bold' : 'border-[#B8860B]/20 text-[#3A2D23]/80'
+                        className={`touch-target min-h-[40px] text-[11px] tracking-wider px-3.5 py-2 rounded-full border transition-all ${
+                          activeCategory === cat ? 'bg-[#5A1020] text-[#FFFDF8] border-[#5A1020] font-bold shadow-xs' : 'border-[#C9A45C]/30 text-[#211D1E]/80 hover:bg-[#F2ECE4]'
                         }`}
                       >
                         {cat}
@@ -444,26 +460,32 @@ export default function Products() {
                 </div>
 
                 {/* Mobile Price */}
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <h4 className="font-serif text-xs tracking-widest text-[#8B0000] font-bold uppercase">Max Price</h4>
-                    <span className="font-serif text-xs text-[#B8860B] font-bold">₹{priceRange}</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-serif text-xs tracking-widest text-[#5A1020] font-bold uppercase">Max Price</h4>
+                    <span className="font-serif text-xs text-[#C9A45C] font-bold">₹{priceRange}</span>
                   </div>
                   <input
                     type="range"
-                    min={200}
+                    min={500}
                     max={25000}
-                    step={100}
+                    step={250}
                     value={priceRange}
                     onChange={(e) => setPriceRange(Number(e.target.value))}
-                    className="w-full accent-[#8B0000]"
+                    className="w-full accent-[#5A1020]"
                   />
+                  <div className="flex justify-between text-[10px] text-[#211D1E]/50 font-sans">
+                    <span>₹500</span>
+                    <span>₹25,000</span>
+                  </div>
                 </div>
               </div>
 
-              <button onClick={() => setShowFiltersMobile(false)} className="btn-primary w-full text-center py-2.5 text-xs">
-                Apply Filters
-              </button>
+              <div className="pt-4 border-t border-[#C9A45C]/20">
+                <button onClick={() => setShowFiltersMobile(false)} className="btn-primary w-full text-center min-h-[48px] text-xs font-bold tracking-widest uppercase touch-target">
+                  Apply Filters
+                </button>
+              </div>
             </motion.div>
           </>
         )}

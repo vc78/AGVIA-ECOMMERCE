@@ -83,7 +83,7 @@ export default function OtpVerificationCard({
   const isComplete = otpDigits.every((d) => d !== '')
 
   return (
-    <div className="w-full max-w-md p-7 sm:p-9 bg-white border border-[#B8860B]/20 rounded-3xl shadow-lg relative overflow-hidden">
+    <div className="w-full max-w-md p-4 min-[360px]:p-6 sm:p-8 bg-white border border-[#B8860B]/20 rounded-3xl shadow-lg relative overflow-hidden">
       {/* Top AGVIA signature gold gradient accent bar */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
 

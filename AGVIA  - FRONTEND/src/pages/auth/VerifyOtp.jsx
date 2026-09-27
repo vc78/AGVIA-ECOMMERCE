@@ -75,12 +75,12 @@ export default function VerifyOtp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-center items-center px-4 py-10 font-body relative">
+    <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-center items-center px-4 py-8 sm:py-12 font-body relative">
       <Link
         to="/register"
-        className="absolute top-6 left-6 text-xs text-[#B8860B] hover:text-[#8B0000] font-bold uppercase flex items-center gap-1.5 transition-colors"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 text-xs text-[#B8860B] hover:text-[#8B0000] font-bold uppercase flex items-center gap-1.5 transition-colors touch-target min-h-[44px] px-2"
       >
-        <ArrowLeft size={14} /> Back to Sign Up
+        <ArrowLeft size={15} /> <span>Back to Sign Up</span>
       </Link>
 
       <OtpVerificationCard

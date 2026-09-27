@@ -337,7 +337,7 @@ export default function Checkout() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans">
       <Navbar />
 
-      <div className="w-full max-w-[1280px] mx-auto px-4 min-[481px]:px-5 md:px-6 lg:px-7 xl:px-8 pt-5 sm:pt-6 pb-20 sm:pb-10">
+      <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] pt-5 sm:pt-6 pb-20 sm:pb-12">
         <h1 className="font-serif text-2xl md:text-3xl text-[#5A1020] font-bold mb-3 select-none">
           Secure Checkout
         </h1>
@@ -487,18 +487,18 @@ export default function Checkout() {
                   </label>
                 </div>
 
-                <div className="flex justify-between pt-4 border-t border-[#C9A45C]/15">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#C9A45C]/15">
                   <button
                     type="button"
                     onClick={() => setActiveStep(1)}
-                    className="btn-outline !py-2 !px-4 text-xs font-bold tracking-wider"
+                    className="btn-outline px-5 py-2.5 text-xs font-bold tracking-wider min-h-[48px]"
                   >
                     Back to Address
                   </button>
                   <button
                     type="submit"
                     disabled={placing}
-                    className="btn-primary !py-2 !px-6 disabled:opacity-60 text-xs font-bold tracking-wider"
+                    className="btn-primary px-6 py-2.5 disabled:opacity-60 text-xs font-bold tracking-wider min-h-[48px]"
                   >
                     {placing ? 'Authorizing...' : 'Authorize & Place Order'}
                   </button>

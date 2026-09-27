@@ -151,12 +151,14 @@ export default function InteractiveItemsReel() {
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
 
   const scrollerRef = useRef(null)
   const isDragging = useRef(false)
   const startX = useRef(0)
   const scrollLeftPos = useRef(0)
   const hasMoved = useRef(false)
+  const resumeTimeoutRef = useRef(null)
 
   const updateScrollState = useCallback(() => {
     const el = scrollerRef.current
@@ -182,11 +184,55 @@ export default function InteractiveItemsReel() {
     }
   }, [updateScrollState])
 
+  // Pause helper for manual interactions (arrows, touch, drag)
+  const pauseAutoScrollTemporarily = useCallback((delay = 4500) => {
+    setIsPaused(true)
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+    resumeTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false)
+    }, delay)
+  }, [])
+
+  // ── Auto-scroll items automatically every 3.2s ──
+  useEffect(() => {
+    if (isPaused) return
+
+    const timer = setInterval(() => {
+      const el = scrollerRef.current
+      if (!el || isDragging.current) return
+
+      const maxScroll = el.scrollWidth - el.clientWidth
+      if (maxScroll <= 0) return
+
+      // If at or near the end, loop smoothly back to beginning
+      if (el.scrollLeft >= maxScroll - 20) {
+        el.scrollTo({ left: 0, behavior: 'smooth' })
+      } else {
+        const firstChild = el.firstElementChild
+        const step = firstChild ? firstChild.offsetWidth + 16 : 240
+        // If remaining scroll is less than a step, scroll to end
+        if (el.scrollLeft + step >= maxScroll - 20) {
+          el.scrollTo({ left: maxScroll, behavior: 'smooth' })
+        } else {
+          el.scrollBy({ left: step, behavior: 'smooth' })
+        }
+      }
+    }, 3200)
+
+    return () => {
+      clearInterval(timer)
+      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+    }
+  }, [isPaused])
+
   const scrollByAmount = (direction) => {
     const el = scrollerRef.current
     if (!el) return
-    const scrollOffset = direction * (el.clientWidth * 0.72)
+    const firstChild = el.firstElementChild
+    const step = firstChild ? (firstChild.offsetWidth + 16) * 1.5 : (el.clientWidth * 0.72)
+    const scrollOffset = direction * step
     el.scrollBy({ left: scrollOffset, behavior: 'smooth' })
+    pauseAutoScrollTemporarily(5000)
   }
 
   // Mouse drag handlers
@@ -197,6 +243,7 @@ export default function InteractiveItemsReel() {
     startX.current = e.pageX - scrollerRef.current.offsetLeft
     scrollLeftPos.current = scrollerRef.current.scrollLeft
     scrollerRef.current.style.cursor = 'grabbing'
+    pauseAutoScrollTemporarily(6000)
   }
 
   const handleMouseMove = (e) => {
@@ -212,6 +259,7 @@ export default function InteractiveItemsReel() {
     if (scrollerRef.current) {
       scrollerRef.current.style.cursor = 'grab'
     }
+    pauseAutoScrollTemporarily(3500)
   }
 
   return (
@@ -230,7 +278,7 @@ export default function InteractiveItemsReel() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#FFFDF8]/85 via-transparent to-[#FFFDF8]/90 pointer-events-none" />
       </div>
 
-      <div className="w-full max-w-[1280px] mx-auto px-4 min-[481px]:px-5 md:px-6 lg:px-7 xl:px-8 relative z-10">
+      <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] relative z-10">
         {/* ══ 3-COLUMN HEADER SECTION (RESPONSIVE EDITORIAL COMPOSITION) ═════ */}
         <div className="relative mb-6 sm:mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 items-center gap-3 sm:gap-4">
@@ -320,7 +368,11 @@ export default function InteractiveItemsReel() {
         </div>
 
         {/* ══ ARCHED CARDS CAROUSEL ROW WITH TOUCH-SCROLL & NAVIGATION ═══════ */}
-        <div className="relative group/carousel">
+        <div
+          className="relative group/carousel"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           {/* Circular Left Arrow Button (Visible on sm+ screens, comfortable 44px touch target) */}
           <button
             onClick={() => scrollByAmount(-1)}
@@ -349,23 +401,23 @@ export default function InteractiveItemsReel() {
             <ChevronRight size={20} />
           </button>
 
-          {/* Mobile Quick Tap Arrow Controls (Shown below header on mobile without covering cards) */}
+          {/* Mobile Quick Tap Arrow Controls (Comfortable 44px touch targets) */}
           <div className="flex sm:hidden justify-end items-center gap-2 mb-2 px-1">
             <button
               onClick={() => scrollByAmount(-1)}
               disabled={!canScrollLeft}
               aria-label="Previous collection"
-              className="w-8 h-8 rounded-full bg-white/90 border border-[#E6C687]/50 shadow-sm flex items-center justify-center text-[#5A1020] disabled:opacity-30 disabled:pointer-events-none"
+              className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/95 border border-[#E6C687]/60 shadow-sm flex items-center justify-center text-[#5A1020] disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => scrollByAmount(1)}
               disabled={!canScrollRight}
               aria-label="Next collection"
-              className="w-8 h-8 rounded-full bg-white/90 border border-[#E6C687]/50 shadow-sm flex items-center justify-center text-[#5A1020] disabled:opacity-30 disabled:pointer-events-none"
+              className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/95 border border-[#E6C687]/60 shadow-sm flex items-center justify-center text-[#5A1020] disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={18} />
             </button>
           </div>
 
@@ -383,6 +435,8 @@ export default function InteractiveItemsReel() {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
+            onTouchStart={() => pauseAutoScrollTemporarily(6000)}
+            onTouchEnd={() => pauseAutoScrollTemporarily(3500)}
           >
             {BOUTIQUE_COLLECTIONS.map((col) => (
               <div key={col.id} className="snap-start shrink-0">
@@ -472,7 +526,7 @@ export default function InteractiveItemsReel() {
           <Link
             to="/products"
             style={{ fontFamily: "'Lato', 'Manrope', 'Inter', sans-serif" }}
-            className="inline-flex items-center gap-2 bg-[#5A1020] hover:bg-[#78152B] text-white font-semibold text-[10.5px] sm:text-[11px] tracking-[0.18em] uppercase px-7 sm:px-9 py-2.5 sm:py-3 rounded-full shadow-[0_6px_20px_rgba(90,16,32,0.22)] hover:shadow-[0_10px_26px_rgba(90,16,32,0.32)] hover:scale-105 active:scale-98 transition-all duration-200"
+            className="inline-flex items-center justify-center gap-2 bg-[#5A1020] hover:bg-[#78152B] text-white font-semibold text-[10.5px] sm:text-[11px] tracking-[0.18em] uppercase px-7 sm:px-9 py-3 rounded-full shadow-[0_6px_20px_rgba(90,16,32,0.22)] hover:shadow-[0_10px_26px_rgba(90,16,32,0.32)] hover:scale-105 active:scale-98 transition-all duration-200 min-h-[48px]"
           >
             <span>VIEW FULL COLLECTION</span>
             <ArrowRight size={13} className="stroke-[2.2]" />

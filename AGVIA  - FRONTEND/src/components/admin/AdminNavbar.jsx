@@ -19,10 +19,10 @@ export default function AdminNavbar({ onMenuToggle }) {
         {/* Mobile Menu Button */}
         <button 
           onClick={onMenuToggle}
-          className="lg:hidden p-2 text-[#211D1E]/80 hover:text-[#5A1020] transition-colors"
+          className="lg:hidden touch-target min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#211D1E]/80 hover:text-[#5A1020] hover:bg-[#5A1020]/5 transition-colors"
           aria-label="Open Sidebar"
         >
-          <Menu size={20} />
+          <Menu size={22} />
         </button>
 
         <div>
@@ -35,16 +35,16 @@ export default function AdminNavbar({ onMenuToggle }) {
         </div>
       </div>
       
-      <div className="flex items-center gap-4 sm:gap-6">
-        <button className="p-2.5 rounded-full hover:bg-[#5A1020]/5 text-[#5A1020] hover:text-[#C9A45C] transition-colors relative">
-          <Bell size={16} />
-          <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#C9A45C] rounded-full" />
+      <div className="flex items-center gap-3 sm:gap-5">
+        <button className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-[#5A1020]/5 text-[#5A1020] hover:text-[#C9A45C] transition-colors relative">
+          <Bell size={18} />
+          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#C9A45C] rounded-full" />
         </button>
         <button 
           onClick={handleLogout} 
-          className="btn-outline !py-2.5 !px-4 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 !border-[#5A1020]/30 hover:!bg-[#5A1020] hover:!text-white"
+          className="btn-outline min-h-[44px] !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 !border-[#5A1020]/30 hover:!bg-[#5A1020] hover:!text-white touch-target"
         >
-          <LogOut size={12} /> Logout
+          <LogOut size={13} /> <span>Logout</span>
         </button>
       </div>
     </header>

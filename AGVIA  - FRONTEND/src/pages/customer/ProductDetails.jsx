@@ -109,11 +109,11 @@ export default function ProductDetails() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans">
       <Navbar />
 
-      <div className="w-full max-w-[1280px] mx-auto px-4 min-[481px]:px-5 md:px-6 lg:px-7 xl:px-8 pt-5 sm:pt-6 pb-20 sm:pb-10">
+      <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] pt-5 sm:pt-6 pb-20 sm:pb-12">
         
         {/* Navigation Breadcrumb */}
-        <Link to="/products" className="flex items-center gap-1 text-[#C9A45C] hover:text-[#5A1020] text-[9.5px] tracking-[0.2em] font-bold uppercase mb-4 w-fit transition-colors">
-          <ArrowLeft size={11} /> Back to All Silhouettes
+        <Link to="/products" className="flex items-center gap-1.5 text-[#C9A45C] hover:text-[#5A1020] text-[10px] tracking-[0.2em] font-bold uppercase mb-4 w-fit transition-colors min-h-[36px]">
+          <ArrowLeft size={12} /> Back to All Silhouettes
         </Link>
 
         {/* Product Details Columns */}
@@ -129,9 +129,10 @@ export default function ProductDetails() {
               />
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#211D1E] hover:text-[#5A1020] transition-colors shadow-xs"
+                className="touch-target absolute top-3.5 right-3.5 z-10 w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center text-[#211D1E] hover:text-[#5A1020] transition-colors shadow-xs active:scale-95"
+                aria-label="Wishlist"
               >
-                <Heart size={14} fill={isFavorite ? '#5A1020' : 'none'} className={isFavorite ? 'text-[#5A1020]' : ''} />
+                <Heart size={16} fill={isFavorite ? '#5A1020' : 'none'} className={isFavorite ? 'text-[#5A1020]' : ''} />
               </button>
             </div>
             
@@ -191,7 +192,7 @@ export default function ProductDetails() {
                       key={sz}
                       type="button"
                       onClick={() => setSelectedSize(sz)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wider transition-all border ${
+                      className={`px-3.5 py-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-xs font-semibold tracking-wider transition-all border ${
                         selectedSize === sz
                           ? 'bg-[#5A1020] text-white border-[#5A1020] shadow-xs'
                           : 'bg-white text-[#211D1E]/70 border-[#C9A45C]/30 hover:border-[#5A1020]'
@@ -209,30 +210,30 @@ export default function ProductDetails() {
               <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 sm:gap-4">
                 <div>
                   <span className="text-[8.5px] tracking-wider uppercase text-[#C9A45C] font-bold block mb-1">Quantity</span>
-                  <div className="flex items-center border border-[#C9A45C]/40 rounded-full bg-white w-fit overflow-hidden h-10">
+                  <div className="flex items-center border border-[#C9A45C]/40 rounded-full bg-white w-fit overflow-hidden h-11 min-h-[44px]">
                     <button
                       onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="px-3 h-full hover:bg-[#F2ECE4] text-[#211D1E]/70 transition-colors flex items-center justify-center"
+                      className="touch-target px-3.5 h-full min-w-[44px] hover:bg-[#F2ECE4] text-[#211D1E]/70 transition-colors flex items-center justify-center active:scale-95"
                       aria-label="Decrease quantity"
                     >
-                      <Minus size={13} />
+                      <Minus size={14} />
                     </button>
-                    <span className="px-3.5 font-serif font-bold text-sm text-[#211D1E]">{qty}</span>
+                    <span className="px-3.5 font-serif font-bold text-sm text-[#211D1E] select-none">{qty}</span>
                     <button
                       onClick={() => setQty((q) => q + 1)}
-                      className="px-3 h-full hover:bg-[#F2ECE4] text-[#211D1E]/70 transition-colors flex items-center justify-center"
+                      className="touch-target px-3.5 h-full min-w-[44px] hover:bg-[#F2ECE4] text-[#211D1E]/70 transition-colors flex items-center justify-center active:scale-95"
                       aria-label="Increase quantity"
                     >
-                      <Plus size={13} />
+                      <Plus size={14} />
                     </button>
                   </div>
                 </div>
 
                 <div className="flex-1 flex flex-col sm:flex-row gap-2.5">
-                  <button onClick={handleAdd} className="btn-primary flex-1 text-center flex items-center justify-center gap-1.5 min-h-[44px]">
+                  <button onClick={handleAdd} className="btn-primary flex-1 text-center flex items-center justify-center gap-1.5 min-h-[48px]">
                     Add to Bag <Plus size={14} />
                   </button>
-                  <button onClick={handleBuyNow} className="bg-[#C9A45C] hover:bg-[#b08b47] text-[#211D1E] font-sans text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition-all flex items-center justify-center gap-1 shadow-xs min-h-[44px] active:scale-98">
+                  <button onClick={handleBuyNow} className="bg-[#C9A45C] hover:bg-[#b08b47] text-[#211D1E] font-sans text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all flex items-center justify-center gap-1.5 shadow-xs min-h-[48px] active:scale-98">
                     <Zap size={14} fill="currentColor" /> Buy Now
                   </button>
                 </div>

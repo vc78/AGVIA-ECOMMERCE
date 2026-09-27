@@ -246,7 +246,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════
           1. HERO SECTION (EXACT REFERENCE DESIGN)
       ══════════════════════════════════════════════════════════════ */}
-      <section className="relative min-h-[640px] sm:min-h-[720px] lg:min-h-[820px] xl:min-h-[880px] flex flex-col justify-between overflow-hidden bg-[#240810] pt-4 pb-6">
+      <section className="relative min-h-[560px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[820px] xl:min-h-[880px] flex flex-col justify-between overflow-hidden bg-[#240810] pt-3 sm:pt-4 pb-4 sm:pb-6">
         
         {/* Cinematic Background Image with Slide Transition */}
         <AnimatePresence mode="sync">
@@ -276,11 +276,11 @@ export default function Home() {
         <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/50 to-transparent pointer-events-none z-10" />
 
         {/* Main Hero Content Area */}
-        <div className="relative z-10 w-full container-luxury flex-1 flex items-center py-6 sm:py-10">
-          <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+        <div className="relative z-10 w-full container-luxury flex-1 flex items-center py-4 sm:py-8 md:py-10">
+          <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8">
             
             {/* Left Column: Vertical Slide Indicator + Main Typography + CTAs + Social Proof */}
-            <div className="flex items-start gap-4 sm:gap-6 max-w-2xl">
+            <div className="flex items-start gap-3 sm:gap-6 max-w-2xl">
               
               {/* Vertical Slide Numbers (Desktop) */}
               <div className="hidden sm:flex flex-col items-center gap-3 text-white/45 text-[11px] font-mono select-none pt-2">
@@ -297,12 +297,12 @@ export default function Home() {
                   <span>{slide.tag || 'WEAR YOUR STORY •'}</span>
                 </div>
 
-                <h1 className="font-display text-4xl sm:text-6xl xl:text-7xl font-bold text-white leading-[1.02] tracking-tight">
+                <h1 className="font-display text-[clamp(2.2rem,5.5vw,4.5rem)] font-bold text-white leading-[1.03] tracking-tight">
                   Timeless<br />
                   Tradition<br />
                   <span
                     style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
-                    className="italic font-normal text-5xl sm:text-7xl xl:text-8xl text-[#FFFDF8] block -mt-1 sm:-mt-2 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
+                    className="italic font-normal text-[clamp(2.8rem,7vw,5.5rem)] text-[#FFFDF8] block -mt-1 sm:-mt-2 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
                   >
                     Modern You
                   </span>
@@ -316,7 +316,7 @@ export default function Home() {
                 <div className="flex flex-wrap items-center gap-3 pt-1">
                   <Link
                     to={slide.cta || '/products'}
-                    className="inline-flex items-center gap-2 bg-[#6B1426] hover:bg-[#8B1A32] text-white font-bold text-[11px] sm:text-xs tracking-[0.16em] uppercase px-7 sm:px-8 py-3.5 rounded-full shadow-[0_8px_25px_rgba(107,20,38,0.5)] hover:scale-105 active:scale-95 transition-all duration-200"
+                    className="inline-flex items-center justify-center gap-2 bg-[#6B1426] hover:bg-[#8B1A32] text-white font-bold text-[11px] sm:text-xs tracking-[0.16em] uppercase px-7 sm:px-8 py-3.5 rounded-full shadow-[0_8px_25px_rgba(107,20,38,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 min-h-[48px]"
                   >
                     <span>EXPLORE COLLECTIONS</span>
                     <ArrowRight size={13} className="stroke-[2.5]" />
@@ -324,7 +324,7 @@ export default function Home() {
 
                   <button
                     onClick={() => setShowStoryModal(true)}
-                    className="inline-flex items-center gap-2 bg-black/35 hover:bg-black/55 border border-white/30 text-white font-semibold text-[11px] sm:text-xs tracking-[0.12em] uppercase px-6 py-3.5 rounded-full backdrop-blur-md transition-all duration-200 hover:border-white/60 active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 bg-black/35 hover:bg-black/55 border border-white/30 text-white font-semibold text-[11px] sm:text-xs tracking-[0.12em] uppercase px-6 py-3.5 rounded-full backdrop-blur-md transition-all duration-200 hover:border-white/60 active:scale-95 min-h-[48px]"
                   >
                     <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-white text-[9px] pl-0.5">▶</span>
                     <span>WATCH OUR STORY</span>
@@ -372,45 +372,45 @@ export default function Home() {
 
         {/* ══ GLASSMORPHIC FLOATING USP BAR ════════════════════════ */}
         <div className="relative z-20 w-full container-luxury pt-3">
-          <div className="bg-black/40 backdrop-blur-xl border border-white/18 rounded-2xl py-3.5 px-4 sm:px-6 md:px-8 shadow-[0_20px_50px_rgba(0,0,0,0.4)] grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 divide-y md:divide-y-0 md:divide-x divide-white/10 text-white">
+          <div className="bg-black/40 backdrop-blur-xl border border-white/18 rounded-2xl py-3 px-3.5 sm:px-6 md:px-8 shadow-[0_20px_50px_rgba(0,0,0,0.4)] grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 md:divide-x divide-white/10 text-white">
             
-            <div className="flex items-center gap-3 pt-2 md:pt-0 justify-center md:justify-start">
-              <div className="w-9 h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                <Layers size={16} />
+            <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                <Layers size={15} />
               </div>
-              <div className="text-left">
-                <p className="font-serif text-xs sm:text-[13px] font-bold text-white leading-tight">Premium Fabrics</p>
-                <p className="font-sans text-[10px] text-[#E6C687]/80 tracking-wider">Handpicked Quality</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 pt-2 md:pt-0 justify-center md:justify-start md:pl-6">
-              <div className="w-9 h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                <Gem size={16} />
-              </div>
-              <div className="text-left">
-                <p className="font-serif text-xs sm:text-[13px] font-bold text-white leading-tight">Bespoke Designs</p>
-                <p className="font-sans text-[10px] text-[#E6C687]/80 tracking-wider">Made for You</p>
+              <div className="text-left min-w-0">
+                <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Premium Fabrics</p>
+                <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Handpicked Quality</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-2 md:pt-0 justify-center md:justify-start md:pl-6">
-              <div className="w-9 h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                <ShieldCheck size={16} />
+            <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                <Gem size={15} />
               </div>
-              <div className="text-left">
-                <p className="font-serif text-xs sm:text-[13px] font-bold text-white leading-tight">Secure Payments</p>
-                <p className="font-sans text-[10px] text-[#E6C687]/80 tracking-wider">Safe & Trusted</p>
+              <div className="text-left min-w-0">
+                <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Bespoke Designs</p>
+                <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Made for You</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-2 md:pt-0 justify-center md:justify-start md:pl-6">
-              <div className="w-9 h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                <Globe size={16} />
+            <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                <ShieldCheck size={15} />
               </div>
-              <div className="text-left">
-                <p className="font-serif text-xs sm:text-[13px] font-bold text-white leading-tight">Worldwide Shipping</p>
-                <p className="font-sans text-[10px] text-[#E6C687]/80 tracking-wider">Delivering Happiness</p>
+              <div className="text-left min-w-0">
+                <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Secure Payments</p>
+                <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Safe & Trusted</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                <Globe size={15} />
+              </div>
+              <div className="text-left min-w-0">
+                <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Worldwide Shipping</p>
+                <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Delivering Happiness</p>
               </div>
             </div>
 
@@ -434,12 +434,12 @@ export default function Home() {
           3. BRIDAL TROUSSEAU, ELEVATED (EXACT REFERENCE DESIGN)
       ══════════════════════════════════════════════════════════════ */}
       <section className="container-luxury my-6 md:my-10 relative z-10">
-        <div className="rounded-3xl overflow-hidden relative shadow-2xl bg-gradient-to-r from-[#24040B] via-[#480A17] to-[#24040B] border border-[#C9A45C]/35 py-8 px-5 sm:px-8 md:px-10 lg:px-12">
+        <div className="rounded-3xl overflow-hidden relative shadow-2xl bg-gradient-to-r from-[#24040B] via-[#480A17] to-[#24040B] border border-[#C9A45C]/35 py-[clamp(24px,4vw,44px)] px-[clamp(16px,3.5vw,44px)]">
           
           {/* Subtle background damask & warm golden radial glow */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(201,164,92,0.12),transparent_70%)] pointer-events-none" />
           
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
             
             {/* Left 4 Cols: Headings & Action Buttons */}
             <div className="lg:col-span-4 text-left space-y-3.5">
@@ -448,7 +448,7 @@ export default function Home() {
                 <span>•</span>
               </div>
 
-              <h2 className="font-serif text-3xl sm:text-4xl xl:text-[2.6rem] text-white font-bold leading-tight tracking-tight">
+              <h2 className="font-serif text-[clamp(1.75rem,3.2vw,2.6rem)] text-white font-bold leading-tight tracking-tight">
                 Bridal Trousseau,<br />Elevated.
               </h2>
 
@@ -459,7 +459,7 @@ export default function Home() {
               <div className="flex flex-wrap gap-2.5 pt-2">
                 <Link
                   to="/products?category=Lehengas"
-                  className="inline-flex items-center gap-2 bg-[#C9A45C] hover:bg-white text-[#211D1E] font-bold text-xs tracking-widest uppercase px-6 py-3 rounded-full shadow-lg transition-all active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 bg-[#C9A45C] hover:bg-white text-[#211D1E] font-bold text-xs tracking-widest uppercase px-6 py-3.5 rounded-full shadow-lg transition-all active:scale-95 min-h-[44px]"
                 >
                   <span>EXPLORE TROUSSEAU</span>
                   <ArrowRight size={13} className="stroke-[2.5]" />
@@ -467,7 +467,7 @@ export default function Home() {
 
                 <Link
                   to="/products?category=Sarees"
-                  className="inline-flex items-center gap-2 border border-white/40 hover:border-[#C9A45C] text-white hover:text-[#C9A45C] font-semibold text-xs tracking-widest uppercase px-5 py-3 rounded-full transition-all"
+                  className="inline-flex items-center justify-center gap-2 border border-white/40 hover:border-[#C9A45C] text-white hover:text-[#C9A45C] font-semibold text-xs tracking-widest uppercase px-5 py-3.5 rounded-full transition-all min-h-[44px]"
                 >
                   <span>HEIRLOOM SAREES</span>
                 </Link>
@@ -487,7 +487,7 @@ export default function Home() {
             </div>
 
             {/* Right 3 Cols: 4 Vertical Features */}
-            <div className="lg:col-span-3 space-y-3 pt-2 lg:pt-0">
+            <div className="lg:col-span-3 space-y-2.5 sm:space-y-3 pt-2 lg:pt-0">
               {[
                 { icon: Scissors, label: 'Custom Styling' },
                 { icon: Sparkles, label: 'Personal Consultation' },
@@ -537,7 +537,7 @@ export default function Home() {
           </div>
 
           {allProducts.length > 0 && (
-            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5 lg:gap-4">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
               {allProducts.map((p, i) => (
                 <motion.div
                   key={p.id}
@@ -553,7 +553,7 @@ export default function Home() {
           )}
 
           <div className="section-cta">
-            <Link to="/products" className="btn-primary">
+            <Link to="/products" className="btn-primary min-h-[48px]">
               Shop All Silhouettes <ArrowRight size={14} />
             </Link>
           </div>
