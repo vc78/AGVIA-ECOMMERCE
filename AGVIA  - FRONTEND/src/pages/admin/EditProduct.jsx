@@ -5,7 +5,7 @@ import AdminLayout from '../../components/admin/AdminLayout'
 import ProductImagePicker, { DEFAULT_IMAGE_PRESETS as IMAGE_PRESETS } from '../../components/admin/ProductImagePicker'
 import { adminService } from '../../services/adminService'
 import { productService } from '../../services/productService'
-import { Image, Sparkles } from 'lucide-react'
+import { Image, Sparkles, Loader2, Wand2 } from 'lucide-react'
 
 export default function EditProduct() {
   const { id } = useParams()
@@ -13,6 +13,7 @@ export default function EditProduct() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [aiGenerating, setAiGenerating] = useState(false)
   const [form, setForm] = useState({
     name: '',
     categoryId: '',
@@ -122,6 +123,35 @@ export default function EditProduct() {
       toast.error(err?.response?.data?.message || 'Could not update silhouette. Please verify fields.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleAiGenerate = async () => {
+    if (!form.name.trim()) {
+      toast.error('Enter a silhouette name first so AI can generate its description.')
+      return
+    }
+    setAiGenerating(true)
+    try {
+      const selectedCat = categories.find(c => String(c.id) === String(form.categoryId))
+      const result = await adminService.generateAiProductContent({
+        name: form.name.trim(),
+        category: selectedCat?.name || form.category || 'Sarees',
+        price: form.price ? `₹${form.price}` : '',
+        weight: form.unit || 'piece',
+      })
+      if (result?.description) {
+        setForm(prev => ({ ...prev, description: result.description }))
+        toast.success('AI couture description script generated via Gemini!', {
+          style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+        })
+      } else {
+        toast.error('AI did not return a description. Try again.')
+      }
+    } catch (err) {
+      toast.error('AI generation failed. Please verify silhouette name.')
+    } finally {
+      setAiGenerating(false)
     }
   }
 
@@ -244,19 +274,52 @@ export default function EditProduct() {
             presets={IMAGE_PRESETS}
           />
 
-          {/* Description */}
+          {/* Description & AI Generator */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">
-              Couture Description & Fabric Details
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">
+                Couture Description & Fabric Details
+              </label>
+              <button
+                type="button"
+                onClick={handleAiGenerate}
+                disabled={aiGenerating}
+                className="inline-flex items-center gap-1.5 text-[9px] font-bold text-[#5A1020] hover:text-[#C9A45C] bg-[#5A1020]/5 hover:bg-[#5A1020]/10 px-2.5 py-1 rounded-full border border-[#C9A45C]/30 uppercase tracking-wider transition-all disabled:opacity-50"
+              >
+                {aiGenerating ? <Loader2 size={11} className="animate-spin text-[#5A1020]" /> : <Wand2 size={11} />}
+                <span>{aiGenerating ? 'Generating Script via Gemini...' : 'Generate with AI'}</span>
+              </button>
+            </div>
             <textarea
               name="description"
-              rows={4}
+              rows={8}
               value={form.description}
               onChange={handleChange}
-              className="input-field"
-              placeholder="Detail the handloom weave, pure mulberry silk, zardozi embroidery, silhouette drape, and styling notes..."
+              className="input-field leading-relaxed font-sans text-xs"
+              placeholder="Click 'Generate with AI' to automatically write an opulent, multi-paragraph couture story covering heritage handloom weave, metallic zari borders, royal drape, styling, and heirloom care..."
             />
+            {form.description ? (
+              <div className="flex items-center justify-between text-[10px] text-[#5A1020] bg-[#5A1020]/5 px-3 py-1.5 rounded-xl border border-[#C9A45C]/30">
+                <span className="flex items-center gap-1.5 font-semibold">
+                  <Sparkles size={11} className="text-[#C9A45C]" />
+                  Haute Couture Script Generated via Google Gemini
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(form.description)
+                    toast.success('Script copied to clipboard!')
+                  }}
+                  className="hover:underline font-bold text-[#5A1020]"
+                >
+                  Copy Script
+                </button>
+              </div>
+            ) : (
+              <p className="text-[9px] text-[#211D1E]/50">
+                AI generates a detailed couture script with heritage weave notes, drape aesthetics, and bridal styling.
+              </p>
+            )}
           </div>
 
           <div className="pt-2">
@@ -318,9 +381,14 @@ export default function EditProduct() {
               </div>
             </div>
 
-            <p className="text-[11px] text-[#211D1E]/70 line-clamp-3 leading-relaxed border-t border-[#C9A45C]/10 pt-3">
-              {form.description || 'Silhouette craftsmanship notes and fabric drape will appear here.'}
-            </p>
+            <div className="border-t border-[#C9A45C]/10 pt-3">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#C9A45C] block mb-1">
+                Couture Story & Script:
+              </span>
+              <p className="text-[11px] text-[#211D1E]/75 line-clamp-6 leading-relaxed whitespace-pre-line font-sans">
+                {form.description || 'Silhouette craftsmanship notes, weave artistry, and fabric drape will appear here.'}
+              </p>
+            </div>
           </div>
         </div>
       </div>

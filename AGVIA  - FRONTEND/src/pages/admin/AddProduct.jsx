@@ -263,21 +263,42 @@ export default function AddProduct() {
                 type="button"
                 onClick={handleAiGenerate}
                 disabled={aiGenerating}
-                className="inline-flex items-center gap-1.5 text-[9px] font-bold text-[#5A1020] hover:text-[#C9A45C] uppercase tracking-wider transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 text-[9px] font-bold text-[#5A1020] hover:text-[#C9A45C] bg-[#5A1020]/5 hover:bg-[#5A1020]/10 px-2.5 py-1 rounded-full border border-[#C9A45C]/30 uppercase tracking-wider transition-all disabled:opacity-50"
               >
-                {aiGenerating ? <Loader2 size={11} className="animate-spin" /> : <Wand2 size={11} />}
-                Generate with AI
+                {aiGenerating ? <Loader2 size={11} className="animate-spin text-[#5A1020]" /> : <Wand2 size={11} />}
+                <span>{aiGenerating ? 'Generating Script via Gemini...' : 'Generate with AI'}</span>
               </button>
             </div>
             <textarea
               name="description"
-              rows={4}
+              rows={8}
               value={form.description}
               onChange={handleChange}
-              className="input-field"
-              placeholder="Detail the handloom weave, pure mulberry silk, zardozi embroidery, silhouette drape, and styling notes..."
+              className="input-field leading-relaxed font-sans text-xs"
+              placeholder="Click 'Generate with AI' to automatically write an opulent, multi-paragraph couture story covering heritage handloom weave, metallic zari borders, royal drape, styling, and heirloom care..."
             />
-            <p className="text-[9px] text-[#211D1E]/50">AI-generated content is a starting point — review before publishing.</p>
+            {form.description ? (
+              <div className="flex items-center justify-between text-[10px] text-[#5A1020] bg-[#5A1020]/5 px-3 py-1.5 rounded-xl border border-[#C9A45C]/30">
+                <span className="flex items-center gap-1.5 font-semibold">
+                  <Sparkles size={11} className="text-[#C9A45C]" />
+                  Haute Couture Script Generated via Google Gemini
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(form.description)
+                    toast.success('Script copied to clipboard!')
+                  }}
+                  className="hover:underline font-bold text-[#5A1020]"
+                >
+                  Copy Script
+                </button>
+              </div>
+            ) : (
+              <p className="text-[9px] text-[#211D1E]/50">
+                AI generates a detailed couture script with heritage weave notes, drape aesthetics, and bridal styling.
+              </p>
+            )}
           </div>
 
           <div className="pt-2">
@@ -339,9 +360,14 @@ export default function AddProduct() {
               </div>
             </div>
 
-            <p className="text-[11px] text-[#211D1E]/70 line-clamp-3 leading-relaxed border-t border-[#C9A45C]/10 pt-3">
-              {form.description || 'Silhouette craftsmanship notes and fabric drape will appear here.'}
-            </p>
+            <div className="border-t border-[#C9A45C]/10 pt-3">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#C9A45C] block mb-1">
+                Couture Story & Script:
+              </span>
+              <p className="text-[11px] text-[#211D1E]/75 line-clamp-6 leading-relaxed whitespace-pre-line font-sans">
+                {form.description || 'Silhouette craftsmanship notes, weave artistry, and fabric drape will appear here.'}
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -40,17 +40,28 @@ public class GeminiService {
         String endpoint = apiUrl + "?key=" + apiKey.trim();
 
         String prompt = String.format(
-                "You are an expert luxury Indian confectioner and copywriter for Pragathi Sweets. " +
-                "Generate a JSON response for a product with the following details:\n" +
-                "Name: %s\nCategory: %s\nIngredients: %s\nWeight: %s\nPrice: %s\nKey characteristics: %s\n\n" +
-                "Respond ONLY with valid JSON having the exact keys: description, shortDescription, suggestedCategory, tags (array of strings), highlights (array of strings), seoDescription. " +
+                "You are an acclaimed haute couture stylist, master textile curator, and editorial copywriter for AGVIA Luxury Indian Women's Wear Atelier.\n" +
+                "Write an authentic, opulent, and detailed couture description script for the following luxury garment:\n" +
+                "Silhouette Name: %s\n" +
+                "Couture Line / Category: %s\n" +
+                "Fabric / Weave Details: %s\n" +
+                "Unit / Ensemble: %s\n" +
+                "Price: %s\n" +
+                "Artisanal Notes: %s\n\n" +
+                "Generate a JSON response containing an extensive, beautifully written couture story that covers:\n" +
+                "1. Heritage Weave & Fabric: Details on handloom craftsmanship, pure mulberry silk/fabric density, and tactile texture.\n" +
+                "2. Zari & Embellishment Artistry: Details on border motifs (e.g. temple korvai, zardozi, hand-cut mirrors, metallic zari).\n" +
+                "3. Silhouette, Drape & Movement: How the garment flatters, moves, and cascades.\n" +
+                "4. Bridal & Festive Styling Guide: Recommended blouse pairings, antique/kundan jewelry, dupatta styling, and footwear.\n" +
+                "5. Heirloom Care: Dry clean only, muslin cloth storage, and preservation notes.\n\n" +
+                "Respond ONLY with valid JSON having the exact keys: description (detailed multi-paragraph couture script with clean headings), shortDescription (concise 2-line summary), suggestedCategory, tags (array of strings), highlights (array of strings), seoDescription. " +
                 "Do not include markdown backticks or explanations.",
                 request.getName(),
-                request.getCategory() != null ? request.getCategory() : "",
-                request.getIngredients() != null ? request.getIngredients() : "",
-                request.getWeight() != null ? request.getWeight() : "",
+                request.getCategory() != null ? request.getCategory() : "Sarees & Couture",
+                request.getIngredients() != null ? request.getIngredients() : "Pure Mulberry Silk, Metallic Zari, Handloom Craftsmanship",
+                request.getWeight() != null ? request.getWeight() : "piece",
                 request.getPrice() != null ? request.getPrice() : "",
-                request.getCharacteristics() != null ? request.getCharacteristics() : ""
+                request.getCharacteristics() != null ? request.getCharacteristics() : "Bespoke tailoring, royal bridal trousseau, artisanal embroidery"
         );
 
         Map<String, Object> part = Map.of("text", prompt);
@@ -103,19 +114,28 @@ public class GeminiService {
     }
 
     private AiProductGenerateResponse generateArtisanalFallback(AiProductGenerateRequest request) {
-        String name = request.getName() != null && !request.getName().isBlank() ? request.getName() : "Royal Confection";
-        String cat = request.getCategory() != null && !request.getCategory().isBlank() ? request.getCategory() : "Boutique Sweets";
-        String desc = String.format("Handcrafted %s prepared according to royal heritage recipes with pure A2 Desi Ghee, cardamom, and fresh natural ingredients. A beloved centerpiece for celebrations.", name);
-        String shortDesc = String.format("Artisanal %s made with 100%% pure ghee and authentic heritage craftsmanship.", name);
-        String seo = String.format("Buy fresh %s online from Pragathi Sweets. Made with pure desi ghee and premium dry fruits. Fast dispatch guaranteed.", name);
+        String name = request.getName() != null && !request.getName().isBlank() ? request.getName() : "Handcrafted Silk Silhouette";
+        String cat = request.getCategory() != null && !request.getCategory().isBlank() ? request.getCategory() : "Heirloom Sarees";
+        
+        String desc = String.format(
+                "Handcrafted with royal finesse, the %s exemplifies AGVIA's devotion to timeless Indian couture.\n\n" +
+                "✦ Fabric & Heritage Weave: Woven on traditional pit looms using certified pure mulberry silk threads, boasting an exquisite natural sheen and supple texture that drapes with majestic fluidity.\n\n" +
+                "✦ Artistry & Borders: Features hand-interlocked temple Korvai borders, framed with rich metallic zari and intricate floral vines inspired by royal Mughal and Dravidian architectural motifs.\n\n" +
+                "✦ Styling & Occasion: Designed for grand wedding trousseaus, reception galas, and festive rituals. Pair with an embroidered raw silk blouse, antique temple jewelry, and a sleek jasmine-adorned bridal coiffure.\n\n" +
+                "✦ Heirloom Care: Dry clean exclusively. Preserve wrapped in pure cotton muslin in a cool, dark wardrobe to safeguard the luminous metallic zari for generations.",
+                name
+        );
+
+        String shortDesc = String.format("Handwoven %s featuring pure mulberry silk and authentic zari artistry from the AGVIA Atelier.", name);
+        String seo = String.format("Shop authentic handloom %s online at AGVIA Luxury Boutique. Certified pure silk with royal metallic zari and bespoke craftsmanship.", name);
 
         return AiProductGenerateResponse.builder()
                 .name(name)
                 .description(desc)
                 .shortDescription(shortDesc)
                 .suggestedCategory(cat)
-                .tags(List.of("Pure Desi Ghee", "Artisanal", "Boutique", "Fresh Batch", "Traditional"))
-                .highlights(List.of("100% Pure Cow Ghee", "Zero Artificial Preservatives", "Same-day fresh preparation", "Royal Gift Packaging"))
+                .tags(List.of("Pure Mulberry Silk", "Handloom Weave", "Metallic Zari", "Bridal Trousseau", "Artisanal Couture", "Silk Mark Certified"))
+                .highlights(List.of("100% Certified Pure Silk", "Authentic Korvai Temple Borders", "Hand-finished Pallu Artistry", "Bespoke Keepsake Packaging"))
                 .seoDescription(seo)
                 .build();
     }
