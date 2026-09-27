@@ -46,7 +46,7 @@ public class Product {
     @Column(length = 30)
     private String unit; // e.g. "500g", "1kg", "12 pieces"
 
-    @Column(name = "image_url", length = 500)
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

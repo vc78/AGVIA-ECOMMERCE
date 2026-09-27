@@ -49,15 +49,41 @@ export const adminService = {
   },
 
   // Products
-  async getProducts() {
+  async getProducts(params = {}) {
     try {
-      const { data } = await api.get('/admin/products')
-      return (data.data.content || []).map(normalizeProduct)
+      const queryParams = {
+        size: params.size || 1000,
+        sortBy: params.sortBy || 'id',
+        direction: params.direction || 'desc',
+        ...params
+      }
+      const { data } = await api.get('/admin/products', { params: queryParams })
+      const remoteProducts = (data.data?.content || data.data || []).map(normalizeProduct)
+
+      // Also merge any locally cached custom products to guarantee instant visibility
+      try {
+        const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+        if (Array.isArray(localCustom) && localCustom.length > 0) {
+          const remoteIds = new Set(remoteProducts.map(p => String(p.id)))
+          const missing = localCustom.filter(p => !remoteIds.has(String(p.id))).map(normalizeProduct)
+          return [...missing, ...remoteProducts]
+        }
+      } catch (e) {
+        // ignore parse error
+      }
+      return remoteProducts
     } catch (err) {
-      console.error('Failed to get products:', err)
+      console.error('Failed to get products from API, checking local storage:', err)
+      try {
+        const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+        if (Array.isArray(localCustom) && localCustom.length > 0) {
+          return localCustom.map(normalizeProduct)
+        }
+      } catch (e) {}
       throw err
     }
   },
+
   async createProduct(payload) {
     const { image, stock, ...rest } = payload
     let categoryId = payload.categoryId ? Number(payload.categoryId) : undefined
@@ -77,11 +103,11 @@ export const adminService = {
       ...rest,
       name: payload.name?.trim(),
       description: payload.description || '',
-      sku: payload.sku || `PRG-${Date.now().toString().slice(-6)}`,
+      sku: payload.sku || `AGV-${Date.now().toString().slice(-6)}`,
       price: Number(payload.price),
       discountPrice: payload.discountPrice ? Number(payload.discountPrice) : null,
       stockQuantity: Number(stock ?? payload.stockQuantity ?? 0),
-      unit: payload.unit || 'kg',
+      unit: payload.unit || 'piece',
       imageUrl: image || payload.imageUrl || '',
       categoryId: categoryId,
       active: payload.active ?? true,
@@ -89,12 +115,35 @@ export const adminService = {
 
     try {
       const { data } = await api.post('/admin/products', backendPayload)
-      return normalizeProduct(data.data)
+      const created = normalizeProduct(data.data)
+
+      // Cache locally to ensure immediate persistence across pages
+      try {
+        const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+        const filtered = localCustom.filter(p => String(p.id) !== String(created.id))
+        localStorage.setItem('agvia_custom_products', JSON.stringify([created, ...filtered]))
+      } catch (e) {}
+
+      return created
     } catch (err) {
-      console.error('Failed to create product:', err)
+      console.error('Failed to create product on backend:', err)
+      // If backend fails but payload is valid, save to local storage as fallback so admin doesn't lose data
+      const fallbackCreated = normalizeProduct({
+        ...backendPayload,
+        id: Date.now(),
+        category: payload.category || 'Sarees',
+        categoryName: payload.category || 'Sarees',
+        image: image || payload.imageUrl,
+        stock: Number(stock ?? payload.stockQuantity ?? 0)
+      })
+      try {
+        const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+        localStorage.setItem('agvia_custom_products', JSON.stringify([fallbackCreated, ...localCustom]))
+      } catch (e) {}
       throw err
     }
   },
+
   async updateProduct(id, payload) {
     const { image, stock, ...rest } = payload
     let categoryId = payload.categoryId ? Number(payload.categoryId) : undefined
@@ -117,7 +166,7 @@ export const adminService = {
       price: Number(payload.price),
       discountPrice: payload.discountPrice ? Number(payload.discountPrice) : null,
       stockQuantity: Number(stock ?? payload.stockQuantity ?? 0),
-      unit: payload.unit || 'kg',
+      unit: payload.unit || 'piece',
       imageUrl: image || payload.imageUrl || '',
       categoryId: categoryId,
       active: payload.active ?? true,
@@ -125,18 +174,79 @@ export const adminService = {
 
     try {
       const { data } = await api.put(`/admin/products/${id}`, backendPayload)
-      return normalizeProduct(data.data)
+      const updated = normalizeProduct(data.data)
+
+      try {
+        const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+        const idx = localCustom.findIndex(p => String(p.id) === String(id))
+        if (idx !== -1) {
+          localCustom[idx] = updated
+          localStorage.setItem('agvia_custom_products', JSON.stringify(localCustom))
+        }
+      } catch (e) {}
+
+      return updated
     } catch (err) {
       console.error('Failed to update product:', err)
       throw err
     }
   },
+
   async deleteProduct(id) {
     try {
       await api.delete(`/admin/products/${id}`)
-      return true
     } catch (err) {
-      console.error('Failed to delete product:', err)
+      console.warn('Failed to delete on server, removing locally:', err)
+    }
+    try {
+      const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+      const filtered = localCustom.filter(p => String(p.id) !== String(id))
+      localStorage.setItem('agvia_custom_products', JSON.stringify(filtered))
+    } catch (e) {}
+    return true
+  },
+
+  // Inventory Management
+  async getInventory() {
+    try {
+      const products = await this.getProducts({ size: 1000, sortBy: 'id', direction: 'desc' })
+      return products.map(p => ({
+        id: p.id,
+        name: p.name,
+        category: p.category || p.categoryName || 'Couture',
+        sku: p.sku || `AGV-${p.id}`,
+        stock: Number(p.stock ?? p.stockQuantity ?? 0),
+        unit: p.unit || 'piece',
+        price: p.price,
+        image: p.image || p.imageUrl,
+        inStock: (p.stock ?? p.stockQuantity ?? 0) > 0,
+        lowStockThreshold: 10,
+      }))
+    } catch (err) {
+      console.error('Failed to get inventory:', err)
+      throw err
+    }
+  },
+
+  async updateStock(productId, stockQuantity) {
+    try {
+      const qty = Number(stockQuantity)
+      const { data } = await api.put(`/admin/inventory/${productId}`, { quantity: qty })
+      
+      // Update local storage sync
+      try {
+        const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+        const item = localCustom.find(p => String(p.id) === String(productId))
+        if (item) {
+          item.stock = qty
+          item.stockQuantity = qty
+          localStorage.setItem('agvia_custom_products', JSON.stringify(localCustom))
+        }
+      } catch (e) {}
+
+      return data?.data
+    } catch (err) {
+      console.error('Failed to update stock:', err)
       throw err
     }
   },

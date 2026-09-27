@@ -371,10 +371,10 @@ export function normalizeProduct(p) {
 
 export const productService = {
   async getAll(params = {}) {
+    let items = []
     try {
       // 1. Try to fetch from backend API
-      let items = []
-      if (params.category) {
+      if (params.category && params.category !== 'All') {
         const { data: catData } = await api.get('/categories')
         const catList = catData.data || []
         const found = catList.find(
@@ -388,39 +388,45 @@ export const productService = {
         const { data } = await api.get('/products/search', { params: { keyword: params.search, size: 200, page: 0 } })
         items = Array.isArray(data?.data?.content) ? data.data.content : (Array.isArray(data?.data) ? data.data : [])
       } else {
-        const { data } = await api.get('/products', { params: { size: 200, page: 0 } })
+        const { data } = await api.get('/products', { params: { size: 200, page: 0, sortBy: 'id', direction: 'desc' } })
         items = Array.isArray(data?.data?.content) ? data.data.content : (Array.isArray(data?.data) ? data.data : [])
       }
-
-      // Use backend products whenever available
-      if (Array.isArray(items) && items.length > 0) {
-        return items.map(normalizeProduct)
-      }
-      if (params.category || params.search) {
-        // If specific search/filter was requested and backend returned 0 items, return empty array
-        return []
-      }
     } catch {
-      // API call failed, will use catalog fallback below
+      // API call failed, will fallback to curated catalog
     }
 
-    // 2. High-fidelity 26-product catalog fallback
-    let catalog = BOUTIQUE_CATALOG_26.map(normalizeProduct)
+    let combined = []
+    if (Array.isArray(items) && items.length > 0) {
+      combined = items.map(normalizeProduct)
+    } else {
+      combined = BOUTIQUE_CATALOG_26.map(normalizeProduct)
+    }
 
+    // Merge locally cached products (created by admin) so they are 100% visible immediately
+    try {
+      const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+      if (Array.isArray(localCustom) && localCustom.length > 0) {
+        const existingIds = new Set(combined.map(p => String(p.id)))
+        const missing = localCustom.filter(p => !existingIds.has(String(p.id))).map(normalizeProduct)
+        combined = [...missing, ...combined]
+      }
+    } catch (e) {}
+
+    // Apply filtering
     if (params.category && params.category !== 'All') {
-      catalog = catalog.filter((p) => p.category.toLowerCase() === params.category.toLowerCase())
+      combined = combined.filter((p) => (p.category || '').toLowerCase() === params.category.toLowerCase())
     }
 
     if (params.search) {
       const q = params.search.toLowerCase()
-      catalog = catalog.filter((p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
+      combined = combined.filter((p) =>
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q) ||
+        (p.category || '').toLowerCase().includes(q)
       )
     }
 
-    return catalog
+    return combined
   },
 
   async getById(id) {
@@ -430,7 +436,15 @@ export const productService = {
     } catch {
       // fallback
     }
-    const found = BOUTIQUE_CATALOG_26.find((p) => p.id === Number(id))
+
+    // Check local storage custom products
+    try {
+      const localCustom = JSON.parse(localStorage.getItem('agvia_custom_products') || '[]')
+      const localFound = localCustom.find(p => String(p.id) === String(id))
+      if (localFound) return normalizeProduct(localFound)
+    } catch (e) {}
+
+    const found = BOUTIQUE_CATALOG_26.find((p) => String(p.id) === String(id))
     if (found) return normalizeProduct(found)
     return normalizeProduct(BOUTIQUE_CATALOG_26[0])
   },

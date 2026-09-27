@@ -2,21 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import AdminLayout from '../../components/admin/AdminLayout'
+import ProductImagePicker, { DEFAULT_IMAGE_PRESETS as IMAGE_PRESETS } from '../../components/admin/ProductImagePicker'
 import { adminService } from '../../services/adminService'
 import { Image, Sparkles, Loader2, Wand2 } from 'lucide-react'
-
-const IMAGE_PRESETS = [
-  { label: 'AGVIA Classic Silk Saree', url: '/images/classic_silk_saree.jpg' },
-  { label: 'AGVIA Floral Organza Saree', url: '/images/floral_organza_saree.jpg' },
-  { label: 'AGVIA Embroidered Anarkali Set', url: '/images/anarkali_set.jpg' },
-  { label: 'AGVIA Everyday Kurta Set', url: '/images/everyday_kurta_set.jpg' },
-  { label: 'AGVIA Festive Lehenga Set', url: '/images/festive_lehenga_set.jpg' },
-  { label: 'AGVIA Embroidered Wedding Lehenga', url: '/images/wedding_lehenga.jpg' },
-  { label: 'AGVIA Evening Gown', url: '/images/evening_gown.jpg' },
-  { label: 'AGVIA Co-ord Set', url: '/images/coord_set.jpg' },
-  { label: 'AGVIA Festive Kurti', url: '/images/festive_kurti.jpg' },
-  { label: 'AGVIA Bridal Dupatta', url: '/images/bridal_dupatta.jpg' },
-]
 
 export default function AddProduct() {
   const navigate = useNavigate()
@@ -258,35 +246,12 @@ export default function AddProduct() {
             </div>
           </div>
 
-          {/* Image Selection */}
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">Garment Image URL *</label>
-            <input
-              name="image"
-              required
-              value={form.image}
-              onChange={handleChange}
-              className="input-field"
-              placeholder="https://... or /images/..."
-            />
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="text-[9px] text-[#211D1E]/40 font-bold uppercase tracking-wider">Presets:</span>
-              {IMAGE_PRESETS.map((p) => (
-                <button
-                  key={p.label}
-                  type="button"
-                  onClick={() => setForm(prev => ({ ...prev, image: p.url }))}
-                  className={`text-[9px] px-2.5 py-1 rounded-full border transition-all ${
-                    form.image === p.url
-                      ? 'bg-[#5A1020] text-white border-[#5A1020]'
-                      : 'bg-white text-[#211D1E]/70 border-[#C9A45C]/30 hover:border-[#5A1020]'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Garment Image Selection & Local Device Upload */}
+          <ProductImagePicker
+            value={form.image}
+            onChange={(newImage) => setForm(prev => ({ ...prev, image: newImage }))}
+            presets={IMAGE_PRESETS}
+          />
 
           {/* Description & AI Generator */}
           <div className="space-y-2">

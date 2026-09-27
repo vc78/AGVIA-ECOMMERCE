@@ -25,9 +25,12 @@ public class AdminProductController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ProductResponse>>> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "100") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        org.springframework.data.domain.Sort.Direction dir = direction.equalsIgnoreCase("asc") ? org.springframework.data.domain.Sort.Direction.ASC : org.springframework.data.domain.Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(dir, sortBy));
         return ResponseEntity.ok(ApiResponse.success(adminProductService.getAll(pageable)));
     }
 
