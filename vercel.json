@@ -1,7 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "trailingSlash": false,
+  "framework": "vite",
+  "buildCommand": "cd \"AGVIA  - FRONTEND\" && npm install && npm run build",
+  "outputDirectory": "AGVIA  - FRONTEND/dist",
   "rewrites": [
     {
       "source": "/(.*)",

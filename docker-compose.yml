@@ -3,70 +3,71 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: pragathi-mysql
+    container_name: agvia-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-pragathi_sweets}
+      MYSQL_DATABASE: ${DB_NAME:-agvia_db}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
-      MYSQL_USER: ${DB_USER:-pragathi_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-pragathi_pass}
+      MYSQL_USER: ${DB_USER:-agvia_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-agvia_pass}
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - agvia_mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - pragathi-network
+      - agvia-network
 
   backend:
     build:
-      context: ./pragathi-sweets-backend
+      context: "./AGVIA - BACKEND"
       dockerfile: Dockerfile
-    container_name: pragathi-backend
+    container_name: agvia-backend
     restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
     environment:
       SERVER_PORT: 8080
-      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-pragathi_sweets}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      DB_USERNAME: ${DB_USER:-pragathi_user}
-      DB_PASSWORD: ${DB_PASSWORD:-pragathi_pass}
+      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-agvia_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${DB_USER:-agvia_user}
+      DB_PASSWORD: ${DB_PASSWORD:-agvia_pass}
       DDL_AUTO: update
       SHOW_SQL: "false"
       JWT_SECRET: ${JWT_SECRET:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVm}
       JWT_EXPIRATION_MS: 86400000
       RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_TDnNEoRLz2m96G}
       RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-25E7Iiv68Owji2k1dKm18quw}
-      CORS_ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:5173"
-      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@pragathisweets.com}
-      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-Admin@123}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:5173,https://agvia.vercel.app}
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@agvia.com}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-agvia@123}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
     ports:
       - "8080:8080"
     networks:
-      - pragathi-network
+      - agvia-network
 
   frontend:
     build:
-      context: ./pragathi-sweets-frontend
+      context: "./AGVIA  - FRONTEND"
       dockerfile: Dockerfile
-    container_name: pragathi-frontend
+    container_name: agvia-frontend
     restart: unless-stopped
     depends_on:
       - backend
     ports:
       - "80:80"
     networks:
-      - pragathi-network
+      - agvia-network
 
 volumes:
-  mysql_data:
+  agvia_mysql_data:
     driver: local
 
 networks:
-  pragathi-network:
+  agvia-network:
     driver: bridge
