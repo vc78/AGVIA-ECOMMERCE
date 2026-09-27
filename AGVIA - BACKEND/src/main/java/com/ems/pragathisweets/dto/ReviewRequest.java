@@ -23,4 +23,5 @@ public class ReviewRequest {
     private Integer rating;
 
     private String comment;
+    private String customerName;
 }

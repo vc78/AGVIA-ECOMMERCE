@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Star, Minus, Plus, ArrowLeft, ShieldCheck, Heart, Truck, HelpCircle, ChevronDown, CheckCircle, Zap } from 'lucide-react'
+import { Star, Minus, Plus, ArrowLeft, ShieldCheck, Heart, Truck, HelpCircle, ChevronDown, CheckCircle, Zap, MessageCircle } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import SweetCard from '../../components/customer/SweetCard'
@@ -24,6 +24,7 @@ export default function ProductDetails() {
   const { addToCart } = useCart()
 
   // Review submission state
+  const [reviewerName, setReviewerName] = useState('')
   const [newComment, setNewComment] = useState('')
   const [newRating, setNewRating] = useState(5)
   const [submitting, setSubmitting] = useState(false)
@@ -75,16 +76,18 @@ export default function ProductDetails() {
     setSubmitting(true)
     try {
       const currentUser = authService.getCurrentUser()
-      const customerName = currentUser?.fullName || currentUser?.name || 'Patron'
+      const customerName = reviewerName.trim() || currentUser?.fullName || currentUser?.name || 'Patron'
       const saved = await productService.submitReview(id, {
         customer: customerName,
         rating: newRating,
-        comment: newComment,
+        comment: newComment.trim(),
         date: new Date().toISOString().slice(0, 10),
       })
-      setReviews([saved, ...reviews])
+      setReviews((prev) => [saved, ...prev.filter((r) => r.id !== saved.id)])
       setNewComment('')
-      toast.success('Thank you for sharing your experience!')
+      toast.success('Thank you for sharing your experience!', {
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
     } catch {
       toast.error('Could not submit review.')
     } finally {
@@ -239,6 +242,20 @@ export default function ProductDetails() {
                 </div>
               </div>
 
+              {/* Instant WhatsApp Enquiry & Sizing Button */}
+              <a
+                href={`https://wa.me/919032306961?text=${encodeURIComponent(
+                  `Namaste AGVIA Atelier Concierge ✨\n\nI would like to enquire about ordering this silhouette:\n👗 Silhouette: *${product.name}*\n🏷️ Category: ${product.category || 'Atelier Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n📏 Selected Size: ${selectedSize}\n🔢 Quantity: ${qty}\n🔗 Product Link: ${window.location.href}\n\nPlease share availability, delivery timeline, and bespoke customization details.`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full mt-3 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg transition-all duration-300 active:scale-98 min-h-[48px]"
+                title="Instant WhatsApp Concierge"
+              >
+                <MessageCircle size={17} />
+                <span>Enquire on WhatsApp with Details & Pricing</span>
+              </a>
+
               <div className="flex flex-wrap items-center gap-3 text-[9.5px] text-[#211D1E]/60 font-semibold pt-1">
                 <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-[#C9A45C]" /> 100% Certified Pure Handloom</span>
                 <span className="flex items-center gap-1"><Truck size={13} className="text-[#C9A45C]" /> Complimentary Insured Express Delivery</span>
@@ -336,6 +353,17 @@ export default function ProductDetails() {
           <div className="lg:col-span-5 bg-white rounded-2xl p-4 sm:p-5 border border-[#C9A45C]/20 shadow-xs h-fit">
             <h3 className="font-serif text-lg text-[#5A1020] font-bold mb-3">Share Your Experience</h3>
             <form onSubmit={handleReviewSubmit} className="space-y-3">
+              <div>
+                <span className="text-[8.5px] tracking-wider uppercase text-[#C9A45C] font-bold block mb-1">Your Name</span>
+                <input
+                  type="text"
+                  placeholder="e.g. Pooja Reddy"
+                  value={reviewerName}
+                  onChange={(e) => setReviewerName(e.target.value)}
+                  className="input-field bg-[#FAF7F2] text-xs"
+                />
+              </div>
+
               <div>
                 <span className="text-[8.5px] tracking-wider uppercase text-[#C9A45C] font-bold block mb-1">Your Rating</span>
                 <div className="flex gap-1 text-[#C9A45C]">

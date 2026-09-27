@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Star, Plus, Eye, Heart } from 'lucide-react'
+import { Star, Plus, Eye, Heart, MessageCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import ReliableImage from '../common/ReliableImage'
@@ -19,6 +19,14 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
   const unitVal = product.unit || 'piece'
   const imgUrl = product.image || product.imageUrl || '/images/classic_silk_saree.jpg'
   const isBestseller = product.bestseller ?? product.isBestseller ?? false
+
+  const productUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/products/${product.id}`
+    : `https://agvia.in/products/${product.id}`
+  const whatsappMsg = encodeURIComponent(
+    `Namaste AGVIA Atelier Concierge ✨\n\nI would like to enquire about this silhouette:\n👗 *${product.name}*\n🏷️ Category: ${categoryName || 'Luxury Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n🔗 View Piece: ${productUrl}\n\nPlease share availability, size options, and bespoke styling assistance.`
+  )
+  const whatsappUrl = `https://wa.me/919032306961?text=${whatsappMsg}`
 
   const handleAdd = () => {
     const fn = onAdd || onAddToCart
@@ -111,22 +119,37 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-[#C9A45C]/15">
-          <div>
-            <span className="font-serif text-sm sm:text-base font-bold text-[#5A1020]">₹{product.price}</span>
-            <span className="text-[9.5px] text-[#211D1E]/40 font-sans ml-1">/ piece</span>
+        <div className="mt-2.5 pt-2 border-t border-[#C9A45C]/15 space-y-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-serif text-sm sm:text-base font-bold text-[#5A1020]">₹{Number(product.price).toLocaleString('en-IN')}</span>
+              <span className="text-[9.5px] text-[#211D1E]/40 font-sans ml-1">/ {unitVal}</span>
+            </div>
+            <motion.button
+              onClick={handleAdd}
+              whileTap={{ scale: 0.92 }}
+              className={`flex items-center gap-1 font-sans text-[10px] sm:text-[9.5px] tracking-wider font-bold uppercase transition-all px-3 py-1.5 min-h-[34px] rounded-full border ${
+                adding
+                  ? 'bg-green-700 text-white border-green-700'
+                  : 'text-[#5A1020] border-[#5A1020]/30 hover:bg-[#5A1020] hover:text-white hover:border-[#5A1020] active:bg-[#5A1020] active:text-white'
+              }`}
+            >
+              {adding ? '✓ Added' : <><Plus size={12} /> Add</>}
+            </motion.button>
           </div>
-          <motion.button
-            onClick={handleAdd}
-            whileTap={{ scale: 0.92 }}
-            className={`flex items-center gap-1 font-sans text-[10px] sm:text-[9.5px] tracking-wider font-bold uppercase transition-all px-3.5 py-1.5 min-h-[38px] sm:min-h-[34px] rounded-full border ${
-              adding
-                ? 'bg-green-700 text-white border-green-700'
-                : 'text-[#5A1020] border-[#5A1020]/30 hover:bg-[#5A1020] hover:text-white hover:border-[#5A1020] active:bg-[#5A1020] active:text-white'
-            }`}
+
+          {/* WhatsApp Direct Product Redirection with Details & Pricing */}
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-[10px] font-bold uppercase tracking-wider text-[#128C7E] hover:text-white bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 shadow-2xs active:scale-98"
+            title={`Enquire about ${product.name} on WhatsApp`}
           >
-            {adding ? '✓ Added' : <><Plus size={12} /> Add</>}
-          </motion.button>
+            <MessageCircle size={13} className="shrink-0" />
+            <span>WhatsApp Enquire</span>
+          </a>
         </div>
       </div>
     </div>

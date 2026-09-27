@@ -32,21 +32,28 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse addReview(Long userId, ReviewRequest request) {
-        if (reviewRepository.findByProductIdAndUserId(request.getProductId(), userId).isPresent()) {
-            throw new DuplicateResourceException("You have already reviewed this product");
-        }
-
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = null;
+        String patronName = request.getCustomerName() != null && !request.getCustomerName().isBlank()
+                ? request.getCustomerName().trim()
+                : "Valued Patron";
+
+        if (userId != null) {
+            user = userRepository.findById(userId).orElse(null);
+            if (user != null && user.getFullName() != null && !user.getFullName().isBlank()) {
+                patronName = user.getFullName();
+            }
+        }
 
         Review review = Review.builder()
                 .product(product)
                 .user(user)
+                .customerName(patronName)
                 .rating(request.getRating())
                 .comment(request.getComment())
+                .verifiedPurchase(true)
                 .build();
 
         Review saved = reviewRepository.save(review);
@@ -94,7 +101,12 @@ public class ReviewService {
     }
 
     private ReviewResponse toResponse(Review review) {
-        String name = review.getUser() != null ? review.getUser().getFullName() : "Customer";
+        String name = "Valued Patron";
+        if (review.getCustomerName() != null && !review.getCustomerName().isBlank()) {
+            name = review.getCustomerName();
+        } else if (review.getUser() != null && review.getUser().getFullName() != null && !review.getUser().getFullName().isBlank()) {
+            name = review.getUser().getFullName();
+        }
         return ReviewResponse.builder()
                 .id(review.getId())
                 .productId(review.getProduct() != null ? review.getProduct().getId() : null)
@@ -102,7 +114,7 @@ public class ReviewService {
                 .userId(review.getUser() != null ? review.getUser().getId() : null)
                 .userName(name)
                 .customerName(name)
-                .verifiedPurchase(true)
+                .verifiedPurchase(review.getVerifiedPurchase() != null ? review.getVerifiedPurchase() : true)
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())

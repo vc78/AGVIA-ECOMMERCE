@@ -36,10 +36,12 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ReviewResponse>> addReview(@AuthenticationPrincipal UserDetailsImpl principal,
-                                                                  @Valid @RequestBody ReviewRequest request) {
-        ReviewResponse response = reviewService.addReview(principal.getId(), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Review added", response));
+    public ResponseEntity<ApiResponse<ReviewResponse>> addReview(
+            @AuthenticationPrincipal UserDetailsImpl principal,
+            @Valid @RequestBody ReviewRequest request) {
+        Long userId = principal != null ? principal.getId() : null;
+        ReviewResponse response = reviewService.addReview(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Review added successfully", response));
     }
 
     @DeleteMapping("/{id}")
