@@ -117,6 +117,21 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('')
   const dropdownTimeoutRef = useRef(null)
 
+  const MOBILE_HEADLINES = [
+    { text: 'FREE SHIPPING ON ORDERS ₹999+', icon: Truck },
+    { text: '✦ ELEGANT STYLES FOR EVERY OCCASION ✦', icon: Sparkles },
+    { text: 'USE CODE: AGVIA15 FOR 15% OFF', icon: Gift },
+    { text: 'EASY 7-DAY HASSLE-FREE RETURNS', icon: Truck },
+  ]
+  const [headlineIndex, setHeadlineIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeadlineIndex((prev) => (prev + 1) % MOBILE_HEADLINES.length)
+    }, 3500)
+    return () => clearInterval(timer)
+  }, [])
+
   const { isAuthenticated, user } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -181,12 +196,16 @@ export default function Navbar() {
         {/* ══════════════════════════════════════════════════════════════
             1. TOP ANNOUNCEMENT BAR (DEEP BURGUNDY / WINE)
         ══════════════════════════════════════════════════════════════ */}
-        <div className="relative bg-[#480814] text-[#E6C894] border-b border-[#5E1220] overflow-hidden">
+        {/* ══════════════════════════════════════════════════════════════
+            1. TOP ANNOUNCEMENT BAR (DEEP BURGUNDY / WINE)
+        ══════════════════════════════════════════════════════════════ */}
+        <div className="relative bg-[#480814] text-[#E6C894] border-b border-[#5E1220] overflow-hidden select-none">
           {/* Subtle background damask floral flourishes at edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black/20 to-transparent pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black/20 to-transparent pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black/25 to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black/25 to-transparent pointer-events-none" />
 
-          <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] h-7 sm:h-8 flex items-center justify-between text-[10px] sm:text-[10.5px] tracking-[0.16em] uppercase font-medium">
+          {/* Desktop Spread (md and up) */}
+          <div className="hidden md:flex w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] h-7 sm:h-8 items-center justify-between text-[10px] sm:text-[10.5px] tracking-[0.16em] uppercase font-medium">
             
             {/* Left: Free Shipping & Easy Returns */}
             <div className="flex items-center gap-1.5 text-[#E6C894]">
@@ -197,7 +216,7 @@ export default function Navbar() {
             </div>
 
             {/* Center: Elegant Styles Symmetrical Flourish */}
-            <div className="hidden md:flex items-center gap-2 text-[#E6C894] tracking-[0.22em] text-[10.5px] font-serif">
+            <div className="flex items-center gap-2 text-[#E6C894] tracking-[0.22em] text-[10.5px] font-serif">
               <span className="w-6 lg:w-12 h-[1px] bg-gradient-to-r from-transparent to-[#E6C894]/70" />
               <span className="text-[#E6C894] text-[9px]">✦</span>
               <span className="tracking-[0.24em] font-medium text-white/95">
@@ -208,13 +227,34 @@ export default function Navbar() {
             </div>
 
             {/* Right: Exclusive Collections & Secure Payments */}
-            <div className="hidden sm:flex items-center gap-1.5 text-[#E6C894]">
+            <div className="flex items-center gap-1.5 text-[#E6C894]">
               <Gift size={11} className="text-[#E6C894] shrink-0" />
               <span className="tracking-[0.18em]">EXCLUSIVE COLLECTIONS</span>
               <span className="opacity-40">|</span>
               <span className="tracking-[0.18em]">SECURE PAYMENTS</span>
             </div>
 
+          </div>
+
+          {/* Mobile Centered Dynamic Headline (< md) */}
+          <div className="flex md:hidden w-full h-7 items-center justify-center px-3 relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={headlineIndex}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.3 }}
+                className="flex items-center gap-1.5 text-[9px] xs:text-[10px] tracking-[0.18em] uppercase font-semibold text-[#E6C894] whitespace-nowrap"
+              >
+                {(() => {
+                  const item = MOBILE_HEADLINES[headlineIndex]
+                  const Icon = item.icon
+                  return <Icon size={11} className="text-[#E6C894] shrink-0" />
+                })()}
+                <span>{MOBILE_HEADLINES[headlineIndex].text}</span>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 

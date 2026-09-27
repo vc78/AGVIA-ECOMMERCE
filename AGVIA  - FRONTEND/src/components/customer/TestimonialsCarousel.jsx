@@ -43,7 +43,7 @@ const TESTIMONIALS = [
 // Flower garland SVG — top-left corner hanging arrangement
 function FlowerGarlandLeft() {
   return (
-    <svg viewBox="0 0 280 420" fill="none" className="absolute top-0 left-0 h-full w-[22%] pointer-events-none" aria-hidden="true">
+    <svg viewBox="0 0 280 420" fill="none" className="absolute top-0 left-0 h-full w-[16%] sm:w-[22%] pointer-events-none hidden md:block" aria-hidden="true">
       {/* Hanging vine stem */}
       <path d="M30,0 C40,80 20,160 50,240 C70,300 40,360 60,420" stroke="#C8A882" strokeWidth="1.2" fill="none" opacity="0.5" />
       <path d="M70,0 C80,60 55,140 80,220 C100,280 75,350 90,420" stroke="#D4B896" strokeWidth="1" fill="none" opacity="0.4" />
@@ -93,7 +93,7 @@ function FlowerGarlandLeft() {
 // Mirror image right side
 function FlowerGarlandRight() {
   return (
-    <svg viewBox="0 0 280 420" fill="none" className="absolute top-0 right-0 h-full w-[22%] pointer-events-none" style={{ transform: 'scaleX(-1)' }} aria-hidden="true">
+    <svg viewBox="0 0 280 420" fill="none" className="absolute top-0 right-0 h-full w-[16%] sm:w-[22%] pointer-events-none hidden md:block" style={{ transform: 'scaleX(-1)' }} aria-hidden="true">
       <path d="M30,0 C40,80 20,160 50,240 C70,300 40,360 60,420" stroke="#C8A882" strokeWidth="1.2" fill="none" opacity="0.5" />
       <path d="M70,0 C80,60 55,140 80,220 C100,280 75,350 90,420" stroke="#D4B896" strokeWidth="1" fill="none" opacity="0.4" />
       {[
@@ -212,7 +212,7 @@ function ArchCard({ children, active }) {
         <circle cx="130" cy="308" r="2.5" fill="#C9A45C" opacity="0.6" />
       </svg>
       {/* Card content */}
-      <div className="relative z-10 flex flex-col items-center px-7 pt-8 pb-7 w-full h-full">
+      <div className="relative z-10 flex flex-col items-center px-4 sm:px-7 pt-6 sm:pt-8 pb-6 sm:pb-7 w-full h-full text-center">
         {children}
       </div>
     </div>
@@ -224,6 +224,7 @@ export default function TestimonialsCarousel() {
   const [dir, setDir] = useState(0)
   const total = TESTIMONIALS.length
   const timerRef = useRef(null)
+  const touchStartX = useRef(null)
 
   const restart = () => {
     clearInterval(timerRef.current)
@@ -240,6 +241,21 @@ export default function TestimonialsCarousel() {
 
   const prev = () => { setDir(-1); setIdx(i => (i - 1 + total) % total); restart() }
   const next = () => { setDir(1); setIdx(i => (i + 1) % total); restart() }
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (diff > 40) {
+      next()
+    } else if (diff < -40) {
+      prev()
+    }
+    touchStartX.current = null
+  }
 
   // Show 3 cards: prev, current, next
   const cards = [-1, 0, 1].map(offset => {
@@ -272,39 +288,43 @@ export default function TestimonialsCarousel() {
       <FlowerGarlandRight />
 
       {/* Section Header */}
-      <div className="relative z-10 text-center pt-10 pb-6 px-4">
-        <span className="inline-flex items-center gap-2 text-[#9B2043] text-[10px] font-bold tracking-[0.32em] uppercase mb-3">
-          <span className="block w-8 h-px bg-[#C9A45C]/60" />
+      <div className="relative z-10 text-center pt-8 sm:pt-10 pb-5 sm:pb-6 px-4">
+        <span className="inline-flex items-center gap-2 text-[#9B2043] text-[9.5px] sm:text-[10px] font-bold tracking-[0.32em] uppercase mb-2 sm:mb-3">
+          <span className="block w-6 sm:w-8 h-px bg-[#C9A45C]/60" />
           ✦ PATRON EXPERIENCES ✦
-          <span className="block w-8 h-px bg-[#C9A45C]/60" />
+          <span className="block w-6 sm:w-8 h-px bg-[#C9A45C]/60" />
         </span>
-        <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#211D1E] font-bold leading-tight">
+        <h2 className="font-serif text-2xl xs:text-3xl sm:text-4xl lg:text-5xl text-[#211D1E] font-bold leading-tight">
           Voices of{' '}
           <span
             style={{ fontFamily: "'Alex Brush','Cormorant Garamond',cursive" }}
-            className="italic font-normal text-[#7B1030] text-4xl sm:text-5xl lg:text-6xl"
+            className="italic font-normal text-[#7B1030] text-3xl xs:text-4xl sm:text-5xl lg:text-6xl"
           >
             Elegance
           </span>
         </h2>
-        <p className="font-sans text-xs sm:text-sm text-[#211D1E]/60 mt-2 max-w-lg mx-auto leading-relaxed">
+        <p className="font-sans text-[11.5px] sm:text-sm text-[#211D1E]/60 mt-1.5 sm:mt-2 max-w-lg mx-auto leading-relaxed px-2">
           From royal wedding galas to intimate soirees — draped in timeless AGVIA grace.
         </p>
       </div>
 
-      {/* Carousel */}
-      <div className="relative z-10 flex items-center justify-center gap-3 sm:gap-5 px-10 sm:px-16 pb-6">
+      {/* Carousel with Touch Swipe Support */}
+      <div 
+        className="relative z-10 flex items-center justify-center gap-1.5 xs:gap-3 sm:gap-5 px-2 xs:px-4 sm:px-16 pb-6 select-none"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Left arrow */}
         <button
           onClick={prev}
-          className="shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/80 border border-[#C9A45C]/40 shadow-md flex items-center justify-center text-[#7B1030] hover:bg-[#7B1030] hover:text-white hover:border-[#7B1030] transition-all"
+          className="shrink-0 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white/90 border border-[#C9A45C]/40 shadow-md flex items-center justify-center text-[#7B1030] hover:bg-[#7B1030] hover:text-white hover:border-[#7B1030] transition-all"
           aria-label="Previous"
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft size={16} />
         </button>
 
-        {/* Cards */}
-        <div className="flex items-end justify-center gap-3 sm:gap-4 flex-1 min-w-0">
+        {/* Cards Container */}
+        <div className="flex items-end justify-center gap-3 sm:gap-4 flex-1 min-w-0 max-w-3xl">
           {cards.map(({ name, city, rating, quote, avatar, offset }) => {
             const isCenter = offset === 0
             return (
@@ -316,16 +336,16 @@ export default function TestimonialsCarousel() {
                   y: isCenter ? 0 : 18,
                 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className={`${isCenter ? 'w-[38%] max-w-[280px]' : 'hidden sm:block w-[28%] max-w-[210px]'} shrink-0`}
+                className={`${isCenter ? 'w-full max-w-[320px] sm:w-[38%] sm:max-w-[280px]' : 'hidden sm:block w-[28%] max-w-[210px]'} shrink-0`}
               >
                 <ArchCard active={isCenter}>
                   {/* Avatar */}
-                  <div className={`relative mb-3 ${isCenter ? 'w-16 h-16' : 'w-12 h-12'} rounded-full overflow-hidden border-2 border-[#C9A45C]/60 shadow-md shrink-0`}>
+                  <div className={`relative mb-2.5 sm:mb-3 ${isCenter ? 'w-14 h-14 sm:w-16 sm:h-16' : 'w-12 h-12'} rounded-full overflow-hidden border-2 border-[#C9A45C]/60 shadow-md shrink-0`}>
                     <img src={avatar} alt={name} className="w-full h-full object-cover object-top" />
                   </div>
 
                   {/* Stars */}
-                  <div className="flex gap-0.5 mb-2">
+                  <div className="flex gap-0.5 mb-1.5 sm:mb-2">
                     {[...Array(rating)].map((_, s) => (
                       <Star key={s} size={isCenter ? 11 : 9} className="text-[#C9A45C] fill-[#C9A45C]" />
                     ))}
@@ -333,29 +353,29 @@ export default function TestimonialsCarousel() {
 
                   {/* Quote mark */}
                   <span
-                    className="text-[#C9A45C] leading-none mb-1 block"
-                    style={{ fontFamily: 'Georgia, serif', fontSize: isCenter ? 42 : 30, lineHeight: 0.8 }}
+                    className="text-[#C9A45C] leading-none mb-0.5 sm:mb-1 block"
+                    style={{ fontFamily: 'Georgia, serif', fontSize: isCenter ? 36 : 28, lineHeight: 0.8 }}
                   >
                     "
                   </span>
 
                   {/* Quote text */}
-                  <p className={`font-sans italic text-[#211D1E]/75 text-center leading-relaxed mb-3 ${isCenter ? 'text-[12px]' : 'text-[10.5px]'}`}>
+                  <p className={`font-sans italic text-[#211D1E]/75 text-center leading-relaxed mb-2.5 sm:mb-3 ${isCenter ? 'text-[11.5px] sm:text-[12px]' : 'text-[10px] sm:text-[10.5px]'}`}>
                     {quote}
                   </p>
 
                   {/* Divider flourish */}
-                  <div className="flex items-center gap-1.5 mb-2">
+                  <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2 w-full max-w-[140px]">
                     <span className="block flex-1 h-px bg-[#C9A45C]/30" />
                     <span className="text-[#C9A45C] text-[8px]">✦</span>
                     <span className="block flex-1 h-px bg-[#C9A45C]/30" />
                   </div>
 
                   {/* Name */}
-                  <p className={`font-serif font-bold text-[#7B1030] text-center ${isCenter ? 'text-sm' : 'text-xs'}`}>
+                  <p className={`font-serif font-bold text-[#7B1030] text-center ${isCenter ? 'text-[13px] sm:text-sm' : 'text-xs'}`}>
                     {name}
                   </p>
-                  <p className="font-sans text-[8.5px] tracking-[0.22em] text-[#211D1E]/45 text-center mt-0.5">
+                  <p className="font-sans text-[8px] sm:text-[8.5px] tracking-[0.22em] text-[#211D1E]/45 text-center mt-0.5">
                     {city}
                   </p>
                 </ArchCard>
@@ -367,10 +387,10 @@ export default function TestimonialsCarousel() {
         {/* Right arrow */}
         <button
           onClick={next}
-          className="shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/80 border border-[#C9A45C]/40 shadow-md flex items-center justify-center text-[#7B1030] hover:bg-[#7B1030] hover:text-white hover:border-[#7B1030] transition-all"
+          className="shrink-0 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white/90 border border-[#C9A45C]/40 shadow-md flex items-center justify-center text-[#7B1030] hover:bg-[#7B1030] hover:text-white hover:border-[#7B1030] transition-all"
           aria-label="Next"
         >
-          <ChevronRight size={18} />
+          <ChevronRight size={16} />
         </button>
       </div>
 

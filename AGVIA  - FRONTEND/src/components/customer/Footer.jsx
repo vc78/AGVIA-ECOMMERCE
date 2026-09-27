@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Instagram, Facebook, Youtube, Mail, ShoppingBag,
-  Info, Headphones, ShieldCheck, Truck, RotateCcw, ChevronRight, Landmark
+  Info, Headphones, ShieldCheck, Truck, RotateCcw, ChevronRight, ChevronDown, Landmark
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { BUSINESS } from '../../constants/business'
@@ -46,6 +46,11 @@ function ColSep() {
 export default function Footer() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const [openSection, setOpenSection] = useState(null)
+
+  const toggleSection = (section) => {
+    setOpenSection(prev => prev === section ? null : section)
+  }
 
   const handleSubscribe = async (e) => {
     e.preventDefault()
@@ -228,24 +233,24 @@ export default function Footer() {
         {/* Main Content Container */}
         <div className="relative z-10 max-w-[1340px] mx-auto px-4 sm:px-6 xl:px-8 pt-4 pb-6">
           
-          {/* 5-Column Grid on Desktop / Reflowing on Tablet & Mobile */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row items-start justify-between gap-8 lg:gap-0 pb-8 border-b border-white/10">
+          {/* 5-Column Grid on Desktop / Accordion Reflow on Mobile */}
+          <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-0 pb-8 border-b border-white/10">
 
             {/* Column 1: Brand Showcase */}
-            <div className="sm:col-span-2 md:col-span-3 lg:col-span-1 lg:w-[22%] shrink-0 flex flex-col items-start lg:pr-5">
-              <Link to="/" className="mb-3.5 group inline-block">
+            <div className="w-full lg:w-[24%] shrink-0 flex flex-col items-start lg:pr-6 pb-4 lg:pb-0 border-b border-white/10 lg:border-b-0">
+              <Link to="/" className="mb-3 group inline-block">
                 <img
                   src="/images/agvia-logo.png"
                   alt="AGVIA Women's Wear Boutique"
-                  className="h-16 w-auto object-contain brightness-110 drop-shadow-[0_2px_12px_rgba(201,164,92,0.35)] group-hover:scale-105 transition-transform duration-300"
+                  className="h-14 sm:h-16 w-auto object-contain brightness-110 drop-shadow-[0_2px_12px_rgba(201,164,92,0.35)] group-hover:scale-105 transition-transform duration-300"
                 />
               </Link>
-              <p className="font-sans text-[12px] text-white/70 leading-relaxed mb-5 max-w-sm">
+              <p className="font-sans text-[11.5px] sm:text-[12px] text-white/70 leading-relaxed mb-4 max-w-sm">
                 Curating bespoke ethnic and contemporary wear for the modern woman. Tradition, quality and elegance — all in one place.
               </p>
               
               {/* Circular Gold Outline Social Icons */}
-              <div className="flex gap-2.5 flex-wrap items-center">
+              <div className="flex gap-2 flex-wrap items-center">
                 {socials.map(({ icon: Icon, href, label }) => (
                   <a
                     key={label}
@@ -264,65 +269,125 @@ export default function Footer() {
             <ColSep />
 
             {/* Column 2: Shop */}
-            <div className="lg:w-[17%] shrink-0 px-0 lg:px-3">
-              <h4 className={headingCls}>
-                <ShoppingBag size={14} className="text-[#C9A45C]" /> Shop
-              </h4>
-              <ul className="space-y-1">
-                {shopLinks.map((l) => (
-                  <li key={l.label}>
-                    <Link to={l.to} className={linkCls}>{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
+            <div className="w-full lg:w-[17%] shrink-0 px-0 lg:px-3 border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
+              <button
+                type="button"
+                onClick={() => toggleSection('shop')}
+                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
+                aria-expanded={openSection === 'shop'}
+              >
+                <h4 className={headingCls}>
+                  <ShoppingBag size={14} className="text-[#C9A45C]" /> Shop
+                </h4>
+                <ChevronDown
+                  size={15}
+                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
+                    openSection === 'shop' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              <div className={`${openSection === 'shop' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
+                  {shopLinks.map((l) => (
+                    <li key={l.label}>
+                      <Link to={l.to} className={linkCls}>{l.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <ColSep />
 
             {/* Column 3: About */}
-            <div className="lg:w-[15%] shrink-0 px-0 lg:px-3">
-              <h4 className={headingCls}>
-                <Info size={14} className="text-[#C9A45C]" /> About
-              </h4>
-              <ul className="space-y-1">
-                {aboutLinks.map((l) => (
-                  <li key={l.label}>
-                    <Link to={l.to} className={linkCls}>{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
+            <div className="w-full lg:w-[15%] shrink-0 px-0 lg:px-3 border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
+              <button
+                type="button"
+                onClick={() => toggleSection('about')}
+                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
+                aria-expanded={openSection === 'about'}
+              >
+                <h4 className={headingCls}>
+                  <Info size={14} className="text-[#C9A45C]" /> About
+                </h4>
+                <ChevronDown
+                  size={15}
+                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
+                    openSection === 'about' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              <div className={`${openSection === 'about' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
+                  {aboutLinks.map((l) => (
+                    <li key={l.label}>
+                      <Link to={l.to} className={linkCls}>{l.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <ColSep />
 
             {/* Column 4: Help & Support */}
-            <div className="lg:w-[22%] shrink-0 px-0 lg:px-3">
-              <h4 className={headingCls}>
-                <Headphones size={14} className="text-[#C9A45C]" /> Help &amp; Support
-              </h4>
-              <ul className="space-y-1">
-                {helpLinks.map((l) => (
-                  <li key={l.label}>
-                    <Link to={l.to} className={linkCls}>{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
+            <div className="w-full lg:w-[22%] shrink-0 px-0 lg:px-3 border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
+              <button
+                type="button"
+                onClick={() => toggleSection('help')}
+                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
+                aria-expanded={openSection === 'help'}
+              >
+                <h4 className={headingCls}>
+                  <Headphones size={14} className="text-[#C9A45C]" /> Help &amp; Support
+                </h4>
+                <ChevronDown
+                  size={15}
+                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
+                    openSection === 'help' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              <div className={`${openSection === 'help' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
+                  {helpLinks.map((l) => (
+                    <li key={l.label}>
+                      <Link to={l.to} className={linkCls}>{l.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <ColSep />
 
             {/* Column 5: Policies */}
-            <div className="lg:flex-1 px-0 lg:px-3">
-              <h4 className={headingCls}>
-                <ShieldCheck size={14} className="text-[#C9A45C]" /> Policies
-              </h4>
-              <ul className="space-y-1">
-                {policyLinks.map((l) => (
-                  <li key={l.label}>
-                    <Link to={l.to} className={linkCls}>{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
+            <div className="w-full lg:flex-1 px-0 lg:px-3 pb-2 lg:pb-0">
+              <button
+                type="button"
+                onClick={() => toggleSection('policies')}
+                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
+                aria-expanded={openSection === 'policies'}
+              >
+                <h4 className={headingCls}>
+                  <ShieldCheck size={14} className="text-[#C9A45C]" /> Policies
+                </h4>
+                <ChevronDown
+                  size={15}
+                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
+                    openSection === 'policies' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              <div className={`${openSection === 'policies' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
+                  {policyLinks.map((l) => (
+                    <li key={l.label}>
+                      <Link to={l.to} className={linkCls}>{l.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
           </div>
@@ -330,18 +395,18 @@ export default function Footer() {
           {/* ══════════════════════════════════════════════════════════════
               3. NEWSLETTER & TRUST BADGES HORIZONTAL BAR
           ══════════════════════════════════════════════════════════════ */}
-          <div className="my-5 rounded-2xl bg-[#23030A]/85 backdrop-blur-md border border-[#C9A45C]/30 p-4 sm:p-5 flex flex-col xl:flex-row items-center justify-between gap-5 shadow-lg">
+          <div className="my-4 sm:my-5 rounded-2xl bg-[#23030A]/90 backdrop-blur-md border border-[#C9A45C]/30 p-3.5 sm:p-5 flex flex-col xl:flex-row items-center justify-between gap-4 sm:gap-5 shadow-lg">
             
             {/* Newsletter Info Header */}
-            <div className="flex items-center gap-3.5 w-full xl:w-auto">
-              <div className="w-10 h-10 rounded-full bg-[#C9A45C]/15 border border-[#C9A45C]/40 flex items-center justify-center shrink-0">
-                <Mail size={19} className="text-[#C9A45C]" />
+            <div className="flex items-center gap-3 w-full xl:w-auto">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#C9A45C]/15 border border-[#C9A45C]/40 flex items-center justify-center shrink-0">
+                <Mail size={18} className="text-[#C9A45C]" />
               </div>
               <div>
-                <h5 className="font-serif text-[14px] font-semibold text-white tracking-wide">
+                <h5 className="font-serif text-[13.5px] sm:text-[14px] font-semibold text-white tracking-wide">
                   Subscribe to Our World
                 </h5>
-                <p className="font-sans text-[11px] text-white/60">
+                <p className="font-sans text-[10.5px] sm:text-[11px] text-white/60">
                   Get exclusive updates, new arrivals and special offers.
                 </p>
               </div>
@@ -356,14 +421,14 @@ export default function Footer() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
+                placeholder="Enter your email"
                 required
-                className="flex-1 min-w-0 bg-transparent text-[12px] font-sans text-white placeholder-white/40 px-4 py-2 focus:outline-none"
+                className="flex-1 min-w-0 bg-transparent text-[11px] sm:text-[12px] font-sans text-white placeholder-white/40 px-3 sm:px-4 py-2 focus:outline-none"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="touch-target bg-[#FAF7F2] hover:bg-[#C9A45C] text-[#5A1020] hover:text-[#1A0B10] font-bold text-[11px] tracking-wider uppercase px-5 py-2.5 rounded-full transition-all flex items-center gap-1 shrink-0 shadow-sm"
+                className="touch-target bg-[#FAF7F2] hover:bg-[#C9A45C] text-[#5A1020] hover:text-[#1A0B10] font-bold text-[10px] sm:text-[11px] tracking-wider uppercase px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all flex items-center gap-1 shrink-0 shadow-sm"
               >
                 <span>SUBSCRIBE</span>
                 <ChevronRight size={13} strokeWidth={2.5} />
@@ -374,28 +439,28 @@ export default function Footer() {
             <div className="hidden xl:block w-[1px] h-10 bg-[#C9A45C]/30 mx-1" />
 
             {/* 3 Trust Badges */}
-            <div className="flex items-center gap-6 sm:gap-8 flex-wrap justify-center w-full xl:w-auto">
-              <div className="flex items-center gap-2.5">
-                <Truck size={22} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
+            <div className="grid grid-cols-3 gap-2 w-full pt-3 sm:pt-0 border-t border-[#C9A45C]/20 sm:border-none sm:flex sm:items-center sm:gap-6 sm:w-auto justify-center">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-1 sm:gap-2.5">
+                <Truck size={20} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
                 <div>
-                  <p className="font-serif text-[12px] font-semibold text-white leading-tight">Free Shipping</p>
-                  <p className="font-sans text-[10px] text-white/50 leading-tight">On all orders</p>
+                  <p className="font-serif text-[11px] sm:text-[12px] font-semibold text-white leading-tight">Free Shipping</p>
+                  <p className="font-sans text-[9.5px] sm:text-[10px] text-white/50 leading-tight">Orders ₹999+</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5">
-                <RotateCcw size={20} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-1 sm:gap-2.5">
+                <RotateCcw size={19} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
                 <div>
-                  <p className="font-serif text-[12px] font-semibold text-white leading-tight">Easy Returns</p>
-                  <p className="font-sans text-[10px] text-white/50 leading-tight">Hassle-free 7 days</p>
+                  <p className="font-serif text-[11px] sm:text-[12px] font-semibold text-white leading-tight">Easy Returns</p>
+                  <p className="font-sans text-[9.5px] sm:text-[10px] text-white/50 leading-tight">7 Days Policy</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck size={22} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-1 sm:gap-2.5">
+                <ShieldCheck size={20} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
                 <div>
-                  <p className="font-serif text-[12px] font-semibold text-white leading-tight">Secure Payments</p>
-                  <p className="font-sans text-[10px] text-white/50 leading-tight">100% Safe &amp; Trusted</p>
+                  <p className="font-serif text-[11px] sm:text-[12px] font-semibold text-white leading-tight">Secure Pay</p>
+                  <p className="font-sans text-[9.5px] sm:text-[10px] text-white/50 leading-tight">100% Encrypted</p>
                 </div>
               </div>
             </div>
