@@ -70,7 +70,8 @@ public class OrderService {
                 .build();
 
         for (CartItem cartItem : cart.getItems()) {
-            Product product = productRepository.findById(cartItem.getProduct().getId())
+            // Pessimistic write lock ensures atomic check-and-decrement under high concurrency (e.g. flash sales)
+            Product product = productRepository.findByIdWithPessimisticLock(cartItem.getProduct().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + cartItem.getProduct().getId()));
 
             if (product.getStockQuantity() < cartItem.getQuantity()) {

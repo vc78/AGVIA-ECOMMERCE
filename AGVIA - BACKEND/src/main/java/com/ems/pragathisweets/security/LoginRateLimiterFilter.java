@@ -43,7 +43,16 @@ public class LoginRateLimiterFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        if ("POST".equalsIgnoreCase(request.getMethod()) && request.getRequestURI().endsWith("/api/auth/login")) {
+        String uri = request.getRequestURI();
+        boolean isProtectedAuthEndpoint = "POST".equalsIgnoreCase(request.getMethod()) && (
+                uri.endsWith("/api/auth/login") ||
+                uri.endsWith("/api/auth/send-login-otp") ||
+                uri.endsWith("/api/auth/signup-otp") ||
+                uri.endsWith("/api/auth/verify-login-otp") ||
+                uri.endsWith("/api/auth/verify-signup-otp")
+        );
+
+        if (isProtectedAuthEndpoint) {
             String clientIp = getClientIp(request);
             long now = System.currentTimeMillis();
 
@@ -59,7 +68,7 @@ public class LoginRateLimiterFilter extends OncePerRequestFilter {
             if (tracker.requestCount > MAX_REQUESTS_PER_MINUTE) {
                 response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.getWriter().write("{\"success\":false,\"message\":\"Too many login attempts. Please wait 1 minute before retrying.\",\"data\":null}");
+                response.getWriter().write("{\"success\":false,\"message\":\"Too many authentication attempts. Please wait 1 minute before retrying.\",\"data\":null}");
                 return;
             }
         }

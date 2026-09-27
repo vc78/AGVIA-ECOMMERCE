@@ -105,6 +105,12 @@ public class PaymentService {
         Payment payment = paymentRepository.findByOrderId(order.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No payment record found for this order"));
 
+        // Idempotency guard: If payment is already marked SUCCESS, return safely without duplicate side effects
+        if (payment.getStatus() == PaymentStatus.SUCCESS && order.getPaymentStatus() == PaymentStatus.SUCCESS) {
+            log.info("[PaymentService] Idempotent payment verification ignored for order: {}", order.getOrderNumber());
+            return;
+        }
+
         Map<String, String> attributes = new HashMap<>();
         attributes.put("razorpay_order_id", request.getRazorpayOrderId());
         attributes.put("razorpay_payment_id", request.getRazorpayPaymentId());

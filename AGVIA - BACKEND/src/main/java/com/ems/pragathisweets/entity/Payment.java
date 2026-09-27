@@ -7,7 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payments")
+@Table(name = "payments", indexes = {
+    @Index(name = "idx_payments_order_id", columnList = "order_id"),
+    @Index(name = "idx_payments_razorpay_order_id", columnList = "razorpay_order_id"),
+    @Index(name = "idx_payments_razorpay_payment_id", columnList = "razorpay_payment_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
