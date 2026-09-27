@@ -26,6 +26,12 @@ export default function Products() {
   const [loading, setLoading] = useState(true)
   const [showFiltersMobile, setShowFiltersMobile] = useState(false)
 
+  // Compute total active filters for badge counter and responsive indicator
+  const activeFilterCount =
+    (activeCategory !== 'All' ? 1 : 0) +
+    (search ? 1 : 0) +
+    (priceRange !== 25000 ? 1 : 0)
+
   const { addToCart } = useCart()
 
   // Sync category & search query from URL parameters
@@ -210,34 +216,56 @@ export default function Products() {
           <div className="lg:col-span-9 space-y-4">
             
             {/* Header controls toolbar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-[#B8860B]/10 pb-2.5 select-none">
+            <div className="space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3 border-b border-[#B8860B]/10 pb-3 select-none">
               
-              {/* Search Bar */}
+              {/* Search Bar - full width on mobile, constrained on desktop */}
               <div className="relative w-full sm:max-w-xs">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#3A2D23]/40" />
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#3A2D23]/40 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="SEARCH SELECTION..."
+                  placeholder="SEARCH SILHOUETTES..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-9 py-1.5 rounded-xl border border-[#B8860B]/20 bg-white text-xs tracking-wider placeholder-[#3A2D23]/30 focus:outline-none focus:border-[#8B0000] focus:ring-1 focus:ring-[#8B0000] transition-all"
+                  className="w-full pl-9 pr-9 py-2 rounded-xl border border-[#B8860B]/20 bg-white text-xs tracking-wider placeholder-[#3A2D23]/30 focus:outline-none focus:border-[#5A1020] focus:ring-1 focus:ring-[#5A1020] transition-all"
                 />
                 {search && (
-                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#3A2D23]/40 hover:text-[#8B0000]">
+                  <button
+                    onClick={() => setSearch('')}
+                    aria-label="Clear search"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#3A2D23]/40 hover:text-[#5A1020] p-1"
+                  >
                     <X size={12} />
                   </button>
                 )}
               </div>
 
-              <div className="flex items-center justify-between sm:justify-end gap-3.5 sm:gap-4">
+              {/* Action Controls: Filters, Sort, View Toggle */}
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                 
+                {/* Mobile Filter Button - perfectly fitted luxury pill button */}
+                <button
+                  onClick={() => setShowFiltersMobile(true)}
+                  aria-label="Open boutique filters"
+                  className="lg:hidden flex-1 sm:flex-none flex items-center justify-center gap-1.5 min-w-[90px] max-w-[140px] sm:max-w-none border border-[#5A1020]/25 bg-gradient-to-b from-white to-[#FAF6F0] hover:to-[#F2ECE4] active:scale-[0.98] rounded-xl px-3 py-2 min-h-[42px] text-xs font-bold text-[#5A1020] transition-all shadow-2xs whitespace-nowrap shrink-0 touch-target"
+                >
+                  <SlidersHorizontal size={14} className="text-[#C9A45C] shrink-0" />
+                  <span>Filters</span>
+                  {activeFilterCount > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-[#5A1020] text-white text-[9.5px] font-extrabold flex items-center justify-center ml-0.5 shadow-xs">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+
                 {/* Sort selection */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[9.5px] tracking-widest text-[#3A2D23]/40 uppercase font-bold">Sort:</span>
+                <div className="flex-1 sm:flex-none flex items-center gap-1 border border-[#B8860B]/20 bg-white rounded-xl px-2.5 py-1 min-h-[42px] shadow-2xs min-w-0">
+                  <span className="hidden min-[480px]:inline text-[9.5px] tracking-wider text-[#3A2D23]/45 uppercase font-bold shrink-0">
+                    Sort:
+                  </span>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-transparent text-[11px] tracking-wider text-[#3A2D23]/80 focus:outline-none uppercase border-b border-[#B8860B]/20 pb-0.5"
+                    className="w-full sm:w-auto bg-transparent text-[11px] sm:text-xs font-medium text-[#3A2D23]/80 focus:outline-none uppercase cursor-pointer truncate"
                   >
                     <option value="popular">Popularity</option>
                     <option value="price-low">Price: Low to High</option>
@@ -247,37 +275,30 @@ export default function Products() {
                 </div>
 
                 {/* Grid View toggle controls */}
-                <div className="flex items-center gap-1 border border-[#B8860B]/20 rounded-xl p-1 bg-white">
+                <div className="shrink-0 flex items-center gap-0.5 border border-[#B8860B]/20 rounded-xl p-1 bg-white min-h-[42px] shadow-2xs">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`touch-target w-9 h-9 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#5A1020] text-white shadow-xs' : 'text-[#3A2D23]/50 hover:text-[#5A1020]'}`}
+                    className={`touch-target w-8 h-8 rounded-lg transition-all flex items-center justify-center ${viewMode === 'grid' ? 'bg-[#5A1020] text-white shadow-xs' : 'text-[#3A2D23]/50 hover:text-[#5A1020]'}`}
                     title="Grid View"
                   >
                     <Grid size={15} />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`touch-target w-9 h-9 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#5A1020] text-white shadow-xs' : 'text-[#3A2D23]/50 hover:text-[#5A1020]'}`}
+                    className={`touch-target w-8 h-8 rounded-lg transition-all flex items-center justify-center ${viewMode === 'list' ? 'bg-[#5A1020] text-white shadow-xs' : 'text-[#3A2D23]/50 hover:text-[#5A1020]'}`}
                     title="List View"
                   >
                     <List size={15} />
                   </button>
                 </div>
 
-                {/* Mobile Filter Button */}
-                <button
-                  onClick={() => setShowFiltersMobile(true)}
-                  className="lg:hidden flex items-center justify-center gap-1.5 border border-[#B8860B]/20 bg-white rounded-xl px-3.5 min-h-[44px] text-xs font-semibold text-[#5A1020] hover:border-[#5A1020] touch-target shadow-xs"
-                >
-                  <SlidersHorizontal size={14} /> <span>Filters</span>
-                </button>
               </div>
 
             </div>
 
             {/* Active filters summary */}
-            {(activeCategory !== 'All' || search || priceRange !== 2000) && (
-              <div className="flex items-center gap-2 flex-wrap select-none">
+            {(activeCategory !== 'All' || search || priceRange !== 25000) && (
+              <div className="flex items-center gap-2 flex-wrap select-none pt-0.5">
                 <span className="text-[10px] text-[#3A2D23]/40 font-bold uppercase">Active:</span>
                 {activeCategory !== 'All' && (
                   <span className="text-[10px] bg-[#8B0000]/5 text-[#8B0000] px-3 py-1 rounded-full flex items-center gap-1.5 border border-[#B8860B]/10 font-bold">
@@ -291,12 +312,18 @@ export default function Products() {
                     <button onClick={() => setSearch('')}><X size={10} /></button>
                   </span>
                 )}
-                {priceRange !== 2000 && (
+                {priceRange !== 25000 && (
                   <span className="text-[10px] bg-[#8B0000]/5 text-[#8B0000] px-3 py-1 rounded-full flex items-center gap-1.5 border border-[#B8860B]/10 font-bold">
                     Under ₹{priceRange}
-                    <button onClick={() => setPriceRange(2000)}><X size={10} /></button>
+                    <button onClick={() => setPriceRange(25000)}><X size={10} /></button>
                   </span>
                 )}
+                <button
+                  onClick={clearFilters}
+                  className="text-[10px] text-[#C9A45C] hover:text-[#5A1020] font-bold uppercase underline ml-1"
+                >
+                  Clear All
+                </button>
               </div>
             )}
 
@@ -432,9 +459,23 @@ export default function Products() {
                   <span className="font-serif text-lg tracking-wider text-[#5A1020] font-bold uppercase flex items-center gap-2">
                     <SlidersHorizontal size={16} /> Filters
                   </span>
-                  <button onClick={() => setShowFiltersMobile(false)} className="touch-target w-10 h-10 min-w-[40px] min-h-[40px] rounded-full hover:bg-[#F2ECE4] text-[#5A1020] flex items-center justify-center">
-                    <X size={18} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {activeFilterCount > 0 && (
+                      <button
+                        onClick={clearFilters}
+                        className="text-[10px] tracking-wider text-[#C9A45C] hover:text-[#5A1020] font-bold uppercase underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowFiltersMobile(false)}
+                      aria-label="Close filters"
+                      className="touch-target w-9 h-9 min-w-[36px] min-h-[36px] rounded-full hover:bg-[#F2ECE4] text-[#5A1020] flex items-center justify-center transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Mobile Categories */}
@@ -463,7 +504,7 @@ export default function Products() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <h4 className="font-serif text-xs tracking-widest text-[#5A1020] font-bold uppercase">Max Price</h4>
-                    <span className="font-serif text-xs text-[#C9A45C] font-bold">₹{priceRange}</span>
+                    <span className="font-serif text-xs text-[#C9A45C] font-bold">₹{priceRange.toLocaleString('en-IN')}</span>
                   </div>
                   <input
                     type="range"
@@ -481,9 +522,21 @@ export default function Products() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#C9A45C]/20">
-                <button onClick={() => setShowFiltersMobile(false)} className="btn-primary w-full text-center min-h-[48px] text-xs font-bold tracking-widest uppercase touch-target">
-                  Apply Filters
+              <div className="pt-4 border-t border-[#C9A45C]/20 flex items-center gap-2.5">
+                <button
+                  onClick={() => {
+                    clearFilters()
+                    setShowFiltersMobile(false)
+                  }}
+                  className="btn-outline flex-1 text-center min-h-[46px] text-xs font-bold tracking-wider uppercase touch-target"
+                >
+                  Reset All
+                </button>
+                <button
+                  onClick={() => setShowFiltersMobile(false)}
+                  className="btn-primary flex-1 text-center min-h-[46px] text-xs font-bold tracking-wider uppercase touch-target"
+                >
+                  Apply {products.length > 0 ? `(${products.length})` : ''}
                 </button>
               </div>
             </motion.div>
