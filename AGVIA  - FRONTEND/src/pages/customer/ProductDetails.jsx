@@ -176,9 +176,9 @@ export default function ProductDetails() {
                 </span>
               </div>
 
-              <p className="text-xs leading-normal text-[#211D1E]/75 mt-3 tracking-wide">
+              <div className="mt-3 text-xs leading-relaxed text-[#211D1E]/85 tracking-wide whitespace-pre-line bg-white/70 border border-[#C9A45C]/20 rounded-2xl p-4 shadow-2xs font-sans">
                 {product.description}
-              </p>
+              </div>
 
               {/* Size Selector */}
               <div className="mt-4">

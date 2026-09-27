@@ -25,10 +25,36 @@ public class GeminiService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AiProductGenerateResponse generateProductContent(AiProductGenerateRequest request) {
+    private String getResolvedApiKey() {
         if (apiKey != null && !apiKey.trim().isEmpty()) {
+            return apiKey.trim();
+        }
+        String envKey = System.getenv("GEMINI_API_KEY");
+        if (envKey != null && !envKey.trim().isEmpty()) {
+            return envKey.trim();
+        }
+        // Try reading from .env file
+        try {
+            java.nio.file.Path envPath = java.nio.file.Paths.get(".env");
+            if (!java.nio.file.Files.exists(envPath)) {
+                envPath = java.nio.file.Paths.get("AGVIA - BACKEND", ".env");
+            }
+            if (java.nio.file.Files.exists(envPath)) {
+                for (String line : java.nio.file.Files.readAllLines(envPath)) {
+                    if (line.trim().startsWith("GEMINI_API_KEY=")) {
+                        return line.trim().substring("GEMINI_API_KEY=".length()).trim();
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    public AiProductGenerateResponse generateProductContent(AiProductGenerateRequest request) {
+        String key = getResolvedApiKey();
+        if (key != null && !key.isEmpty()) {
             try {
-                return callGeminiApi(request);
+                return callGeminiApi(request, key);
             } catch (Exception e) {
                 log.warn("Gemini API call failed, falling back to local boutique template generator: {}", e.getMessage());
             }
@@ -36,8 +62,8 @@ public class GeminiService {
         return generateArtisanalFallback(request);
     }
 
-    private AiProductGenerateResponse callGeminiApi(AiProductGenerateRequest request) throws Exception {
-        String endpoint = apiUrl + "?key=" + apiKey.trim();
+    private AiProductGenerateResponse callGeminiApi(AiProductGenerateRequest request, String key) throws Exception {
+        String endpoint = apiUrl + "?key=" + key;
 
         String prompt = String.format(
                 "You are an acclaimed haute couture stylist, master textile curator, and editorial copywriter for AGVIA Luxury Indian Women's Wear Atelier.\n" +

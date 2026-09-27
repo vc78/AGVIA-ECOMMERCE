@@ -381,13 +381,55 @@ export default function EditProduct() {
               </div>
             </div>
 
-            <div className="border-t border-[#C9A45C]/10 pt-3">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#C9A45C] block mb-1">
-                Couture Story & Script:
-              </span>
-              <p className="text-[11px] text-[#211D1E]/75 line-clamp-6 leading-relaxed whitespace-pre-line font-sans">
-                {form.description || 'Silhouette craftsmanship notes, weave artistry, and fabric drape will appear here.'}
-              </p>
+            <div className="border-t border-[#C9A45C]/15 pt-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#5A1020] flex items-center gap-1">
+                  <Sparkles size={11} className="text-[#C9A45C]" />
+                  Couture Story & Detailed Script
+                </span>
+                {form.description && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(form.description)
+                      toast.success('Script copied!')
+                    }}
+                    className="text-[9px] font-bold text-[#5A1020] hover:text-[#C9A45C] transition-colors"
+                  >
+                    Copy
+                  </button>
+                )}
+              </div>
+
+              {form.description ? (
+                <div className="bg-[#FAF7F2] border border-[#C9A45C]/25 rounded-2xl p-3.5 max-h-80 overflow-y-auto space-y-2 shadow-xs scrollbar-thin">
+                  <div className="flex items-center gap-1.5 text-[8.5px] font-bold text-[#5A1020] uppercase tracking-wider border-b border-[#C9A45C]/15 pb-1.5">
+                    <Sparkles size={10} className="text-[#C9A45C]" />
+                    <span>Gemini Haute Couture Script</span>
+                    <span className="ml-auto text-[#211D1E]/40 font-normal">
+                      {form.description.split(/\s+/).filter(Boolean).length} words
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#211D1E]/85 leading-relaxed whitespace-pre-line font-sans">
+                    {form.description}
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-[#FAF7F2]/60 border border-dashed border-[#C9A45C]/30 rounded-2xl p-4 text-center space-y-2">
+                  <p className="text-[11px] text-[#211D1E]/60 leading-relaxed font-sans italic">
+                    Silhouette craftsmanship notes, weave artistry, and fabric drape will appear here.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAiGenerate}
+                    disabled={aiGenerating}
+                    className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[#5A1020] hover:text-white bg-[#5A1020]/10 hover:bg-[#5A1020] px-3 py-1.5 rounded-full border border-[#C9A45C]/40 uppercase tracking-wider transition-all disabled:opacity-50"
+                  >
+                    {aiGenerating ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
+                    <span>{aiGenerating ? 'Writing Script via Gemini...' : 'Generate AI Script Below Product'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

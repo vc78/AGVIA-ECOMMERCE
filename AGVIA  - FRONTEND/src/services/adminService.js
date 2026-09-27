@@ -304,6 +304,7 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
           }
         }
       }
+      }
     } catch (geminiErr) {
       console.error('Direct Gemini query error:', geminiErr)
     }
