@@ -1,5 +1,6 @@
+const rawApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://agvia-backend-1-xq21.onrender.com/api'
 const apiOrigin = new URL(
-    import.meta.env.VITE_API_URL || '/api',
+    rawApiUrl,
     window.location.origin
 ).origin
 
