@@ -149,8 +149,8 @@ export default function AddProduct() {
         <p className="text-xs text-[#211D1E]/60 mt-1">Introduce a new handcrafted luxury ensemble to the AGVIA atelier collection.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-body">
-        <form onSubmit={handleSubmit} className="lg:col-span-8 bg-white border border-[#C9A45C]/20 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 font-body">
+        <form onSubmit={handleSubmit} className="lg:col-span-8 bg-white border border-[#C9A45C]/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm space-y-6">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">Silhouette Title *</label>
             <input
@@ -314,7 +314,7 @@ export default function AddProduct() {
 
         {/* Live Preview Panel */}
         <div className="lg:col-span-4 select-none">
-          <div className="bg-white border border-[#C9A45C]/20 rounded-3xl p-6 shadow-sm space-y-4 sticky top-28">
+          <div className="bg-white border border-[#C9A45C]/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4 sticky top-28">
             <h3 className="font-serif text-sm tracking-widest uppercase font-bold text-[#5A1020] flex items-center gap-1.5 border-b border-[#C9A45C]/15 pb-3">
               <Sparkles size={14} className="text-[#C9A45C]" /> Live Boutique Preview
             </h3>

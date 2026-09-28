@@ -16,8 +16,11 @@ import {
   XCircle,
   CalendarPlus,
   RefreshCw,
-  X
+  X,
+  FileText
 } from 'lucide-react'
+import { exportSubscriptionsPDF } from '../../utils/pdfExportUtils'
+
 
 export default function SubscriptionsManagement() {
   const [subscriptions, setSubscriptions] = useState([])
@@ -148,9 +151,27 @@ export default function SubscriptionsManagement() {
     }
   }
 
+  const handleExport = async () => {
+    if (subscriptions.length === 0) {
+      toast.error('No subscriptions available to export.')
+      return
+    }
+    toast.loading('Generating VIP Circle PDF...', { id: 'vip-pdf' })
+    try {
+      await exportSubscriptionsPDF(subscriptions)
+      toast.success(`Exported ${subscriptions.length} VIP subscriptions to branded PDF!`, {
+        id: 'vip-pdf',
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to generate PDF document.', { id: 'vip-pdf' })
+    }
+  }
+
   return (
     <AdminLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8 font-body">
         
         {/* Page Title & Top Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -161,28 +182,37 @@ export default function SubscriptionsManagement() {
                 <Crown size={11} /> AGVIA Atelier Circle
               </span>
             </div>
-            <h1 className="font-display text-2xl md:text-3xl text-[#8B0000] font-bold mt-1">
+            <h1 className="font-serif text-2xl sm:text-3xl text-[#5A1020] font-bold mt-1">
               VIP Subscriptions
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#C9A45C]/40 bg-[#FFFDF8] hover:bg-[#5A1020] text-[#5A1020] hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
+              title="Download VIP Circle PDF"
+            >
+              <FileText size={13} className="text-[#C9A45C]" />
+              <span>Export VIP (PDF)</span>
+            </button>
             <button
               onClick={loadData}
-              className="p-2.5 rounded-xl border border-[#B8860B]/20 text-[#8B0000] hover:bg-[#F5E6C8]/20 transition-colors"
+              className="p-2 sm:p-2.5 rounded-xl border border-[#B8860B]/20 text-[#8B0000] hover:bg-[#F5E6C8]/20 transition-colors touch-target"
               title="Refresh Data"
             >
-              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
             </button>
             <button
               onClick={() => setShowGrantModal(true)}
-              className="btn-primary !py-2.5 !px-5 text-xs flex items-center gap-2 shadow-md hover:shadow-lg font-bold"
+              className="btn-primary !py-2 sm:!py-2.5 !px-4 sm:!px-5 text-xs flex items-center gap-1.5 shadow-md hover:shadow-lg font-bold touch-target"
             >
-              <Plus size={16} />
-              <span>Grant VIP Membership</span>
+              <Plus size={15} />
+              <span>Grant VIP</span>
             </button>
           </div>
         </div>
+
 
         {/* Analytics & KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

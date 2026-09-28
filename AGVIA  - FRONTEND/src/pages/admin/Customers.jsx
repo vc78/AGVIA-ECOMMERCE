@@ -2,6 +2,9 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import AdminLayout from '../../components/admin/AdminLayout'
 import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
+import { exportCustomersPDF } from '../../utils/pdfExportUtils'
+import { Download, FileText, Users, RefreshCw } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const POLL_INTERVAL = 15000 // 15 seconds
 
@@ -42,39 +45,73 @@ export default function Customers() {
     }
   }, [fetchCustomers])
 
+  const handleExportCustomers = async () => {
+    if (customers.length === 0) {
+      toast.error('No patron records available to export.')
+      return
+    }
+    try {
+      toast.loading('Compiling luxury patron directory PDF...', { id: 'pdf-customers' })
+      await exportCustomersPDF(customers)
+      toast.success(`Exported ${customers.length} patrons to official PDF!`, {
+        id: 'pdf-customers',
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to export patrons PDF.', { id: 'pdf-customers' })
+    }
+  }
+
   const columns = [
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    {
-      key: 'phone', label: 'Phone',
-      render: (r) => r.phone || <span className="text-charcoal/30 italic text-xs">—</span>
+    { 
+      key: 'name', 
+      label: 'Patron Name',
+      render: (r) => <span className="font-bold text-xs text-[#5A1020]">{r.name}</span>
+    },
+    { 
+      key: 'email', 
+      label: 'Email',
+      render: (r) => <span className="text-xs text-[#211D1E]/70 font-mono">{r.email}</span>
     },
     {
-      key: 'orders', label: 'Orders',
+      key: 'phone', 
+      label: 'Contact',
+      render: (r) => r.phone ? <span className="font-mono text-xs">{r.phone}</span> : <span className="text-[#211D1E]/30 italic text-xs">—</span>
+    },
+    {
+      key: 'orders', 
+      label: 'Orders',
       render: (r) => (
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-maroon-light/10 text-maroon-dark font-semibold text-sm">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#C9A45C]/15 text-[#5A1020] font-bold text-xs">
           {r.orders}
         </span>
       )
     },
     {
-      key: 'spent', label: 'Total Spent',
+      key: 'spent', 
+      label: 'Lifetime Spend',
       render: (r) => (
-        <span className="font-semibold text-emerald-700">
+        <span className="font-bold text-emerald-700 text-xs">
           ₹{(r.spent || 0).toLocaleString('en-IN')}
         </span>
       )
     },
-    { key: 'joined', label: 'Joined' },
+    { 
+      key: 'joined', 
+      label: 'Member Since',
+      render: (r) => <span className="text-xs text-[#211D1E]/60">{r.joined || '—'}</span>
+    },
     {
-      key: 'status', label: 'Status',
+      key: 'status', 
+      label: 'Client Tier',
       render: (r) => (
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
           r.orders > 0
-            ? 'bg-emerald-100 text-emerald-700'
-            : 'bg-amber-100 text-amber-700'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            : 'bg-amber-50 text-amber-700 border-amber-200'
         }`}>
-          {r.orders > 0 ? 'Active' : 'New'}
+          {r.orders > 0 ? 'Active Patron' : 'New Client'}
         </span>
       )
     },
@@ -82,47 +119,53 @@ export default function Customers() {
 
   return (
     <AdminLayout>
-      <div className="mb-6 flex items-start justify-between select-none">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 select-none font-body">
         <div>
-          <h2 className="font-display text-3xl font-light text-maroon-dark">Loyal Clients</h2>
-          <p className="font-body text-xs text-charcoal/50 mt-1">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#5A1020]">Patron & Client Directory</h2>
+          <p className="text-xs text-[#211D1E]/60 mt-1">
             Register of AGVIA atelier patrons, lifetime wardrobe purchases, and account details.
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1">
+
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Export Button */}
+          <button
+            onClick={handleExportCustomers}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#C9A45C]/40 bg-[#FFFDF8] hover:bg-[#5A1020] text-[#5A1020] hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
+            title="Download Luxury Patrons PDF"
+          >
+            <FileText size={13} />
+            <span>Export Patrons (PDF)</span>
+          </button>
+
           <button
             onClick={() => fetchCustomers(true)}
             disabled={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-maroon-light/20 text-xs text-maroon-dark bg-white hover:bg-maroon-light/5 transition-colors disabled:opacity-50"
+            className="btn-outline !py-2 !px-3 sm:!px-4 text-xs font-bold tracking-widest flex items-center gap-1.5 touch-target"
           >
-            <span className={`text-sm ${isRefreshing ? 'animate-spin' : ''}`}>↻</span>
-            {isRefreshing ? 'Refreshing…' : 'Refresh'}
+            <RefreshCw size={13} className={isRefreshing ? 'animate-spin' : ''} />
+            <span className="hidden sm:inline">{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
           </button>
-          {lastUpdated && (
-            <span className="text-[10px] text-charcoal/40">
-              Updated {lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </span>
-          )}
-          <span className="text-[10px] text-charcoal/30">Auto-refreshes every 15s</span>
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary KPI Cards (Responsive grid on mobile) */}
       {!loading && !error && customers.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-2xl border border-maroon-light/10 p-4 shadow-sm">
-            <p className="text-xs text-charcoal/50 font-body mb-1">Total Customers</p>
-            <p className="text-2xl font-semibold text-maroon-dark">{customers.length}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 font-body">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#C9A45C]/20 p-4 sm:p-5 shadow-sm">
+            <p className="text-[10px] font-bold text-[#C9A45C] uppercase tracking-wider mb-1">Total Patrons</p>
+            <p className="text-2xl font-serif font-bold text-[#5A1020]">{customers.length}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-maroon-light/10 p-4 shadow-sm">
-            <p className="text-xs text-charcoal/50 font-body mb-1">Active Buyers</p>
-            <p className="text-2xl font-semibold text-emerald-700">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#C9A45C]/20 p-4 sm:p-5 shadow-sm">
+            <p className="text-[10px] font-bold text-[#C9A45C] uppercase tracking-wider mb-1">Active Wardrobe Buyers</p>
+            <p className="text-2xl font-serif font-bold text-emerald-700">
               {customers.filter(c => c.orders > 0).length}
             </p>
           </div>
-          <div className="bg-white rounded-2xl border border-maroon-light/10 p-4 shadow-sm">
-            <p className="text-xs text-charcoal/50 font-body mb-1">Total Revenue</p>
-            <p className="text-2xl font-semibold text-maroon-dark">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#C9A45C]/20 p-4 sm:p-5 shadow-sm">
+            <p className="text-[10px] font-bold text-[#C9A45C] uppercase tracking-wider mb-1">Cumulative Wardrobe Spend</p>
+            <p className="text-2xl font-serif font-bold text-[#5A1020]">
               ₹{customers.reduce((s, c) => s + (c.spent || 0), 0).toLocaleString('en-IN')}
             </p>
           </div>
@@ -130,15 +173,21 @@ export default function Customers() {
       )}
 
       {loading ? (
-        <div className="py-20 text-center font-body text-xs text-charcoal/50 animate-pulse">
-          Loading client directory…
+        <div className="py-20 text-center font-body text-xs text-[#211D1E]/50 animate-pulse">
+          Loading atelier patron directory…
         </div>
       ) : error ? (
-        <div className="py-20 text-center font-body text-sm text-red-600 font-semibold border border-red-200/20 bg-red-50/10 rounded-3xl">
+        <div className="py-16 text-center font-body text-sm text-red-600 font-semibold border border-red-200/20 bg-red-50/10 rounded-3xl p-6">
           {error}
         </div>
       ) : (
-        <DataTable columns={columns} rows={customers} emptyMessage="No customers yet." />
+        <DataTable 
+          columns={columns} 
+          rows={customers} 
+          title="Registered Patrons"
+          emptyMessage="No customers registered yet." 
+          exportFilename="agvia_patrons_directory"
+        />
       )}
     </AdminLayout>
   )

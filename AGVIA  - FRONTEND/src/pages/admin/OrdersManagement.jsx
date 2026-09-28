@@ -1,9 +1,11 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import AdminLayout from '../../components/admin/AdminLayout'
 import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
-import { RefreshCw, Radio, CheckCircle, Clock, Truck, Package, XCircle } from 'lucide-react'
+import { exportOrdersPDF } from '../../utils/pdfExportUtils'
+import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag } from 'lucide-react'
+
 
 const STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending', color: 'bg-amber-50 text-amber-800 border-amber-200' },
@@ -24,6 +26,7 @@ export default function OrdersManagement() {
   const [error, setError] = useState(null)
   const [liveSync, setLiveSync] = useState(true)
   const [lastSyncTime, setLastSyncTime] = useState(new Date())
+  const [statusFilter, setStatusFilter] = useState('ALL')
   const pollTimerRef = useRef(null)
 
   const loadOrders = async (silent = false) => {
@@ -66,7 +69,7 @@ export default function OrdersManagement() {
       await adminService.updateOrderStatus(id, status)
       setOrders((list) => list.map((o) => (o.id === id ? { ...o, status: status.toUpperCase() } : o)))
       toast.success(`Order marked as ${status}`, {
-        style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
     } catch (err) {
       console.error(err)
@@ -74,39 +77,68 @@ export default function OrdersManagement() {
     }
   }
 
+  const handleExportOrders = async () => {
+    if (orders.length === 0) {
+      toast.error('No orders available to export.')
+      return
+    }
+    try {
+      toast.loading('Compiling luxury orders dispatch PDF...', { id: 'pdf-orders' })
+      const list = filteredOrders.length > 0 ? filteredOrders : orders
+      await exportOrdersPDF(list, statusFilter)
+      toast.success(`Exported ${list.length} orders to official PDF!`, {
+        id: 'pdf-orders',
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to export orders PDF.', { id: 'pdf-orders' })
+    }
+  }
+
+  // Filtered orders
+  const filteredOrders = useMemo(() => {
+    if (statusFilter === 'ALL') return orders
+    return orders.filter(o => String(o.status || '').toUpperCase() === statusFilter)
+  }, [orders, statusFilter])
+
   const columns = [
     {
       key: 'orderNumber',
       label: 'Order ID',
       render: (r) => (
-        <span className="font-mono font-bold text-xs bg-[#B8860B]/10 text-[#8B0000] px-2.5 py-1 rounded-lg border border-[#B8860B]/15">
-          {r.orderNumber}
+        <span className="font-mono font-bold text-xs bg-[#C9A45C]/15 text-[#5A1020] px-2.5 py-1 rounded-lg border border-[#C9A45C]/25 whitespace-nowrap">
+          {r.orderNumber || `#${r.id}`}
         </span>
       )
     },
     {
       key: 'customer',
-      label: 'Customer',
+      label: 'Patron',
       render: (r) => (
-        <div>
-          <span className="font-bold text-xs text-[#3A2D23] block">{r.customer}</span>
+        <div className="min-w-[120px]">
+          <span className="font-bold text-xs text-[#211D1E] block truncate">{r.customer}</span>
         </div>
       )
     },
-    { key: 'date', label: 'Placement Date' },
+    { 
+      key: 'date', 
+      label: 'Placement Date',
+      render: (r) => <span className="text-xs text-[#211D1E]/70 whitespace-nowrap">{r.date || '—'}</span>
+    },
     {
       key: 'items',
-      label: 'Items',
-      render: (r) => <span className="text-xs font-semibold text-[#3A2D23]/80">{r.items} box(es)</span>
+      label: 'Pieces',
+      render: (r) => <span className="text-xs font-semibold text-[#211D1E]/80 whitespace-nowrap">{r.items} box/piece(s)</span>
     },
     {
       key: 'total',
-      label: 'Order Total & Billing',
+      label: 'Total & Billing',
       render: (r) => (
-        <div>
-          <span className="font-bold text-sm text-[#8B0000] block">₹{Number(r.total ?? 0).toLocaleString('en-IN')}</span>
+        <div className="whitespace-nowrap">
+          <span className="font-bold text-sm text-[#5A1020] block">₹{Number(r.total ?? 0).toLocaleString('en-IN')}</span>
           {r.couponCode && Number(r.discountAmount || 0) > 0 && (
-            <span className="text-[9px] font-mono font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded border border-green-200 block w-fit mt-0.5">
+            <span className="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 block w-fit mt-0.5">
               {r.couponCode} (-₹{r.discountAmount})
             </span>
           )}
@@ -115,11 +147,11 @@ export default function OrdersManagement() {
     },
     {
       key: 'payment',
-      label: 'Payment',
+      label: 'Payment Method',
       render: (r) => (
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${
           String(r.payment).toUpperCase().includes('SUCCESS') || String(r.payment).toUpperCase().includes('PAID')
-            ? 'bg-green-50 text-green-700 border-green-200'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
             : 'bg-amber-50 text-amber-700 border-amber-200'
         }`}>
           {r.payment}
@@ -128,13 +160,13 @@ export default function OrdersManagement() {
     },
     {
       key: 'notificationStatus',
-      label: 'Notification',
+      label: 'Dispatch Update',
       render: (r) => {
         const notif = String(r.notificationStatus || 'NOT_DISPATCHED').toUpperCase()
         const isSent = notif === 'SENT'
         const isFailed = notif === 'FAILED'
         return (
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 ${
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap inline-flex items-center gap-1 ${
             isSent
               ? 'bg-blue-50 text-blue-700 border-blue-200'
               : isFailed
@@ -156,7 +188,7 @@ export default function OrdersManagement() {
           <select
             value={currentUpper}
             onChange={(e) => handleStatusChange(r.id, e.target.value)}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${matchOption.color}`}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${matchOption.color}`}
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -171,43 +203,75 @@ export default function OrdersManagement() {
 
   return (
     <AdminLayout>
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 select-none font-body">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 select-none font-body">
         <div>
-          <h2 className="font-display text-3xl font-bold text-[#8B0000]">Order Dispatch Hub</h2>
-          <p className="text-xs text-[#3A2D23]/50 mt-1">Real-time storefront order tracking, payment confirmation, and status dispatch.</p>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#5A1020]">Order Dispatch Hub</h2>
+          <p className="text-xs text-[#211D1E]/60 mt-1">Real-time storefront order tracking, payment confirmation, and status dispatch.</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Export Orders Button */}
+          <button
+            onClick={handleExportOrders}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#C9A45C]/40 bg-[#FFFDF8] hover:bg-[#5A1020] text-[#5A1020] hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
+            title="Download Luxury Orders PDF"
+          >
+            <FileText size={13} />
+            <span>Export Orders (PDF)</span>
+          </button>
+
           {/* Live Sync Indicator */}
           <button
             onClick={() => setLiveSync(!liveSync)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all touch-target ${
               liveSync
-                ? 'bg-green-50 border-green-200 text-green-700'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                 : 'bg-gray-100 border-gray-200 text-gray-500'
             }`}
           >
-            <Radio size={12} className={liveSync ? 'animate-pulse text-green-600' : ''} />
-            {liveSync ? 'Live Sync: ON' : 'Live Sync: OFF'}
+            <Radio size={12} className={liveSync ? 'animate-pulse text-emerald-600' : ''} />
+            <span className="hidden xs:inline">{liveSync ? 'Live Sync: ON' : 'Live Sync: OFF'}</span>
           </button>
 
           <button
             onClick={() => loadOrders(false)}
             disabled={loading}
-            className="btn-outline !py-2 !px-4 text-xs font-bold tracking-widest flex items-center gap-2"
+            className="btn-outline !py-2 !px-3 sm:!px-4 text-xs font-bold tracking-widest flex items-center gap-1.5 touch-target"
           >
-            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Sync Now
+            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> 
+            <span className="hidden sm:inline">Sync Now</span>
           </button>
         </div>
       </div>
 
-      <div className="text-[10px] text-[#3A2D23]/40 font-mono mb-4 text-right select-none">
-        Last updated: {lastSyncTime.toLocaleTimeString()}
+      {/* Status Filter Tabs (Horizontal Scroll on Mobile) */}
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-none select-none font-body mb-4">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#C9A45C] shrink-0 mr-1 flex items-center gap-1">
+          <Filter size={12} /> Filter:
+        </span>
+        {['ALL', 'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((st) => (
+          <button
+            key={st}
+            onClick={() => setStatusFilter(st)}
+            className={`px-3 py-1.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-wider uppercase transition-all whitespace-nowrap touch-target ${
+              statusFilter === st
+                ? 'bg-[#5A1020] text-[#FAF7F2] shadow-xs'
+                : 'bg-white border border-[#C9A45C]/20 text-[#211D1E]/70 hover:bg-[#FAF7F2] hover:text-[#5A1020]'
+            }`}
+          >
+            {st} {st !== 'ALL' && `(${orders.filter(o => String(o.status || '').toUpperCase() === st).length})`}
+          </button>
+        ))}
+      </div>
+
+      <div className="text-[10px] text-[#211D1E]/40 font-mono mb-3 text-right select-none">
+        Last updated: {lastSyncTime.toLocaleTimeString()} ({filteredOrders.length} orders shown)
       </div>
 
       {loading ? (
-        <div className="py-20 text-center font-body text-xs text-[#3A2D23]/50 animate-pulse">
-          Connecting to dispatch queue...
+        <div className="py-20 text-center font-body text-xs text-[#211D1E]/50 animate-pulse">
+          Connecting to atelier order dispatch queue...
         </div>
       ) : error ? (
         <div className="py-16 text-center font-body text-sm text-red-600 font-semibold border border-red-200 bg-red-50/50 rounded-3xl p-6">
@@ -215,7 +279,13 @@ export default function OrdersManagement() {
           <button onClick={() => loadOrders(false)} className="btn-primary text-xs">Retry Connection</button>
         </div>
       ) : (
-        <DataTable columns={columns} rows={orders} emptyMessage="No customer orders recorded yet." />
+        <DataTable 
+          columns={columns} 
+          rows={filteredOrders} 
+          title="Atelier Dispatches"
+          emptyMessage="No customer orders recorded in this filter view."
+          exportFilename="agvia_atelier_orders"
+        />
       )}
     </AdminLayout>
   )
