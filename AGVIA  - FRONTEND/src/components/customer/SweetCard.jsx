@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import ReliableImage from '../common/ReliableImage'
 import ProductShareButton from '../common/ProductShareButton'
+import { trackWishlist } from '../../services/analytics'
 
 export default function SweetCard({ product, onAdd, onAddToCart, priority = false }) {
   const [isFavorite, setIsFavorite] = useState(false)
@@ -49,7 +50,14 @@ export default function SweetCard({ product, onAdd, onAddToCart, priority = fals
           </span>
         )}
         <button
-          onClick={e => { e.preventDefault(); setIsFavorite(v => !v) }}
+          onClick={e => {
+            e.preventDefault()
+            setIsFavorite(v => {
+              const next = !v
+              trackWishlist(product, next)
+              return next
+            })
+          }}
           className="absolute top-2.5 right-2.5 z-10 w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center transition-all hover:bg-white shadow-sm active:scale-90"
           aria-label="Wishlist"
         >

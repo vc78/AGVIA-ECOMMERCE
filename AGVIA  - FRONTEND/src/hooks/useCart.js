@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { trackAddToCart } from '../services/analytics'
 
 // Lightweight cart persisted to localStorage. Kept outside Redux (only auth
 // is modeled in the store, per the app's state slice) but exposed as a hook
@@ -85,6 +86,7 @@ export function useCart() {
   }, [])
 
   const addToCart = useCallback((product, qty = 1) => {
+    if (!product || !product.id) return
     const current = readCart()
     const idx = current.findIndex((i) => i.id === product.id)
     if (idx >= 0) {
@@ -93,6 +95,7 @@ export function useCart() {
       current.push({ id: product.id, name: product.name, price: product.price, unit: product.unit, image: product.image, qty })
     }
     writeCart(current)
+    trackAddToCart(product, qty)
   }, [])
 
   const updateQty = useCallback((id, qty) => {

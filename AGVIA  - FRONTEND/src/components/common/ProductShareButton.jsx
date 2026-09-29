@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Share2, Copy, Check, MessageCircle, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { shareProduct, copyProductLink, getProductWhatsAppShareUrl, getProductShareUrl } from '../../utils/shareUtils'
+import { trackProductShare } from '../../services/analytics'
 
 export default function ProductShareButton({ product, variant = 'icon', className = '' }) {
   const [open, setOpen] = useState(false)
@@ -27,6 +28,7 @@ export default function ProductShareButton({ product, variant = 'icon', classNam
     e.preventDefault()
     e.stopPropagation()
 
+    trackProductShare(product, 'WEB_SHARE')
     const result = await shareProduct(product)
     if (result.method === 'native' || result.aborted) {
       return
@@ -38,6 +40,7 @@ export default function ProductShareButton({ product, variant = 'icon', classNam
   const handleCopy = async (e) => {
     e.preventDefault()
     e.stopPropagation()
+    trackProductShare(product, 'COPY_LINK')
     const success = await copyProductLink(product)
     if (success) {
       setCopied(true)
@@ -47,6 +50,7 @@ export default function ProductShareButton({ product, variant = 'icon', classNam
 
   const handleWhatsApp = (e) => {
     e.stopPropagation()
+    trackProductShare(product, 'WHATSAPP')
     const waUrl = getProductWhatsAppShareUrl(product)
     window.open(waUrl, '_blank', 'noopener,noreferrer')
     setOpen(false)

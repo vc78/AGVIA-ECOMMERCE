@@ -14,6 +14,7 @@ import ReliableImage from '../../components/common/ReliableImage'
 import { ProductDetailsSkeleton } from '../../components/common/SkeletonLoaders'
 import ProductShareButton from '../../components/common/ProductShareButton'
 import { getProductShareUrl } from '../../utils/shareUtils'
+import { trackProductView, trackAddToCart, trackCheckoutStarted } from '../../services/analytics'
 
 export default function ProductDetails() {
   const { id } = useParams()
@@ -44,6 +45,9 @@ export default function ProductDetails() {
     window.scrollTo(0, 0)
     productService.getById(id).then((prod) => {
       setProduct(prod)
+      if (prod) {
+        trackProductView(prod)
+      }
     })
     productService.getRelated(id, 4).then((list) => {
       setRelated(list)
@@ -65,6 +69,7 @@ export default function ProductDetails() {
 
   const handleAdd = () => {
     addToCart({ ...product, size: selectedSize }, qty)
+    trackAddToCart(product, qty)
     toast.success(`${qty} × ${product.name} (${selectedSize}) added to bag!`, {
       style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
     })
@@ -72,6 +77,8 @@ export default function ProductDetails() {
 
   const handleBuyNow = () => {
     addToCart({ ...product, size: selectedSize }, qty)
+    trackAddToCart(product, qty)
+    trackCheckoutStarted(qty, product.price * qty)
     navigate('/checkout')
   }
 

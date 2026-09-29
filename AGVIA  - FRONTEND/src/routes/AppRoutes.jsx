@@ -1,7 +1,8 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import ProtectedRoute from './ProtectedRoute'
+import { trackPageView } from '../services/analytics'
 import PageTransition from '../components/customer/PageTransition'
 import BoutiqueSpinner from '../components/customer/BoutiqueSpinner'
 
@@ -75,6 +76,13 @@ const Settings = lazy(() => import('../pages/admin/Settings'))
 
 export default function AppRoutes() {
   const location = useLocation()
+
+  useEffect(() => {
+    // Only track public/customer routes to avoid polluting customer analytics with internal admin workspace views
+    if (!location.pathname.startsWith('/admin')) {
+      trackPageView(location.pathname, document.title)
+    }
+  }, [location.pathname])
 
   return (
     <Suspense fallback={<BoutiqueSpinner />}>

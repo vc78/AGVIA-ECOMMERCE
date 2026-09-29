@@ -26,6 +26,7 @@ import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReliableImage from '../../components/common/ReliableImage'
 import api from '../../services/api'
+import { trackCheckoutStarted } from '../../services/analytics'
 
 // Curated styles for "You May Also Like" carousel matching screenshot exactly
 const RECOMMENDED_STYLES = [
@@ -663,7 +664,8 @@ export default function Cart() {
                 <button
                   type="button"
                   disabled={selectedItems.length === 0}
-                  onClick={() =>
+                  onClick={() => {
+                    trackCheckoutStarted(selectedItems.length, total)
                     navigate('/checkout', {
                       state: {
                         discount,
@@ -673,7 +675,7 @@ export default function Cart() {
                         selectedItems,
                       },
                     })
-                  }
+                  }}
                   className={`w-full py-3 px-5 rounded-full font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-2 transition-all duration-300 shadow-sm min-h-[48px] ${
                     selectedItems.length === 0
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'

@@ -29,4 +29,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByStatus(OrderStatus status);
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("select count(o) from Order o where o.status not in (com.ems.pragathisweets.entity.OrderStatus.CANCELLED) " +
+            "and o.createdAt between :start and :end")
+    long countSuccessfulOrdersBetween(@org.springframework.data.repository.query.Param("start") LocalDateTime start,
+                                      @org.springframework.data.repository.query.Param("end") LocalDateTime end);
 }

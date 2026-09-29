@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useSelector, useDispatch } from 'react-redux'
@@ -13,6 +13,7 @@ import { ShieldCheck, Truck, CreditCard, ChevronRight, Ticket, Sparkles, Message
 import api from '../../services/api'
 import { sendOrderConfirmationEmails } from '../../services/emailJsService'
 import { buildWhatsAppOrderMessage, openWhatsAppDirectly } from '../../utils/whatsappUtils'
+import { trackCheckoutStarted, trackPurchase } from '../../services/analytics'
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -43,6 +44,12 @@ export default function Checkout() {
 
   const deliveryFee = items.length > 0 ? (subtotal >= 999 ? 0 : 50) : 0
   const total = Math.max(0, subtotal + deliveryFee - discount)
+
+  useEffect(() => {
+    if (items && items.length > 0) {
+      trackCheckoutStarted(items.length, total)
+    }
+  }, [])
 
   const handleChange = (e) => setAddress({ ...address, [e.target.name]: e.target.value })
 
@@ -168,6 +175,8 @@ export default function Checkout() {
         openWhatsAppDirectly(targetPhone, waReceipt)
       }
 
+      trackPurchase(order)
+
       toast.success(
         () => (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -279,6 +288,8 @@ export default function Checkout() {
             if (targetPhone) {
               openWhatsAppDirectly(targetPhone, waReceipt)
             }
+
+            trackPurchase(order)
 
             toast.success(
               () => (
