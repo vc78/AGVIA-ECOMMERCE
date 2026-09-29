@@ -12,6 +12,13 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "from OrderItem oi group by oi.productName order by sum(oi.quantity) desc")
     List<ProductSalesProjection> findTopSellingProducts();
 
+    @Query(value = "SELECT oi.product_id as pid, COUNT(DISTINCT o.id) as orderCount " +
+                   "FROM order_items oi JOIN orders o ON oi.order_id = o.id " +
+                   "WHERE o.status != 'CANCELLED' AND o.created_at BETWEEN :start AND :end AND oi.product_id IS NOT NULL " +
+                   "GROUP BY oi.product_id", nativeQuery = true)
+    List<Object[]> countOrdersPerProductBetween(@org.springframework.data.repository.query.Param("start") java.time.LocalDateTime start,
+                                                @org.springframework.data.repository.query.Param("end") java.time.LocalDateTime end);
+
     interface ProductSalesProjection {
         String getName();
         Long getTotalSold();

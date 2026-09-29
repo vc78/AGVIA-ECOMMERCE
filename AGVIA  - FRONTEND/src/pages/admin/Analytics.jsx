@@ -118,7 +118,7 @@ function CustomChartTooltip({ active, payload, label }) {
 export default function Analytics() {
   const [activeTab, setActiveTab] = useState('website') // 'website' | 'sales'
   const [activePreset, setActivePreset] = useState('today')
-  const [liveSync, setLiveSync] = useState(false)
+  const [liveSync, setLiveSync] = useState(true)
   const [lastSync, setLastSync] = useState(new Date())
   const [showDefinitions, setShowDefinitions] = useState(false)
 
@@ -313,12 +313,12 @@ export default function Analytics() {
     }
   }, [fetchWebsiteAnalytics, fetchSalesReport, activeTab])
 
-  // Polling when liveSync enabled
+  // Polling when liveSync enabled (refreshes in background every 15s)
   useEffect(() => {
     if (liveSync) {
       pollRef.current = setInterval(() => {
         fetchWebsiteAnalytics(true)
-      }, 20000)
+      }, 15000)
     } else {
       clearInterval(pollRef.current)
     }
@@ -810,7 +810,8 @@ export default function Analytics() {
                     </thead>
                     <tbody className="divide-y divide-[#C9A45C]/10">
                       {topProducts.map((p, idx) => {
-                        const cartRate = p.views > 0 ? Math.round((p.addToCart / p.views) * 100) : 0
+                        const cartCount = p.addToCart ?? p.carts ?? 0
+                        const cartRate = p.views > 0 ? Math.round((cartCount / p.views) * 100) : 0
                         return (
                           <tr key={p.productId || idx} className="hover:bg-[#FAF7F2]/60 transition-colors">
                             <td className="py-3 px-3">
@@ -825,7 +826,7 @@ export default function Analytics() {
                               {p.views?.toLocaleString('en-IN')}
                             </td>
                             <td className="py-3 px-3 text-right font-semibold text-[#B45309]">
-                              {p.addToCart?.toLocaleString('en-IN')}
+                              {cartCount.toLocaleString('en-IN')}
                             </td>
                             <td className="py-3 px-3 text-right font-semibold text-[#0D9488]">
                               {p.shares?.toLocaleString('en-IN')}
@@ -1007,9 +1008,9 @@ export default function Analytics() {
                     Multi-stage progression from initial discovery to completed order.
                   </p>
                 </div>
-                {funnel && funnel.overallConversionRate > 0 && (
+                {funnel && (funnel.overallConversionRate > 0 || funnel.overallConversionPct > 0) && (
                   <div className="bg-emerald-50 border border-emerald-300 rounded-xl px-3 py-1 text-xs text-emerald-800 font-bold self-start">
-                    Overall Conversion: {funnel.overallConversionRate}%
+                    Overall Conversion: {funnel.overallConversionRate ?? funnel.overallConversionPct ?? 0}%
                   </div>
                 )}
               </div>
@@ -1022,10 +1023,10 @@ export default function Analytics() {
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
                   {[
                     { label: 'Visitors', count: funnel.visitors, rate: '100%', sub: 'Discovery' },
-                    { label: 'Product Views', count: funnel.productViews, rate: `${funnel.productViewRate}%`, sub: 'Catalog Interest' },
-                    { label: 'Add to Cart', count: funnel.addToCart, rate: `${funnel.cartRate}%`, sub: 'Purchase Intent' },
-                    { label: 'Checkout Started', count: funnel.checkoutStarted, rate: `${funnel.checkoutRate}%`, sub: 'Order Initiation' },
-                    { label: 'Purchased', count: funnel.purchases, rate: `${funnel.purchaseRate}%`, sub: 'Completed Orders' }
+                    { label: 'Product Views', count: funnel.productViews, rate: `${funnel.productViewRate ?? funnel.visitorsToViewsPct ?? 0}%`, sub: 'Catalog Interest' },
+                    { label: 'Add to Cart', count: (funnel.addToCart ?? 0), rate: `${funnel.cartRate ?? funnel.viewsToCartPct ?? 0}%`, sub: 'Purchase Intent' },
+                    { label: 'Checkout Started', count: (funnel.checkoutStarted ?? funnel.checkouts ?? 0), rate: `${funnel.checkoutRate ?? funnel.cartToCheckoutsPct ?? 0}%`, sub: 'Order Initiation' },
+                    { label: 'Purchased', count: (funnel.purchases ?? 0), rate: `${funnel.purchaseRate ?? funnel.checkoutsToPurchasesPct ?? 0}%`, sub: 'Completed Orders' }
                   ].map((stage, idx) => (
                     <div
                       key={stage.label}
@@ -1092,7 +1093,7 @@ export default function Analytics() {
                             {act.eventType}
                           </span>
                           <span className="font-sans text-[#211D1E]/80 truncate">
-                            {act.description}
+                            {act.description || act.eventLabel || act.eventType}
                           </span>
                           {act.pagePath && (
                             <span className="hidden md:inline font-mono text-[10px] text-[#211D1E]/40 truncate">
@@ -1106,7 +1107,7 @@ export default function Analytics() {
                               {act.deviceType}
                             </span>
                           )}
-                          <span>{timeAgo(act.createdAt)}</span>
+                          <span>{timeAgo(act.createdAt || act.timestamp)}</span>
                         </div>
                       </div>
                     )

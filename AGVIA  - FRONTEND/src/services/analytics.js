@@ -107,13 +107,15 @@ export function getNormalizedReferrer() {
 
 /**
  * Core Non-Blocking Event Tracking Dispatcher.
+ * Uses navigator.sendBeacon and fetch with keepalive:true so events survive
+ * instantaneous route changes and page navigation without blocking user interaction.
  */
 export async function track(eventType, data = {}) {
   try {
     if (!eventType) return
 
     // ── Deduplication Guard ─────────────────────────────────
-    // Prevent duplicate events fired within DEDUP_WINDOW_MS
+    // Prevent duplicate events fired within DEDUP_WINDOW_MS (e.g. React StrictMode or rapid double clicks)
     const dedupKey = `${eventType}:${data.productId || ''}:${data.pagePath || ''}:${data.shareMethod || ''}`
     const now = Date.now()
     const lastTime = recentEvents.get(dedupKey) || 0
@@ -143,12 +145,46 @@ export async function track(eventType, data = {}) {
       quantity: data.quantity ? Number(data.quantity) : 1,
     }
 
-    // Send asynchronously in background without blocking customer experience
-    api.post('/analytics/track', payload).catch(() => {
-      // Swallowed intentionally: analytics failure must NEVER disrupt user interaction
-    })
+    if (import.meta.env.DEV) {
+      console.log(`[AGVIA Analytics] 📡 ${eventType}`, payload)
+    }
+
+    const payloadStr = JSON.stringify(payload)
+    const baseUrl = api.defaults.baseURL || 'https://agvia-backend-1-xq21.onrender.com/api'
+    const trackUrl = `${baseUrl.replace(/\/+$/, '')}/analytics/track`
+
+    // Priority 1: navigator.sendBeacon (specifically designed for reliable analytics during unloads/navigation)
+    let beaconSent = false
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      try {
+        const blob = new Blob([payloadStr], { type: 'application/json' })
+        beaconSent = navigator.sendBeacon(trackUrl, blob)
+      } catch {
+        beaconSent = false
+      }
+    }
+
+    // Priority 2: fetch with keepalive: true
+    if (!beaconSent && typeof fetch !== 'undefined') {
+      try {
+        fetch(trackUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payloadStr,
+          keepalive: true,
+        }).catch(() => {
+          // Fallback to axios if fetch fails
+          api.post('/analytics/track', payload).catch(() => {})
+        })
+      } catch {
+        api.post('/analytics/track', payload).catch(() => {})
+      }
+    } else if (!beaconSent) {
+      // Priority 3: standard Axios client
+      api.post('/analytics/track', payload).catch(() => {})
+    }
   } catch {
-    // Non-blocking fallback
+    // Non-blocking fallback: analytics errors never bubble up
   }
 }
 

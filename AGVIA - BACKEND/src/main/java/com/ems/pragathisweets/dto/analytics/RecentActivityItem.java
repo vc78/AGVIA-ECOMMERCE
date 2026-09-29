@@ -22,4 +22,6 @@ public class RecentActivityItem {
     private String shareMethod;
     private String deviceType;
     private LocalDateTime timestamp;
+    private LocalDateTime createdAt;
+    private String description;
 }

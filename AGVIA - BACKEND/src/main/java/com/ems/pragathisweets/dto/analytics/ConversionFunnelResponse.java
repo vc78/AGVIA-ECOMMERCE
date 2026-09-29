@@ -14,11 +14,17 @@ public class ConversionFunnelResponse {
     private long productViews;
     private long addToCart;
     private long checkouts;
+    private long checkoutStarted;
     private long purchases;
 
     private double visitorsToViewsPct;
+    private double productViewRate;
     private double viewsToCartPct;
+    private double cartRate;
     private double cartToCheckoutsPct;
+    private double checkoutRate;
     private double checkoutsToPurchasesPct;
+    private double purchaseRate;
     private double overallConversionPct;
+    private double overallConversionRate;
 }

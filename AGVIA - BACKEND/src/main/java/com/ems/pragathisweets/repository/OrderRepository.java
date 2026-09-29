@@ -34,4 +34,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "and o.createdAt between :start and :end")
     long countSuccessfulOrdersBetween(@org.springframework.data.repository.query.Param("start") LocalDateTime start,
                                       @org.springframework.data.repository.query.Param("end") LocalDateTime end);
+
+    @Query(value = "SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as dateVal, COUNT(*) as countVal " +
+                   "FROM orders WHERE status != 'CANCELLED' AND created_at BETWEEN :start AND :end " +
+                   "GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')", nativeQuery = true)
+    java.util.List<Object[]> findDailyOrdersBetween(@org.springframework.data.repository.query.Param("start") LocalDateTime start,
+                                                    @org.springframework.data.repository.query.Param("end") LocalDateTime end);
 }

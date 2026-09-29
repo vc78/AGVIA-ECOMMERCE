@@ -19,6 +19,7 @@ public class TopProductAnalyticsItem {
     private BigDecimal price;
     private long views;
     private long carts;
+    private long addToCart;
     private long shares;
     private long orders;
 }

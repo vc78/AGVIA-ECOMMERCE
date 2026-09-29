@@ -155,7 +155,8 @@ public class WebsiteAnalyticsService {
         List<Object[]> visitorsList = analyticsEventRepository.findVisitorsGroupedByDate(start, end);
         for (Object[] row : visitorsList) {
             if (row != null && row.length >= 2 && row[0] != null) {
-                String dStr = row[0].toString();
+                String dStr = row[0].toString().trim();
+                if (dStr.length() > 10) dStr = dStr.substring(0, 10);
                 long count = ((Number) row[1]).longValue();
                 AnalyticsTrendItem item = map.get(dStr);
                 if (item != null) {
@@ -168,7 +169,8 @@ public class WebsiteAnalyticsService {
         List<Object[]> eventsList = analyticsEventRepository.findEventCountsGroupedByDateAndType(start, end);
         for (Object[] row : eventsList) {
             if (row != null && row.length >= 3 && row[0] != null && row[1] != null) {
-                String dStr = row[0].toString();
+                String dStr = row[0].toString().trim();
+                if (dStr.length() > 10) dStr = dStr.substring(0, 10);
                 String type = row[1].toString();
                 long count = ((Number) row[2]).longValue();
 
@@ -178,6 +180,20 @@ public class WebsiteAnalyticsService {
                     else if ("PRODUCT_VIEW".equalsIgnoreCase(type)) item.setProductViews(count);
                     else if ("ADD_TO_CART".equalsIgnoreCase(type)) item.setAddToCart(count);
                     else if ("CHECKOUT_STARTED".equalsIgnoreCase(type)) item.setCheckouts(count);
+                }
+            }
+        }
+
+        // Fill orders per date
+        List<Object[]> ordersList = orderRepository.findDailyOrdersBetween(start, end);
+        for (Object[] row : ordersList) {
+            if (row != null && row.length >= 2 && row[0] != null) {
+                String dStr = row[0].toString().trim();
+                if (dStr.length() > 10) dStr = dStr.substring(0, 10);
+                long count = ((Number) row[1]).longValue();
+                AnalyticsTrendItem item = map.get(dStr);
+                if (item != null) {
+                    item.setOrders(count);
                 }
             }
         }
@@ -209,6 +225,15 @@ public class WebsiteAnalyticsService {
             }
         }
 
+        // Fetch authoritative order counts per product
+        List<Object[]> orderRows = orderItemRepository.countOrdersPerProductBetween(start, end);
+        Map<Long, Long> productOrdersMap = new HashMap<>();
+        for (Object[] r : orderRows) {
+            if (r != null && r.length >= 2 && r[0] != null && r[1] != null) {
+                productOrdersMap.put(((Number) r[0]).longValue(), ((Number) r[1]).longValue());
+            }
+        }
+
         // Map top products to actual Product entities
         List<TopProductAnalyticsItem> results = new ArrayList<>();
         for (Map.Entry<Long, long[]> entry : statsMap.entrySet()) {
@@ -218,6 +243,7 @@ public class WebsiteAnalyticsService {
             Optional<Product> prodOpt = productRepository.findById(pid);
             if (prodOpt.isPresent()) {
                 Product p = prodOpt.get();
+                long pOrders = productOrdersMap.getOrDefault(pid, 0L);
                 results.add(TopProductAnalyticsItem.builder()
                         .productId(p.getId())
                         .productName(p.getName())
@@ -226,13 +252,19 @@ public class WebsiteAnalyticsService {
                         .price(p.getPrice())
                         .views(counts[0])
                         .carts(counts[1])
+                        .addToCart(counts[1])
                         .shares(counts[2])
-                        .orders(0)
+                        .orders(pOrders)
                         .build());
             }
         }
 
-        results.sort((a, b) -> Long.compare(b.getViews(), a.getViews()));
+        results.sort((a, b) -> {
+            int cmp = Long.compare(b.getViews(), a.getViews());
+            if (cmp != 0) return cmp;
+            return Long.compare(b.getOrders(), a.getOrders());
+        });
+
         if (results.size() > limit) {
             return results.subList(0, limit);
         }
@@ -247,7 +279,7 @@ public class WebsiteAnalyticsService {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        List<Object[]> rows = analyticsEventRepository.findTopPages(start, end, PageRequest.of(0, limit));
+        List<Object[]> rows = analyticsEventRepository.findTopPagesNative(start, end, limit);
         long totalViews = 0;
         for (Object[] r : rows) {
             if (r != null && r.length >= 2 && r[1] != null) {
@@ -369,12 +401,18 @@ public class WebsiteAnalyticsService {
                 .productViews(productViews)
                 .addToCart(addToCart)
                 .checkouts(checkouts)
+                .checkoutStarted(checkouts)
                 .purchases(purchases)
                 .visitorsToViewsPct(visitorsToViewsPct)
+                .productViewRate(visitorsToViewsPct)
                 .viewsToCartPct(viewsToCartPct)
+                .cartRate(viewsToCartPct)
                 .cartToCheckoutsPct(cartToCheckoutsPct)
+                .checkoutRate(cartToCheckoutsPct)
                 .checkoutsToPurchasesPct(checkoutsToPurchasesPct)
+                .purchaseRate(checkoutsToPurchasesPct)
                 .overallConversionPct(overallConversionPct)
+                .overallConversionRate(overallConversionPct)
                 .build();
     }
 
@@ -398,6 +436,13 @@ public class WebsiteAnalyticsService {
                 }
             }
 
+            String desc = eventLabel;
+            if (prodName != null && !prodName.isEmpty()) {
+                desc += " · " + prodName;
+            } else if (e.getPagePath() != null && !e.getPagePath().isEmpty()) {
+                desc += " · " + e.getPagePath();
+            }
+
             list.add(RecentActivityItem.builder()
                     .id(e.getId())
                     .eventType(e.getEventType())
@@ -409,6 +454,8 @@ public class WebsiteAnalyticsService {
                     .shareMethod(e.getShareMethod())
                     .deviceType(e.getDeviceType())
                     .timestamp(e.getCreatedAt())
+                    .createdAt(e.getCreatedAt())
+                    .description(desc)
                     .build());
 
             if (list.size() >= limit) break;
