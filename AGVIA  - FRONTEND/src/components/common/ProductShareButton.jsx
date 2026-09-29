@@ -97,7 +97,7 @@ export default function ProductShareButton({ product, variant = 'icon', classNam
             exit={{ opacity: 0, scale: 0.95, y: 6 }}
             transition={{ duration: 0.15 }}
             onClick={(e) => e.stopPropagation()}
-            className="absolute right-0 top-full mt-2 z-50 w-64 bg-white/98 backdrop-blur-md rounded-2xl shadow-[0_12px_40px_rgba(90,16,32,0.18)] border border-[#C9A45C]/30 p-3 select-none text-[#211D1E]"
+            className="absolute right-0 top-full mt-2 z-50 w-64 max-w-[min(260px,calc(100vw-32px))] bg-white/98 backdrop-blur-md rounded-2xl shadow-[0_12px_40px_rgba(90,16,32,0.18)] border border-[#C9A45C]/30 p-3 select-none text-[#211D1E]"
           >
             {/* Header */}
             <div className="flex items-center justify-between pb-2 border-b border-[#C9A45C]/15 mb-2.5">

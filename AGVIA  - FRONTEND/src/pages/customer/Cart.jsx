@@ -528,7 +528,7 @@ export default function Cart() {
                           </div>
 
                           {/* Right Controls: Badge, Price, Quantity, Wishlist, Trash */}
-                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E6C687]/20">
+                          <div className="flex flex-wrap sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2.5 sm:gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E6C687]/20 w-full sm:w-auto">
                             {/* Badge */}
                             {badgeText && (
                               <span

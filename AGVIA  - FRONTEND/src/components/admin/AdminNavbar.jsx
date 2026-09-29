@@ -146,7 +146,7 @@ export default function AdminNavbar({ onMenuToggle }) {
 
           {/* Export Dropdown Menu */}
           {exportOpen && (
-            <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-white rounded-2xl shadow-xl border border-[#C9A45C]/30 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-2 w-[min(288px,calc(100vw-24px))] bg-white rounded-2xl shadow-xl border border-[#C9A45C]/30 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="px-3.5 py-2 border-b border-[#C9A45C]/15 flex items-center justify-between">
                 <div>
                   <p className="font-serif text-xs font-bold text-[#5A1020] uppercase tracking-wider">Download Luxury PDF</p>

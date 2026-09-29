@@ -125,7 +125,7 @@ export default function BespokeTrousseauBanner() {
                   : 'bg-[#1A0307]/75 hover:bg-[#1A0307]/90 border-[#C9A45C]/25 hover:border-[#C9A45C]/60'
               }`}
             >
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full border flex items-center justify-center shrink-0 shadow-sm mt-0.5 transition-colors ${
                     activePanel === 'video'
@@ -154,7 +154,7 @@ export default function BespokeTrousseauBanner() {
                     e.stopPropagation()
                     togglePanel('video')
                   }}
-                  className={`shrink-0 text-[9.5px] sm:text-[10px] font-bold tracking-widest uppercase px-3 sm:px-3.5 py-2 rounded-full transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap min-h-[36px] ${
+                  className={`w-full sm:w-auto justify-center shrink-0 text-[9.5px] sm:text-[10px] font-bold tracking-widest uppercase px-3 sm:px-3.5 py-2 rounded-full transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap min-h-[36px] ${
                     activePanel === 'video'
                       ? 'bg-[#C9A45C] text-[#211D1E] border border-[#C9A45C]'
                       : 'border border-[#C9A45C]/60 hover:border-[#C9A45C] bg-[#C9A45C]/10 hover:bg-[#C9A45C] text-[#C9A45C] hover:text-[#211D1E]'
@@ -175,7 +175,7 @@ export default function BespokeTrousseauBanner() {
                   : 'bg-[#1A0307]/75 hover:bg-[#1A0307]/90 border-[#C9A45C]/25 hover:border-[#C9A45C]/60'
               }`}
             >
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full border flex items-center justify-center shrink-0 shadow-sm mt-0.5 transition-colors ${
                     activePanel === 'atelier'
@@ -204,7 +204,7 @@ export default function BespokeTrousseauBanner() {
                     e.stopPropagation()
                     togglePanel('atelier')
                   }}
-                  className={`shrink-0 text-[9.5px] sm:text-[10px] font-bold tracking-widest uppercase px-3 sm:px-3.5 py-2 rounded-full transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap min-h-[36px] ${
+                  className={`w-full sm:w-auto justify-center shrink-0 text-[9.5px] sm:text-[10px] font-bold tracking-widest uppercase px-3 sm:px-3.5 py-2 rounded-full transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap min-h-[36px] ${
                     activePanel === 'atelier'
                       ? 'bg-[#C9A45C] text-[#211D1E] border border-[#C9A45C]'
                       : 'border border-[#C9A45C]/60 hover:border-[#C9A45C] bg-[#C9A45C]/10 hover:bg-[#C9A45C] text-[#C9A45C] hover:text-[#211D1E]'
@@ -221,7 +221,7 @@ export default function BespokeTrousseauBanner() {
               onClick={handleWhatsAppChat}
               className="relative cursor-pointer group bg-[#1A0307]/75 hover:bg-[#1A0307]/90 border border-[#C9A45C]/25 hover:border-[#C9A45C]/60 rounded-2xl p-3.5 sm:p-4 transition-all duration-300 shadow-md"
             >
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#5A1020]/80 border border-[#C9A45C]/40 flex items-center justify-center text-[#C9A45C] shrink-0 shadow-sm mt-0.5">
                     <MessageSquare size={17} />
@@ -242,7 +242,7 @@ export default function BespokeTrousseauBanner() {
 
                 <button
                   type="button"
-                  className="shrink-0 border border-[#C9A45C]/60 hover:border-[#C9A45C] bg-[#C9A45C]/10 hover:bg-[#C9A45C] text-[#C9A45C] hover:text-[#211D1E] text-[9.5px] sm:text-[10px] font-bold tracking-widest uppercase px-3 sm:px-3.5 py-2 rounded-full transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap min-h-[36px]"
+                  className="w-full sm:w-auto justify-center shrink-0 border border-[#C9A45C]/60 hover:border-[#C9A45C] bg-[#C9A45C]/10 hover:bg-[#C9A45C] text-[#C9A45C] hover:text-[#211D1E] text-[9.5px] sm:text-[10px] font-bold tracking-widest uppercase px-3 sm:px-3.5 py-2 rounded-full transition-all flex items-center gap-1 active:scale-95 whitespace-nowrap min-h-[36px]"
                 >
                   <span>CHAT ON WHATSAPP</span>
                   <ArrowRight size={11} />

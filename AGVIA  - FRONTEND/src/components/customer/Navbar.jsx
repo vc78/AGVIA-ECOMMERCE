@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   Menu, X, User, Search, Heart, ShoppingBag, LogOut,
   ArrowRight, ChevronDown, Sparkles, Truck, Gift,
-  Crown, Flower2, Gem, Scissors, Feather, Layers
+  Crown, Flower2, Gem, Scissors, Feather, Layers, Home
 } from 'lucide-react'
 import { loggedOut } from '../../store/authSlice'
 import { useCart } from '../../hooks/useCart'
@@ -444,7 +444,7 @@ export default function Navbar() {
 
               {/* User Profile */}
               {isAuthenticated ? (
-                <div className="relative group/user flex items-center">
+                <div className="hidden sm:flex relative group/user items-center">
                   <Link
                     to="/profile"
                     className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
@@ -471,7 +471,7 @@ export default function Navbar() {
                   </div>
                 </div>
               ) : (
-                <div className="relative group/user flex items-center">
+                <div className="hidden sm:flex relative group/user items-center">
                   <Link
                     to="/login"
                     className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
@@ -493,7 +493,7 @@ export default function Navbar() {
               {/* Wishlist Icon */}
               <Link
                 to="/wishlist"
-                className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                className="hidden sm:flex touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
                 title="Wishlist"
               >
                 <Heart size={19} strokeWidth={1.75} />
@@ -681,56 +681,58 @@ export default function Navbar() {
       {/* ══════════════════════════════════════════════════════════════
           4. DEDICATED MOBILE BOTTOM NAVIGATION BAR (< sm screens)
       ══════════════════════════════════════════════════════════════ */}
-      <nav aria-label="Mobile bottom navigation" className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FFFDF9]/95 backdrop-blur-md border-t border-[#E6C687]/30 shadow-[0_-4px_20px_rgba(90,16,32,0.06)] px-2 py-1 select-none">
-        <div className="flex items-center justify-around h-13 max-w-md mx-auto">
+      <nav aria-label="Mobile bottom navigation" className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FFFDF9]/95 backdrop-blur-md border-t border-[#E6C687]/30 shadow-[0_-4px_20px_rgba(90,16,32,0.06)] px-1.5 py-1 select-none">
+        <div className="flex items-center justify-between w-full max-w-md mx-auto">
           {/* Home */}
           <Link
             to="/"
-            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
               location.pathname === '/' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
             }`}
           >
-            <span className="text-[9px] tracking-wider uppercase mt-0.5">Home</span>
+            <Home size={18} strokeWidth={1.8} />
+            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Home</span>
             {location.pathname === '/' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
           </Link>
 
           {/* Collections */}
           <Link
             to="/products"
-            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
               location.pathname.startsWith('/products') ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
             }`}
           >
-            <span className="text-[9px] tracking-wider uppercase mt-0.5">Shop</span>
+            <Sparkles size={18} strokeWidth={1.8} />
+            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Shop</span>
             {location.pathname.startsWith('/products') && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
           </Link>
 
           {/* Search Trigger */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] text-[#756B6C] hover:text-[#5A1020] transition-colors"
+            className="flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] text-[#756B6C] hover:text-[#5A1020] transition-colors"
             aria-label="Open search and menu"
           >
             <Search size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5">Explore</span>
+            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Explore</span>
           </button>
 
           {/* Wishlist */}
           <Link
             to="/wishlist"
-            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
               location.pathname === '/wishlist' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
             }`}
           >
             <Heart size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5">Saved</span>
+            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Saved</span>
             {location.pathname === '/wishlist' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
           </Link>
 
           {/* Bag */}
           <Link
             to="/cart"
-            className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex-1 min-w-0 relative flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
               location.pathname === '/cart' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
             }`}
           >
@@ -742,7 +744,7 @@ export default function Navbar() {
                 </span>
               )}
             </div>
-            <span className="text-[9px] tracking-wider uppercase mt-0.5">Bag</span>
+            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Bag</span>
             {location.pathname === '/cart' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
           </Link>
         </div>

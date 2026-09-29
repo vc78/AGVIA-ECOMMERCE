@@ -217,10 +217,10 @@ export default function ProductDetails() {
                 <span className="text-[#211D1E]/60 text-[11px] font-medium">({product.rating || 4.8} / 5 · {reviews.length} reviews)</span>
               </div>
 
-              <div className="flex items-baseline gap-3 mt-3 pb-3 border-b border-[#C9A45C]/15">
+              <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 mt-3 pb-3 border-b border-[#C9A45C]/15">
                 <span className="font-serif text-2xl md:text-3xl text-[#5A1020] font-bold">₹{product.price}</span>
                 <span className="text-[11px] text-[#211D1E]/50">inclusive of all taxes</span>
-                <span className="ml-auto text-[8.5px] bg-[#FAF7F2] text-[#5A1020] border border-[#C9A45C]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                <span className="sm:ml-auto text-[8.5px] bg-[#FAF7F2] text-[#5A1020] border border-[#C9A45C]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
                   {product.stock > 5 ? 'In Stock' : 'Bespoke Atelier Piece'}
                 </span>
               </div>

@@ -147,19 +147,19 @@ export default function SweetCard({ product, onAdd, onAddToCart, priority = fals
           </div>
 
           {/* Action Row: WhatsApp Concierge + Direct Share */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 min-w-0">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider text-[#128C7E] hover:text-white bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 shadow-2xs active:scale-98"
+              className="flex-1 min-w-0 flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#128C7E] hover:text-white bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 shadow-2xs active:scale-98"
               title={`Enquire about ${product.name} on WhatsApp`}
             >
-              <MessageCircle size={13} className="shrink-0" />
-              <span>WhatsApp</span>
+              <MessageCircle size={12} className="shrink-0" />
+              <span className="truncate">WhatsApp</span>
             </a>
-            <ProductShareButton product={product} variant="button" className="!px-3 !py-1.5" />
+            <ProductShareButton product={product} variant="button" className="!px-2 sm:!px-2.5 !py-1.5 shrink-0 text-[9px] sm:text-xs" />
           </div>
         </div>
       </div>

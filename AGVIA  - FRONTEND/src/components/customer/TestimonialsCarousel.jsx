@@ -336,7 +336,7 @@ export default function TestimonialsCarousel() {
                   y: isCenter ? 0 : 18,
                 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className={`${isCenter ? 'w-full max-w-[320px] sm:w-[38%] sm:max-w-[280px]' : 'hidden sm:block w-[28%] max-w-[210px]'} shrink-0`}
+                className={`${isCenter ? 'w-full max-w-[min(320px,calc(100vw-88px))] sm:w-[38%] sm:max-w-[280px] shrink' : 'hidden sm:block w-[28%] max-w-[210px] shrink-0'}`}
               >
                 <ArchCard active={isCenter}>
                   <div className={`relative mb-2.5 sm:mb-3 ${isCenter ? 'w-14 h-14 sm:w-16 sm:h-16' : 'w-12 h-12'} rounded-full overflow-hidden border-2 border-[#C9A45C]/60 shadow-md shrink-0`}>
