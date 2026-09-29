@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: agvia-backend
+    runtime: java
+    rootDir: AGVIA - BACKEND
+    buildCommand: mvn clean package -DskipTests -B
+    startCommand: java -jar target/pragathi-sweets-backend-*.jar
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: JAVA_TOOL_OPTIONS
+        value: "-Xmx512m"
