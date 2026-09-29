@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Star, Check, X, RefreshCw, FileText } from 'lucide-react'
+import { Star, Check, X, RefreshCw, FileText, Trash2, Loader2 } from 'lucide-react'
 import AdminLayout from '../../components/admin/AdminLayout'
 import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
@@ -9,6 +9,8 @@ import { exportTableToPDF } from '../../utils/pdfExportUtils'
 export default function Reviews() {
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   const loadReviews = async () => {
     setLoading(true)
@@ -37,6 +39,23 @@ export default function Reviews() {
       }
     } catch (err) {
       toast.error('Action failed')
+    }
+  }
+
+  const handleDeleteReview = async (id) => {
+    setDeletingId(id)
+    try {
+      await adminService.deleteReview(id)
+      setReviews((list) => list.filter((r) => r.id !== id))
+      setConfirmDeleteId(null)
+      toast.success('Review permanently deleted from catalog', {
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to delete review.')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -120,6 +139,50 @@ export default function Reviews() {
             </div>
           )
       ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (r) => {
+        const isDeleting = deletingId === r.id
+        const isConfirming = confirmDeleteId === r.id
+
+        return (
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            {isConfirming ? (
+              <div className="flex items-center gap-1.5 bg-red-50 p-1 px-2 rounded-xl border border-red-200 shadow-2xs">
+                <span className="text-[10px] text-red-700 font-bold">Delete?</span>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => handleDeleteReview(r.id)}
+                  className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg flex items-center gap-1 disabled:opacity-50 transition-all shadow-2xs touch-target"
+                >
+                  {isDeleting ? <Loader2 size={10} className="animate-spin" /> : 'Yes'}
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setConfirmDeleteId(null)}
+                  className="px-2 py-0.5 bg-white hover:bg-gray-100 text-gray-700 text-[10px] font-medium rounded-lg border border-gray-200 transition-all touch-target"
+                >
+                  No
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteId(r.id)}
+                className="w-8 h-8 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-100 transition-all flex items-center justify-center touch-target shadow-2xs group"
+                title="Delete Review Permanently"
+                aria-label="Delete Review"
+              >
+                <Trash2 size={13} className="group-hover:scale-110 transition-transform" />
+              </button>
+            )}
+          </div>
+        )
+      },
     },
   ]
 

@@ -819,5 +819,74 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       throw err
     }
   },
+
+  // Reviews
+  async getReviews(params = {}) {
+    try {
+      const queryParams = {
+        page: params.page || 0,
+        size: params.size || 50,
+        ...params
+      }
+      const { data } = await api.get('/admin/reviews', { params: queryParams })
+      const list = data?.data?.content || data?.data || []
+      return list.map(r => ({
+        id: r.id,
+        product: r.productName || (r.productId ? `Silhouette #${r.productId}` : 'Atelier Creation'),
+        productName: r.productName,
+        productId: r.productId,
+        customer: r.customerName || r.userName || 'Valued Patron',
+        customerName: r.customerName,
+        userName: r.userName,
+        userId: r.userId,
+        rating: r.rating || 5,
+        comment: r.comment || '',
+        approved: true,
+        createdAt: r.createdAt,
+        verifiedPurchase: r.verifiedPurchase
+      }))
+    } catch (err) {
+      console.warn('Admin review endpoint fetch error, attempting fallback:', err)
+      try {
+        const { data } = await api.get('/reviews')
+        const list = Array.isArray(data?.data) ? data.data : (data?.data?.content || [])
+        return list.map(r => ({
+          id: r.id,
+          product: r.productName || 'Atelier Silhouette',
+          customer: r.customerName || r.userName || 'Valued Patron',
+          rating: r.rating || 5,
+          comment: r.comment || '',
+          approved: true,
+          createdAt: r.createdAt
+        }))
+      } catch (fallbackErr) {
+        return []
+      }
+    }
+  },
+
+  async deleteReview(id) {
+    try {
+      // First attempt the admin route; if unavailable, fallback to standard review delete
+      try {
+        const { data } = await api.delete(`/admin/reviews/${id}`)
+        return data
+      } catch (adminErr) {
+        const { data } = await api.delete(`/reviews/${id}`)
+        return data
+      }
+    } catch (err) {
+      console.error('Failed to delete review in adminService:', err)
+      throw err
+    }
+  },
+
+  async moderateReview(id, approved) {
+    if (!approved) {
+      return this.deleteReview(id)
+    }
+    return { success: true }
+  }
 }
+
 
