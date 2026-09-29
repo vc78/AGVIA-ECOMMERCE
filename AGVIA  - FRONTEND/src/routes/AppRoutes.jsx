@@ -84,6 +84,8 @@ export default function AppRoutes() {
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
           <Route path="/products" element={<PageTransition><Products /></PageTransition>} />
           <Route path="/shop" element={<PageTransition><Products /></PageTransition>} />
+          <Route path="/collections" element={<PageTransition><Products /></PageTransition>} />
+          <Route path="/collections/:category" element={<PageTransition><Products /></PageTransition>} />
           <Route path="/products/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
           <Route path="/product/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
           <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />

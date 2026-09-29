@@ -22,6 +22,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final MobileOtpAuthService mobileOtpAuthService;
+    private final com.ems.pragathisweets.repository.UserRepository userRepository;
 
     // ─────────────────────────────────────────────────────────────────────────
     // MOBILE OTP SIGN UP
@@ -94,13 +95,32 @@ public class AuthController {
     @GetMapping("/me")
     @Operation(summary = "Get current authenticated user profile")
     public ResponseEntity<ApiResponse<UserResponse>> currentUser(@AuthenticationPrincipal UserDetailsImpl principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required"));
+        }
+        com.ems.pragathisweets.entity.User user = userRepository.findById(principal.getId()).orElse(null);
+        if (user != null) {
+            UserResponse response = UserResponse.builder()
+                    .id(user.getId())
+                    .fullName(user.getFullName())
+                    .email(user.getEmail())
+                    .phone(user.getPhone())
+                    .phoneVerified(user.isPhoneVerified())
+                    .role(user.getRole() != null ? user.getRole().name() : "ROLE_CUSTOMER")
+                    .enabled(user.isEnabled())
+                    .build();
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
         UserResponse response = UserResponse.builder()
                 .id(principal.getId())
                 .fullName(principal.getFullName())
                 .email(principal.getUsername())
                 .phone(principal.getPhone())
                 .phoneVerified(principal.isPhoneVerified())
-                .role(principal.getAuthorities().iterator().next().getAuthority())
+                .role(principal.getAuthorities() != null && !principal.getAuthorities().isEmpty()
+                        ? principal.getAuthorities().iterator().next().getAuthority()
+                        : "ROLE_CUSTOMER")
                 .enabled(principal.isEnabled())
                 .build();
         return ResponseEntity.ok(ApiResponse.success(response));

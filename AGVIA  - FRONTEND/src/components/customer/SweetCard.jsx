@@ -3,6 +3,7 @@ import { Star, Plus, Eye, Heart, MessageCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import ReliableImage from '../common/ReliableImage'
+import ProductShareButton from '../common/ProductShareButton'
 
 export default function SweetCard({ product, onAdd, onAddToCart }) {
   const [isFavorite, setIsFavorite] = useState(false)
@@ -65,7 +66,7 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
         </Link>
 
         {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2.5">
           <Link
             to={`/products/${product.id}`}
             className="w-10 h-10 rounded-full bg-white text-[#5A1020] flex items-center justify-center hover:bg-[#5A1020] hover:text-white transition-all shadow-md translate-y-5 group-hover:translate-y-0 duration-400"
@@ -73,6 +74,11 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
           >
             <Eye size={15} />
           </Link>
+          <ProductShareButton
+            product={product}
+            variant="icon"
+            className="translate-y-5 group-hover:translate-y-0 duration-400 delay-50"
+          />
           <button
             onClick={handleAdd}
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-md translate-y-5 group-hover:translate-y-0 duration-400 delay-75 ${
@@ -138,18 +144,21 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
             </motion.button>
           </div>
 
-          {/* WhatsApp Direct Product Redirection with Details & Pricing */}
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-[10px] font-bold uppercase tracking-wider text-[#128C7E] hover:text-white bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 shadow-2xs active:scale-98"
-            title={`Enquire about ${product.name} on WhatsApp`}
-          >
-            <MessageCircle size={13} className="shrink-0" />
-            <span>WhatsApp Enquire</span>
-          </a>
+          {/* Action Row: WhatsApp Concierge + Direct Share */}
+          <div className="flex items-center gap-1.5">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider text-[#128C7E] hover:text-white bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 shadow-2xs active:scale-98"
+              title={`Enquire about ${product.name} on WhatsApp`}
+            >
+              <MessageCircle size={13} className="shrink-0" />
+              <span>WhatsApp</span>
+            </a>
+            <ProductShareButton product={product} variant="button" className="!px-3 !py-1.5" />
+          </div>
         </div>
       </div>
     </div>

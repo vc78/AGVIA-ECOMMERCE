@@ -27,12 +27,11 @@ export const subscriptionService = {
   },
 
   /**
-   * Get current user's active subscription (if any) or query by email.
+   * Get current user's active subscription based on authenticated JWT session.
    */
-  async getMySubscription(email) {
+  async getMySubscription() {
     try {
-      const url = email ? `/subscriptions/my-status?email=${encodeURIComponent(email)}` : '/subscriptions/my-status'
-      const { data } = await api.get(url)
+      const { data } = await api.get('/subscriptions/my-status')
       return data.data || null
     } catch (err) {
       console.warn('Could not fetch subscription status:', err)
@@ -41,11 +40,11 @@ export const subscriptionService = {
   },
 
   /**
-   * Check if an email already has an active subscription.
+   * Check if current session already has an active subscription.
    */
-  async checkByEmail(email) {
+  async checkMyStatus() {
     try {
-      const { data } = await api.get(`/subscriptions/my-status?email=${encodeURIComponent(email)}`)
+      const { data } = await api.get('/subscriptions/my-status')
       return data.data || null
     } catch {
       return null

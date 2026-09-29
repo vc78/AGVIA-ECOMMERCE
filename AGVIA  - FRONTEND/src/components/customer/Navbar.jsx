@@ -465,13 +465,23 @@ export default function Navbar() {
                   </div>
                 </div>
               ) : (
-                <Link
-                  to="/login"
-                  className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
-                  title="Sign In / Register"
-                >
-                  <User size={19} strokeWidth={1.75} />
-                </Link>
+                <div className="relative group/user flex items-center">
+                  <Link
+                    to="/login"
+                    className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                    title="Sign In / Login"
+                  >
+                    <User size={19} strokeWidth={1.75} />
+                  </Link>
+                  {/* Guest menu */}
+                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
+                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[130px] text-xs">
+                      <Link to="/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                        Sign In / Login
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* Wishlist Icon */}

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Heart, ArrowRight } from 'lucide-react'
 import ReliableImage from '../common/ReliableImage'
 import { toast } from 'react-hot-toast'
+import ProductShareButton from '../common/ProductShareButton'
 
 // Curated Bestselling Silhouettes matching exact reference design
 const CURATED_BESTSELLERS = [
@@ -401,6 +402,15 @@ export default function BestsellerCurvedCarousel({ bestsellers = [], onAdd }) {
                         alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                       />
+
+                      {/* Floating Share Icon */}
+                      <div className="absolute top-2 left-2 z-20">
+                        <ProductShareButton
+                          product={item}
+                          variant="icon"
+                          className="!w-7 !h-7 !min-w-[28px] !min-h-[28px] !p-0 !bg-white/95 !text-[#5A1020] border border-[#E6C687]/40 shadow-sm hover:scale-110 hover:!bg-[#5A1020] hover:!text-white"
+                        />
+                      </div>
 
                       {/* Floating Heart / Wishlist Icon */}
                       <button

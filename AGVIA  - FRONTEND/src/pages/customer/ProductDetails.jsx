@@ -12,6 +12,8 @@ import { useCart } from '../../hooks/useCart'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReliableImage from '../../components/common/ReliableImage'
 import { ProductDetailsSkeleton } from '../../components/common/SkeletonLoaders'
+import ProductShareButton from '../../components/common/ProductShareButton'
+import { getProductShareUrl } from '../../utils/shareUtils'
 
 export default function ProductDetails() {
   const { id } = useParams()
@@ -190,12 +192,17 @@ export default function ProductDetails() {
           {/* Right Column: Garment Descriptions & Purchase */}
           <div className="lg:col-span-6 flex flex-col justify-between">
             <div>
-              <span className="text-[8.5px] text-[#C9A45C] font-bold tracking-[0.25em] uppercase block">
-                {product.category}
-              </span>
-              <h1 className="font-serif text-2xl md:text-3xl text-[#5A1020] mt-1 font-bold leading-tight">
-                {product.name}
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="text-[8.5px] text-[#C9A45C] font-bold tracking-[0.25em] uppercase block">
+                    {product.category}
+                  </span>
+                  <h1 className="font-serif text-2xl md:text-3xl text-[#5A1020] mt-1 font-bold leading-tight">
+                    {product.name}
+                  </h1>
+                </div>
+                <ProductShareButton product={product} variant="icon" className="shrink-0 mt-1" />
+              </div>
 
               <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#C9A45C]">
                 <div className="flex text-[#C9A45C]">
@@ -277,19 +284,22 @@ export default function ProductDetails() {
                 </div>
               </div>
 
-              {/* Instant WhatsApp Enquiry & Sizing Button */}
-              <a
-                href={`https://wa.me/919032306961?text=${encodeURIComponent(
-                  `Namaste AGVIA Atelier Concierge ✨\n\nI would like to enquire about ordering this silhouette:\n👗 Silhouette: *${product.name}*\n🏷️ Category: ${product.category || 'Atelier Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n📏 Selected Size: ${selectedSize}\n🔢 Quantity: ${qty}\n🔗 Product Link: ${window.location.href}\n\nPlease share availability, delivery timeline, and bespoke customization details.`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full mt-3 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg transition-all duration-300 active:scale-98 min-h-[48px]"
-                title="Instant WhatsApp Concierge"
-              >
-                <MessageCircle size={17} />
-                <span>Enquire on WhatsApp with Details & Pricing</span>
-              </a>
+              {/* Action Buttons: WhatsApp Concierge + Share Silhouette */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mt-3">
+                <a
+                  href={`https://wa.me/919032306961?text=${encodeURIComponent(
+                    `Namaste AGVIA Atelier Concierge ✨\n\nI would like to enquire about ordering this silhouette:\n👗 Silhouette: *${product.name}*\n🏷️ Category: ${product.category || 'Atelier Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n📏 Selected Size: ${selectedSize}\n🔢 Quantity: ${qty}\n🔗 Product Link: ${getProductShareUrl(product.id)}\n\nPlease share availability, delivery timeline, and bespoke customization details.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg transition-all duration-300 active:scale-98 min-h-[46px]"
+                  title="Instant WhatsApp Concierge"
+                >
+                  <MessageCircle size={16} />
+                  <span>WhatsApp Enquire</span>
+                </a>
+                <ProductShareButton product={product} variant="detail" className="flex-1 justify-center min-h-[46px]" />
+              </div>
 
               <div className="flex flex-wrap items-center gap-3 text-[9.5px] text-[#211D1E]/60 font-semibold pt-1">
                 <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-[#C9A45C]" /> 100% Certified Pure Handloom</span>
