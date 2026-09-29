@@ -474,7 +474,7 @@ export default function Footer() {
           {/* ══════════════════════════════════════════════════════════════
               4. BOTTOM COPYRIGHT, NAV LINKS & PAYMENT BADGES
           ══════════════════════════════════════════════════════════════ */}
-          <div className="pt-3 flex flex-col xl:flex-row items-center justify-between gap-3 text-center xl:text-left">
+          <div className="pt-3 pb-16 sm:pb-3 flex flex-col xl:flex-row items-center justify-between gap-3 text-center xl:text-left">
             
             {/* Copyright */}
             <p className="font-sans text-[10.5px] text-white/50 tracking-wider">

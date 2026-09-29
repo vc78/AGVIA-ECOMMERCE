@@ -10,6 +10,7 @@ import { loggedOut } from '../../store/authSlice'
 import { useCart } from '../../hooks/useCart'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReliableImage from '../common/ReliableImage'
+import toast from 'react-hot-toast'
 
 // ── Luxury Boutique Categories ──────────────────────────────────────
 const NAV_CATEGORIES = {
@@ -163,6 +164,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     dispatch(loggedOut())
+    toast.success('Signed out successfully')
     navigate('/')
   }
 
@@ -442,17 +444,23 @@ export default function Navbar() {
                 </div>
               </form>
 
-              {/* User Profile */}
+              {/* User Profile & Sign In / Out */}
               {isAuthenticated ? (
-                <div className="hidden sm:flex relative group/user items-center">
+                <div className="flex relative group/user items-center gap-1 sm:gap-1.5">
                   <Link
                     to="/profile"
-                    className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                    className="touch-target p-1.5 sm:p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5 flex items-center gap-1.5"
                     title={`Signed in as ${user?.name || 'Account'}`}
                   >
-                    <User size={19} strokeWidth={1.75} />
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#5A1020] text-white flex items-center justify-center font-serif text-xs font-bold shadow-2xs">
+                      {user?.name?.[0]?.toUpperCase() || <User size={15} />}
+                    </div>
+                    <span className="hidden md:inline text-[11px] font-medium text-[#382820] max-w-[80px] truncate">
+                      {user?.name?.split(' ')[0]}
+                    </span>
                   </Link>
-                  {/* Subtle hover menu */}
+
+                  {/* Desktop hover menu */}
                   <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
                     <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[130px] text-xs">
                       <Link to="/profile" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
@@ -469,24 +477,27 @@ export default function Navbar() {
                       </button>
                     </div>
                   </div>
+
+                  {/* Mobile Direct Sign Out button */}
+                  <button
+                    onClick={handleLogout}
+                    className="sm:hidden p-1.5 text-rose-700 hover:text-white hover:bg-rose-700 border border-rose-200/60 rounded-full transition-all flex items-center justify-center"
+                    title="Sign Out"
+                    aria-label="Sign Out"
+                  >
+                    <LogOut size={14} />
+                  </button>
                 </div>
               ) : (
-                <div className="hidden sm:flex relative group/user items-center">
+                <div className="flex relative group/user items-center">
                   <Link
                     to="/login"
-                    className="touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                    className="flex items-center gap-1 py-1 px-2.5 sm:px-3 rounded-full bg-[#5A1020]/10 hover:bg-[#5A1020] text-[#5A1020] hover:text-white transition-all text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider border border-[#5A1020]/30 shadow-2xs"
                     title="Sign In / Login"
                   >
-                    <User size={19} strokeWidth={1.75} />
+                    <User size={14} strokeWidth={2} />
+                    <span>Sign In</span>
                   </Link>
-                  {/* Guest menu */}
-                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
-                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[130px] text-xs">
-                      <Link to="/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
-                        Sign In / Login
-                      </Link>
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -569,6 +580,60 @@ export default function Navbar() {
                 >
                   <X size={20} />
                 </button>
+              </div>
+
+              {/* Mobile Drawer User Profile / Sign In Banner */}
+              <div className="p-3 mx-3 mt-3 bg-[#FAF6F0] border border-[#C9A45C]/30 rounded-2xl flex items-center justify-between gap-2.5 shadow-2xs">
+                {isAuthenticated ? (
+                  <>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-[#5A1020] text-white flex items-center justify-center font-serif text-xs font-bold shrink-0 shadow-xs">
+                        {user?.name?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-serif text-xs font-bold text-[#5A1020] truncate">
+                          {user?.name || 'Account'}
+                        </p>
+                        <p className="text-[9px] text-[#211D1E]/60 truncate font-sans">
+                          {user?.email || 'Logged in'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Link
+                        to="/profile"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="px-2.5 py-1 bg-white border border-[#C9A45C]/40 rounded-lg text-[10px] font-bold text-[#5A1020] hover:bg-[#5A1020] hover:text-white transition-colors"
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                        className="px-2 py-1 bg-rose-50 border border-rose-200 rounded-lg text-[10px] font-bold text-rose-700 hover:bg-rose-700 hover:text-white transition-colors flex items-center gap-1"
+                      >
+                        <LogOut size={11} /> Out
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="min-w-0">
+                      <p className="font-serif text-xs font-bold text-[#5A1020]">
+                        Namaste, Guest
+                      </p>
+                      <p className="text-[9px] text-[#211D1E]/60 font-sans">
+                        Sign in for boutique couture privileges
+                      </p>
+                    </div>
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3.5 py-1.5 bg-[#5A1020] text-white rounded-xl text-[10.5px] font-bold uppercase tracking-wider hover:bg-[#8B0000] transition-colors shrink-0 shadow-xs"
+                    >
+                      Sign In
+                    </Link>
+                  </>
+                )}
               </div>
 
               {/* Mobile Search */}
@@ -681,7 +746,24 @@ export default function Navbar() {
       {/* ══════════════════════════════════════════════════════════════
           4. DEDICATED MOBILE BOTTOM NAVIGATION BAR (< sm screens)
       ══════════════════════════════════════════════════════════════ */}
-      <nav aria-label="Mobile bottom navigation" className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FFFDF9]/95 backdrop-blur-md border-t border-[#E6C687]/30 shadow-[0_-4px_20px_rgba(90,16,32,0.06)] px-1.5 py-1 select-none">
+      {/* ══════════════════════════════════════════════════════════════
+          4. DEDICATED MOBILE BOTTOM NAVIGATION BAR (< sm screens)
+          Locked static with respect to screen viewport (fixed bottom)
+      ══════════════════════════════════════════════════════════════ */}
+      <nav
+        aria-label="Mobile bottom navigation"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FFFDF9]/98 backdrop-blur-lg border-t border-[#E6C687]/40 shadow-[0_-4px_25px_rgba(90,16,32,0.08)] px-1 py-1 select-none"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          paddingBottom: 'max(6px, env(safe-area-inset-bottom, 6px))'
+        }}
+      >
         <div className="flex items-center justify-between w-full max-w-md mx-auto">
           {/* Home */}
           <Link
@@ -695,7 +777,7 @@ export default function Navbar() {
             {location.pathname === '/' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
           </Link>
 
-          {/* Collections */}
+          {/* Shop */}
           <Link
             to="/products"
             className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
@@ -705,28 +787,6 @@ export default function Navbar() {
             <Sparkles size={18} strokeWidth={1.8} />
             <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Shop</span>
             {location.pathname.startsWith('/products') && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-          </Link>
-
-          {/* Search Trigger */}
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] text-[#756B6C] hover:text-[#5A1020] transition-colors"
-            aria-label="Open search and menu"
-          >
-            <Search size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Explore</span>
-          </button>
-
-          {/* Wishlist */}
-          <Link
-            to="/wishlist"
-            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-              location.pathname === '/wishlist' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-            }`}
-          >
-            <Heart size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Saved</span>
-            {location.pathname === '/wishlist' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
           </Link>
 
           {/* Bag */}
@@ -747,6 +807,61 @@ export default function Navbar() {
             <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Bag</span>
             {location.pathname === '/cart' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
           </Link>
+
+          {/* Conditional Profile & Sign Out OR Sign In */}
+          {isAuthenticated ? (
+            <>
+              {/* Profile */}
+              <Link
+                to="/profile"
+                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
+                  location.pathname === '/profile' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
+                }`}
+              >
+                <User size={18} strokeWidth={1.8} />
+                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Profile</span>
+                {location.pathname === '/profile' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
+              </Link>
+
+              {/* Sign Out */}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg text-rose-700 hover:text-rose-900 transition-colors"
+                title="Sign Out"
+                aria-label="Sign Out"
+              >
+                <LogOut size={18} strokeWidth={1.8} />
+                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate font-semibold">Sign Out</span>
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Wishlist */}
+              <Link
+                to="/wishlist"
+                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
+                  location.pathname === '/wishlist' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
+                }`}
+              >
+                <Heart size={18} strokeWidth={1.8} />
+                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Saved</span>
+                {location.pathname === '/wishlist' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
+              </Link>
+
+              {/* Sign In */}
+              <Link
+                to="/login"
+                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
+                  location.pathname === '/login' ? 'text-[#5A1020] font-bold' : 'text-[#5A1020] hover:text-[#8B0000]'
+                }`}
+              >
+                <User size={18} strokeWidth={2} />
+                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate font-bold text-[#5A1020]">Sign In</span>
+                {location.pathname === '/login' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </>
