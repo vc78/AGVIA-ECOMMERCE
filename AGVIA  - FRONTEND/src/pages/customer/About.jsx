@@ -151,6 +151,8 @@ export default function About() {
             <ReliableImage
               src={currentSlide.image}
               alt={currentSlide.title}
+              priority={activeSlide === 0}
+              sizes="100vw"
               className="w-full h-full object-cover opacity-35 filter brightness-95"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#2E050E] via-[#2E050E]/85 to-transparent" />

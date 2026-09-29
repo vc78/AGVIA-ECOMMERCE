@@ -50,7 +50,7 @@ export default function AdminLogin() {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#5A1020] via-[#C9A45C] to-[#5A1020]" />
         
         <div className="flex flex-col items-center mb-8 select-none">
-          <img src="/images/agvia-logo.png" alt="AGVIA" className="h-16 w-auto object-contain mb-3" />
+          <img src="/images/agvia-logo.webp" alt="AGVIA" width={72} height={64} decoding="async" className="h-16 w-auto object-contain mb-3" />
           <span className="font-serif text-2xl tracking-[0.2em] font-bold uppercase text-[#5A1020] leading-none">
             AGVIA
           </span>

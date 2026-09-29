@@ -5,7 +5,7 @@ import { useState } from 'react'
 import ReliableImage from '../common/ReliableImage'
 import ProductShareButton from '../common/ProductShareButton'
 
-export default function SweetCard({ product, onAdd, onAddToCart }) {
+export default function SweetCard({ product, onAdd, onAddToCart, priority = false }) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [adding, setAdding] = useState(false)
 
@@ -61,6 +61,8 @@ export default function SweetCard({ product, onAdd, onAddToCart }) {
           <ReliableImage
             src={imgUrl}
             alt={product.name}
+            priority={priority}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 320px"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />
         </Link>

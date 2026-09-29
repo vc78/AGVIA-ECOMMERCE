@@ -240,8 +240,12 @@ export default function Footer() {
             <div className="w-full lg:w-[24%] shrink-0 flex flex-col items-start lg:pr-6 pb-4 lg:pb-0 border-b border-white/10 lg:border-b-0">
               <Link to="/" className="mb-3 group inline-block">
                 <img
-                  src="/images/agvia-logo.png"
+                  src="/images/agvia-logo.webp"
                   alt="AGVIA Women's Wear Boutique"
+                  width={180}
+                  height={60}
+                  loading="lazy"
+                  decoding="async"
                   className="h-14 sm:h-16 w-auto object-contain brightness-110 drop-shadow-[0_2px_12px_rgba(201,164,92,0.35)] group-hover:scale-105 transition-transform duration-300"
                 />
               </Link>

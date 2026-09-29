@@ -232,7 +232,7 @@ export default function Home() {
         <div
           className="w-full h-full bg-cover bg-center bg-fixed opacity-[0.14] mix-blend-multiply"
           style={{
-            backgroundImage: "url('/images/boutique_luxury_bg.jpg')",
+            backgroundImage: "url('/images/boutique_luxury_bg.webp')",
             filter: 'contrast(1.04) saturate(1.08)',
           }}
         />
@@ -260,13 +260,19 @@ export default function Home() {
             transition={{ duration: 0.9, ease: [0.25, 1, 0.5, 1] }}
           >
             <picture>
-              <source srcSet={slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')} type="image/webp" />
+              <source
+                type="image/webp"
+                srcSet={`${slide.image.replace(/\.(jpg|jpeg|png)$/i, '')}-600.webp 600w, ${slide.image.replace(/\.(jpg|jpeg|png)$/i, '')}-900.webp 900w, ${slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')} 1280w`}
+                sizes="100vw"
+              />
               <motion.img
-                src={slide.image}
+                src={slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')}
                 alt={slide.titleMain || 'AGVIA Boutique'}
                 loading={heroIdx === 0 ? 'eager' : 'lazy'}
                 fetchPriority={heroIdx === 0 ? 'high' : 'auto'}
                 decoding={heroIdx === 0 ? 'sync' : 'async'}
+                width={1280}
+                height={714}
                 className="absolute -top-8 -bottom-8 w-full h-[calc(100%+64px)] object-cover object-[center_28%] lg:object-center filter contrast-[1.03] brightness-[0.96]"
                 style={{ y: yBg }}
               />
@@ -339,9 +345,9 @@ export default function Home() {
                 {/* Social Proof: 3 Customer Avatars + 10,000+ Happy Customers */}
                 <div className="flex items-center gap-3 pt-2">
                   <div className="flex -space-x-2">
-                    <img src="/images/classic_silk_saree.jpg" alt="Client 1" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
-                    <img src="/images/wedding_lehenga.jpg" alt="Client 2" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
-                    <img src="/images/anarkali_set.jpg" alt="Client 3" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
+                    <img src="/images/classic_silk_saree-400.webp" alt="Client 1" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
+                    <img src="/images/wedding_lehenga-400.webp" alt="Client 2" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
+                    <img src="/images/anarkali_set-400.webp" alt="Client 3" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
                   </div>
                   <div className="text-[11px] sm:text-xs text-white/90">
                     <span className="font-bold tracking-wide">10,000+ Happy Customers</span>
@@ -522,7 +528,7 @@ export default function Home() {
               Step inside our Hyderabad atelier where master artisans hand-embroider zardozi motifs and handloom pure silk heirlooms for brides and discerning connoisseurs across the globe.
             </p>
             <div className="rounded-2xl overflow-hidden aspect-video relative border border-[#C9A45C]/30 mb-6 bg-black">
-              <img src="/images/hero_dupatta_couture.jpg" alt="Atelier Preview" className="w-full h-full object-cover opacity-85" />
+              <img src="/images/hero_dupatta_couture-600.webp" alt="Atelier Preview" width={600} height={335} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-85" />
               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                 <div className="w-16 h-16 rounded-full bg-[#6B1426] flex items-center justify-center shadow-xl">
                   <Play size={24} className="fill-white ml-1" />

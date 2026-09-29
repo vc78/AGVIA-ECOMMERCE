@@ -65,10 +65,14 @@ export default function Inventory() {
       label: 'Photo',
       render: (r) => (
         <img
-          src={r.image || '/images/classic_silk_saree.jpg'}
+          src={(r.image || '/images/classic_silk_saree.jpg').replace(/\.(jpg|jpeg|png)$/i, '-400.webp')}
           alt={r.name}
+          width={40}
+          height={56}
+          loading="lazy"
+          decoding="async"
           className="w-10 h-14 rounded-xl object-cover border border-[#C9A45C]/25 shadow-2xs"
-          onError={(e) => { e.target.src = '/images/classic_silk_saree.jpg' }}
+          onError={(e) => { e.target.src = '/images/classic_silk_saree-400.webp' }}
         />
       ),
     },

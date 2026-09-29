@@ -1059,10 +1059,17 @@ export default function Profile() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {wishlistItems.map(item => (
                       <div key={item.id} className="p-4 rounded-2xl border border-gray-200 flex items-center justify-between gap-3 bg-white">
                         <div className="flex items-center gap-3">
-                          <img src={item.imageUrl || item.image || '/images/classic_silk_saree.jpg'} alt={item.name} className="w-14 h-14 rounded-xl object-cover border border-gray-100" />
+                          <img
+                            src={(item.imageUrl || item.image || '/images/classic_silk_saree.jpg').replace(/\.(jpg|jpeg|png)$/i, '-400.webp')}
+                            alt={item.name}
+                            width={56}
+                            height={56}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-14 h-14 rounded-xl object-cover border border-gray-100"
+                          />
                           <div>
                             <h4 className="font-display text-xs font-bold text-gray-900">{item.name}</h4>
                             <p className="font-mono text-xs font-bold text-[#8B0000] mt-0.5">₹{item.price}</p>

@@ -24,7 +24,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
       {/* Brand Header */}
       <div className="h-14 sm:h-16 flex items-center justify-between px-4 border-b border-[#C9A45C]/20 bg-[#1A0B10]/95 select-none">
         <Link to="/" className="flex items-center gap-2.5" onClick={onClose}>
-          <img src="/images/agvia-logo.png" alt="AGVIA" className="h-7 w-auto object-contain brightness-110" />
+          <img src="/images/agvia-logo.webp" alt="AGVIA" width={36} height={28} decoding="async" className="h-7 w-auto object-contain brightness-110" />
           <div className="flex flex-col">
             <span className="font-serif text-base tracking-[0.18em] font-bold uppercase text-[#FAF7F2] leading-none">
               AGVIA

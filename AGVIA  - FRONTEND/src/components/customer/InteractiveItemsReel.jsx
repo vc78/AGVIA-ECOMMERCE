@@ -458,6 +458,8 @@ export default function InteractiveItemsReel() {
                       <ReliableImage
                         src={col.image}
                         alt={col.name}
+                        sizes="(max-width: 640px) 245px, (max-width: 1024px) 210px, 220px"
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
                       />
 

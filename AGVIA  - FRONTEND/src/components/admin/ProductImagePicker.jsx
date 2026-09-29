@@ -312,8 +312,12 @@ export default function ProductImagePicker({ value, onChange, presets = DEFAULT_
                 }`}
               >
                 <img
-                  src={p.url}
+                  src={p.url.replace(/\.(jpg|jpeg|png)$/i, '-400.webp')}
                   alt={p.label}
+                  width={60}
+                  height={56}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-14 object-cover rounded-lg mb-1.5 border border-[#C9A45C]/15"
                 />
                 <span className="text-[9px] font-semibold text-[#211D1E] line-clamp-1">{p.label}</span>

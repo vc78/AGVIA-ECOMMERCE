@@ -63,10 +63,14 @@ export default function ProductsManagement() {
       label: 'Photo',
       render: (r) => (
         <img
-          src={r.image || '/images/classic_silk_saree.jpg'}
+          src={(r.image || '/images/classic_silk_saree.jpg').replace(/\.(jpg|jpeg|png)$/i, '-400.webp')}
           alt={r.name}
+          width={48}
+          height={64}
+          loading="lazy"
+          decoding="async"
           className="w-10 h-14 sm:w-12 sm:h-16 rounded-xl object-cover border border-[#C9A45C]/25 shadow-2xs"
-          onError={(e) => { e.target.src = '/images/classic_silk_saree.jpg' }}
+          onError={(e) => { e.target.src = '/images/classic_silk_saree-400.webp' }}
         />
       ),
     },

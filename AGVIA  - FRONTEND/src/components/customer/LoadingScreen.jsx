@@ -6,7 +6,7 @@ export default function LoadingScreen({ onComplete }) {
 
   useEffect(() => {
     const hasLoaded = sessionStorage.getItem('agvia_app_loaded')
-    const totalDuration = hasLoaded ? 400 : 900
+    const totalDuration = hasLoaded ? 200 : 450
 
     const timer = setTimeout(() => {
       sessionStorage.setItem('agvia_app_loaded', 'true')
@@ -25,7 +25,7 @@ export default function LoadingScreen({ onComplete }) {
           exit={{ 
             opacity: 0, 
             scale: 1.02,
-            transition: { duration: 0.4, ease: 'easeInOut' } 
+            transition: { duration: 0.3, ease: 'easeInOut' } 
           }}
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#1A0B10] text-[#FAF7F2] select-none overflow-hidden"
         >
@@ -39,18 +39,21 @@ export default function LoadingScreen({ onComplete }) {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ 
-                scale: 1,
+                scale: 1, 
                 opacity: 1 
               }}
               transition={{ 
-                duration: 0.6,
+                duration: 0.4,
                 ease: [0.16, 1, 0.3, 1]
               }}
               className="relative flex items-center justify-center"
             >
               <img 
-                src="/images/agvia-logo.png" 
+                src="/images/agvia-logo.webp" 
                 alt="AGVIA" 
+                width={384}
+                height={289}
+                decoding="async"
                 className="w-64 sm:w-80 md:w-96 max-w-[85vw] h-auto object-contain drop-shadow-[0_15px_40px_rgba(201,164,92,0.35)] select-none pointer-events-none brightness-105" 
               />
             </motion.div>

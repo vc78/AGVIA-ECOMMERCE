@@ -353,9 +353,9 @@ export default function Products() {
                     : 'space-y-3.5'
                 }
               >
-                {products.map((product) => {
+                {products.map((product, idx) => {
                   if (viewMode === 'grid') {
-                    return <SweetCard key={product.id} product={product} onAdd={() => handleAdd(product)} />
+                    return <SweetCard key={product.id} product={product} onAdd={() => handleAdd(product)} priority={idx < 2} />
                   } else {
                     /* Custom Luxury List Item Card */
                     return (
@@ -375,6 +375,8 @@ export default function Products() {
                             <ReliableImage
                               src={product.image}
                               alt={product.name}
+                              priority={idx < 2}
+                              sizes="112px"
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                             />
                           </Link>

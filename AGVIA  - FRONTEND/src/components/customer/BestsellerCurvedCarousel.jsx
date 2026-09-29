@@ -400,6 +400,8 @@ export default function BestsellerCurvedCarousel({ bestsellers = [], onAdd }) {
                       <ReliableImage
                         src={item.image}
                         alt={item.name}
+                        sizes="(max-width: 640px) 215px, (max-width: 1024px) 250px, 260px"
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                       />
 

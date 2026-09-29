@@ -93,11 +93,22 @@ export default function BespokeTrousseauBanner() {
           {/* ── Center 4 Cols: Royal Bride Portrait ── */}
           <div className="lg:col-span-4 flex justify-center">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-[#C9A45C]/40 max-w-[380px] lg:max-w-[340px] xl:max-w-[400px] w-full aspect-[16/11] group">
-              <img
-                src="/images/bridal_trousseau_banner.jpg"
-                alt="Royal Bridal Trousseau"
-                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-              />
+              <picture className="w-full h-full block">
+                <source
+                  type="image/webp"
+                  srcSet="/images/bridal_trousseau_banner-400.webp 400w, /images/bridal_trousseau_banner-600.webp 600w, /images/bridal_trousseau_banner.webp 1280w"
+                  sizes="(max-width: 1024px) 380px, 400px"
+                />
+                <img
+                  src="/images/bridal_trousseau_banner-600.webp"
+                  alt="Royal Bridal Trousseau"
+                  width={400}
+                  height={275}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent pointer-events-none" />
             </div>
           </div>

@@ -485,6 +485,8 @@ export default function Cart() {
                             <ReliableImage
                               src={item.image}
                               alt={item.name}
+                              sizes="96px"
+                              loading="lazy"
                               className="w-full h-full object-cover"
                             />
                           </div>
@@ -827,6 +829,8 @@ export default function Cart() {
                     <ReliableImage
                       src={prod.image}
                       alt={prod.name}
+                      sizes="220px"
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <button

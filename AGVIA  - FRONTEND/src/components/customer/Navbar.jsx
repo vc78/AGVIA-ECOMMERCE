@@ -272,8 +272,12 @@ export default function Navbar() {
             {/* ── Left: AGVIA Official Brand Logo ── */}
             <Link to="/" className="flex items-center shrink-0 group py-0.5">
               <img
-                src="/images/agvia-logo.png"
+                src="/images/agvia-logo.webp"
                 alt="AGVIA Women's Wear Boutique"
+                width={140}
+                height={44}
+                fetchPriority="high"
+                decoding="async"
                 className="h-9 sm:h-10 lg:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </Link>
@@ -395,6 +399,8 @@ export default function Navbar() {
                                     <ReliableImage
                                       src={item.img}
                                       alt={item.name}
+                                      sizes="48px"
+                                      loading="lazy"
                                       className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500"
                                     />
                                   </div>
@@ -547,8 +553,12 @@ export default function Navbar() {
               <div className="flex justify-between items-center px-4 py-3 border-b border-[#EAE0D2] bg-[#FAF6F0]">
                 <div className="flex items-center">
                   <img
-                    src="/images/agvia-logo.png"
+                    src="/images/agvia-logo.webp"
                     alt="AGVIA Women's Wear Boutique"
+                    width={112}
+                    height={32}
+                    loading="lazy"
+                    decoding="async"
                     className="h-8 w-auto object-contain"
                   />
                 </div>

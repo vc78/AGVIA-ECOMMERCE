@@ -401,6 +401,8 @@ export default function Orders() {
                                             <ReliableImage
                                               src={item.image || item.imageUrl || '/images/classic_silk_saree.jpg'}
                                               alt={item.name || item.productName || 'Confection'}
+                                              sizes="48px"
+                                              loading="lazy"
                                               className="w-12 h-12 rounded-lg border border-[#B8860B]/10 shadow-sm shrink-0 object-cover"
                                             />
                                             <div>

@@ -739,10 +739,14 @@ export default function Analytics() {
                   #{i + 1}
                 </span>
                 <img
-                  src={p.image || '/images/classic_silk_saree.jpg'}
+                  src={(p.image || '/images/classic_silk_saree.jpg').replace(/\.(jpg|jpeg|png)$/i, '-400.webp')}
                   alt={p.name}
+                  width={40}
+                  height={48}
+                  loading="lazy"
+                  decoding="async"
                   className="w-9 h-11 sm:w-10 sm:h-12 rounded-xl object-cover border border-[#C9A45C]/25 shrink-0"
-                  onError={(e) => { e.target.src = '/images/classic_silk_saree.jpg' }}
+                  onError={(e) => { e.target.src = '/images/classic_silk_saree-400.webp' }}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-xs sm:text-sm font-bold text-[#5A1020] truncate">{p.name}</p>

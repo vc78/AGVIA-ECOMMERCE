@@ -339,9 +339,16 @@ export default function TestimonialsCarousel() {
                 className={`${isCenter ? 'w-full max-w-[320px] sm:w-[38%] sm:max-w-[280px]' : 'hidden sm:block w-[28%] max-w-[210px]'} shrink-0`}
               >
                 <ArchCard active={isCenter}>
-                  {/* Avatar */}
                   <div className={`relative mb-2.5 sm:mb-3 ${isCenter ? 'w-14 h-14 sm:w-16 sm:h-16' : 'w-12 h-12'} rounded-full overflow-hidden border-2 border-[#C9A45C]/60 shadow-md shrink-0`}>
-                    <img src={avatar} alt={name} className="w-full h-full object-cover object-top" />
+                    <img
+                      src={avatar.replace(/\.(jpg|jpeg|png)$/i, '-400.webp')}
+                      alt={name}
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover object-top"
+                    />
                   </div>
 
                   {/* Stars */}
