@@ -479,6 +479,9 @@ export const productService = {
         : []
       serverReviews = items.map((r) => ({
         id: r.id,
+        userId: r.userId ?? null,
+        userName: r.userName,
+        customerName: r.customerName,
         customer: r.customerName || r.userName || 'Valued Patron',
         rating: Number(r.rating || 5),
         comment: r.comment,
@@ -616,5 +619,23 @@ export const productService = {
     }
 
     return savedReview
+  },
+
+  async deleteReview(reviewId, productId) {
+    try {
+      const { data } = await api.delete(`/reviews/${reviewId}`)
+      if (productId) {
+        try {
+          const storageKey = `agvia_reviews_${productId}`
+          const existing = JSON.parse(localStorage.getItem(storageKey) || '[]')
+          const updated = existing.filter((item) => item.id !== reviewId)
+          localStorage.setItem(storageKey, JSON.stringify(updated))
+        } catch (e) {}
+      }
+      return data
+    } catch (err) {
+      console.error('Failed to delete review:', err)
+      throw err
+    }
   }
 }

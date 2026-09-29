@@ -24,6 +24,17 @@ public class UserController {
     private final UserRepository userRepository;
     private final com.ems.pragathisweets.service.OtpService otpService;
 
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> getProfile(
+            @AuthenticationPrincipal UserDetailsImpl principal) {
+        if (principal == null) {
+            throw new org.springframework.security.access.AccessDeniedException("Authentication required");
+        }
+        User user = userRepository.findById(Objects.requireNonNull(principal.getId()))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + principal.getId()));
+        return ResponseEntity.ok(ApiResponse.success(toUserResponse(user)));
+    }
+
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
             @AuthenticationPrincipal UserDetailsImpl principal,

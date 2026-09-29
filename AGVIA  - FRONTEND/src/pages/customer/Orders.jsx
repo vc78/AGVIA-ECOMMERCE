@@ -66,6 +66,7 @@ export default function Orders() {
     let isMounted = true
 
     const fetchOrders = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
       orderService.getMyOrders()
         .then((data) => {
           if (!isMounted) return
@@ -82,10 +83,10 @@ export default function Orders() {
 
     fetchOrders()
 
-    // Smart real-time polling every 8 seconds to reflect order & payment status changes
+    // Smart polling every 30 seconds to reflect status changes without flooding network
     const pollInterval = setInterval(() => {
       fetchOrders()
-    }, 8000)
+    }, 30000)
 
     return () => {
       isMounted = false

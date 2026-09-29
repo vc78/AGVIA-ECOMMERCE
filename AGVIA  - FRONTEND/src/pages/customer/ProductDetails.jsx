@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
-import { Star, Minus, Plus, ArrowLeft, ShieldCheck, Heart, Truck, HelpCircle, ChevronDown, CheckCircle, Zap, MessageCircle } from 'lucide-react'
+import { Star, Minus, Plus, ArrowLeft, ShieldCheck, Heart, Truck, HelpCircle, ChevronDown, CheckCircle, Zap, MessageCircle, Trash2, Loader2 } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import SweetCard from '../../components/customer/SweetCard'
@@ -15,6 +16,7 @@ import { ProductDetailsSkeleton } from '../../components/common/SkeletonLoaders'
 export default function ProductDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user, isAuthenticated } = useSelector((state) => state.auth)
   const [product, setProduct] = useState(null)
   const [qty, setQty] = useState(1)
   const [selectedSize, setSelectedSize] = useState('M')
@@ -28,6 +30,10 @@ export default function ProductDetails() {
   const [newComment, setNewComment] = useState('')
   const [newRating, setNewRating] = useState(5)
   const [submitting, setSubmitting] = useState(false)
+
+  // Review deletion state
+  const [deletingId, setDeletingId] = useState(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   // Accordion details mapping
   const [accordionOpen, setAccordionOpen] = useState({ craftsmanship: true, sizing: false, shipping: false })
@@ -75,14 +81,16 @@ export default function ProductDetails() {
     }
     setSubmitting(true)
     try {
-      const currentUser = authService.getCurrentUser()
-      const customerName = reviewerName.trim() || currentUser?.fullName || currentUser?.name || 'Patron'
+      const customerName = reviewerName.trim() || user?.name || user?.fullName || 'Patron'
       const saved = await productService.submitReview(id, {
         customer: customerName,
         rating: newRating,
         comment: newComment.trim(),
         date: new Date().toISOString().slice(0, 10),
       })
+      if (user?.id && !saved.userId) {
+        saved.userId = user.id
+      }
       setReviews((prev) => [saved, ...prev.filter((r) => r.id !== saved.id)])
       setNewComment('')
       toast.success('Thank you for sharing your experience!', {
@@ -92,6 +100,33 @@ export default function ProductDetails() {
       toast.error('Could not submit review.')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to delete your review.')
+      return
+    }
+    setDeletingId(reviewId)
+    try {
+      await productService.deleteReview(reviewId, id)
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId))
+      setConfirmDeleteId(null)
+      toast.success('Your review has been deleted successfully.', {
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      const status = err?.response?.status
+      if (status === 403) {
+        toast.error('You do not have permission to delete this review.')
+      } else if (status === 401) {
+        toast.error('Your session has expired. Please sign in again.')
+      } else {
+        toast.error(err?.response?.data?.message || 'Could not delete review. Please try again.')
+      }
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -322,19 +357,68 @@ export default function ProductDetails() {
               <p className="text-xs italic text-[#211D1E]/50">No reviews listed yet. Be the first to share your couture experience.</p>
             ) : (
               <div className="space-y-3">
-                {reviews.map((r) => (
-                  <div key={r.id} className="border border-[#C9A45C]/20 rounded-xl p-3.5 sm:p-4 bg-white shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-[#211D1E]">{r.customer}</span>
-                        {r.verified && (
-                          <span className="inline-flex items-center gap-1 text-[8.5px] text-[#5A1020] font-bold bg-[#5A1020]/10 px-2 py-0.5 rounded-full">
-                            <CheckCircle size={9} className="text-[#5A1020]" /> Verified Patron
-                          </span>
-                        )}
+                {reviews.map((r) => {
+                  const canDelete = isAuthenticated && (
+                    (user?.id && r.userId && Number(user.id) === Number(r.userId)) ||
+                    (r.userId == null && user?.name && r.customer === user.name) ||
+                    user?.role === 'ADMIN'
+                  )
+                  const isDeleting = deletingId === r.id
+                  const isConfirming = confirmDeleteId === r.id
+
+                  return (
+                    <div key={r.id} className="border border-[#C9A45C]/20 rounded-xl p-3.5 sm:p-4 bg-white shadow-xs transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-bold text-[#211D1E]">{r.customer}</span>
+                          {r.verified && (
+                            <span className="inline-flex items-center gap-1 text-[8.5px] text-[#5A1020] font-bold bg-[#5A1020]/10 px-2 py-0.5 rounded-full">
+                              <CheckCircle size={9} className="text-[#5A1020]" /> Verified Patron
+                            </span>
+                          )}
+                          {isAuthenticated && user?.id && r.userId && Number(user.id) === Number(r.userId) && (
+                            <span className="text-[8px] bg-[#C9A45C]/25 text-[#5A1020] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                              You
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9.5px] text-[#211D1E]/50">{r.date}</span>
+                          {canDelete && (
+                            isConfirming ? (
+                              <div className="flex items-center gap-1 bg-red-50 p-1 px-1.5 rounded-lg border border-red-200">
+                                <span className="text-[10px] text-red-700 font-semibold">Delete?</span>
+                                <button
+                                  type="button"
+                                  disabled={isDeleting}
+                                  onClick={() => handleDeleteReview(r.id)}
+                                  className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded flex items-center gap-1 disabled:opacity-50"
+                                >
+                                  {isDeleting ? <Loader2 size={10} className="animate-spin" /> : 'Yes'}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={isDeleting}
+                                  onClick={() => setConfirmDeleteId(null)}
+                                  className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] rounded"
+                                >
+                                  No
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setConfirmDeleteId(r.id)}
+                                className="text-gray-400 hover:text-red-600 p-1 rounded transition-colors touch-target min-w-[28px] min-h-[28px] flex items-center justify-center"
+                                title="Delete your review"
+                                aria-label="Delete review"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            )
+                          )}
+                        </div>
                       </div>
-                      <span className="text-[9.5px] text-[#211D1E]/50">{r.date}</span>
-                    </div>
                     <div className="flex text-[#C9A45C] mt-1 mb-2">
                       {Array.from({ length: r.rating }).map((_, i) => (
                         <Star key={i} size={10} fill="#C9A45C" className="text-[#C9A45C]" />
@@ -344,8 +428,9 @@ export default function ProductDetails() {
                       {r.comment}
                     </p>
                   </div>
-                ))}
-              </div>
+                )
+              })}
+            </div>
             )}
           </div>
 

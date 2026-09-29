@@ -259,14 +259,18 @@ export default function Home() {
             exit={{ opacity: 0, scale: 0.98, x: -heroDir * 40 }}
             transition={{ duration: 0.9, ease: [0.25, 1, 0.5, 1] }}
           >
-            <motion.img
-              src={slide.image}
-              alt={slide.titleMain || 'AGVIA Boutique'}
-              loading={heroIdx === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-              className="absolute -top-8 -bottom-8 w-full h-[calc(100%+64px)] object-cover object-[center_28%] lg:object-center filter contrast-[1.03] brightness-[0.96]"
-              style={{ y: yBg }}
-            />
+            <picture>
+              <source srcSet={slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')} type="image/webp" />
+              <motion.img
+                src={slide.image}
+                alt={slide.titleMain || 'AGVIA Boutique'}
+                loading={heroIdx === 0 ? 'eager' : 'lazy'}
+                fetchPriority={heroIdx === 0 ? 'high' : 'auto'}
+                decoding={heroIdx === 0 ? 'sync' : 'async'}
+                className="absolute -top-8 -bottom-8 w-full h-[calc(100%+64px)] object-cover object-[center_28%] lg:object-center filter contrast-[1.03] brightness-[0.96]"
+                style={{ y: yBg }}
+              />
+            </picture>
             {/* Left Vignette & Gradient for High Text Contrast */}
             <div className="absolute inset-0 bg-gradient-to-r from-[#1A040C]/90 via-[#1A040C]/55 to-transparent sm:w-4/5 lg:w-3/5" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#150309] via-transparent to-black/35" />

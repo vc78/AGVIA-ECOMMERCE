@@ -22,14 +22,20 @@ const authSlice = createSlice({
       localStorage.setItem('ps_token', token)
     },
     loggedOut: (state) => {
+      const currentUserId = state.user?.id
       state.user = null
       state.token = null
       state.isAuthenticated = false
-      // Clear ALL session-scoped keys so the next user starts fresh
+      // Clear ALL session-scoped keys so the next user starts completely fresh
       localStorage.removeItem('ps_user')
       localStorage.removeItem('ps_token')
-      localStorage.removeItem('ps_cart')       // ← clears cart on logout
-      localStorage.removeItem('ps_wishlist')   // ← clears wishlist on logout
+      localStorage.removeItem('ps_cart')
+      localStorage.removeItem('ps_wishlist')
+      localStorage.removeItem('ps_circle_member')
+      if (currentUserId) {
+        localStorage.removeItem(`ps_cart_${currentUserId}`)
+        localStorage.removeItem(`ps_user_addresses_${currentUserId}`)
+      }
       // Notify cart hook listeners so UI count badge resets immediately
       window.dispatchEvent(new Event('ps-cart-updated'))
     },

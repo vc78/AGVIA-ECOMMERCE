@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import ProtectedRoute from './ProtectedRoute'
 import PageTransition from '../components/customer/PageTransition'
@@ -83,7 +83,9 @@ export default function AppRoutes() {
           {/* Public / customer-facing */}
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
           <Route path="/products" element={<PageTransition><Products /></PageTransition>} />
+          <Route path="/shop" element={<PageTransition><Products /></PageTransition>} />
           <Route path="/products/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
+          <Route path="/product/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
           <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
           <Route path="/offers" element={<PageTransition><Offers /></PageTransition>} />
           <Route path="/gift-boxes" element={<PageTransition><GiftBoxes /></PageTransition>} />
@@ -130,10 +132,12 @@ export default function AppRoutes() {
           <Route path="/orders" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
           <Route path="/my-orders" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+          <Route path="/account" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
           <Route path="/addresses" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Addresses /></PageTransition></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Notifications /></PageTransition></ProtectedRoute>} />
 
           {/* Admin */}
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
           <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/products" element={<ProtectedRoute role="ADMIN"><PageTransition><ProductsManagement /></PageTransition></ProtectedRoute>} />

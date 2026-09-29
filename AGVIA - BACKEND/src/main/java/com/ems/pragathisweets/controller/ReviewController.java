@@ -47,7 +47,12 @@ public class ReviewController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteReview(@AuthenticationPrincipal UserDetailsImpl principal,
                                                            @PathVariable Long id) {
-        reviewService.deleteReview(principal.getId(), id);
-        return ResponseEntity.ok(ApiResponse.success("Review deleted", null));
+        if (principal == null) {
+            throw new org.springframework.security.access.AccessDeniedException("Authentication required to delete a review");
+        }
+        boolean isAdmin = principal.getAuthorities() != null &&
+                principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        reviewService.deleteReview(principal.getId(), id, isAdmin);
+        return ResponseEntity.ok(ApiResponse.success("Review deleted successfully", null));
     }
 }

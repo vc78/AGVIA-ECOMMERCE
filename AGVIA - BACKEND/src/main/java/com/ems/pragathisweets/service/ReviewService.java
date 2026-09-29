@@ -63,17 +63,20 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(Long userId, Long reviewId) {
+    public void deleteReview(Long userId, Long reviewId, boolean isAdmin) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
 
-        if (!review.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("You can only delete your own reviews");
+        boolean isOwner = review.getUser() != null && review.getUser().getId().equals(userId);
+        if (!isAdmin && !isOwner) {
+            throw new org.springframework.security.access.AccessDeniedException("You are not authorized to delete this review. You can only delete your own reviews.");
         }
 
         Product product = review.getProduct();
         reviewRepository.delete(review);
-        recalculateProductRating(product);
+        if (product != null) {
+            recalculateProductRating(product);
+        }
     }
 
     private void recalculateProductRating(Product product) {

@@ -41,16 +41,15 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/**",
             "/api/newsletter/**",
-            "/api/subscriptions/**",
+            "/api/subscriptions/create-order",
+            "/api/subscriptions/verify-payment",
+            "/api/subscriptions/activate-instant",
             "/api/health",
             "/actuator/health",
             "/api/payments/webhook",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/api/admin/products/ai-generate",
-            "/api/reviews",
-            "/api/reviews/**"
+            "/swagger-ui.html"
     };
 
     @Bean
@@ -73,6 +72,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

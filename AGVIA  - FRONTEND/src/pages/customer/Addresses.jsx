@@ -1,17 +1,38 @@
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { MapPin, Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 
 export default function Addresses() {
-  const [addrList, setAddrList] = useState([
-    { id: 1, label: 'Home Address', details: '12, Jubilee Hills, Road No. 36, Hyderabad, 500033' },
-    { id: 2, label: 'Office Address', details: 'DLF Cyber City, Phase 2, Gachibowli, Hyderabad, 500032' }
-  ])
+  const { user } = useSelector((state) => state.auth)
+  const storageKey = user?.id ? `ps_user_addresses_${user.id}` : 'ps_user_addresses_guest'
+
+  const [addrList, setAddrList] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey)
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
+
+  useEffect(() => {
+    if (user?.id) {
+      try {
+        const saved = localStorage.getItem(`ps_user_addresses_${user.id}`)
+        setAddrList(saved ? JSON.parse(saved) : [])
+      } catch {
+        setAddrList([])
+      }
+    }
+  }, [user?.id])
 
   const handleDelete = (id) => {
-    setAddrList(addrList.filter((a) => a.id !== id))
+    const updated = addrList.filter((a) => a.id !== id)
+    setAddrList(updated)
+    localStorage.setItem(storageKey, JSON.stringify(updated))
     toast.success("Address removed successfully!")
   }
 

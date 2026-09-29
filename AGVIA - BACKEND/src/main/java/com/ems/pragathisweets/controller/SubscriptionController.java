@@ -56,13 +56,13 @@ public class SubscriptionController {
 
     @GetMapping("/my-status")
     public ResponseEntity<ApiResponse<SubscriptionResponse>> getMyStatus(
-            @AuthenticationPrincipal UserDetailsImpl principal,
-            @RequestParam(required = false) String email) {
+            @AuthenticationPrincipal UserDetailsImpl principal) {
 
-        Long userId = (principal != null) ? principal.getId() : null;
-        String emailToQuery = (email != null && !email.isBlank()) ? email : (principal != null ? principal.getEmail() : null);
+        if (principal == null) {
+            return ResponseEntity.ok(ApiResponse.success(null));
+        }
 
-        SubscriptionResponse response = subscriptionService.getMySubscription(userId, emailToQuery);
+        SubscriptionResponse response = subscriptionService.getMySubscription(principal.getId(), principal.getEmail());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

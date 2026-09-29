@@ -39,7 +39,7 @@ export default function Profile() {
     firstName: user?.name ? user.name.split(' ')[0] : '',
     lastName: user?.name && user.name.split(' ').length > 1 ? user.name.split(' ').slice(1).join(' ') : '',
     displayName: user?.name || '',
-    dob: '1995-08-15',
+    dob: '',
     gender: 'Prefer not to say',
     avatar: ''
   })
@@ -62,34 +62,15 @@ export default function Profile() {
   const [phoneWhatsAppUrl, setPhoneWhatsAppUrl] = useState('')
   const [receivedOtpCode, setReceivedOtpCode] = useState('')
 
-  // ── 3. Saved Addresses State ─────────────────────────────────
+  // ── 3. Saved Addresses State (User-Isolated) ──────────────────
   const [addresses, setAddresses] = useState(() => {
     try {
-      const saved = localStorage.getItem('ps_user_addresses')
-      return saved ? JSON.parse(saved) : [
-        {
-          id: 1,
-          name: user?.name || 'Venkat B',
-          phone: user?.phone || '+91 90323 06961',
-          line: 'Flat 402, Royal Residency, Road No. 36',
-          city: 'Hyderabad',
-          state: 'Telangana',
-          pincode: '500033',
-          type: 'Home',
-          isDefault: true
-        },
-        {
-          id: 2,
-          name: user?.name || 'Venkat B',
-          phone: user?.phone || '+91 90323 06961',
-          line: 'Tower B, Cyber Gateway, Hitech City',
-          city: 'Hyderabad',
-          state: 'Telangana',
-          pincode: '500081',
-          type: 'Work',
-          isDefault: false
-        }
-      ]
+      const key = user?.id ? `ps_user_addresses_${user.id}` : null
+      if (key) {
+        const saved = localStorage.getItem(key)
+        if (saved) return JSON.parse(saved)
+      }
+      return []
     } catch {
       return []
     }
@@ -133,25 +114,83 @@ export default function Profile() {
   const [passwordForm, setPasswordForm] = useState({ current: '', next: '', confirm: '' })
   const [showPass, setShowPass] = useState(false)
   const [savingPass, setSavingPass] = useState(false)
-  const [sessions, setSessions] = useState([
-    { id: 'sess_1', device: 'Chrome · Windows 11', location: 'Hyderabad, Telangana', activeNow: true, lastActive: 'Active now', icon: Laptop },
-    { id: 'sess_2', device: 'Chrome Mobile · Android 14', location: 'Hyderabad, Telangana', activeNow: false, lastActive: '2 hours ago', icon: Smartphone }
+  const [sessions, setSessions] = useState(() => [
+    {
+      id: 'sess_1',
+      device: typeof navigator !== 'undefined' && /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile Device' : 'Desktop Browser',
+      location: 'Current Authenticated Session',
+      activeNow: true,
+      lastActive: 'Active now',
+      icon: typeof navigator !== 'undefined' && /Mobile|Android|iPhone/i.test(navigator.userAgent) ? Smartphone : Laptop
+    }
   ])
 
   // ── 8. Subscription / AGVIA Atelier Circle State ──────────────────
   const [subscription, setSubscription] = useState(null)
   const [copiedCoupon, setCopiedCoupon] = useState(false)
 
-  // Initial Data Loading
+  // Sync personal form when user object updates
+  useEffect(() => {
+    if (user) {
+      const nameParts = (user.name || user.fullName || '').trim().split(' ')
+      setPersonalForm((prev) => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.length > 1 ? nameParts.slice(1).join(' ') : '',
+        displayName: user.name || user.fullName || '',
+        avatar: user.avatar || prev.avatar
+      }))
+    }
+  }, [user])
+
+  // Sync user-isolated addresses
+  useEffect(() => {
+    if (!user?.id) {
+      setAddresses([])
+      return
+    }
+    try {
+      const key = `ps_user_addresses_${user.id}`
+      const saved = localStorage.getItem(key)
+      if (saved) {
+        setAddresses(JSON.parse(saved))
+      } else {
+        setAddresses([])
+      }
+    } catch {
+      setAddresses([])
+    }
+  }, [user?.id])
+
+  useEffect(() => {
+    if (user?.id) {
+      localStorage.setItem(`ps_user_addresses_${user.id}`, JSON.stringify(addresses))
+    }
+  }, [addresses, user?.id])
+
+  // Initial Data Loading: Authoritative /me profile + subscription + orders
   useEffect(() => {
     let isMounted = true
     async function initProfile() {
       try {
-        const [subData, userOrders] = await Promise.allSettled([
+        const [meData, subData, userOrders] = await Promise.allSettled([
+          authService.getCurrentUser(),
           subscriptionService.getMySubscription(),
           orderService.getMyOrders()
         ])
         if (isMounted) {
+          if (meData.status === 'fulfilled' && meData.value) {
+            const me = meData.value
+            dispatch(profileUpdated({
+              id: me.id,
+              name: me.fullName || me.name,
+              email: me.email,
+              phone: me.phone,
+              phoneVerified: me.phoneVerified,
+              address: me.address,
+              role: me.role === 'ROLE_ADMIN' ? 'ADMIN' : (me.role || 'CUSTOMER')
+            }))
+          }
           if (subData.status === 'fulfilled') setSubscription(subData.value)
           if (userOrders.status === 'fulfilled') setOrders(userOrders.value || [])
         }
@@ -163,12 +202,7 @@ export default function Profile() {
     }
     initProfile()
     return () => { isMounted = false }
-  }, [])
-
-  // Persist addresses to localStorage
-  useEffect(() => {
-    localStorage.setItem('ps_user_addresses', JSON.stringify(addresses))
-  }, [addresses])
+  }, [dispatch])
 
   // OTP Countdown timer
   useEffect(() => {
@@ -460,7 +494,7 @@ export default function Profile() {
   }
 
   const isVipActive = subscription?.status === 'ACTIVE'
-  const accountId = `PS-CL-${String(user?.id || 1042).padStart(4, '0')}`
+  const accountId = user?.id ? `PS-CL-${String(user.id).padStart(4, '0')}` : 'PS-CL-MEMBER'
 
   // ── Navigation Tabs Configuration ────────────────────────────
   const NAV_TABS = [
@@ -774,11 +808,13 @@ export default function Profile() {
                   </div>
                   <div>
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Account Role</span>
-                    <span className="font-bold text-[#8B0000]">CUSTOMER</span>
+                    <span className="font-bold text-[#8B0000]">{user?.role || 'CUSTOMER'}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Member Since</span>
-                    <span className="font-medium text-gray-700">July 2026</span>
+                    <span className="font-medium text-gray-700">
+                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Verified Member'}
+                    </span>
                   </div>
                 </div>
               </motion.div>

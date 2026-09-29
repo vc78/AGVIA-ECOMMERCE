@@ -318,6 +318,45 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     }
   },
 
+  // ── Reviews ─────────────────────────────────────────────────────────────
+  async getReviews(params = {}) {
+    try {
+      const { data } = await api.get('/admin/reviews', { params })
+      const items = data.data?.content || data.data || []
+      return items.map((r) => ({
+        id: r.id,
+        productId: r.productId,
+        product: r.productName || 'Atelier Garment',
+        customer: r.customerName || r.userName || 'Valued Patron',
+        rating: Number(r.rating || 5),
+        comment: r.comment,
+        approved: true,
+        verifiedPurchase: r.verifiedPurchase ?? true,
+        date: r.createdAt ? r.createdAt.split('T')[0] : 'N/A'
+      }))
+    } catch (err) {
+      console.error('Failed to get admin reviews:', err)
+      throw err
+    }
+  },
+
+  async deleteReview(id) {
+    try {
+      const { data } = await api.delete(`/admin/reviews/${id}`)
+      return data.data
+    } catch (err) {
+      console.error('Failed to delete review as admin:', err)
+      throw err
+    }
+  },
+
+  async moderateReview(id, approved) {
+    if (!approved) {
+      return this.deleteReview(id)
+    }
+    return { id, approved: true }
+  },
+
   // Orders
   async getOrders() {
     try {
