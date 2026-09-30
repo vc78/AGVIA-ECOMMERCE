@@ -338,7 +338,7 @@ Configure these variables in your deployment environments:
 
 | Variable | Example Value | Purpose |
 |---|---|---|
-| `VITE_API_URL` | `https://agvia-backend-1-xq21.onrender.com/api` | Live Backend API |
+| `VITE_API_URL` | `https://agvia-ecommerce.onrender.com/api` | Live Backend API |
 | `VITE_RAZORPAY_KEY_ID` | `rzp_test_TDnNEoRLz2m96G` | Public Razorpay Key |
 | `VITE_GEMINI_API_KEY` | *(Set in Vercel / .env)* | Client AI Assistant Key |
 

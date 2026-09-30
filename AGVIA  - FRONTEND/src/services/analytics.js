@@ -150,7 +150,7 @@ export async function track(eventType, data = {}) {
     }
 
     const payloadStr = JSON.stringify(payload)
-    const baseUrl = api.defaults.baseURL || 'https://agvia-backend-1-xq21.onrender.com/api'
+    const baseUrl = api.defaults.baseURL || 'https://agvia-ecommerce.onrender.com/api'
     const trackUrl = `${baseUrl.replace(/\/+$/, '')}/analytics/track`
 
     // Priority 1: navigator.sendBeacon (specifically designed for reliable analytics during unloads/navigation)

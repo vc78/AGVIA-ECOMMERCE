@@ -5,7 +5,7 @@ import { loggedOut } from '../store/authSlice'
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  'https://agvia-backend-1-xq21.onrender.com/api'
+  'https://agvia-ecommerce.onrender.com/api'
 
 const api = axios.create({
   baseURL: BASE_URL,
