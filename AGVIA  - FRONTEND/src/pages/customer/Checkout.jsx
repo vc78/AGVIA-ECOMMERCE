@@ -40,12 +40,16 @@ export default function Checkout() {
   const [address, setAddress] = useState({ name: user?.name || '', phone: '', line1: '', city: '', pincode: '' })
   const [paymentMethod, setPaymentMethod] = useState('razorpay')
   const [placing, setPlacing] = useState(false)
+  const [placingStep, setPlacingStep] = useState('')
   const [activeStep, setActiveStep] = useState(1) // 1: Shipping, 2: Payment
 
   const deliveryFee = items.length > 0 ? (subtotal >= 999 ? 0 : 50) : 0
   const total = Math.max(0, subtotal + deliveryFee - discount)
 
   useEffect(() => {
+    // Pre-load Razorpay checkout SDK in advance so payment dialog triggers with zero lag
+    loadRazorpayScript().catch(() => {})
+
     if (items && items.length > 0) {
       trackCheckoutStarted(items.length, total)
     }
@@ -223,24 +227,29 @@ export default function Checkout() {
     const authOk = await ensureAuthenticated()
     if (!authOk) return
 
-    // Create the internal order first so the server can bind the gateway order
-    // to its authoritative total and inventory reservation.
+    // Create the internal order and prepare gateway concurrently
     setPlacing(true)
+    setPlacingStep('Reserving order & inventory...')
     try {
-      const scriptLoaded = await loadRazorpayScript()
-      if (!scriptLoaded) {
-        toast.error('Could not load payment gateway. Please try Cash on Delivery.')
-        setPlacing(false)
-        return
-      }
+      const scriptLoadedPromise = loadRazorpayScript()
 
-      const order = await orderService.createOrder({ 
+      const orderPromise = orderService.createOrder({ 
         items, 
         address, 
         total, 
         paymentMethod,
         couponCode: couponCode || null
       })
+
+      const [order, scriptLoaded] = await Promise.all([orderPromise, scriptLoadedPromise])
+      if (!scriptLoaded) {
+        toast.error('Could not load payment gateway. Please try Cash on Delivery.')
+        setPlacing(false)
+        setPlacingStep('')
+        return
+      }
+
+      setPlacingStep('Opening Razorpay Gateway...')
       const orderRef = order.orderNumber || order.id
       const rpOrder = await orderService.createRazorpayOrder(orderRef)
       const options = {
@@ -509,9 +518,16 @@ export default function Checkout() {
                   <button
                     type="submit"
                     disabled={placing}
-                    className="btn-primary px-6 py-2.5 disabled:opacity-60 text-xs font-bold tracking-wider min-h-[48px]"
+                    className="btn-primary px-6 py-2.5 disabled:opacity-75 text-xs font-bold tracking-wider min-h-[48px] flex items-center justify-center gap-2.5"
                   >
-                    {placing ? 'Authorizing...' : 'Authorize & Place Order'}
+                    {placing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-[#FAF7F2]/40 border-t-[#FAF7F2] rounded-full animate-spin shrink-0" />
+                        <span>{placingStep || 'Connecting to Payment...'}</span>
+                      </>
+                    ) : (
+                      'Authorize & Place Order'
+                    )}
                   </button>
                 </div>
               </motion.div>

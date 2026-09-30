@@ -12,31 +12,32 @@ export const orderService = {
       // 1. Clear database cart first
       await api.delete('/cart').catch(() => {})
 
-      // 2. Add each item from local cart to backend cart safely
+      // 2. Add each item from local cart to backend cart concurrently
       if (Array.isArray(payload.items) && payload.items.length > 0) {
-        let addedCount = 0
-        for (const item of payload.items) {
+        const itemSyncPromises = payload.items.map(async (item) => {
           const rawId = Number(item.id)
           const validId = (!isNaN(rawId) && rawId >= 1 && rawId <= 26) ? rawId : 1
           try {
-            await api.post('/cart/items', {
+            return await api.post('/cart/items', {
               productId: validId,
               quantity: Math.max(1, Number(item.qty || 1))
             })
-            addedCount++
           } catch (itemErr) {
-            console.warn(`Could not add product ID ${validId} to cart:`, itemErr)
+            console.warn(`Could not add product ID ${validId} to cart, attempting fallback:`, itemErr)
             try {
-              await api.post('/cart/items', {
+              return await api.post('/cart/items', {
                 productId: 1,
                 quantity: Math.max(1, Number(item.qty || 1))
               })
-              addedCount++
             } catch (fbErr) {
               console.error('Fallback item add failed:', fbErr)
+              return null
             }
           }
-        }
+        })
+
+        const results = await Promise.all(itemSyncPromises)
+        const addedCount = results.filter(Boolean).length
         if (addedCount === 0) {
           throw new Error('Your cart could not be synchronized. Please re-add the item to cart.')
         }
