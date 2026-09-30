@@ -33,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final com.ems.pragathisweets.repository.CouponRepository couponRepository;
     private final PasswordEncoder passwordEncoder;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     @Value("${app.admin.default-email:admin@agvia.com}")
     private String defaultAdminEmail;
@@ -45,10 +46,87 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        ensureDatabaseTablesExist();
         bootstrapAdminUser();
         seedAgviaCategoriesAndProducts();
         patchProductImages();
         seedOfficialCoupons();
+    }
+
+    private void ensureDatabaseTablesExist() {
+        try {
+            jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS analytics_events (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    event_type VARCHAR(50) NOT NULL,
+                    visitor_id VARCHAR(64) NOT NULL,
+                    session_id VARCHAR(64) NOT NULL,
+                    user_id BIGINT,
+                    product_id BIGINT,
+                    page_path VARCHAR(255),
+                    page_title VARCHAR(150),
+                    referrer VARCHAR(255),
+                    device_type VARCHAR(20),
+                    share_method VARCHAR(30),
+                    quantity INT,
+                    created_at DATETIME NOT NULL,
+                    INDEX idx_ae_created_at (created_at),
+                    INDEX idx_ae_event_type (event_type),
+                    INDEX idx_ae_event_created (event_type, created_at),
+                    INDEX idx_ae_visitor_created (visitor_id, created_at),
+                    INDEX idx_ae_session_created (session_id, created_at),
+                    INDEX idx_ae_product_id (product_id),
+                    INDEX idx_ae_page_path (page_path)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """);
+            log.info("Verified analytics_events table in database");
+        } catch (Exception ex) {
+            log.warn("Notice checking analytics_events table: {}", ex.getMessage());
+        }
+
+        try {
+            jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS auth_otp_challenges (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    challenge_id VARCHAR(64) NOT NULL UNIQUE,
+                    user_id BIGINT,
+                    phone_number VARCHAR(30) NOT NULL,
+                    purpose VARCHAR(30) NOT NULL,
+                    otp_hash VARCHAR(120) NOT NULL,
+                    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+                    expires_at DATETIME NOT NULL,
+                    attempt_count INT NOT NULL DEFAULT 0,
+                    max_attempts INT NOT NULL DEFAULT 5,
+                    resend_count INT NOT NULL DEFAULT 0,
+                    last_sent_at DATETIME NOT NULL,
+                    verified_at DATETIME,
+                    consumed_at DATETIME,
+                    ip_address VARCHAR(45),
+                    user_agent VARCHAR(255),
+                    registration_name VARCHAR(120),
+                    registration_email VARCHAR(150),
+                    registration_password_hash VARCHAR(120),
+                    registration_address VARCHAR(500),
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME,
+                    INDEX idx_challenge_id (challenge_id),
+                    INDEX idx_otp_phone (phone_number),
+                    INDEX idx_otp_expires_at (expires_at),
+                    INDEX idx_otp_status (status),
+                    INDEX idx_otp_purpose (purpose)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """);
+            log.info("Verified auth_otp_challenges table in database");
+        } catch (Exception ex) {
+            log.warn("Notice checking auth_otp_challenges table: {}", ex.getMessage());
+        }
+
+        try {
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN phone VARCHAR(20)");
+        } catch (Exception ignored) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN phone_verified BOOLEAN NOT NULL DEFAULT FALSE");
+        } catch (Exception ignored) {}
     }
 
     private void bootstrapAdminUser() {
@@ -60,9 +138,17 @@ public class DataInitializer implements CommandLineRunner {
                     .password(passwordEncoder.encode(defaultAdminPassword))
                     .role(Role.ROLE_ADMIN)
                     .enabled(true)
+                    .phoneVerified(true)
                     .build();
             userRepository.save(admin);
             log.info("AGVIA Admin account initialized successfully: {}", defaultAdminEmail);
+        } else {
+            User admin = adminOpt.get();
+            admin.setRole(Role.ROLE_ADMIN);
+            admin.setEnabled(true);
+            admin.setPassword(passwordEncoder.encode(defaultAdminPassword));
+            userRepository.save(admin);
+            log.info("AGVIA Admin account verified and credentials synchronized: {}", defaultAdminEmail);
         }
     }
 

@@ -32,7 +32,8 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        com.ems.pragathisweets.entity.Role role = user.getRole() != null ? user.getRole() : com.ems.pragathisweets.entity.Role.ROLE_USER;
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role.name()));
         return new UserDetailsImpl(
                 user.getId(),
                 user.getFullName(),
