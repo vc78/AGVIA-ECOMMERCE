@@ -2,10 +2,25 @@
   "name": "agvia-boutique-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "AGVIA — Women's Wear Boutique Full Stack Application",
+  "description": "AGVIA — Women's Wear Boutique Full Stack Application (React 18 + Vite + Spring Boot 3 + MySQL)",
   "scripts": {
     "build": "cd \"AGVIA  - FRONTEND\" && npm run build",
     "install:frontend": "cd \"AGVIA  - FRONTEND\" && npm install",
-    "dev:frontend": "cd \"AGVIA  - FRONTEND\" && npm run dev"
-  }
+    "dev:frontend": "cd \"AGVIA  - FRONTEND\" && npm run dev",
+    "build:backend": "cd \"AGVIA - BACKEND\" && mvn clean package -DskipTests",
+    "test:backend": "cd \"AGVIA - BACKEND\" && mvn test",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "keywords": [
+    "agvia",
+    "ecommerce",
+    "boutique",
+    "react",
+    "spring-boot",
+    "mysql",
+    "analytics"
+  ],
+  "author": "AGVIA Engineering",
+  "license": "UNLICENSED"
 }

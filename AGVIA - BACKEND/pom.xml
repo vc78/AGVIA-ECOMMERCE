@@ -16,8 +16,8 @@
 	<groupId>com.ems</groupId>
 	<artifactId>pragathi-sweets-backend</artifactId>
 	<version>1.0.0</version>
-	<name>Pragathi Sweets Backend</name>
-	<description>Enterprise E-Commerce Backend for Pragathi Sweets</description>
+	<name>AGVIA Boutique Backend</name>
+	<description>AGVIA Women's Wear Boutique E-Commerce Backend &amp; Analytics System</description>
 
 	<properties>
 		<java.version>21</java.version>

@@ -32,17 +32,19 @@ services:
       mysql:
         condition: service_healthy
     environment:
+      PORT: 8080
       SERVER_PORT: 8080
-      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-agvia_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_URL: ${DB_URL:-jdbc:mysql://mysql:3306/${DB_NAME:-agvia_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
       DB_USERNAME: ${DB_USER:-agvia_user}
       DB_PASSWORD: ${DB_PASSWORD:-agvia_pass}
       DDL_AUTO: update
       SHOW_SQL: "false"
+      JAVA_TOOL_OPTIONS: "-Xmx512m"
       JWT_SECRET: ${JWT_SECRET:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVm}
       JWT_EXPIRATION_MS: 86400000
       RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_TDnNEoRLz2m96G}
       RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-25E7Iiv68Owji2k1dKm18quw}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:5173,https://agvia.vercel.app}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:5173,https://agvia.vercel.app,https://agvia-ecommerce.vercel.app}
       DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@agvia.com}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-agvia@123}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}

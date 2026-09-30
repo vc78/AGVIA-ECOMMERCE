@@ -25,7 +25,7 @@
   &nbsp;•&nbsp;
   <strong>Secure Payments</strong>
   &nbsp;•&nbsp;
-  <strong>Modern Operations</strong>
+  <strong>Modern Operations & Analytics</strong>
 </p>
 
 </div>
@@ -33,18 +33,21 @@
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
 [![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.java.com/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0_Aiven_Cloud-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://aiven.io/mysql)
+[![Render](https://img.shields.io/badge/Render-Backend_Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://render.com/)
+[![Vercel](https://img.shields.io/badge/Vercel-Frontend_Cloud-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![Razorpay](https://img.shields.io/badge/Razorpay-Payments-3395FF?style=for-the-badge)](https://razorpay.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 <br/>
 
-### ✦ Premium Fashion Commerce · Secure Payments · Modern Operations
+### ✦ Premium Fashion Commerce · Secure Payments · Modern Operations · Live Analytics
 
 <p>
   <a href="#-experience">Experience</a> •
   <a href="#-features">Features</a> •
   <a href="#-architecture">Architecture</a> •
+  <a href="#-analytics-engine">Analytics</a> •
   <a href="#-tech-stack">Tech Stack</a> •
   <a href="#-api">API</a> •
   <a href="#-security">Security</a> •
@@ -58,25 +61,20 @@
 
 ## ✦ About AGVIA
 
-**AGVIA** is a premium women's fashion e-commerce platform designed around
-Indian ethnic wear, contemporary fashion and occasion-based collections.
+**AGVIA** is a premium women's fashion e-commerce platform designed around Indian ethnic wear, contemporary fashion and occasion-based collections.
 
 The platform combines:
 
-- Elegant fashion discovery
-- Product collections
-- Secure authentication
-- Wishlist and cart
-- Razorpay payments
-- Cash on Delivery
-- Order management
-- Inventory operations
-- Coupon management
-- Customer accounts
-- Administrative operations
-- Responsive mobile-first experience
+- Elegant fashion discovery & occasion-based curated collections
+- Secure authentication (Stateless JWT + Mobile OTP + BCrypt)
+- Real-time cart synchronization & persistent guest-to-user migration
+- Razorpay payment integration & Cash on Delivery (COD)
+- Strict server-authoritative inventory reservation with pessimistic locking
+- Real-time administrative operations, catalog management & coupon engine
+- Privacy-conscious real-time **Website Analytics Engine**
+- Mobile-first responsive experience with static bottom navigation and quick profile access
 
-> **AGVIA is designed as a commerce product — not simply a website.**
+> **AGVIA is designed as an enterprise-grade commerce product — engineered for scale, reliability, and real-time observability.**
 
 ---
 
@@ -84,10 +82,10 @@ The platform combines:
 
 <div align="center">
 
-| Discover | Shop | Pay | Track |
+| Discover | Shop | Pay | Track & Analyze |
 |:---:|:---:|:---:|:---:|
-| ✦ Collections | 🛍️ Products | 🔐 Secure Checkout | 📦 Orders |
-| Curated fashion | Product discovery | Razorpay + COD | Lifecycle tracking |
+| ✦ Collections | 🛍️ Products | 🔐 Secure Checkout | 📦 Orders & Analytics |
+| Curated fashion | Product discovery | Razorpay + COD | Real-time dashboards |
 
 </div>
 
@@ -123,179 +121,19 @@ The platform combines:
                             │
                             ▼
                  ┌─────────────────────┐
-                 │      Checkout       │
-                 └──────────┬──────────┘
-                            │
-                 ┌──────────┴──────────┐
-                 ▼                     ▼
-          ┌─────────────┐       ┌─────────────┐
-          │   Razorpay  │       │     COD     │
-          │   Payment   │       │   Payment   │
-          └──────┬──────┘       └──────┬──────┘
-                 │                     │
-                 └──────────┬──────────┘
-                            ▼
-                 ┌─────────────────────┐
-                 │   Order Confirmed   │
+                 │   Secure Checkout   │
                  └──────────┬──────────┘
                             │
                             ▼
                  ┌─────────────────────┐
-                 │ Track Order Status  │
+                 │ Razorpay or COD     │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │  Order Confirmation │
                  └─────────────────────┘
 ```
-
----
-
-# ✦ Features
-
-<details open>
-<summary><strong>🛍️ Customer Experience</strong></summary>
-
-<br/>
-
-- Premium fashion storefront
-- Responsive product discovery
-- Collection-based browsing
-- Product details
-- Product images
-- Category filtering
-- Search
-- Wishlist
-- Cart
-- Guest cart support
-- User cart synchronization
-- Customer accounts
-- Order history
-- Responsive mobile experience
-- Accessible interaction states
-
-</details>
-
-<details>
-<summary><strong>🛒 Commerce Engine</strong></summary>
-
-<br/>
-
-- Product catalogue
-- Category management
-- Inventory management
-- Server-side cart validation
-- Coupon validation
-- Delivery fee calculation
-- Order creation
-- Order status management
-- Stock management
-- Customer order history
-- COD support
-- Razorpay integration
-
-</details>
-
-<details>
-<summary><strong>💳 Payments</strong></summary>
-
-<br/>
-
-### Razorpay
-
-```text
-Customer
-   │
-   ▼
-Checkout
-   │
-   ▼
-Create Razorpay Order
-   │
-   ▼
-Razorpay Checkout
-   │
-   ▼
-Payment Completed
-   │
-   ▼
-Backend Verification
-   │
-   ▼
-Signature Validation
-   │
-   ▼
-Order Confirmed
-```
-
-The backend is responsible for payment verification.
-
-Never trust payment success information supplied only by the frontend.
-
-</details>
-
-<details>
-<summary><strong>📦 Order Operations</strong></summary>
-
-<br/>
-
-```text
-PENDING
-   ↓
-CONFIRMED
-   ↓
-PROCESSING
-   ↓
-PREPARING
-   ↓
-SHIPPED
-   ↓
-OUT_FOR_DELIVERY
-   ↓
-DELIVERED
-```
-
-Pre-dispatch cancellation can restore inventory where applicable.
-
-</details>
-
-<details>
-<summary><strong>👨‍💼 Admin Operations</strong></summary>
-
-<br/>
-
-The administration layer provides operational control for:
-
-- Products
-- Categories
-- Inventory
-- Orders
-- Customers
-- Coupons
-- Order status
-- Product availability
-- Business metrics
-- Customer order history
-
-Backend authorization remains authoritative.
-
-</details>
-
----
-
-# ✦ Product Collections
-
-<div align="center">
-
-### Curated for every occasion
-
-| Collection | Purpose |
-|---|---|
-| ✦ Sarees | Traditional & contemporary sarees |
-| ✦ Lehengas | Bridal & festive wear |
-| ✦ Anarkalis & Kurtas | Elegant ethnic everyday wear |
-| ✦ Dresses & Gowns | Contemporary occasion wear |
-| ✦ Western Wear | Modern everyday fashion |
-| ✦ Kurtis | Comfortable Indian wear |
-| ✦ Dupattas | Festive & bridal styling |
-
-</div>
 
 ---
 
@@ -304,78 +142,97 @@ Backend authorization remains authoritative.
 ```mermaid
 flowchart TB
 
-    CUSTOMER["Customer"]
+    CUSTOMER["Customer & Visitors"]
+    ADMIN["Boutique Administrator"]
     
-    subgraph FRONTEND["AGVIA FRONTEND"]
-        UI["React 18 + Vite"]
+    subgraph FRONTEND["VERCEL FRONTEND (React 18 + Vite)"]
+        UI["Product Catalog & Checkout"]
+        BEACON["Analytics Tracker Beacon"]
         STATE["Redux Toolkit"]
-        STYLE["TailwindCSS"]
-        MOTION["Framer Motion"]
+        STYLE["TailwindCSS Responsive"]
+        ADMIN_UI["Admin Analytics & ERP"]
     end
 
-    subgraph BACKEND["AGVIA BACKEND"]
-        API["Spring Boot REST API"]
-        SECURITY["Spring Security"]
-        AUTH["JWT Authentication"]
-        SERVICE["Business Services"]
-        JPA["Spring Data JPA"]
+    subgraph BACKEND["RENDER BACKEND (Spring Boot 3.5.3 / Java 21)"]
+        API["REST Controllers"]
+        SECURITY["Spring Security (CORS + JWT)"]
+        ANALYTICS_SVC["Website Analytics Service"]
+        ORDER_SVC["Order & Payment Service"]
+        JPA["Spring Data JPA / Hibernate"]
     end
 
-    subgraph DATA["DATA"]
-        DB[("PostgreSQL")]
+    subgraph DATA["AIVEN CLOUD DATABASE"]
+        DB[("MySQL 8.0 (defaultdb)")]
     end
 
-    subgraph EXTERNAL["EXTERNAL SERVICES"]
-        RZP["Razorpay"]
-        EMAIL["Email Service"]
-        SMS["OTP / Communication"]
+    subgraph EXTERNAL["EXTERNAL INTEGRATIONS"]
+        RZP["Razorpay Gateway"]
+        SMTP["Gmail SMTP Service"]
+        GEMINI["Google Gemini AI"]
     end
 
     CUSTOMER --> UI
+    CUSTOMER -.-> BEACON
+    ADMIN --> ADMIN_UI
 
-    UI --> STATE
     UI --> API
+    BEACON --> ANALYTICS_SVC
+    ADMIN_UI --> API
 
     API --> SECURITY
-    SECURITY --> AUTH
-    API --> SERVICE
-    SERVICE --> JPA
+    SECURITY --> ORDER_SVC
+    SECURITY --> ANALYTICS_SVC
+
+    ORDER_SVC --> JPA
+    ANALYTICS_SVC --> JPA
     JPA --> DB
 
-    API --> RZP
-    API --> EMAIL
-    API --> SMS
+    ORDER_SVC --> RZP
+    ORDER_SVC --> SMTP
+    ADMIN_UI --> GEMINI
 ```
 
 ---
 
-# ✦ System Design
+# ✦ Website Analytics Engine
+
+AGVIA features an integrated, privacy-first **Website Analytics Engine** built directly into the core platform:
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│                         AGVIA                                │
-│                  Customer Experience                         │
-└──────────────────────────────┬───────────────────────────────┘
-                               │
-                               ▼
-┌──────────────────────────────────────────────────────────────┐
-│                     React / Vite                             │
-│       Components • Pages • Redux • API Services              │
-└──────────────────────────────┬───────────────────────────────┘
-                               │ HTTPS
-                               ▼
-┌──────────────────────────────────────────────────────────────┐
-│                   Spring Boot REST API                       │
-│                                                              │
-│ Auth │ Products │ Cart │ Orders │ Payments │ Admin           │
-└─────────────┬────────────────┬─────────────────┬─────────────┘
-              │                │                 │
-              ▼                ▼                 ▼
-        ┌──────────┐    ┌────────────┐    ┌────────────┐
-        │PostgreSQL│    │  Razorpay  │    │ Messaging  │
-        │ Database │    │  Payments  │    │  Services  │
-        └──────────┘    └────────────┘    └────────────┘
+Visitor Navigation
+       │
+       ▼
+Frontend Auto-Tracker (Beacon Hook)
+       │  (Page Views, Sessions, Duration, Device, Referrer)
+       ▼
+POST /api/analytics/collect (Public Ingestion Endpoint)
+       │
+       ▼
+AnalyticsEvent Entity (MySQL InnoDB)
+       │  (Indexed by timestamp, event_type, session_id)
+       ▼
+Admin Analytics Controller (/api/admin/analytics/**)
+       │
+       ▼
+Live Admin Dashboard
+  ├── Real-time Active Visitors (Last 30 mins)
+  ├── Total Page Views & Unique Sessions
+  ├── Bounce Rate & Average Visit Duration
+  ├── Hourly Traffic Histogram
+  ├── Top Visited Pages & Products
+  ├── Traffic Referrer Attribution
+  └── Device Breakdown (Desktop, Mobile, Tablet)
 ```
+
+### Analytics Endpoints:
+- `POST /api/analytics/collect` — Non-blocking event ingestion (public)
+- `GET  /api/admin/analytics/overview` — Key metric summary (KPI cards)
+- `GET  /api/admin/analytics/top-pages` — Most viewed routes & pages
+- `GET  /api/admin/analytics/referrers` — Traffic source breakdown
+- `GET  /api/admin/analytics/device-breakdown` — Device & browser share
+- `GET  /api/admin/analytics/hourly-traffic` — 24-hour traffic trend
+- `GET  /api/admin/analytics/recent-events` — Live visitor event feed
+- `GET  /api/admin/analytics/realtime` — Active visitor count & live pulse
 
 ---
 
@@ -383,28 +240,23 @@ flowchart TB
 
 <div align="center">
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18 |
-| Build | Vite |
-| Styling | TailwindCSS |
-| State | Redux Toolkit |
-| Animation | Framer Motion |
-| Icons | Lucide React |
-| HTTP | Axios |
-| Backend | Java 21 |
-| Framework | Spring Boot 3.5.3 |
-| Security | Spring Security 6 |
-| Authentication | JWT / JJWT |
-| Password Hashing | BCrypt |
-| Persistence | Spring Data JPA |
-| ORM | Hibernate |
-| Database | PostgreSQL |
-| API Docs | SpringDoc OpenAPI / Swagger |
-| Payments | Razorpay |
-| Web Server | Nginx |
-| Containers | Docker / Docker Compose |
-| CI/CD | GitHub Actions |
+| Layer | Technology | Version | Purpose |
+|---|---|---|---|
+| **Frontend Framework** | React | 18.3.1 | Core component architecture |
+| **Build Tooling** | Vite | 5.4.2 | Ultra-fast HMR and bundling |
+| **Styling & Design** | TailwindCSS | 3.4.1 | Utility-first responsive design |
+| **State Management** | Redux Toolkit | 2.2.7 | Global authentication & cart state |
+| **Icons & Animation** | Lucide React / Framer Motion | Latest | Micro-animations and crisp vector icons |
+| **HTTP Client** | Axios | 1.7.4 | Interceptors, retry policies, correlation |
+| **Backend Framework** | Java / Spring Boot | 21 LTS / 3.5.3 | High-throughput REST API |
+| **Security** | Spring Security 6 & JJWT | 0.12.6 | Stateless JWT authorization & BCrypt |
+| **Database** | MySQL 8.0 (Aiven Cloud) | 8.0 | ACID transactional persistence |
+| **Persistence** | Spring Data JPA / Hibernate | 6.6 | Optimized ORM with HikariCP pooling |
+| **Hosting (Frontend)** | Vercel | Production | Global edge CDN |
+| **Hosting (Backend)** | Render | Production | Cloud container runtime (`render.yaml`) |
+| **Payment Gateway** | Razorpay SDK | 1.4.8 | Server-authoritative order & signature verification |
+| **Email Service** | Spring Mail (Gmail SMTP) | Production | Automated order receipts & alerts |
+| **AI Assistant** | Google Gemini API | 2.5-flash | Admin business intelligence assistant |
 
 </div>
 
@@ -414,610 +266,157 @@ flowchart TB
 
 ```text
 AGVIA/
-│
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
-│
+│       └── ci.yml               # Automated CI build & Render auto-deploy
 ├── docs/
-│   └── assets/
-│       └── agvia-logo.png
+│   ├── assests/agvia-logo.png   # Brand assets
+│   └── AGVIA_PRODUCTION_ENGINEERING_MASTER_REPORT.md
+├── docker-compose.yml           # Local multi-container development stack
+├── render.yaml                  # Render Infrastructure-as-Code blueprint
+├── vercel.json                  # Vercel deployment routing & headers
+├── .env.example                 # Master environment variable template
+├── package.json                 # Monorepo build orchestrator
+├── README.md                    # Project documentation
 │
-├── docker-compose.yml
-├── .env.example
-├── README.md
+├── AGVIA - BACKEND/             # Java 21 Spring Boot Application
+│   ├── pom.xml                  # Maven dependencies & build configuration
+│   ├── Dockerfile               # Multi-stage production container build
+│   └── src/main/
+│       ├── java/com/ems/pragathisweets/
+│       │   ├── controller/      # REST API endpoints & Admin controllers
+│       │   ├── entity/          # JPA Entities (User, Order, Product, AnalyticsEvent...)
+│       │   ├── repository/      # Spring Data JPA repositories & native SQL queries
+│       │   ├── security/        # JWT filter, CORS, rate limiting & security rules
+│       │   └── service/         # Business logic, payments, email, analytics
+│       └── resources/
+│           └── application.properties # Spring Boot configuration
 │
-├── agvia-backend/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   │
-│   └── src/
-│       └── main/
-│           ├── java/
-│           │   └── ...
-│           │
-│           └── resources/
-│               ├── application.properties
-│               └── application-prod.properties
-│
-└── agvia-frontend/
-    ├── Dockerfile
-    ├── nginx.conf
+└── AGVIA  - FRONTEND/           # React 18 + Vite SPA
     ├── package.json
-    ├── index.html
-    │
+    ├── vite.config.js
+    ├── tailwind.config.js
     └── src/
-        ├── App.jsx
-        ├── main.jsx
-        ├── components/
-        ├── hooks/
-        ├── pages/
-        ├── services/
-        └── store/
-```
-
----
-
-# ✦ API
-
-<details>
-<summary><strong>🔐 Authentication</strong></summary>
-
-```http
-POST /api/auth/register
-POST /api/auth/login
-GET  /api/auth/me
-```
-
-</details>
-
-<details>
-<summary><strong>🛍️ Products</strong></summary>
-
-```http
-GET /api/products
-GET /api/products/{id}
-GET /api/products/featured
-GET /api/categories
-```
-
-</details>
-
-<details>
-<summary><strong>🛒 Cart</strong></summary>
-
-```http
-GET    /api/cart
-POST   /api/cart/items
-DELETE /api/cart
-```
-
-</details>
-
-<details>
-<summary><strong>📦 Orders</strong></summary>
-
-```http
-POST /api/orders/checkout
-GET  /api/orders
-GET  /api/orders/{id}
-```
-
-</details>
-
-<details>
-<summary><strong>💳 Payments</strong></summary>
-
-```http
-POST /api/payments/create-order
-POST /api/payments/verify
-POST /api/payments/webhook
-```
-
-</details>
-
-<details>
-<summary><strong>🩺 Health</strong></summary>
-
-```http
-GET /api/health
-GET /actuator/health
-```
-
-</details>
-
-<details>
-<summary><strong>👨‍💼 Admin</strong></summary>
-
-```http
-GET   /api/admin/orders
-PATCH /api/admin/orders/{id}/status
-
-GET   /api/admin/users
-
-GET   /api/admin/products
-POST  /api/admin/products
-PUT   /api/admin/products/{id}
-
-GET   /api/admin/coupons
-POST  /api/admin/coupons
-PATCH /api/admin/coupons/{id}/toggle
-```
-
-</details>
-
----
-
-# ✦ Security
-
-AGVIA follows a defense-in-depth security model.
-
-<div align="center">
-
-| Security Layer | Implementation |
-|---|---|
-| Authentication | JWT |
-| Authorization | Role-based access |
-| Passwords | BCrypt |
-| Session Model | Stateless |
-| Token Expiry | Configurable |
-| Rate Limiting | Authentication endpoints |
-| Transport | HTTPS in deployment |
-| Headers | Security headers |
-| Errors | Centralized exception handling |
-| Observability | Correlation IDs |
-| Health | Health/readiness endpoints |
-| Payment | Server-side verification |
-
-</div>
-
-### Security principles
-
-```text
-NEVER
-├── Commit secrets
-├── Store passwords in frontend storage
-├── Trust frontend payment status
-├── Expose backend credentials
-├── Return stack traces to customers
-└── Authorize admin actions only in the frontend
-
-ALWAYS
-├── Validate input
-├── Authorize on the backend
-├── Hash passwords
-├── Verify payment signatures
-├── Protect secrets with environment variables
-├── Log security-relevant events
-└── Return safe user-facing errors
-```
-
----
-
-# ✦ Responsive by Design
-
-AGVIA is designed for real-world screens rather than a single
-desktop resolution.
-
-```text
-320 ─── 360 ─── 375 ─── 390 ─── 414 ─── 430 ─── 480
-                         │
-                         ▼
-600 ─── 768 ─── 820 ─── 834 ─── 1024
-                         │
-                         ▼
-1280 ─── 1366 ─── 1440 ─── 1536 ─── 1920 ─── 2560
-```
-
-### Responsive priorities
-
-- Mobile-first layouts
-- Fluid typography
-- Adaptive product grids
-- Touch-friendly controls
-- Horizontal collection rails
-- Responsive checkout
-- Responsive admin dashboard
-- No intentional horizontal overflow
-- Accessible touch targets
-- Reduced-motion support
-
----
-
-# ✦ Local Setup
-
-## Requirements
-
-```text
-Java 21
-Node.js
-npm
-PostgreSQL
-Git
-```
-
----
-
-## 1. Clone
-
-```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-
-cd YOUR_REPOSITORY
-```
-
----
-
-## 2. Backend
-
-```bash
-cd agvia-backend
-```
-
-Configure your environment variables.
-
-Example:
-
-```env
-DB_URL=jdbc:postgresql://localhost:5432/agvia
-DB_USERNAME=postgres
-DB_PASSWORD=your-password
-
-JWT_SECRET=your-long-random-secret
-
-RAZORPAY_KEY_ID=your-key
-RAZORPAY_KEY_SECRET=your-secret
-```
-
-Start Spring Boot:
-
-```bash
-./mvnw spring-boot:run
-```
-
-Windows:
-
-```bash
-mvnw.cmd spring-boot:run
-```
-
-Backend:
-
-```text
-http://localhost:8080
-```
-
-Swagger:
-
-```text
-http://localhost:8080/swagger-ui.html
-```
-
----
-
-# ✦ Frontend
-
-```bash
-cd agvia-frontend
-
-npm install
-
-npm run dev
-```
-
-Frontend:
-
-```text
-http://localhost:5173
-```
-
-Production build:
-
-```bash
-npm run build
-```
-
-Preview:
-
-```bash
-npm run preview
+        ├── components/          # Reusable UI components & Layouts
+        ├── hooks/               # Custom hooks (useAnalyticsTracker, useAuth...)
+        ├── pages/               # Customer storefront & Admin portal pages
+        ├── services/            # Axios API clients
+        └── store/               # Redux slices
 ```
 
 ---
 
 # ✦ Environment Variables
 
-### Frontend
+Configure these variables in your deployment environments:
 
-```env
-VITE_API_BASE_URL=http://localhost:8080/api
-```
+### Backend (Render Dashboard / `.env`)
 
-### Backend
+| Variable | Recommended / Default Value | Purpose |
+|---|---|---|
+| `DB_HOST` | `mysql-20386652-agvia.a.aivencloud.com` | Aiven MySQL Host |
+| `DB_PORT` | `14519` | Aiven MySQL Port |
+| `DB_NAME` | `defaultdb` | MySQL Database Name |
+| `DB_USERNAME` | `avnadmin` | MySQL Username |
+| `DB_PASSWORD` | *(Set in Render)* | MySQL Password |
+| `DB_URL` | `jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC` | Full JDBC URL |
+| `PORT` | `8080` | Server listening port |
+| `JAVA_TOOL_OPTIONS` | `-Xmx512m` | Render free-tier memory limit |
+| `JWT_SECRET` | *(256-bit Base64 String)* | Token signing secret |
+| `JWT_EXPIRATION_MS` | `86400000` | 24 Hours in milliseconds |
+| `CORS_ALLOWED_ORIGINS` | `https://agvia.vercel.app,https://agvia-ecommerce.vercel.app,http://localhost:5173` | Allowed frontend domains |
+| `FRONTEND_URL` | `https://agvia-ecommerce.vercel.app` | Base frontend URL |
+| `RAZORPAY_KEY_ID` | `rzp_test_TDnNEoRLz2m96G` | Razorpay Key ID |
+| `RAZORPAY_KEY_SECRET` | *(Set in Render)* | Razorpay Secret |
+| `MAIL_HOST` | `smtp.gmail.com` | SMTP Host |
+| `MAIL_PORT` | `587` | SMTP Port |
+| `MAIL_USERNAME` | `venkatbodduluri78@gmail.com` | SMTP User |
+| `MAIL_PASSWORD` | *(Google App Password)* | Gmail App Password |
+| `GEMINI_API_KEY` | *(Set in Render / .env)* | Gemini AI Assistant Key |
 
-```env
-DB_URL=
-DB_USERNAME=
-DB_PASSWORD=
+### Frontend (Vercel Dashboard / `.env`)
 
-JWT_SECRET=
-
-RAZORPAY_KEY_ID=
-RAZORPAY_KEY_SECRET=
-
-EMAIL_SERVICE_KEY=
-OTP_SERVICE_KEY=
-```
-
-> Never commit `.env` files or production credentials.
+| Variable | Example Value | Purpose |
+|---|---|---|
+| `VITE_API_URL` | `https://agvia-backend-1-xq21.onrender.com/api` | Live Backend API |
+| `VITE_RAZORPAY_KEY_ID` | `rzp_test_TDnNEoRLz2m96G` | Public Razorpay Key |
+| `VITE_GEMINI_API_KEY` | *(Set in Vercel / .env)* | Client AI Assistant Key |
 
 ---
 
-# ✦ Docker
+# ✦ Local Setup
 
-Build and start the complete stack:
+### Prerequisites
+- Java 21 JDK
+- Node.js 18+ & npm
+- Maven 3.8+ (or included wrappers)
+- MySQL 8.0 (or Docker)
 
+### 1. Clone Repository
+```bash
+git clone https://github.com/vc78/AGVIA-ECOMMERCE.git
+cd AGVIA-ECOMMERCE
+```
+
+### 2. Backend Setup
+```bash
+cd "AGVIA - BACKEND"
+# Run with Maven
+mvn spring-boot:run
+```
+Backend will start on: `http://localhost:8080`  
+Swagger UI: `http://localhost:8080/swagger-ui.html`
+
+### 3. Frontend Setup
+```bash
+cd "AGVIA  - FRONTEND"
+npm install
+npm run dev
+```
+Frontend will start on: `http://localhost:5173`
+
+### 4. Running via Docker Compose
+To launch the entire stack locally with a dedicated MySQL database:
 ```bash
 docker compose up -d --build
 ```
 
-Check services:
-
-```bash
-docker compose ps
-```
-
-View logs:
-
-```bash
-docker compose logs -f
-```
-
-Stop:
-
-```bash
-docker compose down
-```
-
 ---
 
-# ✦ CI/CD
+# ✦ Deployment Guide
 
-GitHub Actions validates the project before changes are merged.
+### Backend: Render
+1. Connect your GitHub repository to [Render](https://render.com).
+2. Create a **Web Service** with:
+   - **Root Directory:** `AGVIA - BACKEND`
+   - **Runtime:** `Java`
+   - **Build Command:** `mvn clean package -DskipTests -B`
+   - **Start Command:** `java -jar target/pragathi-sweets-backend-*.jar`
+   - **Health Check Path:** `/api/health`
+3. Configure Environment Variables in Render dashboard as documented above.
+4. Auto-deployments are managed via `render.yaml` and `.github/workflows/ci.yml`.
 
-```text
-             Git Push
-                │
-                ▼
-        ┌───────────────┐
-        │ GitHub Actions│
-        └───────┬───────┘
-                │
-       ┌────────┴────────┐
-       ▼                 ▼
- Backend Build      Frontend Build
-       │                 │
-       ▼                 ▼
- Backend Tests       Production Build
-       │                 │
-       └────────┬────────┘
-                ▼
-             PASS ✓
-```
-
-Workflow:
-
-```text
-.github/workflows/ci.yml
-```
-
----
-
-# ✦ Quality Gate
-
-Before merging:
-
-```text
-[ ] Backend build passes
-[ ] Backend tests pass
-[ ] Frontend build passes
-[ ] Authentication tested
-[ ] Authorization tested
-[ ] Cart isolation tested
-[ ] Checkout tested
-[ ] Payment verification tested
-[ ] COD tested
-[ ] Order lifecycle tested
-[ ] Inventory tested
-[ ] Admin APIs tested
-[ ] Mobile UI tested
-[ ] Responsive layouts tested
-[ ] Docker build tested
-[ ] Secrets checked
-```
-
----
-
-# ✦ Performance Philosophy
-
-AGVIA follows a simple engineering principle:
-
-```text
-MEASURE
-   ↓
-IDENTIFY BOTTLENECK
-   ↓
-OPTIMIZE
-   ↓
-MEASURE AGAIN
-```
-
-Areas considered:
-
-- API latency
-- Database queries
-- N+1 queries
-- Connection pooling
-- Image loading
-- Bundle size
-- Rendering performance
-- Network requests
-- Caching
-- Mobile performance
-- Core Web Vitals
-
-Performance numbers should be measured from real environments rather
-than invented benchmark claims.
-
----
-
-# ✦ Development Philosophy
-
-### Build for the customer.
-
-Not for the screenshot.
-
-### Build for production.
-
-Not only for localhost.
-
-### Build secure systems.
-
-Not frontend-only security.
-
-### Build responsive interfaces.
-
-Not desktop layouts squeezed onto phones.
-
-### Build maintainable architecture.
-
-Not duplicated logic everywhere.
-
----
-
-# ✦ Design Language
-
-AGVIA's visual direction follows a refined Indian fashion aesthetic.
-
-```text
-                    AGVIA
-                      │
-        ┌─────────────┼─────────────┐
-        ▼             ▼             ▼
-      WARM          WINE          GOLD
-      IVORY        BURGUNDY      CHAMPAGNE
-        │             │             │
-        └─────────────┼─────────────┘
-                      ▼
-             EDITORIAL LUXURY
-                      │
-          ┌───────────┴───────────┐
-          ▼                       ▼
-      TRADITION                MODERN
-          │                       │
-          └───────────┬───────────┘
-                      ▼
-                   AGVIA
-```
-
-Design principles:
-
-- Elegant typography
-- Restrained animation
-- Premium whitespace
-- Strong product imagery
-- Clear hierarchy
-- Mobile-first interaction
-- Accessible controls
-- No unnecessary visual noise
-
----
-
-# ✦ Contributing
-
-<details>
-<summary><strong>Development workflow</strong></summary>
-
-<br/>
-
-### Create a branch
-
-```bash
-git checkout -b feature/your-feature
-```
-
-### Make focused changes
-
-Keep commits small and meaningful.
-
-### Validate
-
-```bash
-npm run build
-```
-
-Run backend tests before opening a pull request.
-
-### Commit
-
-```bash
-git commit -m "feat: improve product discovery"
-```
-
-### Push
-
-```bash
-git push origin feature/your-feature
-```
-
-### Pull Request
-
-Include:
-
-- What changed
-- Why it changed
-- Screenshots for UI changes
-- API impact
-- Database impact
-- Security impact
-- Deployment considerations
-
-</details>
-
----
-
-# ✦ License
-
-The project license should be explicitly selected by the project owner
-before publishing the repository publicly.
-
-Do not claim an open-source license unless the project owner has
-intentionally selected one.
+### Frontend: Vercel
+1. Connect repository to [Vercel](https://vercel.com).
+2. Set **Root Directory** to `AGVIA  - FRONTEND`.
+3. Set **Framework Preset** to `Vite`.
+4. Configure `VITE_API_URL` pointing to your Render backend URL.
+5. Deployments are triggered automatically on every push to `main`.
 
 ---
 
 <div align="center">
 
 ## ✦ AGVIA
-
 ### Women's Wear Boutique
-
-**Elegant styles. Thoughtful technology.**
-
-<br/>
-
-`React` · `Spring Boot` · `PostgreSQL` · `Razorpay` · `Docker`
+**Where tradition meets modern elegance.**
 
 <br/>
 
----
-
-<sub>
-Built with attention to design, security, performance and customer experience.
-</sub>
+`React 18` · `Spring Boot 3` · `MySQL 8` · `Aiven Cloud` · `Razorpay` · `Render` · `Vercel`
 
 <br/>
 
-**Wear Your Story.**
+<sub>Built with attention to engineering excellence, security, performance, and customer experience.</sub>
 
 </div>

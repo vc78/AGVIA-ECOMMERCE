@@ -151,17 +151,19 @@ In accordance with the **AGVIA Master Specification**, every architectural layer
 
 ---
 
-## REMAINING RISKS & PRE-PRODUCTION RECOMMENDATIONS
+### Phase 43 & 44 — Website Analytics Engine & Cloud Production Architecture
 
-1. **Distributed Multi-Instance Deployment:**
-   - **Current State:** Single-instance in-memory rate limiting (`ConcurrentHashMap`) and session-less JWT.
-   - **Production Recommendation:** If deploying multiple backend replicas behind a load balancer, migrate the IP rate limiting to a Redis-backed distributed bucket (e.g., Redisson or Bucket4j-Redis).
-2. **Automated Database Backups:**
-   - **Current State:** Manual backup instructions documented.
-   - **Production Recommendation:** Configure an automated daily cron job using `mysqldump` streaming encrypted snapshots to offsite object storage (AWS S3 / GCP GCS) with a 30-day retention policy.
-3. **Live Payment Gateway Keys:**
-   - **Current State:** Configured for development/test Razorpay API credentials.
-   - **Production Recommendation:** Inject live production `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` exclusively via container environment variables or cloud secret manager (AWS Secrets Manager / Vault). Never commit live keys to Git.
+1. **Website Analytics Engine:**
+   - **Ingestion Pipeline:** Asynchronous `POST /api/analytics/collect` endpoint recording page visits, session IDs, durations, referrers, and device categories.
+   - **Data Aggregation:** High-performance native MySQL queries (`findTopPagesNative`, `findTrafficSourcesNative`, `findDeviceBreakdownNative`) providing aggregated traffic metrics without in-memory full-table scans.
+   - **Privacy First:** Ephemeral session identifiers, no personal identifiable information (PII) recorded in analytics events.
+   - **Admin Dashboard:** Comprehensive dashboard displaying active real-time users, 24h traffic histograms, bounce rates, and top converting routes.
+
+2. **Cloud Infrastructure Architecture:**
+   - **Frontend:** Vercel Edge Network hosting optimized React 18 + Vite static build with SPA rewriting rules.
+   - **Backend:** Render Java 21 Spring Boot runtime containerized with memory optimization (`-Xmx512m`) and health checks at `/api/health`.
+   - **Database:** Managed Aiven Cloud MySQL 8.0 cluster (`defaultdb`) with SSL encrypted connections (`sslMode=REQUIRED`).
+   - **Continuous Deployment:** GitHub Actions CI workflow executing Maven tests and triggering Render auto-deployments on `main` branch pushes.
 
 ---
 
@@ -170,5 +172,6 @@ In accordance with the **AGVIA Master Specification**, every architectural layer
 The AGVIA ecommerce platform has been engineered to meet stringent production standards:
 - **Security:** Hardened authentication, hashed OTPs, RBAC protection, strict security headers, and sliding-window rate limiting.
 - **Data Integrity:** Database-level pessimistic locking (`SELECT ... FOR UPDATE`) prevents overselling, while payment verification is strictly server-authoritative and idempotent.
+- **Analytics & Observability:** Real-time website analytics engine and distributed request correlation (`X-Request-ID`) ensures every client transaction is traceable from browser to database.
 - **Performance:** Sub-100ms API latency on key catalog endpoints, lightweight Vite chunking, and fully responsive layouts across all screen resolutions.
-- **Observability:** Distributed request correlation (`X-Request-ID`) ensures every client transaction is traceable from browser to database.
+
