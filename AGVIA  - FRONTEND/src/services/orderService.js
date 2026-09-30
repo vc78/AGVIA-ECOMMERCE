@@ -71,38 +71,47 @@ export const orderService = {
 
   async getMyOrders() {
     try {
-      const { data } = await api.get('/orders')
-      return data.data.content.map(o => ({
-        id: o.orderNumber || `ORD-${o.id}`,
-        orderNumber: o.orderNumber,
+      const res = await api.get('/orders')
+      const responseData = res?.data?.data ?? res?.data
+      const rawList = Array.isArray(responseData)
+        ? responseData
+        : Array.isArray(responseData?.content)
+        ? responseData.content
+        : Array.isArray(responseData?.orders)
+        ? responseData.orders
+        : []
+
+      return rawList.map((o) => ({
+        id: o.orderNumber || (o.id ? `ORD-${o.id}` : 'ORD-UNKNOWN'),
+        orderNumber: o.orderNumber || (o.id ? `ORD-${o.id}` : ''),
         backendId: o.id,
         customer: o.userName || 'Guest',
         date: o.createdAt ? o.createdAt.split('T')[0] : 'N/A',
-        items: (o.items || []).map(i => ({
-          name: i.productName,
-          price: i.price,
+        items: (o.items || []).map((i) => ({
+          name: i.productName || i.name || 'AGVIA Couture Silhouette',
+          price: i.price ?? i.unitPrice ?? 0,
           unit: i.unit || 'piece',
-          qty: i.quantity,
+          qty: i.quantity ?? i.qty ?? 1,
           image: i.imageUrl || i.image || '/images/classic_silk_saree.jpg'
         })),
-        total: o.finalAmount,
-        totalAmount: o.totalAmount,
+        total: o.finalAmount ?? o.totalAmount ?? 0,
+        totalAmount: o.totalAmount ?? 0,
         discountAmount: o.discountAmount || 0,
-        finalAmount: o.finalAmount,
+        finalAmount: o.finalAmount ?? o.totalAmount ?? 0,
         couponCode: o.couponCode,
-        status: o.status,
-        payment: o.paymentStatus,
-        paymentStatus: o.paymentStatus,
+        status: o.status || 'CONFIRMED',
+        payment: o.paymentStatus || 'PENDING',
+        paymentStatus: o.paymentStatus || 'PENDING',
         paymentMethod: o.paymentMethod || 'COD',
         awbNumber: o.awbNumber || null,
         trackingUrl: o.trackingUrl || null,
         address: {
-          line1: o.shippingAddress,
-          phone: o.contactPhone
+          line1: o.shippingAddress || '',
+          phone: o.contactPhone || ''
         }
       }))
     } catch (err) {
-      console.error(err)
+      console.error('[orderService.getMyOrders] Error:', err)
       throw err
     }
   },

@@ -1,21 +1,32 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 /**
  * Guards a route by authentication and (optionally) role.
  * role="ADMIN"    -> only admins may pass, others sent to /admin/login
- * role="CUSTOMER" -> only logged-in customers may pass, others sent to /login
+ * role="CUSTOMER" -> any authenticated user/customer may pass, others sent to /login
  */
 export default function ProtectedRoute({ children, role }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const location = useLocation()
 
   if (!isAuthenticated) {
-    return <Navigate to={role === 'ADMIN' ? '/admin/login' : '/login'} replace />
+    const loginTarget = role === 'ADMIN' ? '/admin/login' : '/login'
+    return <Navigate to={loginTarget} state={{ from: location.pathname }} replace />
   }
 
-  if (role && user?.role !== role) {
-    return <Navigate to={role === 'ADMIN' ? '/admin/login' : '/'} replace />
+  // Admin route check: only ADMIN or ROLE_ADMIN
+  if (role === 'ADMIN') {
+    const isAdmin = user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN'
+    if (!isAdmin) {
+      return <Navigate to="/admin/login" replace />
+    }
+    return children
   }
 
+  // Customer or general authenticated route:
+  // Any logged-in customer (with role CUSTOMER, USER, ROLE_USER, etc., or even ADMIN) is allowed to view customer pages.
+  // Never redirect an authenticated user to Home ('/') when they visit customer pages like /orders or /profile!
   return children
 }
+

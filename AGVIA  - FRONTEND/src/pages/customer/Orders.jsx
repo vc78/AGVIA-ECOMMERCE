@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -18,10 +18,13 @@ import {
   User,
   MapPin,
   Clock,
-  MessageCircle
+  MessageCircle,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
+import WhatsAppConfirmationModal from '../../components/customer/WhatsAppConfirmationModal'
 import { orderService } from '../../services/orderService'
 import ReliableImage from '../../components/common/ReliableImage'
 import { BUSINESS } from '../../constants/business'
@@ -55,44 +58,59 @@ const getItemsList = (o) => {
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [expandedOrderId, setExpandedOrderId] = useState(null)
+  const [whatsappModalOrder, setWhatsAppModalOrder] = useState(null)
   const { user } = useSelector((state) => state.auth)
   const location = useLocation()
 
   // Mock Loyalty Coins matching Profile.jsx
   const goldCoins = 380
 
+  const fetchOrders = useCallback(async (isInitial = false) => {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
+    if (isInitial) setLoading(true)
+    setError(null)
+
+    try {
+      const data = await orderService.getMyOrders()
+      const sorted = [...(data || [])].sort((a, b) => b.id - a.id)
+      setOrders(sorted)
+
+      if (location.state?.newOrderId && !expandedOrderId) {
+        setExpandedOrderId(location.state.newOrderId)
+      }
+    } catch (err) {
+      console.error('[Orders] Failed to load orders:', err)
+      const status = err?.response?.status
+      if (status === 401) {
+        setError('Your session has expired. Please sign in again.')
+      } else if (status === 403) {
+        setError('You do not have permission to view these orders.')
+      } else {
+        setError(err?.response?.data?.message || err?.message || 'Unable to load orders. Please check your connection and try again.')
+      }
+    } finally {
+      if (isInitial) setLoading(false)
+    }
+  }, [location.state?.newOrderId, expandedOrderId])
+
   useEffect(() => {
     let isMounted = true
 
-    const fetchOrders = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
-      orderService.getMyOrders()
-        .then((data) => {
-          if (!isMounted) return
-          const sorted = [...data].sort((a, b) => b.id - a.id)
-          setOrders(sorted)
-
-          if (location.state?.newOrderId && !expandedOrderId) {
-            const newId = location.state.newOrderId
-            setExpandedOrderId(newId)
-          }
-        })
-        .catch(console.error)
-    }
-
-    fetchOrders()
+    fetchOrders(true)
 
     // Smart polling every 30 seconds to reflect status changes without flooding network
     const pollInterval = setInterval(() => {
-      fetchOrders()
+      if (isMounted) fetchOrders(false)
     }, 30000)
 
     return () => {
       isMounted = false
       clearInterval(pollInterval)
     }
-  }, [location])
+  }, [fetchOrders])
 
   const toggleExpand = (id) => {
     setExpandedOrderId(expandedOrderId === id ? null : id)
@@ -236,16 +254,52 @@ export default function Orders() {
                   <ShoppingBag size={18} className="text-[#B8860B]" /> Purchase History
                 </h2>
                 <span className="text-xs text-[#3A2D23]/40 select-none">
-                  {orders.length} order{orders.length !== 1 && 's'} placed
+                  {loading ? 'Fetching...' : `${orders.length} order${orders.length !== 1 ? 's' : ''} placed`}
                 </span>
               </div>
 
-              {orders.length === 0 ? (
+              {/* State 1: Loading Skeleton */}
+              {loading && orders.length === 0 ? (
+                <div className="space-y-4">
+                  {[1, 2].map((n) => (
+                    <div key={n} className="border border-[#B8860B]/15 rounded-2xl p-5 bg-[#FFFDF8] animate-pulse space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-[#B8860B]/10 rounded-xl" />
+                          <div className="space-y-2">
+                            <div className="h-4 w-28 bg-[#B8860B]/15 rounded" />
+                            <div className="h-3 w-40 bg-[#B8860B]/10 rounded" />
+                          </div>
+                        </div>
+                        <div className="h-6 w-20 bg-[#B8860B]/10 rounded-full" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : error && orders.length === 0 ? (
+                /* State 2: Error with Retry */
+                <div className="py-12 text-center p-6 bg-red-50/50 border border-red-200/60 rounded-3xl">
+                  <AlertCircle size={40} className="text-red-500 mx-auto mb-3" />
+                  <h3 className="font-display text-base font-bold text-red-900 mb-1">Unable to Load Orders</h3>
+                  <p className="text-xs text-[#3A2D23]/60 mb-6 max-w-sm mx-auto">{error}</p>
+                  <button
+                    onClick={() => fetchOrders(true)}
+                    className="btn-primary inline-flex items-center gap-2 text-xs"
+                  >
+                    <RefreshCw size={14} /> Try Again
+                  </button>
+                </div>
+              ) : orders.length === 0 ? (
+                /* State 3: Empty Orders */
                 <div className="py-12 text-center">
                   <ShoppingBag size={40} className="text-[#B8860B]/30 mx-auto mb-4" />
-                  <p className="font-display text-base italic text-[#8B0000] font-bold">No orders found.</p>
-                  <p className="text-xs text-[#3A2D23]/50 mt-1 mb-6">You have not ordered any confections yet.</p>
-                  <Link to="/products" className="btn-primary inline-block">Explore Boutique</Link>
+                  <p className="font-display text-base italic text-[#8B0000] font-bold">No orders yet.</p>
+                  <p className="text-xs text-[#3A2D23]/50 mt-1 mb-6">
+                    You have not placed any couture orders yet. Explore our handcrafted bridal & luxury collections.
+                  </p>
+                  <Link to="/products" className="btn-primary inline-block">
+                    Continue Shopping
+                  </Link>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -548,6 +602,14 @@ export default function Orders() {
 
         </div>
       </div>
+
+      <WhatsAppConfirmationModal
+        isOpen={!!whatsappModalOrder}
+        onClose={() => setWhatsAppModalOrder(null)}
+        order={whatsappModalOrder}
+        customerName={whatsappModalOrder?.customer || user?.name}
+        defaultPhone={whatsappModalOrder?.address?.phone || user?.phone}
+      />
 
       <Footer />
     </div>

@@ -188,7 +188,7 @@ export default function Profile() {
               phone: me.phone,
               phoneVerified: me.phoneVerified,
               address: me.address,
-              role: me.role === 'ROLE_ADMIN' ? 'ADMIN' : (me.role || 'CUSTOMER')
+              role: me.role === 'ROLE_ADMIN' || me.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER'
             }))
           }
           if (subData.status === 'fulfilled') setSubscription(subData.value)
