@@ -15,7 +15,7 @@ export default function GoogleSignInButton({ from = '/' }) {
   const clientId =
     import.meta.env.VITE_GOOGLE_CLIENT_ID ||
     (typeof window !== 'undefined' ? window.__GOOGLE_CLIENT_ID__ : '') ||
-    ''
+    '792586036173-3cgg5j9qnb5j9i939u7k5ke1qa6dsn8o.apps.googleusercontent.com'
 
   const handleCredentialResponse = async (response) => {
     if (!response || !response.credential) {
