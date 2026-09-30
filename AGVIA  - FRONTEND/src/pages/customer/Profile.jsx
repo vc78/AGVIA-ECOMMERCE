@@ -1059,6 +1059,7 @@ export default function Profile() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {wishlistItems.map((item) => (
                       <div key={item.id} className="p-4 rounded-2xl border border-gray-200 flex items-center justify-between gap-3 bg-white">
                         <div className="flex items-center gap-3">
                           <img

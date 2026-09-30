@@ -51,6 +51,13 @@ public class User {
     @Column(name = "phone_verified", nullable = false)
     private boolean phoneVerified = false;
 
+    @Column(name = "auth_provider", length = 30)
+    @Builder.Default
+    private String authProvider = "LOCAL";
+
+    @Column(name = "google_id", length = 100)
+    private String googleId;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

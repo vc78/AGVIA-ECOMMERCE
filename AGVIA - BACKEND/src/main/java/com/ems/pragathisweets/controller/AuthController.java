@@ -3,6 +3,7 @@ package com.ems.pragathisweets.controller;
 import com.ems.pragathisweets.dto.*;
 import com.ems.pragathisweets.security.UserDetailsImpl;
 import com.ems.pragathisweets.service.AuthService;
+import com.ems.pragathisweets.service.GoogleAuthService;
 import com.ems.pragathisweets.service.MobileOtpAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final MobileOtpAuthService mobileOtpAuthService;
+    private final GoogleAuthService googleAuthService;
     private final com.ems.pragathisweets.repository.UserRepository userRepository;
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -77,6 +79,18 @@ public class AuthController {
             @Valid @RequestBody ResendOtpRequest request,
             HttpServletRequest servletRequest) {
         SignupOtpResponse response = mobileOtpAuthService.resendOtp(request, servletRequest);
+        return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // GOOGLE OAUTH SIGN IN
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @PostMapping("/google")
+    @Operation(summary = "Authenticate patron using verified Google Identity token")
+    public ResponseEntity<ApiResponse<AuthResultResponse>> authenticateWithGoogle(
+            @Valid @RequestBody GoogleAuthRequest request) {
+        AuthResultResponse response = googleAuthService.authenticateWithGoogle(request);
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
     }
 

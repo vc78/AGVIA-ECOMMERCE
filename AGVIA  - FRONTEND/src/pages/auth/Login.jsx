@@ -6,6 +6,7 @@ import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { ArrowLeft } from 'lucide-react'
 import OtpVerificationCard from '../../components/auth/OtpVerificationCard'
+import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
 
 export default function Login() {
   const [step, setStep] = useState('FORM') // 'FORM' | 'OTP'
@@ -183,6 +184,16 @@ export default function Login() {
               )}
             </button>
           </form>
+
+          <div className="flex items-center my-4">
+            <div className="flex-1 border-t border-[#B8860B]/20" />
+            <span className="px-3 text-[10px] font-bold text-[#3A2D23]/50 uppercase tracking-widest">
+              or continue with
+            </span>
+            <div className="flex-1 border-t border-[#B8860B]/20" />
+          </div>
+
+          <GoogleSignInButton from={from} />
 
           <p className="text-center text-xs text-[#3A2D23]/60 mt-6 font-body">
             New here?{' '}

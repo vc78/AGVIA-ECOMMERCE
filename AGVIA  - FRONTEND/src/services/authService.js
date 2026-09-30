@@ -134,6 +134,30 @@ export const authService = {
   },
 
   /**
+   * Authenticate patron using verified Google Identity token.
+   */
+  async googleLogin(credential) {
+    try {
+      const { data } = await api.post('/auth/google', { credential })
+      const res = data.data
+      return {
+        token: res.token,
+        user: {
+          id: res.user.id,
+          name: res.user.fullName,
+          email: res.user.email,
+          phone: res.user.phone,
+          phoneVerified: res.user.phoneVerified,
+          role: res.user.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
+        }
+      }
+    } catch (err) {
+      console.error('[authService.googleLogin] Error:', err)
+      throw err
+    }
+  },
+
+  /**
    * Admin Login wrapper that validates ROLE_ADMIN post-verification.
    */
   async adminLogin(credentials) {
