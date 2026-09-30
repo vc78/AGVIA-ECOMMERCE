@@ -2,10 +2,14 @@ import axios from 'axios'
 import { store } from '../store'
 import { loggedOut } from '../store/authSlice'
 
-const BASE_URL =
+const RAW_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
   'https://agvia-ecommerce.onrender.com/api'
+
+// Ensure /api suffix is present and clean trailing slashes
+const cleanUrl = RAW_URL.trim().replace(/\/+$/, '')
+const BASE_URL = cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`
 
 const api = axios.create({
   baseURL: BASE_URL,

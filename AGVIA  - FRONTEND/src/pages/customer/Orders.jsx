@@ -78,8 +78,8 @@ export default function Orders() {
       const sorted = [...(data || [])].sort((a, b) => b.id - a.id)
       setOrders(sorted)
 
-      if (location.state?.newOrderId && !expandedOrderId) {
-        setExpandedOrderId(location.state.newOrderId)
+      if (location.state?.newOrderId) {
+        setExpandedOrderId((prev) => prev || location.state.newOrderId)
       }
     } catch (err) {
       console.error('[Orders] Failed to load orders:', err)
@@ -94,7 +94,7 @@ export default function Orders() {
     } finally {
       if (isInitial) setLoading(false)
     }
-  }, [location.state?.newOrderId, expandedOrderId])
+  }, [location.state?.newOrderId])
 
   useEffect(() => {
     let isMounted = true

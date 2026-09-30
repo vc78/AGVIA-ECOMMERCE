@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
@@ -27,6 +27,14 @@ export default function Register() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/'
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
+
+  // Redirect away if already authenticated
+  if (isAuthenticated) {
+    if (user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />
+    const target = from === '/login' || from === '/register' ? '/' : from
+    return <Navigate to={target} replace />
+  }
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 

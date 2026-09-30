@@ -4,9 +4,9 @@ import { Ticket, Copy } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const OFFERS = [
-  { code: 'AZADI15', title: 'Independence Celebration', desc: '15% Off storewide for new and returning clients.', validity: 'Valid till August 15, 2026' },
-  { code: 'RAKHI200', title: 'Raksha Bandhan Delight', desc: '₹200 Off premium gift boxes and festival hampers.', validity: 'Valid till August 30, 2026' },
-  { code: 'DIWALI2025', title: 'Corporate Grandeur', desc: '25% Off corporate catering bulk bookings.', validity: 'Valid till November 5, 2026' }
+  { code: 'AZADI15', title: 'Independence Celebration', desc: '15% Off storewide for new and returning patrons.', validity: 'Valid till August 15, 2026' },
+  { code: 'SILK200', title: 'Silk Heritage Delight', desc: '₹200 Off premium handcrafted pure Kanjeevaram & Banarasi silk sarees.', validity: 'Valid till August 30, 2026' },
+  { code: 'AGVIA25', title: 'Bridal Grandeur', desc: '25% Off bespoke bridal trousseau, lehengas, and couture festive edits.', validity: 'Valid till November 5, 2026' }
 ]
 
 export default function Offers() {
