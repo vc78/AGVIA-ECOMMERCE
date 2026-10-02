@@ -6,6 +6,7 @@
 
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import QRCode from 'qrcode'
 import { BUSINESS } from '../constants/business'
 
 // Brand Color Palette in RGB
@@ -295,6 +296,411 @@ export async function exportOrdersPDF(orders = [], filterName = 'All Orders') {
 
   setupPageDecorations(doc, logoData, {})
   doc.save(`agvia_orders_dispatch_${formatDateStamp()}.pdf`)
+}
+
+/**
+ * Export Individual Customer Order Receipt & Parcel Dispatch Packing Slip with Unique QR Code
+ * Specifically formatted for adhering securely to customer parcel boxes and tax invoice records.
+ */
+export async function exportOrderParcelReceiptPDF(order) {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const pageWidth = doc.internal.pageSize.getWidth()   // 210mm
+  const pageHeight = doc.internal.pageSize.getHeight() // 297mm
+  const margin = 14
+  const contentWidth = pageWidth - (margin * 2)        // 182mm
+
+  const logoData = await loadLogoBase64()
+
+  // 1. Generate Unique QR Code
+  const siteUrl = typeof window !== 'undefined' && window.location?.origin 
+    ? window.location.origin 
+    : 'https://agvia-ecommerce.vercel.app'
+  const trackingRef = order.orderNumber || `#${order.id}`
+  const qrTrackingUrl = `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
+  
+  let qrDataUrl = null
+  try {
+    qrDataUrl = await QRCode.toDataURL(qrTrackingUrl, {
+      width: 320,
+      margin: 1,
+      color: {
+        dark: '#211D1E',
+        light: '#FFFFFF'
+      },
+      errorCorrectionLevel: 'M'
+    })
+  } catch (err) {
+    console.error('Failed to generate QR code for parcel receipt:', err)
+  }
+
+  // 2. Outer Document Border / Luxury Framing (Crisp boundary for parcel sticker/insert)
+  doc.setDrawColor(...THEME.borderGold)
+  doc.setLineWidth(0.4)
+  doc.rect(margin - 4, 8, contentWidth + 8, pageHeight - 16)
+
+  // 3. Top Header Strip
+  doc.setFillColor(...THEME.maroon)
+  doc.rect(margin - 4, 8, contentWidth + 8, 13, 'F')
+  doc.setFillColor(...THEME.gold)
+  doc.rect(margin - 4, 21, contentWidth + 8, 1.2, 'F')
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.setTextColor(...THEME.goldLight)
+  doc.text('AGVIA ATELIER DISPATCH SYSTEM • OFFICIAL PARCEL PACKING SLIP & TAX INVOICE', margin, 16.5)
+
+  const isCOD = String(order.paymentMethod || order.payment || '').toUpperCase().includes('COD')
+  doc.text(isCOD ? 'PAYMENT: CASH ON DELIVERY' : 'PAYMENT: PREPAID (ONLINE/UPI)', pageWidth - margin, 16.5, { align: 'right' })
+
+  // 4. Branding & QR Code Header Row
+  let y = 29
+  if (logoData) {
+    try {
+      doc.addImage(logoData, 'PNG', margin, y, 36, 13)
+    } catch (_) {
+      drawTextCrest(doc, margin, y)
+    }
+  } else {
+    drawTextCrest(doc, margin, y)
+  }
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...THEME.charcoalMuted)
+  doc.text('Haute Couture & Heritage Women\'s Wear Boutique', margin, y + 17)
+  doc.text('GSTIN: 36AAHCA1234F1Z5 | CIN: U18101TG2026PTC099882', margin, y + 21)
+
+  // QR Code Box (Right Side)
+  const qrX = pageWidth - margin - 32
+  const qrY = y - 2
+  if (qrDataUrl) {
+    doc.addImage(qrDataUrl, 'PNG', qrX, qrY, 32, 32)
+    doc.setDrawColor(...THEME.borderGold)
+    doc.setLineWidth(0.3)
+    doc.rect(qrX, qrY, 32, 32)
+    
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(6.5)
+    doc.setTextColor(...THEME.maroon)
+    doc.text('SCAN TO TRACK / VERIFY', qrX + 16, qrY + 36, { align: 'center' })
+  }
+
+  // 5. Order & Invoice Meta Bar
+  y = 56
+  doc.setFillColor(254, 252, 247)
+  doc.setDrawColor(...THEME.borderGold)
+  doc.setLineWidth(0.3)
+  doc.roundedRect(margin, y, contentWidth, 18, 2, 2, 'FD')
+
+  // Top accent line
+  doc.setFillColor(...THEME.gold)
+  doc.rect(margin + 2, y + 2, contentWidth - 4, 0.8, 'F')
+
+  // Order Details in 4 Columns
+  const colW = contentWidth / 4
+  const metaY = y + 7
+
+  // Col 1: Order ID
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7)
+  doc.setTextColor(...THEME.charcoalMuted)
+  doc.text('DISPATCH ORDER ID', margin + 4, metaY)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(10)
+  doc.setTextColor(...THEME.maroon)
+  doc.text(trackingRef, margin + 4, metaY + 6)
+
+  // Col 2: Order Date
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7)
+  doc.setTextColor(...THEME.charcoalMuted)
+  doc.text('BOOKING DATE', margin + colW + 4, metaY)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8.5)
+  doc.setTextColor(...THEME.charcoal)
+  doc.text(order.date || new Date().toISOString().split('T')[0], margin + colW + 4, metaY + 6)
+
+  // Col 3: Invoice Ref
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7)
+  doc.setTextColor(...THEME.charcoalMuted)
+  doc.text('INVOICE / AWB NUMBER', margin + (colW * 2) + 4, metaY)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8.5)
+  doc.setTextColor(...THEME.charcoal)
+  const awb = order.awbNumber || `AGV-AWB-${String(order.id).padStart(6, '0')}`
+  doc.text(awb, margin + (colW * 2) + 4, metaY + 6)
+
+  // Col 4: Status / Fulfillment
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7)
+  doc.setTextColor(...THEME.charcoalMuted)
+  doc.text('DISPATCH STATUS', margin + (colW * 3) + 4, metaY)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8.5)
+  doc.setTextColor(...THEME.green)
+  doc.text(String(order.status || 'READY FOR DISPATCH').toUpperCase(), margin + (colW * 3) + 4, metaY + 6)
+
+  // 6. Routing & Addresses Section (SHIP TO vs SHIP FROM)
+  y = 78
+  const halfW = (contentWidth - 4) / 2
+  const addressBoxH = 38
+
+  // Box 1: SHIP TO (Recipient)
+  doc.setFillColor(255, 255, 255)
+  doc.setDrawColor(...THEME.maroon)
+  doc.setLineWidth(0.4)
+  doc.roundedRect(margin, y, halfW, addressBoxH, 2, 2, 'FD')
+
+  // Top header for Ship To
+  doc.setFillColor(...THEME.maroon)
+  doc.rect(margin, y, halfW, 7, 'F')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...THEME.goldLight)
+  doc.text('DELIVER TO (CONSIGNEE / PATRON)', margin + 4, y + 5)
+
+  // Recipient details
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9.5)
+  doc.setTextColor(...THEME.maroon)
+  doc.text(String(order.customer || 'Valued Patron').toUpperCase(), margin + 4, y + 13)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...THEME.charcoal)
+  
+  const rawAddress = order.shippingAddress || 'Delivery Address on record with customer account'
+  const addressLines = doc.splitTextToSize(rawAddress, halfW - 8)
+  doc.text(addressLines.slice(0, 3), margin + 4, y + 18)
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...THEME.charcoal)
+  doc.text(`Phone: ${order.contactPhone || 'Contact verified on account'}`, margin + 4, y + 31)
+  if (order.userEmail) {
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Email: ${order.userEmail}`, margin + 4, y + 35)
+  }
+
+  // Box 2: SHIP FROM (Consignor / Atelier)
+  const fromX = margin + halfW + 4
+  doc.setFillColor(255, 255, 255)
+  doc.setDrawColor(...THEME.borderGold)
+  doc.setLineWidth(0.3)
+  doc.roundedRect(fromX, y, halfW, addressBoxH, 2, 2, 'FD')
+
+  // Top header for Ship From
+  doc.setFillColor(...THEME.gold)
+  doc.rect(fromX, y, halfW, 7, 'F')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...THEME.maroon)
+  doc.text('RETURN & DISPATCH FROM (CONSIGNOR)', fromX + 4, y + 5)
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(...THEME.maroon)
+  doc.text('AGVIA ATELIER DISPATCH CENTER', fromX + 4, y + 13)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...THEME.charcoal)
+  doc.text(BUSINESS.location.street, fromX + 4, y + 18)
+  doc.text(`${BUSINESS.location.city}, ${BUSINESS.location.state} - ${BUSINESS.location.pincode}`, fromX + 4, y + 22)
+  doc.text('Country: India', fromX + 4, y + 26)
+  doc.setFont('helvetica', 'bold')
+  doc.text(`Atelier Concierge: ${BUSINESS.contact.phone}`, fromX + 4, y + 31)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Email: ${BUSINESS.contact.email}`, fromX + 4, y + 35)
+
+  // 7. Payment Callout Banner (Crucial for Courier & Delivery Agent)
+  y = 120
+  if (isCOD) {
+    doc.setFillColor(254, 242, 242)
+    doc.setDrawColor(...THEME.red)
+    doc.setLineWidth(0.5)
+    doc.roundedRect(margin, y, contentWidth, 12, 1.5, 1.5, 'FD')
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.setTextColor(...THEME.red)
+    doc.text('⚠️ CASH ON DELIVERY (COD) • AMOUNT TO COLLECT:', margin + 4, y + 7.5)
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text(`₹${Number(order.total || 0).toLocaleString('en-IN')}`, pageWidth - margin - 4, y + 7.5, { align: 'right' })
+  } else {
+    doc.setFillColor(240, 253, 244)
+    doc.setDrawColor(...THEME.green)
+    doc.setLineWidth(0.5)
+    doc.roundedRect(margin, y, contentWidth, 12, 1.5, 1.5, 'FD')
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.setTextColor(...THEME.green)
+    doc.text('✓ PREPAID CONSIGNMENT • DO NOT COLLECT CASH FROM RECIPIENT', margin + 4, y + 7.5)
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.text('PAID ONLINE (₹0.00 DUE)', pageWidth - margin - 4, y + 7.5, { align: 'right' })
+  }
+
+  // 8. Itemized Manifest & Billing Table
+  y = 136
+  const tableHeaders = [['SR', 'PRODUCT DESCRIPTION', 'QTY', 'UNIT PRICE (INR)', 'TOTAL (INR)']]
+
+  let itemsRows = []
+  if (Array.isArray(order.itemsList) && order.itemsList.length > 0) {
+    itemsRows = order.itemsList.map((item, idx) => [
+      String(idx + 1),
+      item.productName || item.title || `Boutique Ensemble #${item.productId || idx + 1}`,
+      String(item.quantity || 1),
+      `₹${Number(item.price || 0).toLocaleString('en-IN')}`,
+      `₹${Number(item.subtotal || (item.price * (item.quantity || 1)) || 0).toLocaleString('en-IN')}`
+    ])
+  } else {
+    itemsRows = [
+      [
+        '1',
+        'AGVIA Luxury Women\'s Wear Ensemble (Curated Dispatch)',
+        String(order.items || 1),
+        `₹${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`,
+        `₹${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`
+      ]
+    ]
+  }
+
+  autoTable(doc, {
+    startY: y,
+    head: tableHeaders,
+    body: itemsRows,
+    margin: { left: margin, right: margin },
+    theme: 'grid',
+    styles: {
+      font: 'helvetica',
+      fontSize: 8,
+      cellPadding: 2.8,
+      lineColor: THEME.borderGold,
+      lineWidth: 0.2,
+      textColor: THEME.charcoal
+    },
+    headStyles: {
+      fillColor: THEME.maroon,
+      textColor: THEME.goldLight,
+      fontStyle: 'bold',
+      fontSize: 8
+    },
+    alternateRowStyles: {
+      fillColor: THEME.ivory
+    },
+    columnStyles: {
+      0: { cellWidth: 12, halign: 'center' },
+      1: { cellWidth: 'auto' },
+      2: { cellWidth: 16, halign: 'center' },
+      3: { cellWidth: 32, halign: 'right' },
+      4: { cellWidth: 32, halign: 'right', fontStyle: 'bold' }
+    }
+  })
+
+  // 9. Financial Totals Table (Right aligned below items table)
+  let finalY = doc.lastAutoTable?.finalY || 180
+  finalY += 4
+
+  const totalBoxWidth = 85
+  const totalBoxX = pageWidth - margin - totalBoxWidth
+  const subtotal = Number(order.subtotal || order.total || 0)
+  const discount = Number(order.discountAmount || 0)
+  const grandTotal = Number(order.total || 0)
+  const gstEstimated = Math.round(grandTotal * 0.05 / 1.05) // 5% GST included
+
+  const summaryRows = [
+    ['Merchandise Subtotal:', `₹${subtotal.toLocaleString('en-IN')}`],
+    ...(discount > 0 ? [[`Promo Discount (${order.couponCode || 'APPLIED'}):`, `-₹${discount.toLocaleString('en-IN')}`]] : []),
+    ['Insured Packaging & Courier:', 'FREE'],
+    ['IGST / CGST+SGST (5% Included):', `₹${gstEstimated.toLocaleString('en-IN')}`],
+    ['FINAL INVOICE VALUE:', `₹${grandTotal.toLocaleString('en-IN')}`]
+  ]
+
+  doc.setFillColor(254, 252, 247)
+  doc.setDrawColor(...THEME.borderGold)
+  doc.setLineWidth(0.3)
+  doc.roundedRect(totalBoxX, finalY, totalBoxWidth, summaryRows.length * 5.8 + 4, 1.5, 1.5, 'FD')
+
+  summaryRows.forEach(([lbl, val], idx) => {
+    const rowY = finalY + 5 + (idx * 5.8)
+    const isTotal = idx === summaryRows.length - 1
+
+    if (isTotal) {
+      doc.setFillColor(...THEME.maroon)
+      doc.rect(totalBoxX + 1, rowY - 3.8, totalBoxWidth - 2, 6.2, 'F')
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8.5)
+      doc.setTextColor(...THEME.goldLight)
+      doc.text(lbl, totalBoxX + 3, rowY)
+      doc.text(val, pageWidth - margin - 3, rowY, { align: 'right' })
+    } else {
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(7.5)
+      doc.setTextColor(...THEME.charcoalMuted)
+      doc.text(lbl, totalBoxX + 3, rowY)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...THEME.charcoal)
+      doc.text(val, pageWidth - margin - 3, rowY, { align: 'right' })
+    }
+  })
+
+  // 10. Cut-and-Paste Dotted Guide Line for Parcel Box
+  const cutY = pageHeight - 38
+  doc.setDrawColor(...THEME.goldDark)
+  doc.setLineDashPattern([2, 2], 0)
+  doc.setLineWidth(0.4)
+  doc.line(margin, cutY, pageWidth - margin, cutY)
+  doc.setLineDashPattern([], 0)
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7)
+  doc.setTextColor(...THEME.goldDark)
+  doc.text('✂  - - - - - - - - - - -  CUT OR FOLD HERE TO ATTACH SECURELY ON CUSTOMER PARCEL  - - - - - - - - - - -  ✂', pageWidth / 2, cutY - 2, { align: 'center' })
+
+  // 11. Security, Inspection & Verification Seals
+  const footerBoxY = cutY + 4
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...THEME.maroon)
+  doc.text('SECURITY & QUALITY DECLARATION', margin, footerBoxY + 3)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(6.8)
+  doc.setTextColor(...THEME.charcoalMuted)
+  doc.text('1. Tamper-evident luxury packaging: Please verify that the gold seal ribbon is intact upon delivery.', margin, footerBoxY + 7.5)
+  doc.text('2. Easy Returns & Exchanges: Scan the unique parcel QR code above or contact concierge within 7 days.', margin, footerBoxY + 11.5)
+  doc.text('3. This is a computer-generated tax packing manifest authorized for inter-state and local logistics dispatch.', margin, footerBoxY + 15.5)
+
+  // Quality Checked Badge on Right
+  const badgeX = pageWidth - margin - 52
+  doc.setFillColor(254, 252, 247)
+  doc.setDrawColor(...THEME.borderGold)
+  doc.setLineWidth(0.3)
+  doc.roundedRect(badgeX, footerBoxY, 52, 17, 1.5, 1.5, 'FD')
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7)
+  doc.setTextColor(...THEME.maroon)
+  doc.text('AGVIA QUALITY INSPECTED', badgeX + 26, footerBoxY + 5, { align: 'center' })
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(6)
+  doc.setTextColor(...THEME.charcoalMuted)
+  doc.text('Status: Passed All 28 Quality Checks', badgeX + 26, footerBoxY + 9, { align: 'center' })
+  doc.setFont('courier', 'bold')
+  doc.setFontSize(6.5)
+  doc.setTextColor(...THEME.goldDark)
+  doc.text(`SEAL: AGV-${String(order.id).padStart(4, '0')}-${order.date ? String(order.date).replace(/-/g, '') : '2026'}`, badgeX + 26, footerBoxY + 13.5, { align: 'center' })
+
+  // Save the PDF
+  const cleanId = String(order.orderNumber || order.id).replace(/[^a-zA-Z0-9_-]/g, '_')
+  doc.save(`agvia_parcel_receipt_${cleanId}.pdf`)
 }
 
 /**

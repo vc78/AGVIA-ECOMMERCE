@@ -16,8 +16,21 @@ export const adminService = {
       // Normalize real OrderResponse shape → Dashboard table columns (id, customer, total, status)
       const recentOrdersList = ordersList.slice(0, 5).map(o => ({
         id: o.orderNumber || `#${o.id}`,
+        backendId: o.id,
+        orderNumber: o.orderNumber || `#${o.id}`,
         customer: o.userName || 'Guest',
+        userEmail: o.userEmail || o.email || null,
+        shippingAddress: o.shippingAddress || null,
+        contactPhone: o.contactPhone || null,
+        date: o.createdAt ? o.createdAt.split('T')[0] : 'N/A',
         total: o.finalAmount ?? o.totalAmount ?? 0,
+        subtotal: o.totalAmount ?? o.finalAmount ?? 0,
+        discountAmount: o.discountAmount ?? 0,
+        couponCode: o.couponCode || null,
+        paymentMethod: o.paymentMethod || 'COD',
+        payment: o.paymentStatus || o.paymentMethod || 'N/A',
+        items: Array.isArray(o.items) ? o.items.length : 1,
+        itemsList: Array.isArray(o.items) ? o.items : [],
         status: o.status || 'PENDING',
       }))
 
@@ -385,21 +398,59 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
         userEmail: o.userEmail || o.email || null,                      // for customer email matching
         date: o.createdAt ? o.createdAt.split('T')[0] : 'N/A',
         items: Array.isArray(o.items) ? o.items.length : (o.items ?? 0),
+        itemsList: Array.isArray(o.items) ? o.items : [],
         total: o.finalAmount ?? o.totalAmount ?? 0,
         subtotal: o.totalAmount ?? o.finalAmount ?? 0,
         discountAmount: o.discountAmount ?? 0,
         couponCode: o.couponCode || null,
         payment: o.paymentStatus || o.paymentMethod || 'N/A',
         paymentMethod: o.paymentMethod || 'COD',
+        paymentStatus: o.paymentStatus || 'PENDING',
         status: o.status || 'PENDING',
         notificationStatus: o.notificationStatus || 'NOT_DISPATCHED',
         awbNumber: o.awbNumber || null,
         trackingUrl: o.trackingUrl || null,
         shippingAddress: o.shippingAddress || null,
         contactPhone: o.contactPhone || null,
+        notes: o.notes || null,
+        createdAt: o.createdAt || null
       }))
     } catch (err) {
       console.error(err)
+      throw err
+    }
+  },
+  async getOrderById(id) {
+    try {
+      const { data } = await api.get(`/admin/orders/${id}`)
+      const o = data.data || data
+      return {
+        id: o.id,
+        orderNumber: o.orderNumber || `#${o.id}`,
+        userId: o.userId ?? null,
+        customer: o.userName || 'Guest',
+        userEmail: o.userEmail || o.email || null,
+        date: o.createdAt ? o.createdAt.split('T')[0] : 'N/A',
+        items: Array.isArray(o.items) ? o.items.length : (o.items ?? 0),
+        itemsList: Array.isArray(o.items) ? o.items : [],
+        total: o.finalAmount ?? o.totalAmount ?? 0,
+        subtotal: o.totalAmount ?? o.finalAmount ?? 0,
+        discountAmount: o.discountAmount ?? 0,
+        couponCode: o.couponCode || null,
+        payment: o.paymentStatus || o.paymentMethod || 'N/A',
+        paymentMethod: o.paymentMethod || 'COD',
+        paymentStatus: o.paymentStatus || 'PENDING',
+        status: o.status || 'PENDING',
+        notificationStatus: o.notificationStatus || 'NOT_DISPATCHED',
+        awbNumber: o.awbNumber || null,
+        trackingUrl: o.trackingUrl || null,
+        shippingAddress: o.shippingAddress || null,
+        contactPhone: o.contactPhone || null,
+        notes: o.notes || null,
+        createdAt: o.createdAt || null
+      }
+    } catch (err) {
+      console.error(`Failed to get order #${id}:`, err)
       throw err
     }
   },

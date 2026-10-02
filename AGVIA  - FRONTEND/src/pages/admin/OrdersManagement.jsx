@@ -4,8 +4,9 @@ import AdminLayout from '../../components/admin/AdminLayout'
 import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
 import { adminWebSocket } from '../../services/adminWebSocket'
-import { exportOrdersPDF } from '../../utils/pdfExportUtils'
-import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag } from 'lucide-react'
+import { exportOrdersPDF, exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
+import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag, QrCode, Printer } from 'lucide-react'
+import ParcelReceiptModal from '../../components/admin/ParcelReceiptModal'
 
 const STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending', color: 'bg-amber-50 text-amber-800 border-amber-200' },
@@ -27,6 +28,9 @@ export default function OrdersManagement() {
   const [liveSync, setLiveSync] = useState(true)
   const [lastSyncTime, setLastSyncTime] = useState(new Date())
   const [statusFilter, setStatusFilter] = useState('ALL')
+  const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null)
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false)
+  const [downloadingReceiptId, setDownloadingReceiptId] = useState(null)
   const pollTimerRef = useRef(null)
 
   const loadOrders = async (silent = false) => {
@@ -108,6 +112,40 @@ export default function OrdersManagement() {
       console.error(err)
       toast.error('Failed to export orders PDF.', { id: 'pdf-orders' })
     }
+  }
+
+  const handleDownloadReceipt = async (order) => {
+    try {
+      setDownloadingReceiptId(order.id)
+      const trackingRef = order.orderNumber || `#${order.id}`
+      toast.loading(`Compiling parcel slip with QR for ${trackingRef}...`, { id: `receipt-${order.id}` })
+      
+      let fullOrder = order
+      if ((!order.itemsList || order.itemsList.length === 0 || !order.shippingAddress) && order.id) {
+        try {
+          const fetched = await adminService.getOrderById(order.id)
+          if (fetched) fullOrder = fetched
+        } catch (e) {
+          console.warn('Could not fetch full order details, falling back:', e)
+        }
+      }
+
+      await exportOrderParcelReceiptPDF(fullOrder)
+      toast.success(`Parcel slip with unique QR downloaded for ${trackingRef}!`, {
+        id: `receipt-${order.id}`,
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to generate parcel receipt PDF.', { id: `receipt-${order.id}` })
+    } finally {
+      setDownloadingReceiptId(null)
+    }
+  }
+
+  const handleOpenReceiptModal = async (order) => {
+    setSelectedReceiptOrder(order)
+    setIsReceiptModalOpen(true)
   }
 
   // Filtered orders
@@ -213,6 +251,32 @@ export default function OrdersManagement() {
         )
       },
     },
+    {
+      key: 'parcelReceipt',
+      label: 'Parcel Receipt (QR)',
+      render: (r) => (
+        <div className="flex items-center gap-1.5 whitespace-nowrap">
+          <button
+            onClick={() => handleDownloadReceipt(r)}
+            disabled={downloadingReceiptId === r.id}
+            title="Download Shipping Label & Receipt (PDF with Unique QR to paste on parcel)"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#C9A45C]/40 bg-[#FFFDF8] hover:bg-[#5A1020] text-[#5A1020] hover:text-[#FAF7F2] text-xs font-bold transition-all shadow-2xs group touch-target"
+          >
+            <QrCode size={13} className="text-[#C9A45C] group-hover:text-[#FAF7F2] transition-colors" />
+            <Download size={11} className={downloadingReceiptId === r.id ? 'animate-bounce' : ''} />
+            <span className="text-[10px] uppercase tracking-wider">Slip (PDF)</span>
+          </button>
+
+          <button
+            onClick={() => handleOpenReceiptModal(r)}
+            title="Preview & Print Parcel Label"
+            className="p-1.5 rounded-xl border border-[#C9A45C]/30 bg-white hover:border-[#5A1020] text-[#211D1E]/70 hover:text-[#5A1020] hover:bg-[#5A1020]/5 transition-all touch-target"
+          >
+            <Printer size={13} />
+          </button>
+        </div>
+      )
+    },
   ]
 
   return (
@@ -301,6 +365,13 @@ export default function OrdersManagement() {
           exportFilename="agvia_atelier_orders"
         />
       )}
+
+      {/* Parcel Packing Slip & Receipt Modal with Unique QR */}
+      <ParcelReceiptModal
+        order={selectedReceiptOrder}
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+      />
     </AdminLayout>
   )
 }
