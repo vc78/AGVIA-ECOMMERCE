@@ -20,20 +20,14 @@ import {
   Clock,
   MessageCircle,
   AlertCircle,
-  RefreshCw,
-  QrCode,
-  Download,
-  Printer
+  RefreshCw
 } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import WhatsAppConfirmationModal from '../../components/customer/WhatsAppConfirmationModal'
-import ParcelReceiptModal from '../../components/admin/ParcelReceiptModal'
-import { exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
 import { orderService } from '../../services/orderService'
 import ReliableImage from '../../components/common/ReliableImage'
 import { BUSINESS } from '../../constants/business'
-import toast from 'react-hot-toast'
 
 const getStatusBadge = (status = '') => {
   switch (status.toUpperCase()) {
@@ -68,9 +62,6 @@ export default function Orders() {
   const [error, setError] = useState(null)
   const [expandedOrderId, setExpandedOrderId] = useState(null)
   const [whatsappModalOrder, setWhatsAppModalOrder] = useState(null)
-  const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null)
-  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false)
-  const [downloadingReceiptId, setDownloadingReceiptId] = useState(null)
   const { user } = useSelector((state) => state.auth)
   const location = useLocation()
 
@@ -104,39 +95,6 @@ export default function Orders() {
       if (isInitial) setLoading(false)
     }
   }, [location.state?.newOrderId])
-
-  const handleDownloadReceipt = async (order) => {
-    try {
-      setDownloadingReceiptId(order.id)
-      const trackingRef = order.orderNumber || `#${order.id}`
-      toast.loading(`Preparing receipt for ${trackingRef}...`, { id: `cust-receipt-${order.id}` })
-      
-      const normalized = {
-        ...order,
-        customer: order.customer || user?.name || 'Valued Patron',
-        userEmail: order.userEmail || user?.email || null,
-        contactPhone: order.address?.phone || order.contactPhone || user?.phone || null,
-        shippingAddress: order.shippingAddress || (order.address ? `${order.address.line1}, ${order.address.city} - ${order.address.pincode}` : null),
-        itemsList: Array.isArray(order.items) ? order.items.map(it => ({
-          productName: it.productName || it.name || it.title,
-          quantity: it.quantity || it.qty || 1,
-          price: it.price || 0,
-          subtotal: it.subtotal || (it.price * (it.quantity || 1))
-        })) : []
-      }
-
-      await exportOrderParcelReceiptPDF(normalized)
-      toast.success(`Receipt with unique QR downloaded for ${trackingRef}!`, {
-        id: `cust-receipt-${order.id}`,
-        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
-      })
-    } catch (err) {
-      console.error(err)
-      toast.error('Failed to download receipt.', { id: `cust-receipt-${order.id}` })
-    } finally {
-      setDownloadingReceiptId(null)
-    }
-  }
 
   useEffect(() => {
     let isMounted = true
@@ -391,7 +349,7 @@ export default function Orders() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap justify-end">
+                          <div className="flex items-center gap-6">
                             <div className="text-right">
                               <span className="text-[10px] text-[#3A2D23]/40 block">Grand Total</span>
                               <span className="font-display font-bold text-sm text-[#8B0000]">
@@ -399,52 +357,11 @@ export default function Orders() {
                               </span>
                             </div>
 
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusBadge(o.status)} whitespace-nowrap`}>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusBadge(o.status)}`}>
                               {o.status}
                             </span>
 
-                            {/* Download Receipt beside order status/confirmation */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDownloadReceipt(o)
-                              }}
-                              disabled={downloadingReceiptId === o.id}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#B8860B]/40 bg-[#FFFDF8] hover:bg-[#8B0000] text-[#8B0000] hover:text-white text-xs font-bold transition-all shadow-2xs group touch-target whitespace-nowrap"
-                              title="Download Official Tax Receipt & Parcel Packing Slip (PDF with unique QR)"
-                            >
-                              <QrCode size={13} className="text-[#B8860B] group-hover:text-white transition-colors" />
-                              <Download size={11} className={downloadingReceiptId === o.id ? 'animate-bounce' : ''} />
-                              <span className="text-[11px] font-semibold">Receipt</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setSelectedReceiptOrder({
-                                  ...o,
-                                  customer: o.customer || user?.name || 'Valued Patron',
-                                  userEmail: o.userEmail || user?.email || null,
-                                  contactPhone: o.address?.phone || o.contactPhone || user?.phone || null,
-                                  shippingAddress: o.shippingAddress || (o.address ? `${o.address.line1}, ${o.address.city} - ${o.address.pincode}` : null),
-                                  itemsList: Array.isArray(o.items) ? o.items.map(it => ({
-                                    productName: it.productName || it.name || it.title,
-                                    quantity: it.quantity || it.qty || 1,
-                                    price: it.price || 0,
-                                    subtotal: it.subtotal || (it.price * (it.quantity || 1))
-                                  })) : []
-                                })
-                                setIsReceiptModalOpen(true)
-                              }}
-                              className="p-1.5 rounded-xl border border-[#B8860B]/30 bg-[#FFFDF8] hover:bg-[#8B0000] text-[#8B0000] hover:text-white transition-all shadow-2xs touch-target"
-                              title="Preview & Print Order Receipt"
-                            >
-                              <Printer size={13} />
-                            </button>
-
-                            <div className="text-[#B8860B] hover:text-[#8B0000] transition-colors ml-0.5">
+                            <div className="text-[#B8860B] hover:text-[#8B0000] transition-colors">
                               {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                             </div>
                           </div>
@@ -647,16 +564,6 @@ export default function Orders() {
                                 {/* Bottom actions */}
                                 <div className="border-t border-[#B8860B]/10 pt-4 flex flex-wrap gap-3 justify-end items-center">
                                   <button
-                                    onClick={() => handleDownloadReceipt(o)}
-                                    disabled={downloadingReceiptId === o.id}
-                                    className="btn-outline !py-2 !px-4 text-[10px] flex items-center gap-1.5 font-bold !text-[#8B0000] !border-[#B8860B]/40 hover:!bg-[#8B0000] hover:!text-white"
-                                    title="Download Official Tax Receipt & Parcel Packing Slip (PDF with unique QR)"
-                                  >
-                                    <QrCode size={12} className="text-[#B8860B]" />
-                                    <Download size={11} className={downloadingReceiptId === o.id ? 'animate-bounce' : ''} />
-                                    <span>Download PDF Receipt</span>
-                                  </button>
-                                  <button
                                     onClick={() => setWhatsAppModalOrder(o)}
                                     className="btn-outline !py-2 !px-4 text-[10px] flex items-center gap-1.5 font-bold !text-[#075E54] !border-[#25D366]/40 hover:!bg-[#25D366]/10"
                                     title="View formatted WhatsApp receipt & share"
@@ -702,13 +609,6 @@ export default function Orders() {
         order={whatsappModalOrder}
         customerName={whatsappModalOrder?.customer || user?.name}
         defaultPhone={whatsappModalOrder?.address?.phone || user?.phone}
-      />
-
-      {/* Official Tax Invoice & Parcel Packing Slip with Unique QR */}
-      <ParcelReceiptModal
-        order={selectedReceiptOrder}
-        isOpen={isReceiptModalOpen}
-        onClose={() => setIsReceiptModalOpen(false)}
       />
 
       <Footer />
