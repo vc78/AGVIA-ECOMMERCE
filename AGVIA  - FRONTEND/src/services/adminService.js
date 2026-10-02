@@ -370,12 +370,14 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
   },
 
   // Orders
-  async getOrders() {
+  async getOrders(params = {}) {
     try {
-      const { data } = await api.get('/admin/orders')
+      const queryParams = { size: params.size || 1000, ...params }
+      const { data } = await api.get('/admin/orders', { params: queryParams })
+      const rawOrders = data.data?.content || (Array.isArray(data.data) ? data.data : [])
       // Normalize real OrderResponse → shape expected by OrdersManagement column keys:
       // { id (numeric DB id, for PATCH), orderNumber (display), customer, date, items, total, payment, status }
-      return (data.data.content || []).map(o => ({
+      return rawOrders.map(o => ({
         id: o.id,                                                       // numeric — used for /admin/orders/{id}/status
         orderNumber: o.orderNumber || `#${o.id}`,                       // display label
         userId: o.userId ?? null,                                       // for customer matching
@@ -421,13 +423,15 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
   },
 
   // Customers
-  async getCustomers() {
+  async getCustomers(params = {}) {
     try {
-      const { data } = await api.get('/admin/users')
-      const { data: ordersData } = await api.get('/admin/orders')
-      const allOrders = ordersData.data?.content || []
+      const queryParams = { size: params.size || 1000, ...params }
+      const { data } = await api.get('/admin/users', { params: queryParams })
+      const { data: ordersData } = await api.get('/admin/orders', { params: { size: 1000 } })
+      const allOrders = ordersData.data?.content || (Array.isArray(ordersData.data) ? ordersData.data : [])
+      const usersList = data.data?.content || (Array.isArray(data.data) ? data.data : [])
 
-      return data.data.content
+      return usersList
         .filter(u => u.role === 'ROLE_USER')
         .map(u => {
           // Match orders by userId (preferred), customerEmail, or userEmail
@@ -767,10 +771,60 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     }
   },
 
+  // Full Website Analytics Telemetry Suite
+  async getWebsiteTelemetry(startDate, endDate) {
+    const query = (startDate && endDate) ? `startDate=${startDate}&endDate=${endDate}` : ''
+    try {
+      const [
+        overviewRes,
+        trendsRes,
+        productsRes,
+        pagesRes,
+        devicesRes,
+        sourcesRes,
+        funnelRes,
+        recentRes
+      ] = await Promise.allSettled([
+        api.get(`/admin/analytics/overview${query ? `?${query}` : ''}`),
+        api.get(`/admin/analytics/trends${query ? `?${query}` : ''}`),
+        api.get(`/admin/analytics/products?${query ? `${query}&` : ''}limit=10`),
+        api.get(`/admin/analytics/pages?${query ? `${query}&` : ''}limit=10`),
+        api.get(`/admin/analytics/devices${query ? `?${query}` : ''}`),
+        api.get(`/admin/analytics/sources${query ? `?${query}` : ''}`),
+        api.get(`/admin/analytics/funnel${query ? `?${query}` : ''}`),
+        api.get('/admin/analytics/recent?limit=25')
+      ])
+
+      return {
+        overview: overviewRes.status === 'fulfilled' ? (overviewRes.value.data?.data || {}) : {},
+        trends: trendsRes.status === 'fulfilled' ? (trendsRes.value.data?.data || []) : [],
+        topProducts: productsRes.status === 'fulfilled' ? (productsRes.value.data?.data || []) : [],
+        topPages: pagesRes.status === 'fulfilled' ? (pagesRes.value.data?.data || []) : [],
+        devices: devicesRes.status === 'fulfilled' ? (devicesRes.value.data?.data || []) : [],
+        sources: sourcesRes.status === 'fulfilled' ? (sourcesRes.value.data?.data || []) : [],
+        funnel: funnelRes.status === 'fulfilled' ? (funnelRes.value.data?.data || null) : null,
+        recentActivity: recentRes.status === 'fulfilled' ? (recentRes.value.data?.data || []) : []
+      }
+    } catch (err) {
+      console.error('Failed to fetch website telemetry:', err)
+      return {
+        overview: {},
+        trends: [],
+        topProducts: [],
+        topPages: [],
+        devices: [],
+        sources: [],
+        funnel: null,
+        recentActivity: []
+      }
+    }
+  },
+
   // ── Subscriptions & VIP Memberships ─────────────────────────────────────────
   async getSubscriptions(params = {}) {
     try {
-      const { data } = await api.get('/admin/subscriptions', { params })
+      const queryParams = { size: params.size || 1000, ...params }
+      const { data } = await api.get('/admin/subscriptions', { params: queryParams })
       return data.data
     } catch (err) {
       console.error('Failed to get subscriptions:', err)
@@ -837,7 +891,7 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     try {
       const queryParams = {
         page: params.page || 0,
-        size: params.size || 50,
+        size: params.size || 1000,
         ...params
       }
       const { data } = await api.get('/admin/reviews', { params: queryParams })
@@ -898,6 +952,59 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       return this.deleteReview(id)
     }
     return { success: true }
+  },
+
+  // Real-Time Notifications API
+  async getNotifications(page = 0, size = 20) {
+    try {
+      const { data } = await api.get('/admin/notifications', {
+        params: { page, size }
+      })
+      return data?.data || { content: [], totalElements: 0, totalPages: 0 }
+    } catch (err) {
+      console.warn('[adminService.getNotifications] Error fetching notifications:', err)
+      return { content: [], totalElements: 0, totalPages: 0 }
+    }
+  },
+
+  async getUnreadNotificationCount() {
+    try {
+      const { data } = await api.get('/admin/notifications/unread-count')
+      return data?.data?.count ?? 0
+    } catch (err) {
+      console.warn('[adminService.getUnreadNotificationCount] Error:', err)
+      return 0
+    }
+  },
+
+  async markNotificationAsRead(id) {
+    try {
+      const { data } = await api.patch(`/admin/notifications/${id}/read`)
+      return data?.data
+    } catch (err) {
+      console.error(`[adminService.markNotificationAsRead] Error for id ${id}:`, err)
+      throw err
+    }
+  },
+
+  async markAllNotificationsAsRead() {
+    try {
+      const { data } = await api.patch('/admin/notifications/read-all')
+      return data?.data
+    } catch (err) {
+      console.error('[adminService.markAllNotificationsAsRead] Error:', err)
+      throw err
+    }
+  },
+
+  async deleteNotification(id) {
+    try {
+      const { data } = await api.delete(`/admin/notifications/${id}`)
+      return data?.data
+    } catch (err) {
+      console.error(`[adminService.deleteNotification] Error for id ${id}:`, err)
+      throw err
+    }
   }
 }
 

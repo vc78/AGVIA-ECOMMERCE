@@ -11,11 +11,16 @@ import com.ems.pragathisweets.repository.OrderRepository;
 import com.ems.pragathisweets.service.EmailService;
 import com.ems.pragathisweets.service.OrderService;
 import com.ems.pragathisweets.service.WhatsAppService;
+import com.ems.pragathisweets.entity.NotificationType;
+import com.ems.pragathisweets.event.AdminNotificationEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,7 @@ public class AdminOrderService {
     private final EmailService emailService;
     private final WhatsAppService whatsAppService;
     private final com.ems.pragathisweets.service.OrderNotificationService orderNotificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAll(Pageable pageable) {
@@ -85,6 +91,21 @@ public class AdminOrderService {
         // Dispatch authoritative status change notification to customer (idempotent, rich branded HTML)
         orderNotificationService.sendOrderStatusNotification(
                 orderResponse, newStatus.name(), customerEmail, customerName, phone, null);
+
+        // Publish real-time event to Admin dashboard
+        eventPublisher.publishEvent(new AdminNotificationEvent(
+                newStatus == OrderStatus.CANCELLED ? NotificationType.ORDER_CANCELLED : NotificationType.ORDER_STATUS_CHANGED,
+                newStatus == OrderStatus.CANCELLED ? "Order Cancelled #" + saved.getOrderNumber() : "Order Status: " + newStatus.name(),
+                "Order #" + saved.getOrderNumber() + " status updated to " + newStatus.name(),
+                String.valueOf(saved.getId()),
+                "ORDER",
+                Map.of(
+                        "orderId", saved.getId(),
+                        "orderNumber", saved.getOrderNumber(),
+                        "status", newStatus.name(),
+                        "amount", saved.getFinalAmount()
+                )
+        ));
 
         return orderResponse;
     }

@@ -603,117 +603,715 @@ export async function exportSubscriptionsPDF(subscriptions = []) {
 }
 
 /**
- * Export Calendar Date-Wise Analytics PDF Report
+ * Export Master Atelier Enterprise Dossier (All Admin Panel Lists & Intelligence)
+ * Consolidates all 9 admin registries into an official luxury audit document:
+ *  - Executive KPI summary
+ *  - Section I: Website Intelligence & Telemetry (Traffic, Funnel, Devices, Sources)
+ *  - Section II: Atelier Orders & Storefront Transactions (Complete List)
+ *  - Section III: Patrons & Clientele Directory (Complete List)
+ *  - Section IV: Haute Couture Silhouettes Catalog (Complete List)
+ *  - Section V: Fabric & Stock Inventory Audit (Complete List)
+ *  - Section VI: Collections & Categories Architecture (Complete List)
+ *  - Section VII: Privilege Codes & Discount Campaigns (Complete List)
+ *  - Section VIII: Atelier Circle VIP Membership Registry (Complete List)
+ *  - Section IX: Patron Reviews & Testimonials (Complete List)
  */
-export async function exportAnalyticsPDF({ startDate, endDate, summary = {}, dailyTrend = [], orders = [] }) {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+export async function exportMasterAdminPDF({
+  startDate,
+  endDate,
+  overview = {},
+  trends = [],
+  funnel = null,
+  topProducts = [],
+  topPages = [],
+  devices = [],
+  sources = [],
+  recentActivity = [],
+  orders = [],
+  customers = [],
+  products = [],
+  inventory = [],
+  categories = [],
+  coupons = [],
+  subscriptions = [],
+  reviews = [],
+}) {
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
   const logoData = await loadLogoBase64()
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
 
-  const dateRangeStr = `${new Date(startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} to ${new Date(endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  const dateRangeStr = (startDate && endDate)
+    ? `${new Date(startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} to ${new Date(endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+    : `Full Atelier Records as of ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
 
   const startY = drawDocumentHeader(doc, logoData, {
-    title: 'Calendar Analytics & Revenue Intelligence',
-    subtitle: 'Haute Couture Sales Trajectory, Order Velocity, and Atelier Performance',
+    title: 'Master Atelier Enterprise Dossier',
+    subtitle: 'Comprehensive Executive Audit • Complete Admin Panel Registries & Business Intelligence',
+    dateRange: dateRangeStr,
+    documentId: `MST-${Date.now().toString().slice(-6)}`
+  })
+
+  // Executive KPI summary calculations
+  const totalRevenue = overview.revenue || orders.reduce((sum, o) => sum + Number(o.total || o.finalAmount || 0), 0)
+  const totalOrdersCount = orders.length || overview.orders || 0
+  const totalPatronsCount = customers.length
+  const totalProductsCount = products.length
+  const totalVisitorsCount = overview.visitors || 0
+  const overallConversion = funnel?.overallConversionRate ?? funnel?.overallConversionPct ?? 0
+
+  const afterKpiY = drawKpiBoxes(doc, startY, [
+    { label: 'Cumulative Revenue', value: `₹${Number(totalRevenue).toLocaleString('en-IN')}` },
+    { label: 'Total Store Orders', value: totalOrdersCount },
+    { label: 'Registered Patrons', value: totalPatronsCount },
+    { label: 'Couture Silhouettes', value: totalProductsCount },
+    { label: 'Audited Fabric Stock', value: inventory.length },
+    { label: 'VIP Circle Patrons', value: subscriptions.length },
+  ])
+
+  // Helper function to safely render section title with auto-page-breaking
+  const addSectionTitle = (title) => {
+    const currentY = doc.lastAutoTable ? doc.lastAutoTable.finalY : afterKpiY
+    let y = currentY + 8
+    if (y > pageHeight - 35) {
+      doc.addPage()
+      y = 20
+    }
+    doc.setFont('times', 'bold')
+    doc.setFontSize(10.5)
+    doc.setTextColor(...THEME.maroon)
+    doc.text(title, 14, y)
+
+    doc.setDrawColor(...THEME.gold)
+    doc.setLineWidth(0.3)
+    doc.line(14, y + 1.5, pageWidth - 14, y + 1.5)
+    return y + 4.5
+  }
+
+  const tableBaseStyles = {
+    font: 'helvetica',
+    fontSize: 7.5,
+    cellPadding: 2.2,
+    lineColor: THEME.borderGold,
+    lineWidth: 0.2,
+    textColor: THEME.charcoal
+  }
+
+  const tableHeadStyles = {
+    fillColor: THEME.maroon,
+    textColor: THEME.goldLight,
+    fontStyle: 'bold',
+    fontSize: 8
+  }
+
+  // ── SECTION I: WEBSITE INTELLIGENCE & FUNNEL TELEMETRY ──
+  const sec1Y = addSectionTitle('I. REAL-TIME WEBSITE INTELLIGENCE & CONVERSION FUNNEL')
+  const funnelStages = [
+    ['Discovery / Traffic', 'Unique Anonymous Visitors', Number(totalVisitorsCount).toLocaleString('en-IN'), '100% Top of Funnel'],
+    ['Catalog Interest', 'Couture Silhouette Views', Number(overview.productViews || 0).toLocaleString('en-IN'), `${funnel?.productViewRate ?? funnel?.visitorsToViewsPct ?? 0}% Catalog Views`],
+    ['Purchase Intent', 'Silhouettes Added to Bag', Number(overview.addToCart || 0).toLocaleString('en-IN'), `${funnel?.cartRate ?? funnel?.viewsToCartPct ?? 0}% Bag Rate`],
+    ['Order Initiation', 'Checkout Workflows Started', Number(overview.checkouts || funnel?.checkoutStarted || 0).toLocaleString('en-IN'), `${funnel?.checkoutRate ?? funnel?.cartToCheckoutsPct ?? 0}% Checkout Rate`],
+    ['Completed Purchases', 'Verified Storefront Orders', Number(totalOrdersCount).toLocaleString('en-IN'), `${overallConversion}% Conversion Rate`]
+  ]
+
+  autoTable(doc, {
+    startY: sec1Y,
+    head: [['FUNNEL STAGE', 'METRIC / ACTIVITY', 'VOLUME RECORDED', 'CONVERSION EFFICIENCY']],
+    body: funnelStages,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
+  })
+
+  // ── SECTION II: CALENDAR WINDOW DAILY TRAFFIC & PERFORMANCE TRENDS ──
+  if (trends && trends.length > 0) {
+    const secTrendsY = addSectionTitle('II. CALENDAR WINDOW DAILY TRAFFIC & PERFORMANCE TRENDS')
+    const trendRows = trends.map(t => [
+      t.date || t.month || 'Day',
+      Number(t.visitors || 0).toLocaleString('en-IN'),
+      Number(t.pageViews || 0).toLocaleString('en-IN'),
+      Number(t.productViews || 0).toLocaleString('en-IN'),
+      Number(t.addToCart || 0).toLocaleString('en-IN'),
+      Number(t.orders || 0).toLocaleString('en-IN'),
+      `₹${Number(t.revenue || t.sales || 0).toLocaleString('en-IN')}`
+    ])
+
+    autoTable(doc, {
+      startY: secTrendsY,
+      head: [['DATE / TIMEFRAME', 'VISITORS', 'PAGE VIEWS', 'PRODUCT VIEWS', 'ADD TO CART', 'ORDERS', 'SALES REVENUE (INR)']],
+      body: trendRows,
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION III: DEVICE TELEMETRY & TRAFFIC SOURCES ──
+  if ((devices && devices.length > 0) || (sources && sources.length > 0)) {
+    const secDevY = addSectionTitle('III. CLIENT DEVICE TELEMETRY & ACQUISITION CHANNELS')
+    const deviceBody = (devices || []).map(d => [
+      d.deviceType || 'Device Category',
+      Number(d.count || 0).toLocaleString('en-IN'),
+      `${d.percentage || 0}% Share`,
+      'Active Hardware Session'
+    ])
+    const sourceBody = (sources || []).map(s => [
+      s.source || 'Direct Acquisition',
+      Number(s.count || 0).toLocaleString('en-IN'),
+      '—',
+      'Inbound Traffic Channel'
+    ])
+    const combinedTelemetry = [...deviceBody, ...sourceBody]
+
+    autoTable(doc, {
+      startY: secDevY,
+      head: [['TELEMETRY DIMENSION', 'SESSION / VISITOR COUNT', 'SHARE RATIO', 'CLASSIFICATION']],
+      body: combinedTelemetry.length > 0 ? combinedTelemetry : [['No device or source data available.', '—', '—', '—']],
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION IV: TOP VIEWED SILHOUETTES & PUBLIC ROUTES ──
+  if ((topProducts && topProducts.length > 0) || (topPages && topPages.length > 0)) {
+    const secTopY = addSectionTitle('IV. TOP VIEWED SILHOUETTES & CATALOG PAGES')
+    const topProdRows = (topProducts || []).map(p => [
+      'Silhouettes',
+      p.productName || p.name || 'Couture Silhouette',
+      p.sku || `AGV-${p.productId || p.id || '—'}`,
+      Number(p.views || 0).toLocaleString('en-IN'),
+      `${p.percentage || 0}%`
+    ])
+    const topPageRows = (topPages || []).map(pg => [
+      'Page Route',
+      pg.pagePath || '/',
+      'Public Route',
+      Number(pg.views || 0).toLocaleString('en-IN'),
+      `${pg.percentage || 0}%`
+    ])
+    const combinedTop = [...topProdRows, ...topPageRows]
+
+    autoTable(doc, {
+      startY: secTopY,
+      head: [['TYPE', 'CREATION / ROUTE NAME', 'IDENTIFIER / PATH', 'TOTAL VIEWS', 'CATALOG / ROUTE SHARE']],
+      body: combinedTop.length > 0 ? combinedTop : [['No top pages or products logged.', '—', '—', '—', '—']],
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION V: REAL-TIME AUDIT STREAM ──
+  if (recentActivity && recentActivity.length > 0) {
+    const secActY = addSectionTitle('V. REAL-TIME AUDIT STREAM & RECENT TELEMETRY EVENTS')
+    const actRows = recentActivity.slice(0, 30).map(act => [
+      act.createdAt || act.timestamp || 'Recent',
+      String(act.eventType || 'EVENT').toUpperCase(),
+      act.description || act.eventLabel || 'User Interaction',
+      act.pagePath || '—',
+      act.deviceType || '—'
+    ])
+
+    autoTable(doc, {
+      startY: secActY,
+      head: [['TIMESTAMP', 'EVENT TYPE', 'DESCRIPTION / CONTEXT', 'PAGE ROUTE', 'DEVICE']],
+      body: actRows,
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION VI: ATELIER ORDERS & TRANSACTIONS ──
+  const sec2Y = addSectionTitle(`VI. ATELIER ORDERS & DISPATCH REGISTER (${orders.length} TOTAL TRANSACTIONS)`)
+  const orderHeaders = [['ORDER ID', 'PATRON NAME', 'DATE', 'ITEMS', 'TOTAL (INR)', 'PAYMENT', 'DISPATCH STATUS', 'COUPON']]
+  const orderBody = orders.length > 0
+    ? orders.map(o => [
+        o.orderNumber || `#${o.id}`,
+        o.customer || 'Guest Patron',
+        o.date || o.createdAt?.split('T')[0] || '—',
+        `${o.items || (Array.isArray(o.orderItems) ? o.orderItems.length : 1)} pc(s)`,
+        `₹${Number(o.total || o.finalAmount || 0).toLocaleString('en-IN')}`,
+        String(o.payment || o.paymentMethod || 'PAID').toUpperCase(),
+        String(o.status || 'PENDING').toUpperCase(),
+        o.couponCode || 'None'
+      ])
+    : [['No orders recorded in current database.', '—', '—', '—', '—', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec2Y,
+    head: orderHeaders,
+    body: orderBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory },
+    didParseCell: (data) => {
+      if (data.section === 'body' && data.column.index === 6) {
+        const text = String(data.cell.raw).toUpperCase()
+        if (text.includes('DELIVERED') || text.includes('CONFIRMED')) {
+          data.cell.styles.textColor = THEME.green
+          data.cell.styles.fontStyle = 'bold'
+        } else if (text.includes('CANCELLED')) {
+          data.cell.styles.textColor = THEME.red
+        } else {
+          data.cell.styles.textColor = THEME.amber
+        }
+      }
+    }
+  })
+
+  // ── SECTION VII: PATRONS & CLIENTELE DIRECTORY ──
+  const sec3Y = addSectionTitle(`VII. PATRONS & CLIENTELE DIRECTORY (${customers.length} REGISTERED CLIENTS)`)
+  const custHeaders = [['PATRON ID', 'FULL NAME', 'EMAIL ADDRESS', 'PHONE', 'LIFETIME ORDERS', 'TOTAL SPEND (INR)', 'MEMBERSHIP TIER']]
+  const custBody = customers.length > 0
+    ? customers.map(c => [
+        `#${c.id}`,
+        c.name || 'Patron',
+        c.email || '—',
+        c.phone || '—',
+        c.orders ?? 0,
+        `₹${Number(c.spent || 0).toLocaleString('en-IN')}`,
+        (c.orders > 0 ? 'Active Patron' : 'New Client')
+      ])
+    : [['No registered patrons logged.', '—', '—', '—', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec3Y,
+    head: custHeaders,
+    body: custBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
+  })
+
+  // ── SECTION VIII: HAUTE COUTURE SILHOUETTES & CATALOG ──
+  const sec4Y = addSectionTitle(`VIII. HAUTE COUTURE SILHOUETTES & PRODUCT CATALOG (${products.length} CREATIONS)`)
+  const prodHeaders = [['SKU', 'SILHOUETTE NAME', 'LINE / CATEGORY', 'ORIGINAL (INR)', 'OFFER PRICE (INR)', 'STOCK QUANTITY', 'STATUS']]
+  const prodBody = products.length > 0
+    ? products.map(p => [
+        p.sku || `AGV-${p.id}`,
+        p.name || 'Silhouette Creation',
+        p.category || p.categoryName || 'Couture',
+        `₹${Number(p.price || 0).toLocaleString('en-IN')}`,
+        p.discountPrice ? `₹${Number(p.discountPrice).toLocaleString('en-IN')}` : '—',
+        `${p.stock ?? p.stockQuantity ?? 0} in stock`,
+        p.active !== false ? 'ACTIVE' : 'INACTIVE'
+      ])
+    : [['No products in catalog.', '—', '—', '—', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec4Y,
+    head: prodHeaders,
+    body: prodBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
+  })
+
+  // ── SECTION IX: FABRIC & STOCK INVENTORY AUDIT ──
+  const sec5Y = addSectionTitle(`IX. FABRIC & STOCK INVENTORY AUDIT (${inventory.length} AUDITED ITEMS)`)
+  const invHeaders = [['SKU IDENTIFIER', 'SILHOUETTE NAME', 'CATEGORY / LINE', 'QUANTITY', 'HEALTH STATUS']]
+  const invBody = inventory.length > 0
+    ? inventory.map(i => [
+        i.sku || `AGV-${i.id}`,
+        i.name || 'Garment Piece',
+        i.category || 'Atelier',
+        `${i.stock ?? 0} ${i.unit || 'piece'}`,
+        Number(i.stock ?? 0) <= 10 ? 'LOW STOCK ALERT' : 'OPTIMAL INVENTORY'
+      ])
+    : [['No inventory items recorded.', '—', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec5Y,
+    head: invHeaders,
+    body: invBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory },
+    didParseCell: (data) => {
+      if (data.section === 'body' && data.column.index === 4) {
+        if (String(data.cell.raw).includes('ALERT')) {
+          data.cell.styles.textColor = THEME.red
+          data.cell.styles.fontStyle = 'bold'
+        } else {
+          data.cell.styles.textColor = THEME.green
+        }
+      }
+    }
+  })
+
+  // ── SECTION X: COLLECTIONS & CATEGORIES ──
+  const sec6Y = addSectionTitle(`X. ATELIER COLLECTIONS & CATEGORY ARCHITECTURE (${categories.length} LINES)`)
+  const catHeaders = [['ID', 'COLLECTION NAME', 'DESCRIPTION', 'STATUS']]
+  const catBody = categories.length > 0
+    ? categories.map(c => [
+        `#${c.id}`,
+        c.name || 'Collection Line',
+        c.description || 'Exclusive handcrafted collection',
+        c.active !== false ? 'ACTIVE' : 'INACTIVE'
+      ])
+    : [['No category lines created.', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec6Y,
+    head: catHeaders,
+    body: catBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
+  })
+
+  // ── SECTION XI: PRIVILEGE CODES & DISCOUNT CAMPAIGNS ──
+  const sec7Y = addSectionTitle(`XI. PRIVILEGE CODES & PROMOTIONAL CAMPAIGNS (${coupons.length} CODES)`)
+  const cpnHeaders = [['CODE', 'CAMPAIGN TITLE', 'DISCOUNT BENEFIT', 'MIN SPEND (INR)', 'VALIDITY', 'STATUS']]
+  const cpnBody = coupons.length > 0
+    ? coupons.map(c => [
+        c.code,
+        c.title || c.code,
+        c.discount || (c.discountType === 'PERCENTAGE' ? `${c.discountValue}%` : `₹${c.discountValue}`),
+        c.minOrderAmount ? `₹${c.minOrderAmount}` : 'None',
+        c.expires || 'No Expiry',
+        c.active ? 'ACTIVE' : 'PAUSED'
+      ])
+    : [['No privilege coupons configured.', '—', '—', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec7Y,
+    head: cpnHeaders,
+    body: cpnBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
+  })
+
+  // ── SECTION XII: ATELIER CIRCLE VIP MEMBERSHIPS ──
+  const sec8Y = addSectionTitle(`XII. ATELIER CIRCLE VIP MEMBERSHIP REGISTER (${subscriptions.length} VIP PATRONS)`)
+  const subHeaders = [['ID', 'PATRON NAME', 'EMAIL ADDRESS', 'PHONE', 'CIRCLE PLAN', 'TIER', 'FEE (INR)', 'STATUS', 'VALIDITY']]
+  const subBody = subscriptions.length > 0
+    ? subscriptions.map(s => [
+        `#${s.id}`,
+        s.customerName || 'VIP Member',
+        s.email || '—',
+        s.customerPhone || '—',
+        s.planName || 'AGVIA VIP',
+        s.planTier || 'VIP',
+        `₹${s.amount || 299}`,
+        s.status || 'ACTIVE',
+        s.endDate ? new Date(s.endDate).toLocaleDateString('en-IN') : 'Annual'
+      ])
+    : [['No VIP circle memberships active.', '—', '—', '—', '—', '—', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec8Y,
+    head: subHeaders,
+    body: subBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
+  })
+
+  // ── SECTION XIII: PATRON REVIEWS & RATINGS ──
+  const sec9Y = addSectionTitle(`XIII. PATRON REVIEWS & TESTIMONIALS (${reviews.length} REVIEWS)`)
+  const revHeaders = [['PRODUCT / SILHOUETTE', 'PATRON NAME', 'RATING', 'PATRON FEEDBACK', 'DATE']]
+  const revBody = reviews.length > 0
+    ? reviews.map(r => [
+        r.product || r.productName || 'Couture Garment',
+        r.customer || r.customerName || 'Valued Patron',
+        `${r.rating || 5} / 5 ★`,
+        r.comment || 'Verified purchase feedback',
+        r.date || r.createdAt?.split('T')[0] || '—'
+      ])
+    : [['No customer reviews logged yet.', '—', '—', '—', '—']]
+
+  autoTable(doc, {
+    startY: sec9Y,
+    head: revHeaders,
+    body: revBody,
+    margin: { left: 14, right: 14, bottom: 16 },
+    theme: 'grid',
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
+  })
+
+  setupPageDecorations(doc, logoData, {})
+  doc.save(`agvia_master_atelier_dossier_${formatDateStamp()}.pdf`)
+}
+
+/**
+ * Export Comprehensive Website Analytics PDF Report
+ */
+export async function exportAnalyticsPDF({
+  startDate,
+  endDate,
+  overview = {},
+  summary = {},
+  trends = [],
+  dailyTrend = [],
+  funnel = null,
+  devices = [],
+  sources = [],
+  topPages = [],
+  topProducts = [],
+  recentActivity = [],
+  orders = [],
+  filteredOrders = []
+}) {
+  const actualOrders = (orders && orders.length > 0) ? orders : (filteredOrders || [])
+  const actualTrends = (trends && trends.length > 0) ? trends : (dailyTrend || [])
+  const totalRevenue = overview.revenue || summary.totalRevenue || actualOrders.reduce((sum, o) => sum + Number(o.total || o.finalAmount || 0), 0)
+  const totalOrdersCount = overview.orders || summary.totalOrders || actualOrders.length || 0
+  const totalVisitorsCount = overview.visitors || 0
+  const overallConversion = funnel?.overallConversionRate ?? funnel?.overallConversionPct ?? 0
+
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  const logoData = await loadLogoBase64()
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
+
+  const dateRangeStr = (startDate && endDate)
+    ? `${new Date(startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} to ${new Date(endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+    : `Lifetime Telemetry as of ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+
+  const startY = drawDocumentHeader(doc, logoData, {
+    title: 'Website Analytics & Performance Dossier',
+    subtitle: 'Comprehensive Web Telemetry • E-Commerce Funnel • Traffic Acquisition • Device Intelligence',
     dateRange: dateRangeStr,
     documentId: `ANL-${Date.now().toString().slice(-6)}`
   })
 
-  // Executive KPI tiles
+  // Executive KPI summary boxes
   const afterKpiY = drawKpiBoxes(doc, startY, [
-    { label: 'Window Revenue', value: `₹${Number(summary.totalRevenue || 0).toLocaleString('en-IN')}` },
-    { label: 'Window Orders', value: summary.totalOrders || 0 },
-    { label: 'Avg Order Value', value: `₹${Number(summary.aov || 0).toLocaleString('en-IN')}` },
-    { label: 'Delivered', value: summary.deliveredOrders || 0 }
+    { label: 'Window Revenue', value: `₹${Number(totalRevenue).toLocaleString('en-IN')}` },
+    { label: 'Verified Orders', value: totalOrdersCount },
+    { label: 'Unique Visitors', value: Number(totalVisitorsCount).toLocaleString('en-IN') },
+    { label: 'Public Page Views', value: Number(overview.pageViews || 0).toLocaleString('en-IN') },
+    { label: 'Silhouette Views', value: Number(overview.productViews || 0).toLocaleString('en-IN') },
+    { label: 'Funnel Conversion', value: `${overallConversion}%` },
   ])
 
-  // Daily Trend Table Section
-  doc.setFont('times', 'bold')
-  doc.setFontSize(11)
-  doc.setTextColor(...THEME.maroon)
-  doc.text('I. CALENDAR WINDOW DAILY PERFORMANCE', 14, afterKpiY + 4)
+  // Helper for section title
+  const addSectionTitle = (title) => {
+    const currentY = doc.lastAutoTable ? doc.lastAutoTable.finalY : afterKpiY
+    let y = currentY + 8
+    if (y > pageHeight - 35) {
+      doc.addPage()
+      y = 20
+    }
+    doc.setFont('times', 'bold')
+    doc.setFontSize(10.5)
+    doc.setTextColor(...THEME.maroon)
+    doc.text(title, 14, y)
 
-  const trendHeaders = [['TIMEFRAME', 'SALES REVENUE (INR)', 'ORDERS RECORDED', 'AVERAGE TICKET (INR)']]
-  const trendBody = (dailyTrend || []).map(t => {
-    const rev = Number(t.sales || t.revenue || 0)
-    const cnt = Number(t.orders || 1)
-    const avg = Math.round(rev / (cnt || 1))
-    return [
-      t.month || t.date || 'Day',
-      `₹${rev.toLocaleString('en-IN')}`,
-      cnt,
-      `₹${avg.toLocaleString('en-IN')}`
-    ]
-  })
+    doc.setDrawColor(...THEME.gold)
+    doc.setLineWidth(0.3)
+    doc.line(14, y + 1.5, pageWidth - 14, y + 1.5)
+    return y + 4.5
+  }
+
+  const tableBaseStyles = {
+    font: 'helvetica',
+    fontSize: 7.5,
+    cellPadding: 2.2,
+    lineColor: THEME.borderGold,
+    lineWidth: 0.2,
+    textColor: THEME.charcoal
+  }
+
+  const tableHeadStyles = {
+    fillColor: THEME.maroon,
+    textColor: THEME.goldLight,
+    fontStyle: 'bold',
+    fontSize: 8
+  }
+
+  // ── SECTION I: CONVERSION FUNNEL METRICS ──
+  const sec1Y = addSectionTitle('I. E-COMMERCE CONVERSION FUNNEL & VISITOR PROGRESSION')
+  const funnelStages = [
+    ['Discovery / Traffic', 'Unique Anonymous Visitors', Number(totalVisitorsCount).toLocaleString('en-IN'), '100% Top of Funnel'],
+    ['Catalog Interest', 'Couture Detail Views', Number(overview.productViews || 0).toLocaleString('en-IN'), `${funnel?.productViewRate ?? funnel?.visitorsToViewsPct ?? 0}% Catalog Views`],
+    ['Purchase Intent', 'Silhouettes Added to Bag', Number(overview.addToCart || 0).toLocaleString('en-IN'), `${funnel?.cartRate ?? funnel?.viewsToCartPct ?? 0}% Bag Rate`],
+    ['Order Initiation', 'Checkout Workflows Started', Number(overview.checkouts || funnel?.checkoutStarted || 0).toLocaleString('en-IN'), `${funnel?.checkoutRate ?? funnel?.cartToCheckoutsPct ?? 0}% Checkout Rate`],
+    ['Completed Purchases', 'Verified Storefront Orders', Number(totalOrdersCount).toLocaleString('en-IN'), `${overallConversion}% Conversion Rate`]
+  ]
 
   autoTable(doc, {
-    startY: afterKpiY + 7,
-    head: trendHeaders,
-    body: trendBody.slice(0, 31), // Up to 31 rows on first table
+    startY: sec1Y,
+    head: [['FUNNEL STAGE', 'METRIC / ACTIVITY', 'VOLUME RECORDED', 'CONVERSION EFFICIENCY']],
+    body: funnelStages,
     margin: { left: 14, right: 14, bottom: 16 },
     theme: 'grid',
-    styles: {
-      font: 'helvetica',
-      fontSize: 8,
-      cellPadding: 2.5,
-      lineColor: THEME.borderGold,
-      lineWidth: 0.2
-    },
-    headStyles: {
-      fillColor: THEME.maroon,
-      textColor: THEME.goldLight,
-      fontStyle: 'bold',
-      fontSize: 8
-    },
-    alternateRowStyles: {
-      fillColor: THEME.ivory
-    }
+    styles: tableBaseStyles,
+    headStyles: tableHeadStyles,
+    alternateRowStyles: { fillColor: THEME.ivory }
   })
 
-  // If there are detailed orders in the window, add them as section II
-  if (orders && orders.length > 0) {
-    const nextY = doc.lastAutoTable.finalY + 8
-    doc.setFont('times', 'bold')
-    doc.setFontSize(11)
-    doc.setTextColor(...THEME.maroon)
-    doc.text('II. ATELIER BOOKINGS LOGGED IN THIS CALENDAR WINDOW', 14, nextY)
-
-    const orderHeaders = [['ORDER ID', 'PATRON', 'DATE', 'BILLING TOTAL (INR)', 'STATUS', 'PAYMENT']]
-    const orderBody = orders.slice(0, 50).map(o => [
-      o.orderNumber || `#${o.id}`,
-      o.customer || 'Patron',
-      o.date || o.createdAt?.split('T')[0] || '—',
-      `₹${Number(o.total || o.finalAmount || 0).toLocaleString('en-IN')}`,
-      String(o.status || 'CONFIRMED').toUpperCase(),
-      String(o.payment || 'PAID').toUpperCase()
+  // ── SECTION II: DAILY TRAFFIC & PERFORMANCE TRENDS ──
+  if (actualTrends && actualTrends.length > 0) {
+    const secTrendsY = addSectionTitle('II. CALENDAR WINDOW DAILY TRAFFIC & COMMERCE TRENDS')
+    const trendRows = actualTrends.map(t => [
+      t.date || t.month || 'Day',
+      Number(t.visitors || 0).toLocaleString('en-IN'),
+      Number(t.pageViews || 0).toLocaleString('en-IN'),
+      Number(t.productViews || 0).toLocaleString('en-IN'),
+      Number(t.addToCart || 0).toLocaleString('en-IN'),
+      Number(t.orders || 0).toLocaleString('en-IN'),
+      `₹${Number(t.revenue || t.sales || 0).toLocaleString('en-IN')}`
     ])
 
     autoTable(doc, {
-      startY: nextY + 3,
+      startY: secTrendsY,
+      head: [['DATE / TIMEFRAME', 'VISITORS', 'PAGE VIEWS', 'PRODUCT VIEWS', 'ADD TO CART', 'ORDERS', 'SALES REVENUE (INR)']],
+      body: trendRows,
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION III: DEVICE TELEMETRY & ACQUISITION CHANNELS ──
+  if ((devices && devices.length > 0) || (sources && sources.length > 0)) {
+    const secDevY = addSectionTitle('III. CLIENT HARDWARE TELEMETRY & TRAFFIC ACQUISITION')
+    const deviceBody = (devices || []).map(d => [
+      'Device Distribution',
+      d.deviceType || 'Hardware',
+      Number(d.count || 0).toLocaleString('en-IN'),
+      `${d.percentage || 0}% Share`
+    ])
+    const sourceBody = (sources || []).map(s => [
+      'Traffic Acquisition',
+      s.source || 'Direct Acquisition',
+      Number(s.count || 0).toLocaleString('en-IN'),
+      'Inbound Channel'
+    ])
+    const combined = [...deviceBody, ...sourceBody]
+
+    autoTable(doc, {
+      startY: secDevY,
+      head: [['CATEGORY', 'CHANNEL / HARDWARE', 'RECORDED SESSIONS', 'SHARE RATIO']],
+      body: combined.length > 0 ? combined : [['No hardware or traffic source records.', '—', '—', '—']],
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION IV: TOP VIEWED SILHOUETTES & STORE ROUTES ──
+  if ((topProducts && topProducts.length > 0) || (topPages && topPages.length > 0)) {
+    const secTopY = addSectionTitle('IV. TOP VIEWED SILHOUETTES & CATALOG ROUTES')
+    const topProdRows = (topProducts || []).map(p => [
+      'Silhouettes',
+      p.productName || p.name || 'Couture Silhouette',
+      p.sku || `AGV-${p.productId || p.id || '—'}`,
+      Number(p.views || 0).toLocaleString('en-IN'),
+      `${p.percentage || 0}%`
+    ])
+    const topPageRows = (topPages || []).map(pg => [
+      'Store Routes',
+      pg.pagePath || '/',
+      'Public Route',
+      Number(pg.views || 0).toLocaleString('en-IN'),
+      `${pg.percentage || 0}%`
+    ])
+    const combinedTop = [...topProdRows, ...topPageRows]
+
+    autoTable(doc, {
+      startY: secTopY,
+      head: [['TYPE', 'CREATION / ROUTE NAME', 'IDENTIFIER / PATH', 'TOTAL VIEWS', 'TRAFFIC SHARE']],
+      body: combinedTop.length > 0 ? combinedTop : [['No top pages or products logged.', '—', '—', '—', '—']],
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION V: RECENT TELEMETRY AUDIT STREAM ──
+  if (recentActivity && recentActivity.length > 0) {
+    const secActY = addSectionTitle('V. REAL-TIME EVENT STREAM & AUDIT TELEMETRY')
+    const actRows = recentActivity.slice(0, 30).map(act => [
+      act.createdAt || act.timestamp || 'Recent',
+      String(act.eventType || 'EVENT').toUpperCase(),
+      act.description || act.eventLabel || 'User Interaction',
+      act.pagePath || '—',
+      act.deviceType || '—'
+    ])
+
+    autoTable(doc, {
+      startY: secActY,
+      head: [['TIMESTAMP', 'EVENT TYPE', 'DESCRIPTION / CONTEXT', 'PAGE ROUTE', 'DEVICE']],
+      body: actRows,
+      margin: { left: 14, right: 14, bottom: 16 },
+      theme: 'grid',
+      styles: tableBaseStyles,
+      headStyles: tableHeadStyles,
+      alternateRowStyles: { fillColor: THEME.ivory }
+    })
+  }
+
+  // ── SECTION VI: ORDERS LOGGED IN CALENDAR WINDOW ──
+  if (actualOrders && actualOrders.length > 0) {
+    const secOrdY = addSectionTitle(`VI. VERIFIED STORE TRANSACTIONS IN CALENDAR WINDOW (${actualOrders.length} ORDERS)`)
+    const orderHeaders = [['ORDER ID', 'PATRON', 'DATE', 'ITEMS', 'TOTAL (INR)', 'STATUS', 'PAYMENT']]
+    const orderBody = actualOrders.slice(0, 60).map(o => [
+      o.orderNumber || `#${o.id}`,
+      o.customer || 'Patron',
+      o.date || o.createdAt?.split('T')[0] || '—',
+      `${o.items || (Array.isArray(o.orderItems) ? o.orderItems.length : 1)} pc(s)`,
+      `₹${Number(o.total || o.finalAmount || 0).toLocaleString('en-IN')}`,
+      String(o.status || 'CONFIRMED').toUpperCase(),
+      String(o.payment || o.paymentMethod || 'PAID').toUpperCase()
+    ])
+
+    autoTable(doc, {
+      startY: secOrdY,
       head: orderHeaders,
       body: orderBody,
       margin: { left: 14, right: 14, bottom: 16 },
       theme: 'grid',
-      styles: {
-        font: 'helvetica',
-        fontSize: 7.5,
-        cellPadding: 2.2,
-        lineColor: THEME.borderGold,
-        lineWidth: 0.2
-      },
+      styles: tableBaseStyles,
       headStyles: {
         fillColor: THEME.maroonDark,
         textColor: THEME.goldLight,
         fontStyle: 'bold',
         fontSize: 8
       },
-      alternateRowStyles: {
-        fillColor: THEME.ivory
-      }
+      alternateRowStyles: { fillColor: THEME.ivory }
     })
   }
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_analytics_report_${startDate}_to_${endDate}.pdf`)
+  doc.save(`agvia_website_analytics_${startDate}_to_${endDate}.pdf`)
 }
 
 /**

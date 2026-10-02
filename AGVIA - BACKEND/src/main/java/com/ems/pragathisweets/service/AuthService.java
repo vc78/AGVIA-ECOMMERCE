@@ -11,7 +11,10 @@ import com.ems.pragathisweets.exception.InvalidCredentialsException;
 import com.ems.pragathisweets.repository.UserRepository;
 import com.ems.pragathisweets.security.JwtService;
 import com.ems.pragathisweets.security.UserDetailsImpl;
+import com.ems.pragathisweets.entity.NotificationType;
+import com.ems.pragathisweets.event.AdminNotificationEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
@@ -48,6 +54,20 @@ public class AuthService {
 
         User saved = userRepository.save(user);
         emailService.sendWelcomeEmail(saved.getEmail(), saved.getFullName());
+
+        eventPublisher.publishEvent(new AdminNotificationEvent(
+                NotificationType.NEW_CUSTOMER,
+                "New Customer Registered",
+                saved.getFullName() + " has created an account (" + saved.getEmail() + ")",
+                String.valueOf(saved.getId()),
+                "USER",
+                Map.of(
+                        "userId", saved.getId(),
+                        "customerName", saved.getFullName() != null ? saved.getFullName() : "",
+                        "email", saved.getEmail()
+                )
+        ));
+
         return toUserResponse(saved);
     }
 

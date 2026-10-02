@@ -5,6 +5,7 @@ import StatCard from '../../components/admin/StatCard'
 import SalesChart from '../../components/admin/SalesChart'
 import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
+import { adminWebSocket } from '../../services/adminWebSocket'
 import { exportOrdersPDF } from '../../utils/pdfExportUtils'
 import toast from 'react-hot-toast'
 
@@ -35,6 +36,20 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadStats()
+
+    // Real-time authoritative live update: refetch stats instantly on order / revenue events
+    const unsubscribe = adminWebSocket.subscribe((event) => {
+      if (
+        event.type === 'NEW_ORDER' ||
+        event.type === 'PAYMENT_RECEIVED' ||
+        event.type === 'ORDER_CANCELLED' ||
+        event.type === 'ORDER_STATUS_CHANGED'
+      ) {
+        loadStats(true)
+      }
+    })
+
+    return () => unsubscribe()
   }, [])
 
   useEffect(() => {

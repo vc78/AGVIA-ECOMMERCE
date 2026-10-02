@@ -9,11 +9,13 @@ import {
   RefreshCw, Radio, AlertTriangle, CalendarDays,
   Star, Award, Download, FileText, Calendar, Filter, ChevronRight, CheckCircle2,
   Users, Eye, Share2, ShoppingCart, Smartphone, Monitor, Tablet, Globe, ArrowRight,
-  Info, ShieldCheck, Activity, Layers, ExternalLink, HelpCircle
+  Info, ShieldCheck, Activity, Layers, ExternalLink, HelpCircle, ChevronDown
 } from 'lucide-react'
 import AdminLayout from '../../components/admin/AdminLayout'
 import api from '../../services/api'
-import { exportAnalyticsPDF } from '../../utils/pdfExportUtils'
+import { exportAnalyticsPDF, exportMasterAdminPDF } from '../../utils/pdfExportUtils'
+import { exportMasterAdminCSV, exportAnalyticsCSV, exportToJSON } from '../../utils/exportUtils'
+import { adminService } from '../../services/adminService'
 import toast from 'react-hot-toast'
 
 const BRAND_COLORS = {
@@ -158,7 +160,23 @@ export default function Analytics() {
   const [allCategories, setAllCategories] = useState([])
   const [allProducts, setAllProducts] = useState([])
 
+  // Download entire admin panel lists state
+  const [downloading, setDownloading] = useState(false)
+  const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false)
+  const downloadDropdownRef = useRef(null)
+
   const pollRef = useRef(null)
+
+  // Close download dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (downloadDropdownRef.current && !downloadDropdownRef.current.contains(event.target)) {
+        setDownloadDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // ── Apply Preset ──────────────────────────────────────────
   const applyPreset = (preset) => {
@@ -337,6 +355,156 @@ export default function Analytics() {
     setVisibleSeries((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
+  // ── Download Entire Admin Panel Lists & Telemetry Handler ──
+  const handleDownloadAll = async (format = 'pdf') => {
+    setDownloading(true)
+    setDownloadDropdownOpen(false)
+    const toastId = toast.loading('Compiling entire admin panel records & web analytics...', { id: 'master-dl' })
+    try {
+      // Fetch all admin lists in parallel with full capacity
+      const [
+        ordersRes,
+        customersRes,
+        productsRes,
+        inventoryRes,
+        categoriesRes,
+        couponsRes,
+        subsRes,
+        reviewsRes
+      ] = await Promise.allSettled([
+        adminService.getOrders({ size: 1000 }),
+        adminService.getCustomers({ size: 1000 }),
+        adminService.getProducts({ size: 1000 }),
+        adminService.getInventory(),
+        adminService.getCategories(),
+        adminService.getCoupons(),
+        adminService.getSubscriptions({ size: 1000 }),
+        adminService.getReviews({ size: 1000 })
+      ])
+
+      const ordersData = ordersRes.status === 'fulfilled' ? (ordersRes.value || []) : (allOrders || [])
+      const customersData = customersRes.status === 'fulfilled' ? (customersRes.value || []) : []
+      const productsData = productsRes.status === 'fulfilled' ? (productsRes.value || []) : (allProducts || [])
+      const inventoryData = inventoryRes.status === 'fulfilled' ? (inventoryRes.value || []) : []
+      const categoriesData = categoriesRes.status === 'fulfilled' ? (categoriesRes.value || []) : (allCategories || [])
+      const couponsData = couponsRes.status === 'fulfilled' ? (couponsRes.value || []) : []
+      const subsData = subsRes.status === 'fulfilled' ? (subsRes.value?.content || (Array.isArray(subsRes.value) ? subsRes.value : [])) : []
+      const reviewsData = reviewsRes.status === 'fulfilled' ? (reviewsRes.value || []) : []
+
+      const totalCount = ordersData.length + customersData.length + productsData.length + inventoryData.length + couponsData.length + subsData.length
+
+      if (format === 'pdf') {
+        toast.loading('Generating luxury Master Atelier PDF dossier with web analytics...', { id: toastId })
+        await exportMasterAdminPDF({
+          startDate,
+          endDate,
+          overview,
+          trends,
+          funnel,
+          topProducts,
+          topPages,
+          devices,
+          sources,
+          recentActivity,
+          orders: ordersData,
+          customers: customersData,
+          products: productsData,
+          inventory: inventoryData,
+          categories: categoriesData,
+          coupons: couponsData,
+          subscriptions: subsData,
+          reviews: reviewsData
+        })
+        toast.success(`Generated official Master PDF (${totalCount} records + full web analytics)!`, { id: toastId })
+      } else if (format === 'csv') {
+        toast.loading('Compiling Master CSV archive with full web telemetry...', { id: toastId })
+        exportMasterAdminCSV({
+          overview,
+          trends,
+          funnel,
+          devices,
+          sources,
+          topPages,
+          topProducts,
+          recentActivity,
+          orders: ordersData,
+          customers: customersData,
+          products: productsData,
+          inventory: inventoryData,
+          categories: categoriesData,
+          coupons: couponsData,
+          subscriptions: subsData,
+          reviews: reviewsData,
+          startDate,
+          endDate
+        })
+        toast.success(`Exported complete Master CSV (${totalCount} records + web analytics)!`, { id: toastId })
+      } else if (format === 'analytics_csv') {
+        toast.loading('Exporting Web Analytics telemetry spreadsheet...', { id: toastId })
+        exportAnalyticsCSV({
+          overview,
+          trends,
+          funnel,
+          devices,
+          sources,
+          topPages,
+          topProducts,
+          recentActivity,
+          orders: ordersData,
+          startDate,
+          endDate
+        })
+        toast.success('Web Analytics CSV exported successfully!', { id: toastId })
+      } else if (format === 'json') {
+        const fullArchive = {
+          exportDate: new Date().toISOString(),
+          system: 'AGVIA Haute Couture Atelier ERP & Analytics Master Backup',
+          status: 'Authoritative Verified Data',
+          dateRange: { startDate, endDate },
+          analytics: { overview, trends, funnel, topProducts, topPages, devices, sources, recentActivity },
+          orders: ordersData,
+          customers: customersData,
+          products: productsData,
+          inventory: inventoryData,
+          categories: categoriesData,
+          coupons: couponsData,
+          subscriptions: subsData,
+          reviews: reviewsData
+        }
+        exportToJSON(fullArchive, 'agvia_master_atelier_complete_archive')
+        toast.success('Complete atelier raw JSON archive & analytics downloaded!', { id: toastId })
+      } else if (format === 'analytics_only' || format === 'analytics_pdf') {
+        toast.loading('Generating comprehensive Web Analytics PDF dossier...', { id: toastId })
+        await exportAnalyticsPDF({
+          startDate,
+          endDate,
+          overview,
+          summary: {
+            totalRevenue: overview.revenue || salesReportData?.totalRevenue || 0,
+            totalOrders: overview.orders || salesReportData?.totalOrders || ordersData.length,
+            aov: (overview.orders > 0) ? Math.round(overview.revenue / overview.orders) : 0,
+            deliveredOrders: ordersData.filter(o => String(o.status || '').toUpperCase().includes('DELIVERED')).length,
+          },
+          trends,
+          dailyTrend: trends,
+          funnel,
+          devices,
+          sources,
+          topPages,
+          topProducts,
+          recentActivity,
+          orders: ordersData
+        })
+        toast.success('Comprehensive Website Analytics PDF exported successfully!', { id: toastId })
+      }
+    } catch (err) {
+      console.error('Download error:', err)
+      toast.error('Failed to compile master records: ' + (err.message || 'Unknown error'), { id: toastId })
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   // Device Pie Data formatted
   const devicePieData = useMemo(() => {
     if (!devices || devices.length === 0) return []
@@ -423,6 +591,103 @@ export default function Analytics() {
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
+
+            {/* Master Atelier Download Dropdown */}
+            <div className="relative" ref={downloadDropdownRef}>
+              <div className="flex items-center rounded-xl bg-[#5A1020] text-white shadow-xs overflow-hidden border border-[#5A1020]">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('pdf')}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold hover:bg-[#721529] transition-colors disabled:opacity-60"
+                  title="Download complete master dossier containing entire admin panel lists & web analytics"
+                >
+                  <Download size={13} className={downloading ? 'animate-bounce' : ''} />
+                  <span className="hidden sm:inline">{downloading ? 'Compiling Dossier...' : 'Download Everything (PDF)'}</span>
+                  <span className="sm:hidden">{downloading ? 'Exporting...' : 'Download All'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDownloadDropdownOpen(prev => !prev)}
+                  disabled={downloading}
+                  className="px-2 py-1.5 border-l border-white/20 hover:bg-[#721529] transition-colors"
+                  title="Choose download format"
+                >
+                  <ChevronDown size={12} className={`transition-transform duration-200 ${downloadDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              {downloadDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-[min(300px,calc(100vw-32px))] bg-white rounded-2xl shadow-2xl border border-[#C9A45C]/35 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-2 border-b border-[#C9A45C]/15">
+                    <p className="font-serif text-xs font-bold text-[#5A1020] uppercase tracking-wider">Download Entire Admin Data</p>
+                    <p className="text-[9.5px] text-[#211D1E]/60">Compiles all 9 admin registries + live telemetry</p>
+                  </div>
+
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadAll('pdf')}
+                      className="w-full text-left px-3.5 py-2 hover:bg-[#FAF7F2] flex items-center gap-2.5 transition-colors group"
+                    >
+                      <FileText size={15} className="text-[#5A1020] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-[#5A1020] truncate">Master Atelier Dossier (PDF)</p>
+                        <p className="text-[9.5px] text-[#211D1E]/55 truncate">All lists + Analytics, Orders, Patrons, Stock</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadAll('analytics_pdf')}
+                      className="w-full text-left px-3.5 py-2 hover:bg-[#FAF7F2] flex items-center gap-2.5 transition-colors group"
+                    >
+                      <Activity size={15} className="text-[#C9A45C] group-hover:text-[#5A1020] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-[#5A1020] truncate">Web Analytics Dossier (PDF)</p>
+                        <p className="text-[9.5px] text-[#211D1E]/55 truncate">Visitor telemetry, conversion funnel, devices</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadAll('csv')}
+                      className="w-full text-left px-3.5 py-2 hover:bg-[#FAF7F2] flex items-center gap-2.5 transition-colors group"
+                    >
+                      <Layers size={15} className="text-[#C9A45C] group-hover:text-[#5A1020] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-[#211D1E] group-hover:text-[#5A1020] truncate">Consolidated Master CSV</p>
+                        <p className="text-[9.5px] text-[#211D1E]/55 truncate">Multi-section spreadsheet for Excel/Sheets</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadAll('analytics_csv')}
+                      className="w-full text-left px-3.5 py-2 hover:bg-[#FAF7F2] flex items-center gap-2.5 transition-colors group"
+                    >
+                      <ExternalLink size={15} className="text-[#2A4365] group-hover:text-[#5A1020] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-[#211D1E] group-hover:text-[#5A1020] truncate">Web Analytics Only (CSV)</p>
+                        <p className="text-[9.5px] text-[#211D1E]/55 truncate">Spreadsheet of traffic, devices & funnel</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadAll('json')}
+                      className="w-full text-left px-3.5 py-2 hover:bg-[#FAF7F2] flex items-center gap-2.5 transition-colors group"
+                    >
+                      <Layers size={15} className="text-[#2A4365] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-[#211D1E] truncate">Full Database Archive (JSON)</p>
+                        <p className="text-[9.5px] text-[#211D1E]/55 truncate">Raw database backup of all registries</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -526,6 +791,70 @@ export default function Analytics() {
         {/* ── TAB 1: WEBSITE ANALYTICS ────────────────────────── */}
         {activeTab === 'website' && (
           <div className="space-y-6">
+            {/* Master Download Action Banner */}
+            <div className="bg-white border border-[#C9A45C]/30 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-[#5A1020]/10 border border-[#5A1020]/15 flex items-center justify-center shrink-0 text-[#5A1020]">
+                  <Download size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-serif text-sm sm:text-base font-bold text-[#5A1020]">
+                      Atelier Enterprise Master Intelligence Export
+                    </h3>
+                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#5A1020]/10 text-[#5A1020]">
+                      All 9 Registries + Telemetry
+                    </span>
+                  </div>
+                  <p className="font-sans text-xs text-[#211D1E]/65 mt-0.5">
+                    Click to download <strong>everything across the entire admin panel & web analytics</strong> (Orders, Patrons, Silhouettes, Fabric Stock, Categories, Coupons, VIP Memberships, Reviews & Live Telemetry).
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('pdf')}
+                  disabled={downloading}
+                  className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-[#5A1020] text-white font-bold text-xs hover:bg-[#721529] transition-all shadow-xs disabled:opacity-60"
+                  title="Download complete Master Dossier in luxury PDF format (All lists + Analytics)"
+                >
+                  <Download size={14} className={downloading ? 'animate-bounce' : ''} />
+                  <span>{downloading ? 'Compiling Dossier...' : 'Download Everything (PDF)'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('analytics_pdf')}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C9A45C]/50 text-[#5A1020] font-bold text-xs hover:bg-[#F2ECE4] transition-all disabled:opacity-60"
+                  title="Download comprehensive Web Analytics & Telemetry report in luxury PDF format"
+                >
+                  <FileText size={13} className="text-[#C9A45C]" />
+                  <span>Web Analytics (PDF)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('csv')}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#C9A45C]/40 bg-white text-[#211D1E] font-bold text-xs hover:bg-[#FAF7F2] transition-all disabled:opacity-60"
+                  title="Download Master CSV spreadsheet with all lists and analytics"
+                >
+                  <Layers size={13} className="text-[#C9A45C]" />
+                  <span>Master CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('json')}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#C9A45C]/40 bg-white text-[#211D1E]/80 font-bold text-xs hover:bg-[#FAF7F2] transition-all disabled:opacity-60"
+                  title="Download complete database & telemetry raw JSON backup"
+                >
+                  <Activity size={13} className="text-[#2A4365]" />
+                  <span>Raw JSON</span>
+                </button>
+              </div>
+            </div>
+
             {/* ROW 1: PRIMARY METRIC CARDS */}
             <div>
               <div className="flex items-center gap-2 mb-2.5">
@@ -1130,30 +1459,37 @@ export default function Analytics() {
                   Financial figures and order totals derived strictly from completed store transactions.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  try {
-                    exportAnalyticsPDF({
-                      filteredOrders: allOrders,
-                      periodRevenue: overview.revenue || salesReportData?.totalRevenue || 0,
-                      periodOrdersCount: overview.orders || salesReportData?.totalOrders || allOrders.length,
-                      periodAOV: (overview.orders > 0) ? Math.round(overview.revenue / overview.orders) : 0,
-                      periodDailyTrend: trends,
-                      startDate,
-                      endDate
-                    })
-                    toast.success('Analytics PDF exported successfully!')
-                  } catch (err) {
-                    console.error('PDF export error:', err)
-                    toast.error('Failed to export PDF.')
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#5A1020] text-[#FAF7F2] font-semibold text-xs hover:bg-[#8B0000] transition-colors shadow-xs"
-              >
-                <Download size={14} />
-                <span>Export PDF Report</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('pdf')}
+                  disabled={downloading}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#5A1020] text-[#FAF7F2] font-semibold text-xs hover:bg-[#8B0000] transition-colors shadow-xs disabled:opacity-60"
+                  title="Download complete Master Dossier containing all admin panel lists & web analytics"
+                >
+                  <Download size={14} className={downloading ? 'animate-bounce' : ''} />
+                  <span>{downloading ? 'Compiling All Lists...' : 'Download Everything (Master PDF)'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('analytics_pdf')}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F2] border border-[#C9A45C]/50 text-[#5A1020] font-bold text-xs hover:bg-[#F2ECE4] transition-all disabled:opacity-60"
+                  title="Download Web Analytics PDF report"
+                >
+                  <FileText size={13} className="text-[#C9A45C]" />
+                  <span>Web Analytics (PDF)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadAll('csv')}
+                  disabled={downloading}
+                  className="px-3.5 py-2 rounded-xl border border-[#C9A45C]/40 bg-[#FAF7F2] text-[#5A1020] font-bold text-xs hover:bg-[#F2ECE4] transition-all"
+                  title="Download all admin lists in spreadsheet CSV"
+                >
+                  Master CSV
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

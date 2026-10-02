@@ -5,12 +5,16 @@ import com.ems.pragathisweets.entity.Product;
 import com.ems.pragathisweets.exception.ProductNotFoundException;
 import com.ems.pragathisweets.mapper.ProductMapper;
 import com.ems.pragathisweets.repository.ProductRepository;
+import com.ems.pragathisweets.entity.NotificationType;
+import com.ems.pragathisweets.event.AdminNotificationEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +22,7 @@ public class InventoryService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${app.inventory.low-stock-threshold:10}")
     private int lowStockThreshold;
@@ -39,7 +44,9 @@ public class InventoryService {
         }
 
         product.setStockQuantity(quantity);
-        return productMapper.toResponse(productRepository.save(product));
+        Product saved = productRepository.save(product);
+        checkAndPublishStockAlert(saved);
+        return productMapper.toResponse(saved);
     }
 
     @Transactional
@@ -53,6 +60,39 @@ public class InventoryService {
         }
 
         product.setStockQuantity(newQuantity);
-        return productMapper.toResponse(productRepository.save(product));
+        Product saved = productRepository.save(product);
+        checkAndPublishStockAlert(saved);
+        return productMapper.toResponse(saved);
+    }
+
+    private void checkAndPublishStockAlert(Product product) {
+        if (product.getStockQuantity() == 0) {
+            eventPublisher.publishEvent(new AdminNotificationEvent(
+                    NotificationType.OUT_OF_STOCK,
+                    "Product Out of Stock: " + product.getName(),
+                    product.getName() + " is completely out of stock (0 units remaining)",
+                    String.valueOf(product.getId()),
+                    "PRODUCT",
+                    Map.of(
+                            "productId", product.getId(),
+                            "productName", product.getName(),
+                            "stockQuantity", 0
+                    )
+            ));
+        } else if (product.getStockQuantity() <= lowStockThreshold) {
+            eventPublisher.publishEvent(new AdminNotificationEvent(
+                    NotificationType.LOW_STOCK,
+                    "Low Stock Alert: " + product.getName(),
+                    product.getName() + " has only " + product.getStockQuantity() + " units remaining",
+                    String.valueOf(product.getId()),
+                    "PRODUCT",
+                    Map.of(
+                            "productId", product.getId(),
+                            "productName", product.getName(),
+                            "stockQuantity", product.getStockQuantity(),
+                            "threshold", lowStockThreshold
+                    )
+            ));
+        }
     }
 }

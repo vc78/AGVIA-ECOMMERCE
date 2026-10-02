@@ -13,7 +13,7 @@ const BASE_URL = cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 45000,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -44,6 +44,13 @@ api.interceptors.response.use(
       const delayMs = originalRequest._retryCount * 1000
       await new Promise((resolve) => setTimeout(resolve, delayMs))
       return api(originalRequest)
+    }
+
+    // Enhance timeout and network error messages for better user experience
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      error.message = 'Server took too long to respond. If waking from sleep or connecting to cloud, please retry in a moment.'
+    } else if (!error.response && error.message === 'Network Error') {
+      error.message = 'Unable to connect to backend server. Please check your network or verify if the server is running.'
     }
 
     return Promise.reject(error)

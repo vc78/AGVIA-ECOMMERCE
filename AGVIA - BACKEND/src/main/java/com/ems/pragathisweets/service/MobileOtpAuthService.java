@@ -18,6 +18,9 @@ import com.ems.pragathisweets.util.PhoneUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.ems.pragathisweets.entity.NotificationType;
+import com.ems.pragathisweets.event.AdminNotificationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +44,7 @@ public class MobileOtpAuthService {
     private final OtpDeliveryService otpDeliveryService;
     private final OtpRateLimiter otpRateLimiter;
     private final EmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final int OTP_EXPIRY_SECONDS = 300;
@@ -190,6 +195,20 @@ public class MobileOtpAuthService {
         } catch (Exception e) {
             log.warn("[SIGNUP_EMAIL_WARN] Could not send welcome email to {}: {}", savedUser.getEmail(), e.getMessage());
         }
+
+        // Publish real-time event to Admin dashboard
+        eventPublisher.publishEvent(new AdminNotificationEvent(
+                NotificationType.NEW_CUSTOMER,
+                "New Customer Registered",
+                savedUser.getFullName() + " registered via Mobile OTP (" + PhoneUtils.mask(savedUser.getPhone()) + ")",
+                String.valueOf(savedUser.getId()),
+                "USER",
+                Map.of(
+                        "userId", savedUser.getId(),
+                        "customerName", savedUser.getFullName() != null ? savedUser.getFullName() : "",
+                        "phone", savedUser.getPhone()
+                )
+        ));
 
         log.info("[OTP_SIGNUP_SUCCESS] User created successfully: id={}, phone={}", savedUser.getId(), PhoneUtils.mask(savedUser.getPhone()));
 

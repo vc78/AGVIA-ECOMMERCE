@@ -10,6 +10,8 @@ import com.ems.pragathisweets.repository.CartRepository;
 import com.ems.pragathisweets.repository.OrderRepository;
 import com.ems.pragathisweets.repository.ProductRepository;
 import com.ems.pragathisweets.repository.UserRepository;
+import com.ems.pragathisweets.event.AdminNotificationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ public class OrderService {
     private final EmailService emailService;
     private final WhatsAppService whatsAppService;
     private final OrderNotificationService orderNotificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponse checkout(Long userId, CheckoutRequest request) {
@@ -92,8 +95,30 @@ public class OrderService {
             order.addItem(orderItem);
 
             // Decrement stock (reserved at order creation time)
-            product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+            int remainingStock = product.getStockQuantity() - cartItem.getQuantity();
+            product.setStockQuantity(remainingStock);
             productRepository.save(product);
+
+            // Publish inventory alerts
+            if (remainingStock == 0) {
+                eventPublisher.publishEvent(new AdminNotificationEvent(
+                        NotificationType.OUT_OF_STOCK,
+                        "Out of Stock: " + product.getName(),
+                        "Silhouette " + product.getName() + " (SKU: " + product.getSku() + ") is now OUT OF STOCK.",
+                        String.valueOf(product.getId()),
+                        "PRODUCT",
+                        java.util.Map.of("productId", product.getId(), "name", product.getName(), "sku", product.getSku())
+                ));
+            } else if (remainingStock <= 10) {
+                eventPublisher.publishEvent(new AdminNotificationEvent(
+                        NotificationType.LOW_STOCK,
+                        "Low Stock: " + product.getName(),
+                        "Silhouette " + product.getName() + " has only " + remainingStock + " piece(s) remaining.",
+                        String.valueOf(product.getId()),
+                        "PRODUCT",
+                        java.util.Map.of("productId", product.getId(), "name", product.getName(), "stock", remainingStock)
+                ));
+            }
         }
 
         order.setTotalAmount(totalAmount);
@@ -130,6 +155,23 @@ public class OrderService {
         // Online payment (Razorpay) orders remain PENDING until backend signature verification.
         if (saved.getPaymentMethod() == PaymentMethod.COD) {
             orderNotificationService.sendOrderConfirmedNotifications(orderResponse, user.getEmail(), user.getFullName(), phone);
+
+            // Publish real-time NEW_ORDER event to admin dashboard
+            eventPublisher.publishEvent(new AdminNotificationEvent(
+                    NotificationType.NEW_ORDER,
+                    "New COD Order #" + saved.getOrderNumber(),
+                    "Order #" + saved.getOrderNumber() + " placed by " + (user.getFullName() != null ? user.getFullName() : "Patron") + " (₹" + saved.getFinalAmount() + ")",
+                    String.valueOf(saved.getId()),
+                    "ORDER",
+                    java.util.Map.of(
+                            "orderId", saved.getId(),
+                            "orderNumber", saved.getOrderNumber(),
+                            "amount", saved.getFinalAmount(),
+                            "customerName", user.getFullName() != null ? user.getFullName() : "Patron",
+                            "itemsCount", saved.getItems().size(),
+                            "paymentMethod", "COD"
+                    )
+            ));
         }
 
         return orderResponse;
@@ -214,6 +256,20 @@ public class OrderService {
 
         order.setStatus(OrderStatus.CANCELLED);
         Order saved = orderRepository.save(order);
+
+        eventPublisher.publishEvent(new AdminNotificationEvent(
+                NotificationType.ORDER_CANCELLED,
+                "Order Cancelled #" + saved.getOrderNumber(),
+                "Order #" + saved.getOrderNumber() + " was cancelled by customer " + (order.getUser() != null ? order.getUser().getFullName() : ""),
+                String.valueOf(saved.getId()),
+                "ORDER",
+                java.util.Map.of(
+                        "orderId", saved.getId(),
+                        "orderNumber", saved.getOrderNumber(),
+                        "amount", saved.getFinalAmount()
+                )
+        ));
+
         String cancelPhone = order.getContactPhone() != null ? order.getContactPhone() : order.getUser().getPhone();
         OrderResponse response = toResponse(saved);
         orderNotificationService.sendOrderStatusNotification(response, "CANCELLED", order.getUser().getEmail(), order.getUser().getFullName(), cancelPhone, "Order cancelled by customer");

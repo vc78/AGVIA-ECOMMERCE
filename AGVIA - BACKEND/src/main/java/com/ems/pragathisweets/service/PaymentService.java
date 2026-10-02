@@ -15,8 +15,11 @@ import com.razorpay.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ems.pragathisweets.entity.NotificationType;
+import com.ems.pragathisweets.event.AdminNotificationEvent;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -36,6 +39,7 @@ public class PaymentService {
     private final WhatsAppService whatsAppService;
     private final OrderService orderService;
     private final OrderNotificationService orderNotificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private Order findOrderByIdOrNumber(String orderIdentifier) {
         if (orderIdentifier == null || orderIdentifier.isBlank()) {
@@ -153,6 +157,37 @@ public class PaymentService {
         } catch (Exception ex) {
             log.error("[PaymentService] Error requesting order confirmed notifications for {}: {}", order.getOrderNumber(), ex.getMessage());
         }
+
+        // Publish real-time admin events: NEW_ORDER and PAYMENT_RECEIVED
+        eventPublisher.publishEvent(new AdminNotificationEvent(
+                NotificationType.NEW_ORDER,
+                "New Order #" + order.getOrderNumber(),
+                "Online order #" + order.getOrderNumber() + " placed by " + customerName + " (₹" + order.getFinalAmount() + ")",
+                String.valueOf(order.getId()),
+                "ORDER",
+                Map.of(
+                        "orderId", order.getId(),
+                        "orderNumber", order.getOrderNumber(),
+                        "amount", order.getFinalAmount(),
+                        "customerName", customerName,
+                        "paymentMethod", "ONLINE",
+                        "paymentId", request.getRazorpayPaymentId()
+                )
+        ));
+
+        eventPublisher.publishEvent(new AdminNotificationEvent(
+                NotificationType.PAYMENT_RECEIVED,
+                "Payment Received #" + order.getOrderNumber(),
+                "Payment of ₹" + order.getFinalAmount() + " received for order #" + order.getOrderNumber(),
+                String.valueOf(order.getId()),
+                "PAYMENT",
+                Map.of(
+                        "orderId", order.getId(),
+                        "orderNumber", order.getOrderNumber(),
+                        "amount", order.getFinalAmount(),
+                        "paymentId", request.getRazorpayPaymentId()
+                )
+        ));
     }
 
     @Transactional

@@ -3,9 +3,9 @@ import toast from 'react-hot-toast'
 import AdminLayout from '../../components/admin/AdminLayout'
 import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
+import { adminWebSocket } from '../../services/adminWebSocket'
 import { exportOrdersPDF } from '../../utils/pdfExportUtils'
 import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag } from 'lucide-react'
-
 
 const STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending', color: 'bg-amber-50 text-amber-800 border-amber-200' },
@@ -48,6 +48,20 @@ export default function OrdersManagement() {
 
   useEffect(() => {
     loadOrders()
+
+    // Real-time authoritative live update: refetch orders instantly on incoming events
+    const unsubscribe = adminWebSocket.subscribe((event) => {
+      if (
+        event.type === 'NEW_ORDER' ||
+        event.type === 'ORDER_STATUS_CHANGED' ||
+        event.type === 'ORDER_CANCELLED' ||
+        event.type === 'PAYMENT_RECEIVED'
+      ) {
+        loadOrders(true)
+      }
+    })
+
+    return () => unsubscribe()
   }, [])
 
   // Live polling effect
