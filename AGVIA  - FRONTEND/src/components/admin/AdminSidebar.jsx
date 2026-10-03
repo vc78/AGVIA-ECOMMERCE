@@ -1,6 +1,6 @@
 import { NavLink, Link } from 'react-router-dom'
 import {
-  LayoutDashboard, Package, PlusSquare, ClipboardList, Users, Boxes, Tag, Star, BarChart3, Crown, X
+  LayoutDashboard, Package, PlusSquare, ClipboardList, Users, Boxes, Tag, Star, BarChart3, Crown, Layers, Settings as SettingsIcon, X
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -8,6 +8,7 @@ const links = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/products', label: 'Couture Edits', icon: Package },
   { to: '/admin/products/add', label: 'Add Silhouette', icon: PlusSquare },
+  { to: '/admin/categories', label: 'Categories', icon: Layers },
   { to: '/admin/orders', label: 'Atelier Orders', icon: ClipboardList },
   { to: '/admin/customers', label: 'Patrons', icon: Users },
   { to: '/admin/subscriptions', label: 'Atelier Circle', icon: Crown },
@@ -16,6 +17,7 @@ const links = [
   { to: '/admin/coupons', label: 'Privilege Codes', icon: Tag },
   { to: '/admin/reviews', label: 'Patron Reviews', icon: Star },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { to: '/admin/settings', label: 'Settings', icon: SettingsIcon },
 ]
 
 export default function AdminSidebar({ isOpen, onClose }) {

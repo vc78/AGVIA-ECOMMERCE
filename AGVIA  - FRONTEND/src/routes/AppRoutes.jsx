@@ -50,6 +50,7 @@ const Careers = lazy(() => import('../pages/customer/Careers'))
 const BulkOrders = lazy(() => import('../pages/customer/BulkOrders'))
 const Styling = lazy(() => import('../pages/customer/Styling'))
 const Appointments = lazy(() => import('../pages/customer/Appointments'))
+const NotFound = lazy(() => import('../pages/customer/NotFound'))
 
 // Lazy loaded auth pages
 const Login = lazy(() => import('../pages/auth/Login'))
@@ -165,7 +166,7 @@ export default function AppRoutes() {
           <Route path="/admin/settings" element={<ProtectedRoute role="ADMIN"><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
 
           {/* Fallback / 404 */}
-          <Route path="*" element={<PageTransition><Home /></PageTransition>} />
+          <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>
     </Suspense>

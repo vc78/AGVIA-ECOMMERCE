@@ -278,7 +278,7 @@ export default function Navbar() {
                 alt="AGVIA Women's Wear Boutique"
                 width={140}
                 height={44}
-                fetchPriority="high"
+                fetchpriority="high"
                 decoding="async"
                 className="h-9 sm:h-10 lg:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />

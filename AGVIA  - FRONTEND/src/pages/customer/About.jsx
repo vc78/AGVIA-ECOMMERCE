@@ -151,7 +151,7 @@ export default function About() {
             <ReliableImage
               src={currentSlide.image}
               alt={currentSlide.title}
-              priority={activeSlide === 0}
+              priority={slideIdx === 0}
               sizes="100vw"
               className="w-full h-full object-cover opacity-35 filter brightness-95"
             />

@@ -91,7 +91,7 @@ export default function ReliableImage({
           width={width || 600}
           height={height || 800}
           loading={isEager ? 'eager' : 'lazy'}
-          fetchPriority={priority ? 'high' : 'auto'}
+          fetchpriority={priority ? 'high' : 'auto'}
           decoding={isEager ? 'sync' : 'async'}
           onLoad={() => setLoaded(true)}
           onError={() => {

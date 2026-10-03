@@ -3,5 +3,9 @@ Allow: /
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /profile
+Disallow: /account
+Disallow: /my-orders
+Disallow: /addresses
+Disallow: /notifications
 
-Sitemap: https://pragathisweets.com/sitemap.xml
+Sitemap: https://agviaboutique.com/sitemap.xml

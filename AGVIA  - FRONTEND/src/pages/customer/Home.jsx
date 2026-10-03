@@ -269,7 +269,7 @@ export default function Home() {
                 src={slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')}
                 alt={slide.titleMain || 'AGVIA Boutique'}
                 loading={heroIdx === 0 ? 'eager' : 'lazy'}
-                fetchPriority={heroIdx === 0 ? 'high' : 'auto'}
+                fetchpriority={heroIdx === 0 ? 'high' : 'auto'}
                 decoding={heroIdx === 0 ? 'sync' : 'async'}
                 width={1280}
                 height={714}
