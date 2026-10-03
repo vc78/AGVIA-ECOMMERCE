@@ -175,15 +175,6 @@ export const orderService = {
     }
   },
 
-  async getWhatsAppPreview(identifier) {
-    try {
-      const { data } = await api.get(`/orders/${identifier}/whatsapp-preview`)
-      return data.data
-    } catch (err) {
-      console.warn('Could not load WhatsApp preview:', err)
-      return null
-    }
-  },
 
   async trackOrder(identifier) {
     try {

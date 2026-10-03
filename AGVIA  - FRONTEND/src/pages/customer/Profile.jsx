@@ -18,7 +18,6 @@ import { subscriptionService } from '../../services/subscriptionService'
 import { profileUpdated, loggedOut } from '../../store/authSlice'
 import { removeFromWishlist } from '../../store/wishlistSlice'
 import { useCart } from '../../hooks/useCart'
-// emailJsService used for contact/order emails only — OTP emails handled by backend SMTP
 
 export default function Profile() {
   const { user } = useSelector((state) => state.auth)
@@ -855,11 +854,11 @@ export default function Profile() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] font-bold text-[#B8860B] uppercase tracking-wider">Mobile Phone</span>
                         <span className="inline-flex items-center gap-1 text-[9px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                          <CheckCircle2 size={10} /> SMS & WhatsApp Active
+                          <CheckCircle2 size={10} /> Mobile Active
                         </span>
                       </div>
                       <p className="font-mono text-sm font-semibold text-gray-800">{user?.phone || '+91 90323 06961'}</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5">Used for doorstep OTP delivery and WhatsApp receipts.</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">Used for doorstep OTP verification and courier updates.</p>
                     </div>
                     <button
                       onClick={() => { setPhoneModalOpen(true); setOtpSent(false); setNewPhone('') }}
@@ -1181,7 +1180,6 @@ export default function Profile() {
                   {[
                     { key: 'orderUpdates', label: 'Order Confirmation & Receipts', desc: 'Real-time alerts whenever a new couture order is confirmed.' },
                     { key: 'deliveryAlerts', label: 'Doorstep Courier Tracking', desc: 'SMS and push updates when your parcel is out for delivery.' },
-                    { key: 'whatsappUpdates', label: 'WhatsApp Concierge Receipts', desc: 'Formatted WhatsApp receipts and live dispatcher updates.' },
                     { key: 'smsNotifications', label: 'Critical SMS Alerts', desc: 'Essential OTPs and security alerts sent directly to your phone.' },
                     { key: 'festivalSpecials', label: 'Runway Drops & Bridal Previews', desc: 'Exclusive bridal trousseau and festive collection previews.' },
                     { key: 'promotionalEmails', label: 'The AGVIA Atelier Edit Newsletter', desc: 'Curated couture lookbooks and private salon invitations.' }

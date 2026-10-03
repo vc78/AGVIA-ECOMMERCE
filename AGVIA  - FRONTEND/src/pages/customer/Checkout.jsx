@@ -11,8 +11,6 @@ import { credentialsReceived } from '../../store/authSlice'
 import { motion } from 'framer-motion'
 import { ShieldCheck, Truck, CreditCard, ChevronRight, Ticket, Sparkles, MessageCircle } from 'lucide-react'
 import api from '../../services/api'
-import { sendOrderConfirmationEmails } from '../../services/emailJsService'
-import { buildWhatsAppOrderMessage, openWhatsAppDirectly } from '../../utils/whatsappUtils'
 import { trackCheckoutStarted, trackPurchase } from '../../services/analytics'
 
 function loadRazorpayScript() {
@@ -154,31 +152,6 @@ export default function Checkout() {
       })
       clearCart()
 
-      // Dispatch live confirmation emails via EmailJS (customer + store)
-      sendOrderConfirmationEmails({
-        order,
-        customerEmail: user?.email || address.email,
-        customerName: address.name || user?.name || user?.fullName,
-        phone: address.phone || user?.phone,
-        items,
-        total,
-        address
-      }).catch(err => console.warn('EmailJS order dispatch notice:', err))
-
-      // Directly dispatch WhatsApp receipt to customer's WhatsApp
-      const targetPhone = address.phone || user?.phone
-      const waReceipt = buildWhatsAppOrderMessage({
-        order,
-        customerName: address.name || user?.name || user?.fullName,
-        phone: targetPhone,
-        address,
-        items,
-        total
-      })
-      if (targetPhone) {
-        openWhatsAppDirectly(targetPhone, waReceipt)
-      }
-
       trackPurchase(order)
 
       toast.success(
@@ -186,7 +159,7 @@ export default function Checkout() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span style={{ fontWeight: 700 }}>🎉 Order Placed Successfully!</span>
             <span style={{ fontSize: '12px', opacity: 0.85 }}>
-              📱 Confirmation receipt sent directly to your WhatsApp & email.
+              Your order has been recorded in our atelier system.
             </span>
           </div>
         ),
@@ -273,31 +246,6 @@ export default function Checkout() {
             })
             clearCart()
 
-            // Dispatch live confirmation emails via EmailJS (customer + store)
-            sendOrderConfirmationEmails({
-              order,
-              customerEmail: user?.email || address.email,
-              customerName: address.name || user?.name || user?.fullName,
-              phone: address.phone || user?.phone,
-              items,
-              total,
-              address
-            }).catch(err => console.warn('EmailJS order dispatch notice:', err))
-
-            // Directly dispatch WhatsApp receipt to customer's WhatsApp
-            const targetPhone = address.phone || user?.phone
-            const waReceipt = buildWhatsAppOrderMessage({
-              order,
-              customerName: address.name || user?.name || user?.fullName,
-              phone: targetPhone,
-              address,
-              items,
-              total
-            })
-            if (targetPhone) {
-              openWhatsAppDirectly(targetPhone, waReceipt)
-            }
-
             trackPurchase(order)
 
             toast.success(
@@ -305,7 +253,7 @@ export default function Checkout() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span style={{ fontWeight: 700 }}>🎉 Payment Successful! Order Confirmed.</span>
                   <span style={{ fontSize: '12px', opacity: 0.85 }}>
-                    📱 Confirmation receipt sent directly to your WhatsApp & email.
+                    Your transaction has been authorized and recorded.
                   </span>
                 </div>
               ),

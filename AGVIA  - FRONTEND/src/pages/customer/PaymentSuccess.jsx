@@ -1,60 +1,17 @@
-import { useEffect, useState } from 'react'
-import { useSearchParams, Link, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CheckCircle2, MessageSquare, Copy, ExternalLink, ShoppingBag, ArrowRight, Package, Crown } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { CheckCircle2, ShoppingBag, ArrowRight, Package, Crown } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
-import api from '../../services/api'
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams()
-  const location = useLocation()
   const orderId = searchParams.get('orderId') || searchParams.get('id') || 'AGV-' + Math.floor(100000 + Math.random() * 900000)
-  
-  const [whatsappMsg, setWhatsappMsg] = useState('')
-  const [loadingMsg, setLoadingMsg] = useState(true)
-  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    // Fetch formatted WhatsApp message from backend
-    if (orderId) {
-      api.get(`/orders/${orderId}/whatsapp-message`)
-        .then(res => {
-          if (res.data?.success && res.data?.whatsappMessage) {
-            setWhatsappMsg(res.data.whatsappMessage)
-          }
-        })
-        .catch(err => {
-          console.warn('Could not fetch auto WhatsApp receipt, using formatted template', err)
-        })
-        .finally(() => setLoadingMsg(false))
-    } else {
-      setLoadingMsg(false)
-    }
-  }, [orderId])
-
-  const copyToClipboard = () => {
-    if (!whatsappMsg) return
-    navigator.clipboard.writeText(whatsappMsg)
-    setCopied(true)
-    toast.success('WhatsApp receipt copied to clipboard!', {
-      icon: '📋',
-      style: { background: '#075E54', color: '#FAF7F2', borderRadius: '12px' }
-    })
-    setTimeout(() => setCopied(false), 2500)
-  }
-
-  const shareOnWhatsApp = () => {
-    const text = encodeURIComponent(
-      whatsappMsg || `Hello AGVIA Atelier Support! Here is my confirmed order receipt #${orderId}. Please update me on courier dispatch.`
-    )
-    const phone = location.state?.customerPhone || location.state?.phone || ''
-    const cleanPhone = phone ? phone.replace(/\D/g, '') : ''
-    const target = cleanPhone.length === 10 ? `91${cleanPhone}` : (cleanPhone || '919032306961')
-    window.open(`https://api.whatsapp.com/send?phone=${target}&text=${text}`, '_blank', 'noopener,noreferrer')
-  }
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-body flex flex-col justify-between selection:bg-[#C9A45C]/30">
@@ -80,69 +37,6 @@ export default function PaymentSuccess() {
           <p className="text-sm text-[#211D1E]/70 max-w-lg mx-auto leading-relaxed">
             Your transaction has been securely authorized. Order <strong className="text-[#5A1020] font-mono">#{orderId}</strong> has been transmitted to our master atelier karigars for bespoke finishing and heirloom packaging.
           </p>
-        </motion.div>
-
-        {/* WhatsApp Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.5 }}
-          className="bg-white border border-[#25D366]/30 rounded-3xl p-6 md:p-8 shadow-lg shadow-emerald-500/5 mb-8 relative overflow-hidden"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#25D366]/20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#25D366]/15 flex items-center justify-center text-[#075E54]">
-                <MessageSquare size={22} className="text-[#25D366]" />
-              </div>
-              <div>
-                <h3 className="font-serif text-base font-bold text-[#075E54]">
-                  WhatsApp Order Confirmation
-                </h3>
-                <p className="text-xs text-[#211D1E]/60">
-                  Instant real-time receipt & dispatch updates sent directly to your phone.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {whatsappMsg && (
-                <button
-                  onClick={copyToClipboard}
-                  className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 transition-all"
-                >
-                  <Copy size={13} /> {copied ? 'Copied' : 'Copy'}
-                </button>
-              )}
-              <button
-                onClick={shareOnWhatsApp}
-                className="px-4 py-2 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95"
-              >
-                <ExternalLink size={13} /> Open in WhatsApp
-              </button>
-            </div>
-          </div>
-
-          {/* Formatted WhatsApp Preview Box */}
-          <div className="mt-5 bg-[#ECE5DD]/40 border border-[#075E54]/10 rounded-2xl p-4 md:p-5 font-mono text-xs text-[#2A2A2A] whitespace-pre-line leading-relaxed overflow-x-auto shadow-inner">
-            {whatsappMsg || (
-              loadingMsg ? (
-                <div className="py-6 text-center text-gray-400 font-sans text-xs">
-                  Generating your professional WhatsApp receipt...
-                </div>
-              ) : (
-                `👑 *AGVIA — WOMEN'S WEAR BOUTIQUE* 👑
-━━━━━━━━━━━━━━━━━━━━━━
-✅ *Atelier Order Confirmed!*
-🔖 Order No: *${orderId}*
-📦 Status  : Scheduled for Handcrafted Inspection & Keepsake Packaging
-⏰ Delivery: 2–4 Business Days
-📞 Concierge: +91 90323 06961
-━━━━━━━━━━━━━━━━━━━━━━
-🙏 Thank you for choosing AGVIA!
-_Timeless Indian Luxury Couture_ 👗`
-              )
-            )}
-          </div>
         </motion.div>
 
         {/* Atelier Circle VIP Membership Upsell */}

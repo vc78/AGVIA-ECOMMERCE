@@ -50,7 +50,7 @@ export function PrivacyPolicyPage() {
           <p>We collect your name, email address, phone number, and delivery address solely to fulfil your orders, manage your AGVIA Haute Circle membership, and provide personalised styling consultations. We may also collect browsing data through cookies to improve your boutique experience.</p>
         </PolicySection>
         <PolicySection title="How We Use Your Information">
-          <p>Your personal details are used exclusively for order fulfilment, Razorpay payment verification, WhatsApp concierge communication, and AGVIA newsletter updates (only if you opt in). We never use your data for unsolicited third-party marketing.</p>
+          <p>Your personal details are used exclusively for order fulfilment, Razorpay payment verification, concierge support communication, and AGVIA newsletter updates (only if you opt in). We never use your data for unsolicited third-party marketing.</p>
         </PolicySection>
         <PolicySection title="Data Security">
           <p>All patron profiles, measurement notes, and order histories are stored behind end-to-end encrypted databases with JWT authentication. Payment data is processed securely via Razorpay PCI-DSS compliant gateways — we never store your card details.</p>
@@ -175,7 +175,7 @@ const FAQ_DATA = [
     faqs: [
       { q: 'What is your standard delivery timeline?', a: 'Ready-to-wear silhouettes are dispatched within 24–48 hours via premium insured courier (2–4 business days across India). Bespoke bridal orders take 10–14 days for hand-embroidery and precision fitting.' },
       { q: 'Do you ship internationally?', a: 'Yes! We ship to USA, UK, UAE, Canada, Australia, and Singapore. International delivery takes 7–14 business days. Customs duties and taxes are borne by the customer.' },
-      { q: 'How do I track my order?', a: 'Once dispatched, you will receive a tracking number via SMS and WhatsApp. You can also track your order on our Track Order page using your Order ID.' },
+      { q: 'How do I track my order?', a: 'Once dispatched, you will receive a tracking number via SMS. You can also track your order on our Track Order page using your Order ID.' },
       { q: 'Can I change my delivery address after placing an order?', a: 'Address changes can be made within 6 hours of placing the order. Please WhatsApp us immediately at +91 90323 06961.' },
     ]
   },

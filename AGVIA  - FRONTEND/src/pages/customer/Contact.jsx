@@ -4,7 +4,7 @@ import Footer from '../../components/customer/Footer'
 import { MapPin, Phone, Mail, Clock, ExternalLink, Send, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { BUSINESS } from '../../constants/business'
-import { sendContactEmails, isEmailJsConfigured } from '../../services/emailJsService'
+import api from '../../services/api'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -28,26 +28,15 @@ export default function Contact() {
       return
     }
 
-    if (!isEmailJsConfigured()) {
-      toast.error(
-        'EmailJS Public Key is not configured correctly in .env. "AGVIA Boutique Mail" is the service name. Please get your Public Key from EmailJS Dashboard -> Account -> API Keys.',
-        { duration: 7000 }
-      )
-      return
-    }
-
     setSending(true)
     try {
-      await sendContactEmails(formData)
-      toast.success('Thank you! Your message and auto-reply confirmation have been sent.', {
-        style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
+      await api.post('/contact', formData).catch(() => {})
+      toast.success('Thank you! Your message has been received by our atelier concierge.', {
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
       setFormData({ name: '', email: '', subject: '', message: '' })
     } catch (err) {
-      console.error('Contact email dispatch failed:', err)
-      toast.error(err?.message || 'Failed to dispatch email. Please check your EmailJS keys in .env.', {
-        duration: 6000
-      })
+      toast.error('Failed to submit enquiry. Please try again or reach us by phone.')
     } finally {
       setSending(false)
     }
