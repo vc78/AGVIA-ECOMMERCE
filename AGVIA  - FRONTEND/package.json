@@ -28,7 +28,8 @@
     "react-router-dom": "^6.26.1",
     "recharts": "^2.12.7",
     "sockjs-client": "^1.6.1",
-    "swiper": "^14.0.5"
+    "swiper": "^14.0.5",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",

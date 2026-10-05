@@ -5,6 +5,7 @@ import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
 import { adminWebSocket } from '../../services/adminWebSocket'
 import { exportOrdersPDF, exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
+import { generateAndDownloadOrdersExcel } from '../../utils/excelExportUtils'
 import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag, QrCode, Printer, FileSpreadsheet, Database } from 'lucide-react'
 import ParcelReceiptModal from '../../components/admin/ParcelReceiptModal'
 
@@ -63,6 +64,14 @@ export default function OrdersManagement() {
         event.type === 'ORDER_CANCELLED' ||
         event.type === 'PAYMENT_RECEIVED'
       ) {
+        if (event.type === 'NEW_ORDER') {
+          const num = event.metadata?.orderNumber || event.referenceId || 'New'
+          toast.success(`✨ Real-Time: Order #${num} entered registry!`, {
+            id: `rt-order-${num}`,
+            duration: 5000,
+            style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px', border: '1px solid #C9A45C' }
+          })
+        }
         loadOrders(true)
       }
     })
@@ -119,15 +128,30 @@ export default function OrdersManagement() {
   const handleDownloadExcel = async () => {
     try {
       setExcelLoading(true)
-      toast.loading('Fetching authoritative AGVIA_ORDERS.xlsx from server...', { id: 'excel-orders' })
-      await adminService.downloadOrdersExcel()
-      toast.success('Downloaded AGVIA_ORDERS.xlsx successfully!', {
+      toast.loading('Compiling AGVIA_ORDERS.xlsx...', { id: 'excel-orders' })
+
+      // 1. Attempt authoritative server-side download first
+      try {
+        await adminService.downloadOrdersExcel()
+        toast.success('Downloaded official AGVIA_ORDERS.xlsx from server!', {
+          id: 'excel-orders',
+          style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+        })
+        return
+      } catch (serverErr) {
+        console.warn('Server download endpoint unreachable, generating real-time Excel directly from live orders:', serverErr)
+      }
+
+      // 2. Resilient fallback: Generate directly from real-time live orders in browser
+      const list = filteredOrders.length > 0 ? filteredOrders : orders
+      generateAndDownloadOrdersExcel(list)
+      toast.success(`Generated AGVIA_ORDERS.xlsx (${list.length} orders) in real-time!`, {
         id: 'excel-orders',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
     } catch (err) {
       console.error(err)
-      toast.error('Failed to download AGVIA_ORDERS.xlsx report.', { id: 'excel-orders' })
+      toast.error(err.message || 'Failed to generate Excel report.', { id: 'excel-orders' })
     } finally {
       setExcelLoading(false)
     }
@@ -136,15 +160,27 @@ export default function OrdersManagement() {
   const handleRegenerateExcel = async () => {
     try {
       setRegeneratingExcel(true)
-      toast.loading('Regenerating AGVIA_ORDERS.xlsx fresh from MySQL database...', { id: 'regen-excel' })
-      const status = await adminService.regenerateOrdersExcel()
-      toast.success(`Excel report regenerated from MySQL (${status?.totalOrdersInMySQL || orders.length} orders)!`, {
+      toast.loading('Regenerating AGVIA_ORDERS.xlsx...', { id: 'regen-excel' })
+      try {
+        const status = await adminService.regenerateOrdersExcel()
+        toast.success(`Excel report refreshed from MySQL (${status?.totalOrdersInMySQL || orders.length} orders)!`, {
+          id: 'regen-excel',
+          style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+        })
+        return
+      } catch (e) {
+        console.warn('Server regenerate call pending/offline, generating live report locally:', e)
+      }
+      
+      const list = filteredOrders.length > 0 ? filteredOrders : orders
+      generateAndDownloadOrdersExcel(list)
+      toast.success(`Excel registry generated (${list.length} live orders)!`, {
         id: 'regen-excel',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
     } catch (err) {
       console.error(err)
-      toast.error('Failed to regenerate Excel report from MySQL.', { id: 'regen-excel' })
+      toast.error('Failed to regenerate Excel report.', { id: 'regen-excel' })
     } finally {
       setRegeneratingExcel(false)
     }
