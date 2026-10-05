@@ -5,7 +5,7 @@ import DataTable from '../../components/admin/DataTable'
 import { adminService } from '../../services/adminService'
 import { adminWebSocket } from '../../services/adminWebSocket'
 import { exportOrdersPDF, exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
-import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag, QrCode, Printer } from 'lucide-react'
+import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag, QrCode, Printer, FileSpreadsheet, Database } from 'lucide-react'
 import ParcelReceiptModal from '../../components/admin/ParcelReceiptModal'
 
 const STATUS_OPTIONS = [
@@ -31,6 +31,8 @@ export default function OrdersManagement() {
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null)
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false)
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null)
+  const [excelLoading, setExcelLoading] = useState(false)
+  const [regeneratingExcel, setRegeneratingExcel] = useState(false)
   const pollTimerRef = useRef(null)
 
   const loadOrders = async (silent = false) => {
@@ -111,6 +113,40 @@ export default function OrdersManagement() {
     } catch (err) {
       console.error(err)
       toast.error('Failed to export orders PDF.', { id: 'pdf-orders' })
+    }
+  }
+
+  const handleDownloadExcel = async () => {
+    try {
+      setExcelLoading(true)
+      toast.loading('Fetching authoritative AGVIA_ORDERS.xlsx from server...', { id: 'excel-orders' })
+      await adminService.downloadOrdersExcel()
+      toast.success('Downloaded AGVIA_ORDERS.xlsx successfully!', {
+        id: 'excel-orders',
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to download AGVIA_ORDERS.xlsx report.', { id: 'excel-orders' })
+    } finally {
+      setExcelLoading(false)
+    }
+  }
+
+  const handleRegenerateExcel = async () => {
+    try {
+      setRegeneratingExcel(true)
+      toast.loading('Regenerating AGVIA_ORDERS.xlsx fresh from MySQL database...', { id: 'regen-excel' })
+      const status = await adminService.regenerateOrdersExcel()
+      toast.success(`Excel report regenerated from MySQL (${status?.totalOrdersInMySQL || orders.length} orders)!`, {
+        id: 'regen-excel',
+        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to regenerate Excel report from MySQL.', { id: 'regen-excel' })
+    } finally {
+      setRegeneratingExcel(false)
     }
   }
 
@@ -296,7 +332,29 @@ export default function OrdersManagement() {
             title="Download Luxury Orders PDF"
           >
             <FileText size={13} />
-            <span>Export Orders (PDF)</span>
+            <span>Orders (PDF)</span>
+          </button>
+
+          {/* Download AGVIA_ORDERS.xlsx */}
+          <button
+            onClick={handleDownloadExcel}
+            disabled={excelLoading}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-600/40 bg-emerald-50/70 hover:bg-emerald-700 text-emerald-800 hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
+            title="Download Official AGVIA_ORDERS.xlsx (Primary Source: MySQL)"
+          >
+            <FileSpreadsheet size={13} className={excelLoading ? 'animate-bounce' : 'text-emerald-700'} />
+            <span>AGVIA_ORDERS.xlsx</span>
+          </button>
+
+          {/* Regenerate Excel from MySQL */}
+          <button
+            onClick={handleRegenerateExcel}
+            disabled={regeneratingExcel}
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl border border-[#C9A45C]/35 bg-[#FFFDF8] hover:border-[#5A1020] text-[#5A1020] text-xs font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
+            title="Force Regenerate AGVIA_ORDERS.xlsx from MySQL Database"
+          >
+            <Database size={13} className={regeneratingExcel ? 'animate-spin text-[#C9A45C]' : 'text-[#C9A45C]'} />
+            <span className="hidden md:inline">Regen Excel</span>
           </button>
 
           {/* Live Sync Indicator */}

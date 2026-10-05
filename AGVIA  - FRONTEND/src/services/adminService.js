@@ -473,6 +473,51 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     }
   },
 
+  // ── Excel Reporting Layer (AGVIA_ORDERS.xlsx) ──
+  async downloadOrdersExcel() {
+    try {
+      const response = await api.get('/admin/reports/orders-excel', {
+        responseType: 'blob',
+        timeout: 45000
+      })
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'AGVIA_ORDERS.xlsx')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+      return true
+    } catch (err) {
+      console.error('Failed to download AGVIA_ORDERS.xlsx:', err)
+      throw err
+    }
+  },
+
+  async regenerateOrdersExcel() {
+    try {
+      const { data } = await api.post('/admin/reports/orders-excel/regenerate')
+      return data?.data
+    } catch (err) {
+      console.error('Failed to regenerate AGVIA_ORDERS.xlsx:', err)
+      throw err
+    }
+  },
+
+  async getOrdersExcelStatus() {
+    try {
+      const { data } = await api.get('/admin/reports/orders-excel/status')
+      return data?.data
+    } catch (err) {
+      console.error('Failed to get Excel sync status:', err)
+      throw err
+    }
+  },
+
   // Customers
   async getCustomers(params = {}) {
     try {

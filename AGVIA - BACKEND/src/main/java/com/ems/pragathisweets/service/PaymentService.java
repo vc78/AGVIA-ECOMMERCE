@@ -188,6 +188,9 @@ public class PaymentService {
                         "paymentId", request.getRazorpayPaymentId()
                 )
         ));
+
+        // Trigger non-blocking Excel Reporting layer synchronization
+        eventPublisher.publishEvent(new com.ems.pragathisweets.event.OrderConfirmedEvent(order.getId(), order.getOrderNumber(), "ONLINE"));
     }
 
     @Transactional

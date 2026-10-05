@@ -107,6 +107,9 @@ public class AdminOrderService {
                 )
         ));
 
+        // Trigger non-blocking Excel Reporting layer synchronization
+        eventPublisher.publishEvent(new com.ems.pragathisweets.event.OrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), "ADMIN_UPDATE_" + newStatus.name()));
+
         return orderResponse;
     }
 

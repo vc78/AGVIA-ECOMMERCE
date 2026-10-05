@@ -40,4 +40,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                    "GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')", nativeQuery = true)
     java.util.List<Object[]> findDailyOrdersBetween(@org.springframework.data.repository.query.Param("start") LocalDateTime start,
                                                     @org.springframework.data.repository.query.Param("end") LocalDateTime end);
+
+    @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i LEFT JOIN FETCH i.product LEFT JOIN FETCH o.user ORDER BY o.createdAt DESC")
+    java.util.List<Order> findAllWithDetails();
+
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items i LEFT JOIN FETCH i.product LEFT JOIN FETCH o.user WHERE o.id = :orderId")
+    Optional<Order> findByIdWithDetails(@org.springframework.data.repository.query.Param("orderId") Long orderId);
 }

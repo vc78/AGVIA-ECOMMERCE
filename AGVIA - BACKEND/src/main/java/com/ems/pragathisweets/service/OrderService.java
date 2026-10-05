@@ -172,6 +172,9 @@ public class OrderService {
                             "paymentMethod", "COD"
                     )
             ));
+
+            // Trigger non-blocking Excel Reporting layer synchronization
+            eventPublisher.publishEvent(new com.ems.pragathisweets.event.OrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), "COD"));
         }
 
         return orderResponse;
