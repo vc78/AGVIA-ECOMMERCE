@@ -28,6 +28,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+
 /**
  * Excel Reporting Service (AGVIA_ORDERS.xlsx)
  * 
@@ -40,6 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class ExcelReportingService {
 
     private final OrderRepository orderRepository;
@@ -418,14 +422,21 @@ public class ExcelReportingService {
     }
 
     private void autoFitColumns(Sheet sheet, int numCols) {
-        for (int i = 0; i < numCols; i++) {
-            sheet.autoSizeColumn(i);
-            int width = sheet.getColumnWidth(i);
-            // Minimum 12 chars (3000 units), max 60 chars (15000 units)
-            if (width < 3200) {
-                sheet.setColumnWidth(i, 3200);
-            } else if (width > 15000) {
-                sheet.setColumnWidth(i, 15000);
+        try {
+            for (int i = 0; i < numCols; i++) {
+                sheet.autoSizeColumn(i);
+                int width = sheet.getColumnWidth(i);
+                // Minimum 12 chars (3200 units), max 60 chars (15000 units)
+                if (width < 3200) {
+                    sheet.setColumnWidth(i, 3200);
+                } else if (width > 15000) {
+                    sheet.setColumnWidth(i, 15000);
+                }
+            }
+        } catch (Throwable t) {
+            log.warn("[ExcelReportingService] autoSizeColumn unavailable in environment, applying default widths: {}", t.getMessage());
+            for (int i = 0; i < numCols; i++) {
+                sheet.setColumnWidth(i, 4500);
             }
         }
     }
@@ -480,7 +491,8 @@ public class ExcelReportingService {
         return status;
     }
 
-    private void saveSyncLog(Long orderId, String orderNumber, String action, String status, String errorMessage) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveSyncLog(Long orderId, String orderNumber, String action, String status, String errorMessage) {
         try {
             OrderExcelSyncLog logEntry = OrderExcelSyncLog.builder()
                     .orderId(orderId != null ? orderId : 0L)

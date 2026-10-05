@@ -25,7 +25,7 @@ public class AdminExcelReportController {
 
     private final ExcelReportingService excelReportingService;
 
-    @GetMapping
+    @GetMapping({"", "/", "/download"})
     @Operation(summary = "Download authoritative AGVIA_ORDERS.xlsx report generated from MySQL")
     public ResponseEntity<Resource> downloadOrdersExcel() {
         File file = excelReportingService.getOrGenerateExcelReport();
