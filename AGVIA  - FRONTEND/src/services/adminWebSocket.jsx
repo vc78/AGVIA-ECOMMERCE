@@ -61,8 +61,10 @@ class AdminWebSocketManager {
     this.reconnectAttempt = 0
     this.reconnectTimeout = null
     this.listeners = new Set()
+    this.settingsListeners = new Set()
     this.navigateHandler = null
     this.isManualDisconnect = false
+    this.pollingTimer = null
   }
 
   setNavigateHandler(navigate) {
@@ -85,10 +87,15 @@ class AdminWebSocketManager {
     const token = state.auth?.token
     const user = state.auth?.user
 
-    // Enforce admin authentication before connecting
-    if (!token || !user || user.role !== 'ROLE_ADMIN') {
+    // Authorize admin: Accept both 'ADMIN' and 'ROLE_ADMIN'
+    const isAdmin = user && (user.role === 'ADMIN' || user.role === 'ROLE_ADMIN')
+    if (!token || !isAdmin) {
       return
     }
+
+    // Always ensure latest notifications are synced immediately upon connection invocation
+    this.syncInitialNotifications()
+    this.startPolling()
 
     if (this.client && this.client.active) {
       return
@@ -122,7 +129,7 @@ class AdminWebSocketManager {
         // Synchronize latest database state to prevent missed events during offline/reconnect
         this.syncInitialNotifications()
 
-        // Subscribe to global admin notifications topic
+        // 1. Subscribe to global admin notifications topic
         this.client.subscribe('/topic/admin/notifications', (message) => {
           try {
             const payload = JSON.parse(message.body)
@@ -132,7 +139,7 @@ class AdminWebSocketManager {
           }
         })
 
-        // Also subscribe to user-specific queue if user ID is known
+        // 2. Subscribe to user-specific queue if user ID is known
         if (user.id) {
           this.client.subscribe(`/user/queue/admin/notifications`, (message) => {
             try {
@@ -143,6 +150,25 @@ class AdminWebSocketManager {
             }
           })
         }
+
+        // 3. Subscribe to real-time e-commerce settings updates
+        this.client.subscribe('/topic/admin/settings', (message) => {
+          try {
+            const settingsPayload = JSON.parse(message.body)
+            this.handleIncomingSettings(settingsPayload)
+          } catch (err) {
+            console.error('[AdminWS] Failed to parse settings update:', err)
+          }
+        })
+
+        this.client.subscribe('/topic/settings', (message) => {
+          try {
+            const settingsPayload = JSON.parse(message.body)
+            this.handleIncomingSettings(settingsPayload)
+          } catch (err) {
+            console.error('[AdminWS] Failed to parse public settings update:', err)
+          }
+        })
       },
       onDisconnect: () => {
         if (!this.isManualDisconnect) {
@@ -195,6 +221,7 @@ class AdminWebSocketManager {
 
   disconnect() {
     this.isManualDisconnect = true
+    this.stopPolling()
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout)
       this.reconnectTimeout = null
@@ -206,6 +233,21 @@ class AdminWebSocketManager {
       this.client = null
     }
     this.updateStatus('OFFLINE')
+  }
+
+  startPolling() {
+    if (this.pollingTimer) return
+    // Resilient background sync: guarantees notifications remain real-time even on network changes
+    this.pollingTimer = setInterval(() => {
+      this.syncInitialNotifications()
+    }, 25000)
+  }
+
+  stopPolling() {
+    if (this.pollingTimer) {
+      clearInterval(this.pollingTimer)
+      this.pollingTimer = null
+    }
   }
 
   updateStatus(newStatus) {
@@ -250,12 +292,24 @@ class AdminWebSocketManager {
     // 3. Display interactive toast
     this.displayNotificationToast(notification)
 
-    // 4. Notify registered listeners (Dashboard, Orders, etc.)
+    // 4. Notify registered domain listeners (Dashboard, Orders, etc.)
     this.listeners.forEach((listener) => {
       try {
         listener(notification)
       } catch (err) {
         console.error('[AdminWS] Listener callback error:', err)
+      }
+    })
+  }
+
+  handleIncomingSettings(settingsPayload) {
+    if (!settingsPayload) return
+    logSettingChange(settingsPayload)
+    this.settingsListeners.forEach((listener) => {
+      try {
+        listener(settingsPayload)
+      } catch (err) {
+        console.error('[AdminWS] Settings listener callback error:', err)
       }
     })
   }
@@ -266,6 +320,8 @@ class AdminWebSocketManager {
       notification.type === 'ORDER_CANCELLED' ||
       notification.type === 'ORDER_STATUS_CHANGED' ||
       notification.type === 'PAYMENT_RECEIVED'
+
+    const isSettingsEvent = notification.type === 'SETTINGS_UPDATED'
 
     const orderId = notification.referenceId
 
@@ -278,7 +334,7 @@ class AdminWebSocketManager {
         >
           <div className="flex-1 w-0">
             <div className="flex items-start">
-              <div className="shrink-0 pt-0.5 text-2xl">
+              <div className="shrink-0 pt-0.5 text-2xl select-none">
                 {this.getTypeIcon(notification.type)}
               </div>
               <div className="ml-3 flex-1">
@@ -303,6 +359,21 @@ class AdminWebSocketManager {
                       className="px-3 py-1 bg-[#C9A45C] hover:bg-[#B38F46] text-[#1A0B10] rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 transition-all shadow-sm"
                     >
                       View Order →
+                    </button>
+                  </div>
+                )}
+                {isSettingsEvent && (
+                  <div className="mt-2.5 flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        toast.dismiss(t.id)
+                        if (this.navigateHandler) {
+                          this.navigateHandler('/admin/settings')
+                        }
+                      }}
+                      className="px-3 py-1 bg-[#C9A45C] hover:bg-[#B38F46] text-[#1A0B10] rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 transition-all shadow-sm"
+                    >
+                      Inspect Settings →
                     </button>
                   </div>
                 )}
@@ -339,6 +410,12 @@ class AdminWebSocketManager {
         return '🔄'
       case 'NEW_CUSTOMER':
         return '👤'
+      case 'SETTINGS_UPDATED':
+        return '⚙️'
+      case 'SYSTEM_ALERT':
+        return '📢'
+      case 'REFUND_REQUESTED':
+        return '💸'
       default:
         return '🔔'
     }
@@ -349,6 +426,19 @@ class AdminWebSocketManager {
     return () => {
       this.listeners.delete(listener)
     }
+  }
+
+  subscribeSettings(listener) {
+    this.settingsListeners.add(listener)
+    return () => {
+      this.settingsListeners.delete(listener)
+    }
+  }
+}
+
+function logSettingChange(payload) {
+  if (import.meta.env.DEV) {
+    console.info('[AdminWS] Real-time setting synchronized:', payload)
   }
 }
 

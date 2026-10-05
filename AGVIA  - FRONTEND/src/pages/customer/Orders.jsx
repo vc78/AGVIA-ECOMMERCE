@@ -27,6 +27,7 @@ import Footer from '../../components/customer/Footer'
 import { orderService } from '../../services/orderService'
 import ReliableImage from '../../components/common/ReliableImage'
 import { BUSINESS } from '../../constants/business'
+import SEOHead from '../../components/common/SEOHead'
 
 const getStatusBadge = (status = '') => {
   switch (status.toUpperCase()) {
@@ -131,6 +132,7 @@ export default function Orders() {
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] text-[#3A2D23] font-body">
+      <SEOHead title="My Orders" noindex={true} />
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 pt-12 pb-16">

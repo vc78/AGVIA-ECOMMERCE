@@ -24,8 +24,73 @@
   <url>
     <loc>https://agviaboutique.com/subscription</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
+
+  <!-- Category & Collection Landing Pages -->
+  <url>
+    <loc>https://agviaboutique.com/collections/sarees</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://agviaboutique.com/collections/lehengas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://agviaboutique.com/collections/anarkalis-and-kurtas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://agviaboutique.com/collections/dresses-and-gowns</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://agviaboutique.com/collections/western-wear</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://agviaboutique.com/collections/kurtis</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://agviaboutique.com/collections/dupattas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Product Landing Pages -->
+  <url><loc>https://agviaboutique.com/products/1</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/2</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/3</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/4</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/5</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/6</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/7</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/8</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/9</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/10</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/11</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/12</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/13</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/14</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/15</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/16</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/17</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/18</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/19</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/20</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/21</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/22</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/23</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/24</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/25</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agviaboutique.com/products/26</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
 
   <!-- Editorial & Custom Collections -->
   <url>
@@ -91,7 +156,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Customer Support & Order Tools -->
+  <!-- Client Services & Guides -->
   <url>
     <loc>https://agviaboutique.com/contact</loc>
     <changefreq>monthly</changefreq>
@@ -104,8 +169,8 @@
   </url>
   <url>
     <loc>https://agviaboutique.com/track-order</loc>
-    <changefreq>always</changefreq>
-    <priority>0.7</priority>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://agviaboutique.com/size-guide</loc>

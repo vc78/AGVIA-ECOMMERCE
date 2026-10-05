@@ -1,11 +1,17 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
-import { Compass, ShoppingBag, ArrowLeft, Search, Sparkles } from 'lucide-react'
+import { ShoppingBag, ArrowLeft, Sparkles, Home } from 'lucide-react'
+import SEOHead from '../../components/common/SEOHead'
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-body flex flex-col justify-between selection:bg-[#C9A45C]/30">
+      <SEOHead
+        title="Page Not Found"
+        description="The page you are looking for is unavailable. Explore AGVIA's luxury handcrafted fashion collections."
+        noindex={true}
+      />
       <Navbar />
 
       <main className="flex-1 flex items-center justify-center py-20 px-6 relative overflow-hidden">
@@ -20,14 +26,11 @@ export default function NotFound() {
           </div>
 
           <div className="space-y-3">
-            <h1 className="font-serif text-7xl sm:text-9xl font-bold text-[#5A1020] tracking-tight">
-              404
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold text-[#5A1020]">
+              Oops! We couldn't find that page.
             </h1>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold text-[#211D1E]">
-              Silhouette Not Found
-            </h2>
-            <p className="font-sans text-xs sm:text-sm text-[#211D1E]/70 max-w-md mx-auto leading-relaxed">
-              The couture design or page you are seeking may have been archived, renamed, or relocated within our boutique.
+            <p className="font-sans text-sm sm:text-base text-[#211D1E]/70 max-w-md mx-auto leading-relaxed">
+              Let's get you back to AGVIA. The silhouette or boutique page you are seeking may have moved or is no longer available.
             </p>
           </div>
 
@@ -37,8 +40,8 @@ export default function NotFound() {
               to="/"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-[#5A1020] text-[#FAF7F2] hover:bg-[#3D0C18] text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <ArrowLeft size={15} />
-              Return to Boutique
+              <Home size={15} />
+              Go Home
             </Link>
 
             <Link
@@ -46,7 +49,7 @@ export default function NotFound() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full border border-[#C9A45C] text-[#5A1020] hover:bg-[#C9A45C]/10 text-xs font-bold uppercase tracking-wider transition-all duration-200"
             >
               <ShoppingBag size={15} />
-              Explore Collections
+              Continue Shopping
             </Link>
           </div>
 

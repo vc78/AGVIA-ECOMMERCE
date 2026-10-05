@@ -8,10 +8,13 @@ import { useCart } from '../../hooks/useCart'
 import { orderService } from '../../services/orderService'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
+import { broadcastAuthEvent } from '../../utils/authSync'
 import { motion } from 'framer-motion'
 import { ShieldCheck, Truck, CreditCard, ChevronRight, Ticket, Sparkles, MessageCircle } from 'lucide-react'
 import api from '../../services/api'
 import { trackCheckoutStarted, trackPurchase } from '../../services/analytics'
+import SEOHead from '../../components/common/SEOHead'
+import { getFriendlyErrorMessage, logDeveloperError } from '../../services/errorMessageService'
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -115,6 +118,7 @@ export default function Checkout() {
       try {
         const { user: loggedIn, token } = await authService.login({ email, password })
         dispatch(credentialsReceived({ user: loggedIn, token }))
+        broadcastAuthEvent('LOGIN', { user: loggedIn, token })
         return true
       } catch {
         const { user: regUser, token } = await authService.register({
@@ -126,6 +130,7 @@ export default function Checkout() {
           address: `${address.line1}, ${address.city} - ${address.pincode}`
         })
         dispatch(credentialsReceived({ user: regUser, token }))
+        broadcastAuthEvent('LOGIN', { user: regUser, token })
         return true
       }
     } catch (err) {
@@ -173,8 +178,8 @@ export default function Checkout() {
         }
       })
     } catch (err) {
-      console.error('Order creation failed:', err)
-      const msg = err?.response?.data?.message || err?.message || 'Could not place order. Please try again.'
+      logDeveloperError('Checkout.placeOrder', err)
+      const msg = getFriendlyErrorMessage(err, "We couldn't place your order right now. Please try again.")
       toast.error(msg)
     } finally {
       setPlacing(false)
@@ -267,8 +272,8 @@ export default function Checkout() {
               }
             })
           } catch (err) {
-            console.error('Payment verification failed:', err)
-            toast.error(err?.response?.data?.message || 'Payment verification failed. Please contact support.')
+            logDeveloperError('Checkout.RazorpayVerification', err)
+            toast.error("We couldn't confirm your payment yet. Please check your order status before trying again.")
           } finally {
             setPlacing(false)
           }
@@ -280,8 +285,8 @@ export default function Checkout() {
       const rzp = new window.Razorpay(options)
       rzp.open()
     } catch (err) {
-      console.error('Payment initiation error:', err)
-      const msg = err?.response?.data?.message || err?.message || 'Could not initiate payment. Please try Cash on Delivery.'
+      logDeveloperError('Checkout.paymentInitiation', err)
+      const msg = getFriendlyErrorMessage(err, "We couldn't initiate payment right now. Please try Cash on Delivery or retry.")
       toast.error(msg)
       setPlacing(false)
     }
@@ -290,6 +295,7 @@ export default function Checkout() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex flex-col justify-between font-sans">
+        <SEOHead title="Checkout" noindex={true} />
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center py-20 select-none">
           <p className="font-serif text-lg italic text-[#5A1020] font-bold">Your wardrobe bag is empty.</p>
@@ -303,6 +309,7 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans">
+      <SEOHead title="Secure Checkout" noindex={true} />
       <Navbar />
 
       <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] pt-5 sm:pt-6 pb-20 sm:pb-12">

@@ -1,10 +1,20 @@
 import React, { lazy, Suspense, useEffect } from 'react'
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import ProtectedRoute from './ProtectedRoute'
 import { trackPageView } from '../services/analytics'
 import PageTransition from '../components/customer/PageTransition'
 import BoutiqueSpinner from '../components/customer/BoutiqueSpinner'
+
+function ProductRedirect() {
+  const { id } = useParams()
+  return <Navigate to={`/products/${id}`} replace />
+}
+
+function CollectionRedirect() {
+  const { category } = useParams()
+  return <Navigate to={`/products?category=${encodeURIComponent(category || '')}`} replace />
+}
 
 // Lazy loaded customer pages
 const Home = lazy(() => import('../pages/customer/Home'))
@@ -92,11 +102,11 @@ export default function AppRoutes() {
           {/* Public / customer-facing */}
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
           <Route path="/products" element={<PageTransition><Products /></PageTransition>} />
-          <Route path="/shop" element={<PageTransition><Products /></PageTransition>} />
-          <Route path="/collections" element={<PageTransition><Products /></PageTransition>} />
-          <Route path="/collections/:category" element={<PageTransition><Products /></PageTransition>} />
+          <Route path="/shop" element={<Navigate to="/products" replace />} />
+          <Route path="/collections" element={<Navigate to="/products" replace />} />
+          <Route path="/collections/:category" element={<CollectionRedirect />} />
           <Route path="/products/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
-          <Route path="/product/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
+          <Route path="/product/:id" element={<ProductRedirect />} />
           <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
           <Route path="/offers" element={<PageTransition><Offers /></PageTransition>} />
           <Route path="/gift-boxes" element={<PageTransition><GiftBoxes /></PageTransition>} />
@@ -135,13 +145,13 @@ export default function AppRoutes() {
           <Route path="/payment-success" element={<PageTransition><PaymentSuccess /></PageTransition>} />
           <Route path="/payment-failed" element={<PageTransition><PaymentFailed /></PageTransition>} />
           <Route path="/track-order" element={<PageTransition><TrackOrder /></PageTransition>} />
-          <Route path="/track" element={<PageTransition><TrackOrder /></PageTransition>} />
+          <Route path="/track" element={<Navigate to="/track-order" replace />} />
           <Route path="/subscription" element={<PageTransition><Subscription /></PageTransition>} />
 
           {/* Customer — requires login */}
           <Route path="/checkout" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Checkout /></PageTransition></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
-          <Route path="/my-orders" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
+          <Route path="/my-orders" element={<Navigate to="/orders" replace />} />
           <Route path="/profile" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
           <Route path="/account" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
           <Route path="/addresses" element={<ProtectedRoute role="CUSTOMER"><PageTransition><Addresses /></PageTransition></ProtectedRoute>} />

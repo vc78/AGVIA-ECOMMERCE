@@ -7,6 +7,8 @@ import {
   Crown, Flower2, Gem, Scissors, Feather, Layers, Home
 } from 'lucide-react'
 import { loggedOut } from '../../store/authSlice'
+import { authService } from '../../services/authService'
+import { broadcastAuthEvent } from '../../utils/authSync'
 import { useCart } from '../../hooks/useCart'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReliableImage from '../common/ReliableImage'
@@ -162,8 +164,14 @@ export default function Navbar() {
     }
   }, [mobileMenuOpen])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+    } catch {
+      // ignore
+    }
     dispatch(loggedOut())
+    broadcastAuthEvent('LOGOUT')
     toast.success('Signed out successfully')
     navigate('/')
   }

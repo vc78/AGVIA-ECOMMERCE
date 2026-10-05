@@ -33,16 +33,9 @@ class ErrorBoundary extends React.Component {
             <h2 className="text-2xl font-bold text-neutral-800 mb-2 font-serif">
               Something went wrong
             </h2>
-            <p className="text-neutral-500 text-sm mb-4 leading-relaxed">
-              We encountered an unexpected issue while loading this page. Our team has been notified.
+            <p className="text-neutral-500 text-sm mb-6 leading-relaxed">
+              Please refresh the page and try again. If the issue persists, our support team is here to help.
             </p>
-
-            {this.state.error && (
-              <div className="text-left bg-red-50 border border-red-200 text-red-800 p-3 rounded-xl mb-6 text-xs font-mono overflow-auto max-h-48">
-                <p className="font-bold mb-1">{this.state.error.toString()}</p>
-                <p className="text-[10px] text-red-600 whitespace-pre-wrap">{this.state.error.stack}</p>
-              </div>
-            )}
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button

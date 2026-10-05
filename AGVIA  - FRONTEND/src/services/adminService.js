@@ -1056,6 +1056,55 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       console.error(`[adminService.deleteNotification] Error for id ${id}:`, err)
       throw err
     }
+  },
+
+  async sendTestNotification(type = 'NEW_ORDER', title = '', message = '') {
+    try {
+      const { data } = await api.post('/admin/notifications/test', null, {
+        params: { type, title, message }
+      })
+      return data?.data
+    } catch (err) {
+      console.error('[adminService.sendTestNotification] Error:', err)
+      throw err
+    }
+  },
+
+  // E-Commerce Real-Time Store Settings
+  async getSettings() {
+    try {
+      const { data } = await api.get('/admin/settings')
+      return data?.data
+    } catch (err) {
+      console.warn('[adminService.getSettings] Falling back to public settings:', err)
+      try {
+        const { data } = await api.get('/settings')
+        return data?.data
+      } catch (e) {
+        console.warn('[adminService.getSettings] Failed to fetch settings, using local defaults:', e)
+        return null
+      }
+    }
+  },
+
+  async updateSettings(settingsPayload) {
+    try {
+      const { data } = await api.put('/admin/settings', settingsPayload)
+      return data?.data
+    } catch (err) {
+      console.error('[adminService.updateSettings] Error:', err)
+      throw err
+    }
+  },
+
+  async resetSettings() {
+    try {
+      const { data } = await api.post('/admin/settings/reset')
+      return data?.data
+    } catch (err) {
+      console.error('[adminService.resetSettings] Error:', err)
+      throw err
+    }
   }
 }
 

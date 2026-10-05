@@ -30,6 +30,7 @@ import { productService } from '../../services/productService'
 import { useCart } from '../../hooks/useCart'
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
 import { ProductGridSkeleton } from '../../components/common/SkeletonLoaders'
+import SEOHead from '../../components/common/SEOHead'
 
 // ── Hero Slides ────────────────────────────────────────────
 const HERO_SLIDES = [
@@ -227,6 +228,12 @@ export default function Home() {
 
   return (
     <div className="relative min-h-full bg-[#FFFDF8] overflow-x-hidden pb-14 sm:pb-0">
+      <SEOHead
+        title="Luxury Women's Fashion, Handcrafted Sarees & Designer Wear"
+        description="Experience timeless elegance with AGVIA. Shop luxury handcrafted silk sarees, bridal lehengas, designer kurtis, and contemporary ethnic wear."
+        canonicalUrl="/"
+        type="website"
+      />
       {/* ══ GLOBAL LUXURY BOUTIQUE BACKGROUND TEXTURE ══ */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div

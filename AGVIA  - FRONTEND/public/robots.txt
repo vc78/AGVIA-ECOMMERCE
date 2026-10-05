@@ -1,11 +1,36 @@
+# AGVIA Women's Wear Boutique — Production Robots Configuration
 User-agent: *
 Allow: /
+Allow: /images/
+Allow: /assets/
+Allow: /products
+Allow: /categories
+Allow: /collections/
+Allow: /offers
+
+# Private & User Account Areas (Prevent Indexing)
 Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /verify-otp
+Disallow: /verify-login-otp
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /cart
 Disallow: /checkout
+Disallow: /orders
+Disallow: /my-orders
 Disallow: /profile
 Disallow: /account
-Disallow: /my-orders
 Disallow: /addresses
 Disallow: /notifications
+Disallow: /payment-success
+Disallow: /payment-failed
 
+# Internal Search & Dynamic Query Parameters
+Disallow: /*?*q=
+Disallow: /*?*filter=
+Disallow: /*?*sort=
+
+# XML Sitemaps
 Sitemap: https://agviaboutique.com/sitemap.xml

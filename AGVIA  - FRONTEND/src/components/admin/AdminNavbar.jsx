@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { LogOut, Bell, Menu, Download, Database, FileText, ChevronDown, CheckCircle2, X } from 'lucide-react'
 import { loggedOut } from '../../store/authSlice'
+import { authService } from '../../services/authService'
+import { broadcastAuthEvent } from '../../utils/authSync'
 import { adminService } from '../../services/adminService'
 import { 
   exportOrdersPDF, 
@@ -33,12 +35,7 @@ export default function AdminNavbar({ onMenuToggle }) {
   // Initialize centralized WebSocket manager when admin is mounted
   useEffect(() => {
     adminWebSocket.setNavigateHandler(navigate)
-    // Defer WebSocket connection: lets REST API calls wake the Render backend first,
-    // avoiding SockJS timeout errors during cold start
-    const wsTimer = setTimeout(() => {
-      adminWebSocket.connect()
-    }, 3000)
-    return () => clearTimeout(wsTimer)
+    adminWebSocket.connect()
   }, [navigate])
 
   // Close dropdowns on click outside
@@ -55,9 +52,15 @@ export default function AdminNavbar({ onMenuToggle }) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     adminWebSocket.disconnect()
+    try {
+      await authService.logout()
+    } catch {
+      // ignore
+    }
     dispatch(loggedOut())
+    broadcastAuthEvent('LOGOUT')
     navigate('/admin/login')
   }
 

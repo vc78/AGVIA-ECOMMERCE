@@ -63,8 +63,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             authHeader = accessor.getFirstNativeHeader("token");
                         }
 
-                        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                            authHeader = authHeader.substring(7).trim();
+                        if (authHeader != null) {
+                            authHeader = authHeader.replace("\"", "").trim();
+                            if (authHeader.startsWith("Bearer ")) {
+                                authHeader = authHeader.substring(7).trim();
+                            }
                         }
 
                         if (authHeader != null && !authHeader.isBlank()) {
@@ -76,6 +79,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                                         UsernamePasswordAuthenticationToken authentication =
                                                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                                         accessor.setUser(authentication);
+                                        if (accessor.getSessionAttributes() != null) {
+                                            accessor.getSessionAttributes().put("USER_AUTH", authentication);
+                                        }
                                         log.info("[WebSocket] Authenticated client connected: {} with authorities: {}", username, userDetails.getAuthorities());
                                     }
                                 }
@@ -86,15 +92,48 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         }
                     } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
                         String destination = accessor.getDestination();
+
+                        // Restore principal from session attributes if accessor.getUser() is null
+                        if (accessor.getUser() == null && accessor.getSessionAttributes() != null) {
+                            Object sessionAuth = accessor.getSessionAttributes().get("USER_AUTH");
+                            if (sessionAuth instanceof UsernamePasswordAuthenticationToken auth) {
+                                accessor.setUser(auth);
+                            }
+                        }
+
+                        // Fallback: check headers on SUBSCRIBE frame
+                        if (accessor.getUser() == null) {
+                            String subToken = accessor.getFirstNativeHeader("Authorization");
+                            if (subToken == null) subToken = accessor.getFirstNativeHeader("token");
+                            if (subToken != null) {
+                                subToken = subToken.replace("\"", "").trim();
+                                if (subToken.startsWith("Bearer ")) subToken = subToken.substring(7).trim();
+                                try {
+                                    String u = jwtService.extractUsername(subToken);
+                                    if (u != null) {
+                                        UserDetails ud = userDetailsService.loadUserByUsername(u);
+                                        if (jwtService.isTokenValid(subToken, ud)) {
+                                            UsernamePasswordAuthenticationToken auth =
+                                                    new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+                                            accessor.setUser(auth);
+                                            if (accessor.getSessionAttributes() != null) {
+                                                accessor.getSessionAttributes().put("USER_AUTH", auth);
+                                            }
+                                        }
+                                    }
+                                } catch (Exception ignored) {}
+                            }
+                        }
+
                         // Enforce ROLE_ADMIN authorization on administrative channels
-                        if (destination != null && (destination.startsWith("/topic/admin") || destination.startsWith("/queue/admin"))) {
+                        if (destination != null && (destination.startsWith("/topic/admin") || destination.startsWith("/queue/admin") || destination.contains("/admin/"))) {
                             if (accessor.getUser() == null || !(accessor.getUser() instanceof UsernamePasswordAuthenticationToken auth)) {
                                 log.warn("[WebSocket] Unauthorized attempt to subscribe to admin channel: destination={}", destination);
                                 throw new AccessDeniedException("Access denied: Unauthenticated user cannot subscribe to admin notifications.");
                             }
 
                             boolean isAdmin = auth.getAuthorities().stream()
-                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"));
 
                             if (!isAdmin) {
                                 log.warn("[WebSocket] Access denied for user {} to admin destination {}", auth.getName(), destination);

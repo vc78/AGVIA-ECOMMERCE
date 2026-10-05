@@ -35,7 +35,10 @@ public class SecurityConfig {
             "/api/reviews/product/**",
             "/api/festival-offers/**",
             "/api/coupons/**",
-            "/api/orders/track/**"
+            "/api/orders/track/**",
+            "/api/settings/**",
+            "/api/settings",
+            "/api/sitemap.xml"
     };
 
     private static final String[] PUBLIC_ENDPOINTS = {

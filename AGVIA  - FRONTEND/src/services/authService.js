@@ -172,11 +172,22 @@ export const authService = {
   },
 
   /**
+   * Terminate authenticated session on Spring Boot and clear server-side cookies.
+   */
+  async logout() {
+    try {
+      await api.post('/auth/logout')
+    } catch (err) {
+      console.warn('[authService.logout] Backend logout failed or unreachable:', err)
+    }
+  },
+
+  /**
    * Current user profile from Spring Boot.
    */
   async getCurrentUser() {
     try {
-      const { data } = await api.get('/auth/me')
+      const { data } = await api.get('/auth/me', { _isAuthCheck: true })
       return data.data
     } catch (err) {
       console.error('[authService.getCurrentUser] Error:', err)

@@ -34,7 +34,7 @@ export const BUSINESS = {
   },
 
   seo: {
-    siteUrl: 'https://agvia.in',
+    siteUrl: 'https://agviaboutique.com',
     defaultTitle: "AGVIA | Women's Wear Boutique — Luxury Sarees, Lehengas & Couture",
     titleTemplate: "%s | AGVIA Women's Wear Boutique",
     defaultDescription: "Discover AGVIA — Luxury Indian fashion boutique featuring pure silk sarees, handcrafted bridal lehengas, bespoke anarkalis, and contemporary occasion couture.",

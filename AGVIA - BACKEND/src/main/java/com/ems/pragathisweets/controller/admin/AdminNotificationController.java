@@ -60,4 +60,43 @@ public class AdminNotificationController {
         notificationService.deleteNotification(id);
         return ResponseEntity.ok(ApiResponse.success("Notification deleted successfully", null));
     }
+
+    @PostMapping("/test")
+    public ResponseEntity<ApiResponse<AdminNotificationResponse>> sendTestNotification(
+            @RequestParam(defaultValue = "NEW_ORDER") String type,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String message,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        com.ems.pragathisweets.entity.NotificationType notifType;
+        try {
+            notifType = com.ems.pragathisweets.entity.NotificationType.valueOf(type.toUpperCase());
+        } catch (Exception e) {
+            notifType = com.ems.pragathisweets.entity.NotificationType.NEW_ORDER;
+        }
+
+        String actualTitle = (title != null && !title.isBlank())
+                ? title
+                : "Real-Time Test Alert (" + notifType.name() + ")";
+        String actualMessage = (message != null && !message.isBlank())
+                ? message
+                : "Live WebSocket ping verified. Atelier notification channel is functioning in real time!";
+
+        AdminNotificationResponse response = notificationService.createAndPublish(
+                notifType,
+                actualTitle,
+                actualMessage,
+                "TEST-" + (System.currentTimeMillis() % 10000),
+                "SYSTEM",
+                null,
+                java.util.Map.of(
+                        "isTest", true,
+                        "triggeredBy", userDetails != null ? userDetails.getUsername() : "Admin",
+                        "timestamp", System.currentTimeMillis()
+                )
+        );
+
+        return ResponseEntity.ok(ApiResponse.success("Test notification broadcast dispatched successfully", response));
+    }
 }
+

@@ -57,6 +57,9 @@ class MobileOtpAuthServiceTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private MobileOtpAuthService mobileOtpAuthService;
 

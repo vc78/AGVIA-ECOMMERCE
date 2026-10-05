@@ -18,6 +18,7 @@ import { subscriptionService } from '../../services/subscriptionService'
 import { profileUpdated, loggedOut } from '../../store/authSlice'
 import { removeFromWishlist } from '../../store/wishlistSlice'
 import { useCart } from '../../hooks/useCart'
+import SEOHead from '../../components/common/SEOHead'
 
 export default function Profile() {
   const { user } = useSelector((state) => state.auth)
@@ -527,6 +528,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-full bg-[#FFFDF8] font-body text-[#3A2D23] flex flex-col justify-between">
+      <SEOHead title="My Profile & Account" noindex={true} />
       <Navbar />
 
       <main className="container-luxury py-8 md:py-12 flex-1 w-full">

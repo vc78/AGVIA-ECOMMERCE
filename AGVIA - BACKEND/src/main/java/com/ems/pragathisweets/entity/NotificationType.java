@@ -8,5 +8,7 @@ public enum NotificationType {
     LOW_STOCK,
     OUT_OF_STOCK,
     NEW_CUSTOMER,
-    REFUND_REQUESTED
+    REFUND_REQUESTED,
+    SETTINGS_UPDATED,
+    SYSTEM_ALERT
 }

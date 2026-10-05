@@ -4,9 +4,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
+import { broadcastAuthEvent } from '../../utils/authSync'
 import { ArrowLeft } from 'lucide-react'
 import OtpVerificationCard from '../../components/auth/OtpVerificationCard'
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
+import SEOHead from '../../components/common/SEOHead'
+import { getAuthErrorMessage, logDeveloperError } from '../../services/errorMessageService'
 
 export default function Register() {
   const [step, setStep] = useState('FORM') // 'FORM' | 'OTP'
@@ -27,7 +30,17 @@ export default function Register() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/'
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const { isAuthenticated, user, isAuthLoading } = useSelector((state) => state.auth)
+
+  // Do not flash registration screen while session is being verified
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#FFFDF8] flex items-center justify-center">
+        <SEOHead title="Create Account" noindex={true} />
+        <div className="w-8 h-8 border-2 border-[#8B0000]/20 border-t-[#8B0000] rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   // Redirect away if already authenticated
   if (isAuthenticated) {
@@ -43,11 +56,11 @@ export default function Register() {
     e.preventDefault()
 
     if (form.password.length < 6) {
-      toast.error('Password must be at least 6 characters.')
+      toast.error('Please choose a password with at least 6 characters.')
       return
     }
     if (form.password !== form.confirmPassword) {
-      toast.error('Passwords do not match.')
+      toast.error("Your passwords don't match. Please check and try again.")
       return
     }
 
@@ -70,7 +83,8 @@ export default function Register() {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Could not initiate registration.'
+      logDeveloperError('Register.handleRequestOtp', err)
+      const msg = getAuthErrorMessage(err)
       toast.error(msg)
     } finally {
       setLoading(false)
@@ -88,12 +102,14 @@ export default function Register() {
       })
 
       dispatch(credentialsReceived({ user, token }))
+      broadcastAuthEvent('LOGIN', { user, token })
       toast.success(`Account created successfully — welcome, ${user.name}!`, {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })
       navigate(from, { replace: true })
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Verification failed. Please try again.'
+      logDeveloperError('Register.handleVerifyOtp', err)
+      const msg = getAuthErrorMessage(err)
       setOtpError(msg)
     } finally {
       setLoading(false)
@@ -120,6 +136,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-center items-center px-4 py-8 sm:py-12 font-body relative">
+      <SEOHead title="Create Account" noindex={true} />
       <Link
         to="/login"
         className="absolute top-4 left-4 sm:top-6 sm:left-6 text-xs text-[#B8860B] hover:text-[#8B0000] font-bold uppercase flex items-center gap-1.5 transition-colors touch-target min-h-[44px] px-2"

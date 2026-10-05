@@ -4,9 +4,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
+import { broadcastAuthEvent } from '../../utils/authSync'
 import { ArrowLeft } from 'lucide-react'
 import OtpVerificationCard from '../../components/auth/OtpVerificationCard'
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
+import SEOHead from '../../components/common/SEOHead'
+import { getAuthErrorMessage, logDeveloperError } from '../../services/errorMessageService'
 
 export default function Login() {
   const [step, setStep] = useState('FORM') // 'FORM' | 'OTP'
@@ -21,7 +24,17 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/'
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const { isAuthenticated, user, isAuthLoading } = useSelector((state) => state.auth)
+
+  // Do not flash the login screen while session is being verified
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#FFFDF8] flex items-center justify-center">
+        <SEOHead title="Sign In" noindex={true} />
+        <div className="w-8 h-8 border-2 border-[#8B0000]/20 border-t-[#8B0000] rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   // Redirect away if already authenticated
   if (isAuthenticated) {
@@ -54,13 +67,15 @@ export default function Login() {
       } else if (res.token && res.user) {
         // Direct authentication fallback
         dispatch(credentialsReceived({ user: res.user, token: res.token }))
+        broadcastAuthEvent('LOGIN', { user: res.user, token: res.token })
         toast.success(`Welcome back, ${res.user.name}!`, {
           style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
         })
         navigate(res.user.role === 'ADMIN' && from === '/' ? '/admin/dashboard' : from, { replace: true })
       }
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Invalid email/phone or password'
+      logDeveloperError('Login.handleInitiateLogin', err)
+      const msg = getAuthErrorMessage(err)
       toast.error(msg)
     } finally {
       setLoading(false)
@@ -79,12 +94,14 @@ export default function Login() {
       })
 
       dispatch(credentialsReceived({ user, token }))
+      broadcastAuthEvent('LOGIN', { user, token })
       toast.success(`Welcome back, ${user.name}!`, {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })
       navigate(user.role === 'ADMIN' && from === '/' ? '/admin/dashboard' : from, { replace: true })
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Verification failed. Please try again.'
+      logDeveloperError('Login.handleVerifyOtp', err)
+      const msg = getAuthErrorMessage(err)
       setOtpError(msg)
     } finally {
       setLoading(false)
@@ -105,12 +122,14 @@ export default function Login() {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })
     } catch (err) {
+      logDeveloperError('Login.handleResendOtp', err)
       throw err
     }
   }
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-center items-center px-4 py-8 sm:py-12 font-body relative">
+      <SEOHead title="Sign In" noindex={true} />
       <Link
         to="/"
         className="absolute top-4 left-4 sm:top-6 sm:left-6 text-xs text-[#B8860B] hover:text-[#8B0000] font-bold uppercase flex items-center gap-1.5 transition-colors touch-target min-h-[44px] px-2"

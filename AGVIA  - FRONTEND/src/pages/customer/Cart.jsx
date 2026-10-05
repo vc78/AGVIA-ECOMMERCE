@@ -23,6 +23,7 @@ import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { useCart } from '../../hooks/useCart'
 import toast from 'react-hot-toast'
+import SEOHead from '../../components/common/SEOHead'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReliableImage from '../../components/common/ReliableImage'
 import api from '../../services/api'
@@ -176,17 +177,17 @@ export default function Cart() {
   const handleRemoveSelected = () => {
     const idsToRemove = Object.keys(selectedIds).filter((id) => selectedIds[id])
     if (idsToRemove.length === 0) {
-      toast('No items selected to remove', { icon: 'ℹ️' })
+      toast('Please select an item to remove.', { icon: 'ℹ️' })
       return
     }
     idsToRemove.forEach((id) => removeFromCart(Number(id) || id))
-    toast.success(`${idsToRemove.length} item(s) removed`)
+    toast.success('Removed from your cart.')
   }
 
   const handleToggleWishlist = (id) => {
     setWishlistMap((prev) => {
       const isFav = !prev[id]
-      toast(isFav ? 'Added to Wishlist' : 'Removed from Wishlist', {
+      toast(isFav ? 'Added to your wishlist.' : 'Removed from your wishlist.', {
         icon: isFav ? '❤️' : '🤍',
         style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' },
       })
@@ -289,6 +290,11 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans antialiased selection:bg-[#5A1020] selection:text-white">
+      <SEOHead
+        title="Shopping Cart"
+        description="Review your curated fashion selections and proceed to checkout at AGVIA."
+        noindex={true}
+      />
       <Navbar />
 
       <main className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] py-5 sm:py-6 md:py-8 pb-20 sm:pb-8">

@@ -35,7 +35,7 @@ public class AdminNotificationService {
      * Listens to internal domain events AFTER the originating database transaction commits.
      * Guarantees transactional integrity: WebSocket publication never runs on rolled-back transactions.
      */
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleAdminNotificationEvent(AdminNotificationEvent event) {
         log.info("[AdminNotificationService] Handling committed event: type={}, ref={}:{}",

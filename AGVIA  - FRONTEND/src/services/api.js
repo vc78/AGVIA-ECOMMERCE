@@ -15,10 +15,11 @@ const api = axios.create({
   baseURL: BASE_URL,
   timeout: 45000,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 })
 
 api.interceptors.request.use((config) => {
-  const token = store.getState().auth.token
+  const token = store.getState()?.auth?.token || localStorage.getItem('ps_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -29,7 +30,11 @@ api.interceptors.response.use(
     const originalRequest = error.config
 
     if (error.response?.status === 401) {
-      store.dispatch(loggedOut())
+      // If this was an initial auth probe (/auth/me), don't trigger global loggedOut side-effects prematurely
+      const isAuthCheck = originalRequest?.url?.includes('/auth/me') || originalRequest?._isAuthCheck
+      if (!isAuthCheck) {
+        store.dispatch(loggedOut())
+      }
       return Promise.reject(error)
     }
 
@@ -46,11 +51,13 @@ api.interceptors.response.use(
       return api(originalRequest)
     }
 
-    // Enhance timeout and network error messages for better user experience
+    // Customer-friendly messaging for network/timeout errors
     if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-      error.message = 'Server took too long to respond. If waking from sleep or connecting to cloud, please retry in a moment.'
-    } else if (!error.response && error.message === 'Network Error') {
-      error.message = 'Unable to connect to backend server. Please check your network or verify if the server is running.'
+      error.customerMessage = 'This is taking longer than expected. Please try again.'
+      error.message = 'This is taking longer than expected. Please try again.'
+    } else if (!error.response && (error.message === 'Network Error' || error.code === 'ERR_NETWORK')) {
+      error.customerMessage = 'We couldn\'t connect right now. Please check your internet connection and try again.'
+      error.message = 'We couldn\'t connect right now. Please check your internet connection and try again.'
     }
 
     return Promise.reject(error)

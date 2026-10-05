@@ -55,6 +55,12 @@ function getNotificationBadge(type) {
       return { icon: '🔄', label: 'Status Update', bg: 'bg-blue-50 text-blue-700' }
     case 'NEW_CUSTOMER':
       return { icon: '👤', label: 'New Patron', bg: 'bg-purple-50 text-purple-700' }
+    case 'SETTINGS_UPDATED':
+      return { icon: '⚙️', label: 'Settings', bg: 'bg-[#C9A45C]/15 text-[#5A1020]' }
+    case 'SYSTEM_ALERT':
+      return { icon: '📢', label: 'Broadcast', bg: 'bg-indigo-50 text-indigo-700' }
+    case 'REFUND_REQUESTED':
+      return { icon: '💸', label: 'Refund', bg: 'bg-rose-50 text-rose-700' }
     default:
       return { icon: '🔔', label: 'Notice', bg: 'bg-neutral-100 text-neutral-700' }
   }
@@ -118,6 +124,8 @@ export default function NotificationCenter({ onClose }) {
       navigate('/admin/inventory')
     } else if (notif.referenceType === 'USER') {
       navigate('/admin/customers')
+    } else if (notif.referenceType === 'SETTING' || notif.type === 'SETTINGS_UPDATED') {
+      navigate('/admin/settings')
     }
   }
 

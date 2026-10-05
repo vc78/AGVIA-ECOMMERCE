@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { Link, useNavigate, Navigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import { ShieldCheck, ArrowLeft } from 'lucide-react'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
+import { broadcastAuthEvent } from '../../utils/authSync'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
@@ -11,6 +12,19 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { isAuthenticated, user, isAuthLoading } = useSelector((state) => state.auth)
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#1A0B10] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#C9A45C]/20 border-t-[#C9A45C] rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN')) {
+    return <Navigate to="/admin/dashboard" replace />
+  }
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -29,6 +43,7 @@ export default function AdminLogin() {
         return
       }
       dispatch(credentialsReceived({ user, token }))
+      broadcastAuthEvent('LOGIN', { user, token })
       toast.success('Welcome to AGVIA Atelier Workspace', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })

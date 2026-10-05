@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
+import { broadcastAuthEvent } from '../../utils/authSync'
 
 export default function GoogleSignInButton({ from = '/' }) {
   const dispatch = useDispatch()
@@ -27,6 +28,7 @@ export default function GoogleSignInButton({ from = '/' }) {
     try {
       const { user, token } = await authService.googleLogin(response.credential)
       dispatch(credentialsReceived({ user, token }))
+      broadcastAuthEvent('LOGIN', { user, token })
       toast.success(`Welcome to AGVIA, ${user.name || 'Patron'}!`, {
         icon: '👑',
         style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }

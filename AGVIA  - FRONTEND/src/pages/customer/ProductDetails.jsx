@@ -15,6 +15,8 @@ import { ProductDetailsSkeleton } from '../../components/common/SkeletonLoaders'
 import ProductShareButton from '../../components/common/ProductShareButton'
 import { getProductShareUrl } from '../../utils/shareUtils'
 import { trackProductView, trackAddToCart, trackCheckoutStarted } from '../../services/analytics'
+import SEOHead from '../../components/common/SEOHead'
+import { getFriendlyErrorMessage, logDeveloperError } from '../../services/errorMessageService'
 
 export default function ProductDetails() {
   const { id } = useParams()
@@ -105,8 +107,9 @@ export default function ProductDetails() {
       toast.success('Thank you for sharing your experience!', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
-    } catch {
-      toast.error('Could not submit review.')
+    } catch (err) {
+      logDeveloperError('ProductDetails.handleReviewSubmit', err)
+      toast.error(getFriendlyErrorMessage(err, "We couldn't submit your review right now. Please try again."))
     } finally {
       setSubmitting(false)
     }
@@ -122,17 +125,18 @@ export default function ProductDetails() {
       await productService.deleteReview(reviewId, id)
       setReviews((prev) => prev.filter((r) => r.id !== reviewId))
       setConfirmDeleteId(null)
-      toast.success('Your review has been deleted successfully.', {
+      toast.success('Your review has been removed.', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
     } catch (err) {
+      logDeveloperError('ProductDetails.handleDeleteReview', err)
       const status = err?.response?.status
       if (status === 403) {
-        toast.error('You do not have permission to delete this review.')
+        toast.error("You don't have permission to remove this review.")
       } else if (status === 401) {
         toast.error('Your session has expired. Please sign in again.')
       } else {
-        toast.error(err?.response?.data?.message || 'Could not delete review. Please try again.')
+        toast.error(getFriendlyErrorMessage(err, "We couldn't remove this review. Please try again."))
       }
     } finally {
       setDeletingId(null)
@@ -152,8 +156,60 @@ export default function ProductDetails() {
 
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'Free Size']
 
+  const productRating = reviews.length > 0
+    ? (reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / reviews.length).toFixed(1)
+    : undefined
+
+  const productSchemaJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description || `Handcrafted ${product.name} from AGVIA's luxury ${product.category} collection.`,
+    image: product.image ? (product.image.startsWith('http') ? product.image : `https://agviaboutique.com${product.image}`) : undefined,
+    sku: product.sku || `AGVIA-${product.id}`,
+    brand: {
+      '@type': 'Brand',
+      name: 'AGVIA'
+    },
+    category: product.category,
+    offers: {
+      '@type': 'Offer',
+      price: product.price,
+      priceCurrency: 'INR',
+      availability: (product.stockQuantity ?? 10) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: `https://agviaboutique.com/products/${product.id}`,
+      seller: {
+        '@type': 'Organization',
+        name: 'AGVIA'
+      }
+    },
+    ...(reviews.length > 0 ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: productRating,
+        reviewCount: reviews.length
+      }
+    } : {})
+  }
+
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Silhouettes', url: '/products' },
+    { name: product.category || 'Collection', url: `/products?category=${encodeURIComponent(product.category || '')}` },
+    { name: product.name, url: `/products/${product.id}` }
+  ]
+
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans">
+      <SEOHead
+        title={product.name}
+        description={product.description || `Discover the handcrafted ${product.name} in ${product.category}. Tailored from pure fabrics with bespoke detailing at AGVIA.`}
+        canonicalUrl={`/products/${product.id}`}
+        image={product.image}
+        type="product"
+        structuredData={productSchemaJsonLd}
+        breadcrumbs={breadcrumbItems}
+      />
       <Navbar />
 
       <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] pt-5 sm:pt-6 pb-20 sm:pb-12">

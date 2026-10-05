@@ -3,6 +3,7 @@ import Footer from '../../components/customer/Footer'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import ReliableImage from '../../components/common/ReliableImage'
+import SEOHead from '../../components/common/SEOHead'
 
 const CATS = [
   {
@@ -50,8 +51,34 @@ const CATS = [
 ]
 
 export default function Categories() {
+  const categoryItemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'AGVIA Couture Categories',
+    itemListElement: CATS.map((cat, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: cat.name,
+      description: cat.desc,
+      url: `https://agviaboutique.com${cat.path}`
+    }))
+  }
+
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Categories', url: '/categories' }
+  ]
+
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-body selection:bg-[#C9A45C]/30">
+      <SEOHead
+        title="Couture Categories & Collections"
+        description="Explore luxury Indian designer categories at AGVIA. Handcrafted silk sarees, bridal lehengas, bespoke anarkalis, festive kurtis, and modern gowns."
+        canonicalUrl="/categories"
+        type="website"
+        structuredData={categoryItemListSchema}
+        breadcrumbs={breadcrumbs}
+      />
       <Navbar />
       <div className="max-w-6xl mx-auto px-6 pt-12 pb-24">
         <span className="text-[9px] tracking-[0.3em] font-bold text-[#C9A45C] uppercase block text-center mb-3">✦ Atelier Collections ✦</span>

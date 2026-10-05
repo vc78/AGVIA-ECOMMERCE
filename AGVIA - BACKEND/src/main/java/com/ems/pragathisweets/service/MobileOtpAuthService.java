@@ -197,18 +197,20 @@ public class MobileOtpAuthService {
         }
 
         // Publish real-time event to Admin dashboard
-        eventPublisher.publishEvent(new AdminNotificationEvent(
-                NotificationType.NEW_CUSTOMER,
-                "New Customer Registered",
-                savedUser.getFullName() + " registered via Mobile OTP (" + PhoneUtils.mask(savedUser.getPhone()) + ")",
-                String.valueOf(savedUser.getId()),
-                "USER",
-                Map.of(
-                        "userId", savedUser.getId(),
-                        "customerName", savedUser.getFullName() != null ? savedUser.getFullName() : "",
-                        "phone", savedUser.getPhone()
-                )
-        ));
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new AdminNotificationEvent(
+                    NotificationType.NEW_CUSTOMER,
+                    "New Customer Registered",
+                    savedUser.getFullName() + " registered via Mobile OTP (" + PhoneUtils.mask(savedUser.getPhone()) + ")",
+                    String.valueOf(savedUser.getId()),
+                    "USER",
+                    Map.of(
+                            "userId", savedUser.getId(),
+                            "customerName", savedUser.getFullName() != null ? savedUser.getFullName() : "",
+                            "phone", savedUser.getPhone()
+                    )
+            ));
+        }
 
         log.info("[OTP_SIGNUP_SUCCESS] User created successfully: id={}, phone={}", savedUser.getId(), PhoneUtils.mask(savedUser.getPhone()));
 

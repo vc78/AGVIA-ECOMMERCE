@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 import toast from 'react-hot-toast'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
+import { broadcastAuthEvent } from '../../utils/authSync'
 import OtpVerificationCard from '../../components/auth/OtpVerificationCard'
 import { ArrowLeft } from 'lucide-react'
 
@@ -46,6 +47,7 @@ export default function VerifyOtp() {
         otp: otpCode
       })
       dispatch(credentialsReceived({ user, token }))
+      broadcastAuthEvent('LOGIN', { user, token })
       toast.success(`Account verified — welcome, ${user.name}!`, {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })

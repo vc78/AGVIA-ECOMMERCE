@@ -10,6 +10,7 @@ import { useCart } from '../../hooks/useCart'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ProductCardSkeleton } from '../../components/common/SkeletonLoaders'
 import ReliableImage from '../../components/common/ReliableImage'
+import SEOHead from '../../components/common/SEOHead'
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -96,8 +97,47 @@ export default function Products() {
     setSearchParams({})
   }
 
+  const canonicalUrl = activeCategory !== 'All'
+    ? `/products?category=${encodeURIComponent(activeCategory)}`
+    : '/products'
+
+  const pageTitle = activeCategory !== 'All'
+    ? `${activeCategory} Silhouettes`
+    : 'All Silhouettes'
+
+  const pageDescription = activeCategory !== 'All'
+    ? `Explore AGVIA's exclusive ${activeCategory} collection. Handcrafted pure silk garments, intricate zardozi embroidery, and timeless bespoke fits.`
+    : "Explore the complete AGVIA catalog. Handloom sarees, designer bridal lehengas, bespoke kurtis, and contemporary royal festive wear."
+
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: activeCategory === 'All' ? 'AGVIA Atelier Collections' : `AGVIA ${activeCategory} Collection`,
+    itemListElement: products.slice(0, 10).map((p, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: p.name,
+      url: `https://agviaboutique.com/products/${p.id}`
+    }))
+  }
+
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Collections', url: '/products' },
+    ...(activeCategory !== 'All' ? [{ name: activeCategory, url: `/products?category=${encodeURIComponent(activeCategory)}` }] : [])
+  ]
+
   return (
     <div className="relative min-h-screen bg-[#FFFDF8] text-[#3A2D23] font-body">
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl={canonicalUrl}
+        noindex={Boolean(search && search.trim().length > 0)}
+        type="website"
+        structuredData={itemListSchema}
+        breadcrumbs={breadcrumbItems}
+      />
       <Navbar />
 
       {/* Streamlined Boutique Header */}

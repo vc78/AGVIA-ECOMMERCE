@@ -2,6 +2,7 @@ import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { Ticket, Copy } from 'lucide-react'
 import toast from 'react-hot-toast'
+import SEOHead from '../../components/common/SEOHead'
 
 const OFFERS = [
   { code: 'AZADI15', title: 'Independence Celebration', desc: '15% Off storewide for new and returning patrons.', validity: 'Valid till August 15, 2026' },
@@ -17,8 +18,20 @@ export default function Offers() {
     })
   }
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Offers', url: '/offers' }
+  ]
+
   return (
     <div className="min-h-screen bg-[#FFFDF8] text-[#3A2D23] font-body">
+      <SEOHead
+        title="Exclusive Boutique Offers & Festive Privileges"
+        description="Unlock exclusive luxury shopping privileges, festive couture offers, and promotional benefits on AGVIA handcrafted fashion collections."
+        canonicalUrl="/offers"
+        type="website"
+        breadcrumbs={breadcrumbs}
+      />
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-24">
         <span className="text-[9px] tracking-[0.3em] font-bold text-[#B8860B] uppercase block text-center mb-3">✦ Exclusive Perks ✦</span>

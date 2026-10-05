@@ -10,7 +10,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,38 @@ public class AuthController {
     private final MobileOtpAuthService mobileOtpAuthService;
     private final GoogleAuthService googleAuthService;
     private final com.ems.pragathisweets.repository.UserRepository userRepository;
+
+    // Helper to attach HttpOnly authentication cookie
+    private void attachAuthCookie(HttpServletRequest request, HttpServletResponse response, String token) {
+        if (response == null || token == null || token.isBlank()) return;
+        boolean isHttps = request != null && (request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
+        String sameSite = isHttps ? "None" : "Lax";
+
+        ResponseCookie cookie = ResponseCookie.from("agvia_token", token)
+                .httpOnly(true)
+                .secure(isHttps)
+                .sameSite(sameSite)
+                .path("/")
+                .maxAge(86400)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    // Helper to clear HttpOnly authentication cookie
+    private void clearAuthCookie(HttpServletRequest request, HttpServletResponse response) {
+        if (response == null) return;
+        boolean isHttps = request != null && (request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
+        String sameSite = isHttps ? "None" : "Lax";
+
+        ResponseCookie cookie = ResponseCookie.from("agvia_token", "")
+                .httpOnly(true)
+                .secure(isHttps)
+                .sameSite(sameSite)
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // MOBILE OTP SIGN UP
@@ -42,8 +77,13 @@ public class AuthController {
     @PostMapping("/signup/verify-otp")
     @Operation(summary = "Verify sign-up OTP, create authenticated user account, and issue JWT")
     public ResponseEntity<ApiResponse<AuthResultResponse>> verifySignupOtp(
-            @Valid @RequestBody VerifyOtpRequest request) {
+            @Valid @RequestBody VerifyOtpRequest request,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
         AuthResultResponse response = mobileOtpAuthService.verifySignupOtp(request);
+        if (response.getToken() != null) {
+            attachAuthCookie(servletRequest, servletResponse, response.getToken());
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(response.getMessage(), response));
     }
@@ -56,16 +96,25 @@ public class AuthController {
     @Operation(summary = "Verify credentials and dispatch login OTP to registered mobile number")
     public ResponseEntity<ApiResponse<LoginChallengeResponse>> login(
             @Valid @RequestBody LoginRequest request,
-            HttpServletRequest servletRequest) {
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
         LoginChallengeResponse response = mobileOtpAuthService.login(request, servletRequest);
+        if (!response.isRequiresOtp() && response.getToken() != null) {
+            attachAuthCookie(servletRequest, servletResponse, response.getToken());
+        }
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
     }
 
     @PostMapping("/login/verify-otp")
     @Operation(summary = "Verify login OTP and issue authenticated JWT session")
     public ResponseEntity<ApiResponse<AuthResultResponse>> verifyLoginOtp(
-            @Valid @RequestBody VerifyOtpRequest request) {
+            @Valid @RequestBody VerifyOtpRequest request,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
         AuthResultResponse response = mobileOtpAuthService.verifyLoginOtp(request);
+        if (response.getToken() != null) {
+            attachAuthCookie(servletRequest, servletResponse, response.getToken());
+        }
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
     }
 
@@ -89,9 +138,27 @@ public class AuthController {
     @PostMapping("/google")
     @Operation(summary = "Authenticate patron using verified Google Identity token")
     public ResponseEntity<ApiResponse<AuthResultResponse>> authenticateWithGoogle(
-            @Valid @RequestBody GoogleAuthRequest request) {
+            @Valid @RequestBody GoogleAuthRequest request,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
         AuthResultResponse response = googleAuthService.authenticateWithGoogle(request);
+        if (response.getToken() != null) {
+            attachAuthCookie(servletRequest, servletResponse, response.getToken());
+        }
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // LOGOUT
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @PostMapping("/logout")
+    @Operation(summary = "Clear authenticated session cookie and logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
+        clearAuthCookie(servletRequest, servletResponse);
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", null));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
