@@ -124,9 +124,14 @@ export function initAuthSync(dispatch, onSessionRestored) {
       const rawUser = localStorage.getItem('ps_user')
 
       if (!token) {
-        // Tab A logged out while Tab B was hidden
-        dispatch(loggedOut())
+        // Only trigger loggedOut if session state was active (indicated by sync key or stored auth)
+        const hasSyncKey = sessionStorage.getItem('agvia_had_session')
+        if (hasSyncKey) {
+          sessionStorage.removeItem('agvia_had_session')
+          dispatch(loggedOut())
+        }
       } else if (rawUser) {
+        sessionStorage.setItem('agvia_had_session', 'true')
         try {
           const user = JSON.parse(rawUser)
           dispatch(syncFromStorage({ user, token, isAuthenticated: true }))

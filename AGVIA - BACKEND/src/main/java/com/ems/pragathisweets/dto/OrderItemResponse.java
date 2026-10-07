@@ -18,4 +18,8 @@ public class OrderItemResponse {
     private Integer quantity;
     private BigDecimal price;
     private BigDecimal subtotal;
+    private Long variantId;
+    private String colorName;
+    private String sku;
+    private String imageUrl;
 }

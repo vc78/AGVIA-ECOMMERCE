@@ -44,6 +44,117 @@ public class AdminOrderService {
     }
 
     @Transactional(readOnly = true)
+    public Page<OrderResponse> searchOrders(
+            String search,
+            String paymentMethodStr,
+            String paymentStatusStr,
+            String orderStatusStr,
+            String dateRange,
+            String customStartDate,
+            String customEndDate,
+            Pageable pageable) {
+
+        org.springframework.data.jpa.domain.Specification<Order> spec = (root, query, cb) -> {
+            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
+
+            // Search filter across Order ID / orderNumber, Customer name, Mobile, Email
+            if (search != null && !search.trim().isEmpty()) {
+                String term = "%" + search.trim().toLowerCase() + "%";
+                jakarta.persistence.criteria.Join<Order, com.ems.pragathisweets.entity.User> userJoin =
+                        root.join("user", jakarta.persistence.criteria.JoinType.LEFT);
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("orderNumber")), term),
+                        cb.like(cb.lower(root.get("contactPhone")), term),
+                        cb.like(cb.lower(userJoin.get("fullName")), term),
+                        cb.like(cb.lower(userJoin.get("email")), term),
+                        cb.like(cb.lower(userJoin.get("phone")), term)
+                ));
+            }
+
+            // Payment method filter (COD, ONLINE / RAZORPAY)
+            if (paymentMethodStr != null && !paymentMethodStr.equalsIgnoreCase("ALL") && !paymentMethodStr.trim().isEmpty()) {
+                try {
+                    String norm = paymentMethodStr.equalsIgnoreCase("ONLINE") ? "RAZORPAY" : paymentMethodStr.toUpperCase();
+                    PaymentMethod pm = PaymentMethod.valueOf(norm);
+                    predicates.add(cb.equal(root.get("paymentMethod"), pm));
+                } catch (Exception ignored) {}
+            }
+
+            // Payment status filter (PENDING, PAID / SUCCESS, FAILED, REFUNDED)
+            if (paymentStatusStr != null && !paymentStatusStr.equalsIgnoreCase("ALL") && !paymentStatusStr.trim().isEmpty()) {
+                try {
+                    String norm = paymentStatusStr.equalsIgnoreCase("PAID") ? "SUCCESS" : paymentStatusStr.toUpperCase();
+                    PaymentStatus ps = PaymentStatus.valueOf(norm);
+                    predicates.add(cb.equal(root.get("paymentStatus"), ps));
+                } catch (Exception ignored) {}
+            }
+
+            // Order status filter (PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED)
+            if (orderStatusStr != null && !orderStatusStr.equalsIgnoreCase("ALL") && !orderStatusStr.trim().isEmpty()) {
+                try {
+                    OrderStatus os = OrderStatus.valueOf(orderStatusStr.toUpperCase());
+                    predicates.add(cb.equal(root.get("status"), os));
+                } catch (Exception ignored) {}
+            }
+
+            // Date filtering
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.LocalDateTime startDateTime = null;
+            java.time.LocalDateTime endDateTime = null;
+
+            if (dateRange != null && !dateRange.trim().isEmpty() && !dateRange.equalsIgnoreCase("ALL")) {
+                switch (dateRange.toLowerCase()) {
+                    case "today":
+                        startDateTime = today.atStartOfDay();
+                        endDateTime = today.atTime(java.time.LocalTime.MAX);
+                        break;
+                    case "yesterday":
+                        startDateTime = today.minusDays(1).atStartOfDay();
+                        endDateTime = today.minusDays(1).atTime(java.time.LocalTime.MAX);
+                        break;
+                    case "last7days":
+                    case "7days":
+                    case "week":
+                        startDateTime = today.minusDays(7).atStartOfDay();
+                        endDateTime = today.atTime(java.time.LocalTime.MAX);
+                        break;
+                    case "last30days":
+                    case "30days":
+                    case "month":
+                        startDateTime = today.minusDays(30).atStartOfDay();
+                        endDateTime = today.atTime(java.time.LocalTime.MAX);
+                        break;
+                    case "custom":
+                        if (customStartDate != null && !customStartDate.isBlank()) {
+                            try { startDateTime = java.time.LocalDate.parse(customStartDate.trim()).atStartOfDay(); } catch (Exception ignored) {}
+                        }
+                        if (customEndDate != null && !customEndDate.isBlank()) {
+                            try { endDateTime = java.time.LocalDate.parse(customEndDate.trim()).atTime(java.time.LocalTime.MAX); } catch (Exception ignored) {}
+                        }
+                        break;
+                }
+            } else if (customStartDate != null && !customStartDate.isBlank()) {
+                try { startDateTime = java.time.LocalDate.parse(customStartDate.trim()).atStartOfDay(); } catch (Exception ignored) {}
+                if (customEndDate != null && !customEndDate.isBlank()) {
+                    try { endDateTime = java.time.LocalDate.parse(customEndDate.trim()).atTime(java.time.LocalTime.MAX); } catch (Exception ignored) {}
+                }
+            }
+
+            if (startDateTime != null && endDateTime != null) {
+                predicates.add(cb.between(root.get("createdAt"), startDateTime, endDateTime));
+            } else if (startDateTime != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), startDateTime));
+            } else if (endDateTime != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), endDateTime));
+            }
+
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+
+        return orderRepository.findAll(spec, pageable).map(orderService::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public OrderResponse getById(Long id) {
         Order order = findEntity(id);
         return orderService.toResponse(order);

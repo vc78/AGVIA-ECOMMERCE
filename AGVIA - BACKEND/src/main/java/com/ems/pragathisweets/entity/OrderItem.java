@@ -37,4 +37,16 @@ public class OrderItem {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
+
+    @Column(name = "variant_id")
+    private Long variantId;
+
+    @Column(name = "color_name", length = 100)
+    private String colorName;
+
+    @Column(name = "sku", length = 100)
+    private String sku;
+
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private String imageUrl;
 }

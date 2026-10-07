@@ -43,11 +43,24 @@ public class Product {
     @Builder.Default
     private Integer stockQuantity = 0;
 
+    @Column(name = "low_stock_threshold", nullable = false)
+    @Builder.Default
+    private Integer lowStockThreshold = 10;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_option", nullable = false, length = 30)
+    @Builder.Default
+    private ProductPaymentOption paymentOption = ProductPaymentOption.COD_AND_ONLINE;
+
     @Column(length = 30)
     private String unit; // e.g. "500g", "1kg", "12 pieces"
 
     @Column(name = "image_url", columnDefinition = "LONGTEXT")
     private String imageUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private java.util.List<ProductVariant> variants = new java.util.ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -95,5 +108,31 @@ public class Product {
 
     public boolean isInStock() {
         return stockQuantity != null && stockQuantity > 0;
+    }
+
+    public boolean isCodAllowed() {
+        return paymentOption == null || paymentOption == ProductPaymentOption.COD_AND_ONLINE || paymentOption == ProductPaymentOption.COD_ONLY;
+    }
+
+    public boolean isOnlineAllowed() {
+        return paymentOption == null || paymentOption == ProductPaymentOption.COD_AND_ONLINE || paymentOption == ProductPaymentOption.ONLINE_ONLY;
+    }
+
+    public Integer getEffectiveLowStockThreshold() {
+        return lowStockThreshold != null ? lowStockThreshold : 10;
+    }
+
+    public boolean hasVariants() {
+        return variants != null && !variants.isEmpty();
+    }
+
+    public String getStockStatus() {
+        if (stockQuantity == null || stockQuantity <= 0) {
+            return "OUT_OF_STOCK";
+        }
+        if (stockQuantity <= getEffectiveLowStockThreshold()) {
+            return "LOW_STOCK";
+        }
+        return "IN_STOCK";
     }
 }

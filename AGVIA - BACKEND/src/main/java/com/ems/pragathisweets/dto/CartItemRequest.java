@@ -19,4 +19,9 @@ public class CartItemRequest {
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
+
+    private Long variantId;
+    private String colorName;
+    private String sku;
+    private String imageUrl;
 }

@@ -21,4 +21,8 @@ public class CartItemResponse {
     private Integer quantity;
     private BigDecimal subtotal;
     private boolean inStock;
+    private Long variantId;
+    private String colorName;
+    private String sku;
+    private String variantImageUrl;
 }

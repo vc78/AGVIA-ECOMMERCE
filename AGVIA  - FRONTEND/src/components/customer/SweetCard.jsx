@@ -9,8 +9,12 @@ import { trackWishlist } from '../../services/analytics'
 export default function SweetCard({ product, onAdd, onAddToCart, priority = false }) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [adding, setAdding] = useState(false)
+  const [activeVariantIdx, setActiveVariantIdx] = useState(0)
 
   if (!product) return null
+
+  const variants = Array.isArray(product.variants) && product.variants.length > 0 ? product.variants : []
+  const activeVariant = variants[activeVariantIdx] || null
 
   const categoryName = typeof product.category === 'object'
     ? (product.category?.name || '')
@@ -19,11 +23,12 @@ export default function SweetCard({ product, onAdd, onAddToCart, priority = fals
   const hasRating = numReviews > 0 && (product.rating || product.avgRating)
   const ratingVal = hasRating ? (product.rating ?? product.avgRating) : null
   const unitVal = product.unit || 'piece'
-  const imgUrl = product.image || product.imageUrl || '/images/classic_silk_saree.jpg'
+  const imgUrl = activeVariant?.primaryImageUrl || product.image || product.imageUrl || '/images/classic_silk_saree.jpg'
   const isBestseller = product.bestseller ?? product.isBestseller ?? false
+  const displayPrice = activeVariant?.effectivePrice ?? (activeVariant?.price || product.price)
 
   const productUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/products/${product.id}`
+    ? `${window.location.origin}/products/${product.id}${activeVariant ? `?color=${activeVariant.colorName.toLowerCase().replace(/\s+/g, '-')}` : ''}`
     : `https://agvia.in/products/${product.id}`
   const whatsappMsg = encodeURIComponent(
     `Namaste AGVIA Atelier Concierge ✨\n\nI would like to enquire about this silhouette:\n👗 *${product.name}*\n🏷️ Category: ${categoryName || 'Luxury Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n🔗 View Piece: ${productUrl}\n\nPlease share availability, size options, and bespoke styling assistance.`
@@ -128,6 +133,36 @@ export default function SweetCard({ product, onAdd, onAddToCart, priority = fals
               </span>
             )}
           </div>
+
+          {/* Color Variants Swatches Row (Requirement 22) */}
+          {variants.length > 0 && (
+            <div className="flex items-center gap-1.5 mt-2" onClick={e => e.preventDefault()}>
+              <div className="flex items-center gap-1">
+                {variants.slice(0, 5).map((v, i) => (
+                  <button
+                    key={v.id || i}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setActiveVariantIdx(i)
+                    }}
+                    title={v.colorName}
+                    className={`w-3.5 h-3.5 rounded-full border transition-all cursor-pointer ${
+                      activeVariantIdx === i
+                        ? 'border-[#5A1020] scale-125 ring-1 ring-[#5A1020]/40'
+                        : 'border-black/20 hover:scale-110 opacity-80 hover:opacity-100'
+                    }`}
+                    style={{ backgroundColor: v.colorCode || '#800020' }}
+                  />
+                ))}
+              </div>
+              <span className="text-[9px] font-sans font-medium text-[#211D1E]/60 ml-0.5">
+                {variants.length} Colors
+              </span>
+            </div>
+          )}
+
           {product.description && (
             <p className="text-[10.5px] text-[#211D1E]/65 mt-1.5 line-clamp-1 leading-normal font-sans">
               {product.description}
@@ -138,7 +173,7 @@ export default function SweetCard({ product, onAdd, onAddToCart, priority = fals
         <div className="mt-2.5 pt-2 border-t border-[#C9A45C]/15 space-y-2">
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-serif text-sm sm:text-base font-bold text-[#5A1020]">₹{Number(product.price).toLocaleString('en-IN')}</span>
+              <span className="font-serif text-sm sm:text-base font-bold text-[#5A1020]">₹{Number(displayPrice).toLocaleString('en-IN')}</span>
               <span className="text-[9.5px] text-[#211D1E]/40 font-sans ml-1">/ {unitVal}</span>
             </div>
             <motion.button

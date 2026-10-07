@@ -33,7 +33,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByStockQuantityLessThanEqualAndActiveTrue(Integer threshold);
 
-    List<Product> findByCategoryIdAndIdNotAndActiveTrue(Long categoryId, Long id, Pageable pageable);
+    @Query("SELECT p FROM Product p WHERE p.active = true AND p.stockQuantity <= p.lowStockThreshold AND p.stockQuantity > 0")
+    List<Product> findLowStockProducts();
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.active = true AND p.stockQuantity <= p.lowStockThreshold AND p.stockQuantity > 0")
+    long countLowStockProducts();
+
+    @Query("SELECT p FROM Product p WHERE p.active = true AND p.stockQuantity = 0")
+    List<Product> findOutOfStockProducts();
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.active = true AND p.stockQuantity = 0")
+    long countOutOfStockProducts();
+
+    List<Product> findTop12ByActiveTrueOrderByCreatedAtDesc();
+
+    List<Product> findTop12ByActiveTrueOrderByAvgRatingDesc();
+
+    @Query("SELECT p FROM Product p WHERE p.active = true AND p.discountPrice IS NOT NULL AND p.discountPrice < p.price ORDER BY (p.price - p.discountPrice) DESC")
+    List<Product> findByCategoryIdAndIdNotAndActiveTrue(Long categoryId, Long id, org.springframework.data.domain.Pageable pageable);
 
     boolean existsBySkuIgnoreCase(String sku);
 

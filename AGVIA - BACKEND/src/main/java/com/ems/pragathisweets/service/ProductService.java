@@ -24,6 +24,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final com.ems.pragathisweets.repository.ProductVariantRepository productVariantRepository;
+    private final com.ems.pragathisweets.repository.VariantImageRepository variantImageRepository;
     private final ProductMapper productMapper;
 
     @Transactional(readOnly = true)
@@ -91,6 +93,8 @@ public class ProductService {
                 .price(request.getPrice())
                 .discountPrice(request.getDiscountPrice())
                 .stockQuantity(request.getStockQuantity())
+                .lowStockThreshold(request.getLowStockThreshold() != null ? request.getLowStockThreshold() : 10)
+                .paymentOption(request.getPaymentOption() != null ? request.getPaymentOption() : com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE)
                 .unit(request.getUnit())
                 .imageUrl(request.getImageUrl())
                 .category(category)
@@ -99,7 +103,14 @@ public class ProductService {
                 .numReviews(0)
                 .build();
 
-        return productMapper.toResponse(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+
+        // Process variants if supplied
+        if (request.getVariants() != null && !request.getVariants().isEmpty()) {
+            saveOrUpdateVariants(savedProduct, request.getVariants());
+        }
+
+        return productMapper.toResponse(savedProduct);
     }
 
     @Transactional
@@ -121,6 +132,12 @@ public class ProductService {
         product.setPrice(request.getPrice());
         product.setDiscountPrice(request.getDiscountPrice());
         product.setStockQuantity(request.getStockQuantity());
+        if (request.getLowStockThreshold() != null) {
+            product.setLowStockThreshold(request.getLowStockThreshold());
+        }
+        if (request.getPaymentOption() != null) {
+            product.setPaymentOption(request.getPaymentOption());
+        }
         product.setUnit(request.getUnit());
         product.setImageUrl(request.getImageUrl());
         product.setCategory(category);
@@ -128,7 +145,98 @@ public class ProductService {
             product.setActive(request.getActive());
         }
 
-        return productMapper.toResponse(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+
+        // Process variants if supplied
+        if (request.getVariants() != null) {
+            saveOrUpdateVariants(savedProduct, request.getVariants());
+        }
+
+        return productMapper.toResponse(savedProduct);
+    }
+
+    private void saveOrUpdateVariants(Product product, List<com.ems.pragathisweets.dto.ProductVariantRequest> variantRequests) {
+        for (com.ems.pragathisweets.dto.ProductVariantRequest vr : variantRequests) {
+            if (vr.getSku() == null || vr.getSku().isBlank()) {
+                throw new IllegalArgumentException("Variant SKU is required");
+            }
+            if (vr.getColorName() == null || vr.getColorName().isBlank()) {
+                throw new IllegalArgumentException("Variant color name is required");
+            }
+
+            // Check SKU uniqueness
+            if (vr.getId() == null) {
+                if (productVariantRepository.existsBySku(vr.getSku())) {
+                    throw new DuplicateResourceException("Variant SKU " + vr.getSku() + " is already in use");
+                }
+            } else {
+                if (productVariantRepository.existsBySkuAndIdNot(vr.getSku(), vr.getId())) {
+                    throw new DuplicateResourceException("Variant SKU " + vr.getSku() + " is already in use");
+                }
+            }
+
+            com.ems.pragathisweets.entity.ProductVariant variant;
+            if (vr.getId() != null) {
+                variant = productVariantRepository.findById(vr.getId())
+                        .orElse(new com.ems.pragathisweets.entity.ProductVariant());
+            } else {
+                variant = new com.ems.pragathisweets.entity.ProductVariant();
+            }
+
+            variant.setProduct(product);
+            variant.setColorName(vr.getColorName().trim());
+            variant.setColorCode(vr.getColorCode() != null ? vr.getColorCode().trim() : null);
+            variant.setSku(vr.getSku().trim());
+            variant.setPrice(vr.getPrice());
+            variant.setDiscountPrice(vr.getDiscountPrice());
+            variant.setStockQuantity(vr.getStockQuantity() != null ? vr.getStockQuantity() : 0);
+            variant.setLowStockThreshold(vr.getLowStockThreshold() != null ? vr.getLowStockThreshold() : 5);
+            variant.setPaymentOption(vr.getPaymentOption());
+            variant.setActive(vr.getActive() == null || vr.getActive());
+
+            // Handle images
+            variant.getImages().clear();
+            if (vr.getImages() != null && !vr.getImages().isEmpty()) {
+                boolean hasPrimary = vr.getImages().stream().anyMatch(com.ems.pragathisweets.dto.VariantImageDto::isPrimary);
+                for (int i = 0; i < vr.getImages().size(); i++) {
+                    com.ems.pragathisweets.dto.VariantImageDto imgDto = vr.getImages().get(i);
+                    boolean isPrim = imgDto.isPrimary() || (!hasPrimary && i == 0);
+                    com.ems.pragathisweets.entity.VariantImage vi = com.ems.pragathisweets.entity.VariantImage.builder()
+                            .variant(variant)
+                            .imageUrl(imgDto.getImageUrl())
+                            .altText(imgDto.getAltText() != null ? imgDto.getAltText() : product.getName() + " - " + variant.getColorName())
+                            .sortOrder(imgDto.getSortOrder() != null ? imgDto.getSortOrder() : i)
+                            .isPrimary(isPrim)
+                            .build();
+                    variant.getImages().add(vi);
+                }
+            }
+
+            productVariantRepository.save(variant);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<com.ems.pragathisweets.dto.ProductVariantResponse> getVariantsByProductId(Long productId) {
+        Product product = findEntity(productId);
+        return productVariantRepository.findByProductId(productId).stream()
+                .map(v -> productMapper.toVariantResponse(v, product))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public com.ems.pragathisweets.dto.ProductVariantResponse getVariantById(Long variantId) {
+        com.ems.pragathisweets.entity.ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Variant not found with id: " + variantId));
+        return productMapper.toVariantResponse(variant, variant.getProduct());
+    }
+
+    @Transactional
+    public void deleteVariant(Long variantId) {
+        com.ems.pragathisweets.entity.ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Variant not found with id: " + variantId));
+        variant.setActive(false);
+        productVariantRepository.save(variant);
     }
 
     @Transactional

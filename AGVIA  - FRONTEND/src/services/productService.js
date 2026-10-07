@@ -357,12 +357,42 @@ export const BOUTIQUE_CATALOG_26 = [
 ]
 
 // Normalize a product object from backend/fallback so that all UI components
-// can use consistent field names (image, stock, rating, bestseller, category).
+// can use consistent field names (image, stock, rating, bestseller, category, variants).
 export function normalizeProduct(p) {
+  const stock = p.stock ?? p.stockQuantity ?? 20
+  const lowStockThreshold = p.lowStockThreshold != null ? Number(p.lowStockThreshold) : 5
+  const paymentOption = p.paymentOption || 'COD_AND_ONLINE'
+  const codAllowed = p.codAllowed != null ? p.codAllowed : (paymentOption !== 'ONLINE_ONLY')
+  const onlineAllowed = p.onlineAllowed != null ? p.onlineAllowed : (paymentOption !== 'COD_ONLY')
+
+  let stockStatus = p.stockStatus
+  if (!stockStatus) {
+    if (stock <= 0) stockStatus = 'OUT_OF_STOCK'
+    else if (stock <= lowStockThreshold) stockStatus = 'LOW_STOCK'
+    else stockStatus = 'IN_STOCK'
+  }
+
+  const rawVariants = Array.isArray(p.variants) ? p.variants : []
+  const variants = rawVariants.map(v => ({
+    ...v,
+    primaryImageUrl: resolveImageUrl(v.primaryImageUrl || v.imageUrl),
+    images: Array.isArray(v.images) ? v.images.map(img => ({
+      ...img,
+      imageUrl: resolveImageUrl(img.imageUrl)
+    })) : []
+  }))
+
   return {
     ...p,
     image: resolveImageUrl(p.image || p.imageUrl),
-    stock: p.stock ?? p.stockQuantity ?? 20,
+    stock,
+    lowStockThreshold,
+    stockStatus,
+    paymentOption,
+    codAllowed,
+    onlineAllowed,
+    hasVariants: Boolean(p.hasVariants || variants.length > 0),
+    variants,
     rating: p.rating ?? p.avgRating ?? p.averageRating ?? 4.8,
     bestseller: p.bestseller ?? p.isBestseller ?? false,
     category: p.category || p.categoryName || '',
@@ -636,6 +666,79 @@ export const productService = {
     } catch (err) {
       console.error('Failed to delete review:', err)
       throw err
+    }
+  },
+
+  async getHomepageData() {
+    try {
+      const { data } = await api.get('/homepage')
+      const payload = data?.data || {}
+      return {
+        sections: payload.sections || [],
+        bestSellers: (payload.bestSellers || []).map(normalizeProduct),
+        trending: (payload.trending || []).map(normalizeProduct),
+        newArrivals: (payload.newArrivals || []).map(normalizeProduct),
+        limitedStock: (payload.limitedStock || []).map(normalizeProduct),
+        featured: (payload.featured || []).map(normalizeProduct),
+        collections: payload.collections || [],
+        colors: payload.colors || []
+      }
+    } catch (err) {
+      console.warn('Backend /api/homepage call failed, falling back to local dataset:', err)
+      const catalog = BOUTIQUE_CATALOG_26.map(normalizeProduct)
+      return {
+        sections: [
+          { sectionKey: 'HERO_BANNER', title: 'Royal Heritage', active: true, displayOrder: 1 },
+          { sectionKey: 'SHOP_BY_COLLECTION', title: 'Curated Collections', active: true, displayOrder: 2 },
+          { sectionKey: 'NEW_ARRIVALS', title: 'New Arrivals', active: true, displayOrder: 3 },
+          { sectionKey: 'BEST_SELLERS', title: 'Bestselling Silks', active: true, displayOrder: 4 },
+          { sectionKey: 'TRENDING_NOW', title: 'Trending Now', active: true, displayOrder: 5 },
+          { sectionKey: 'SHOP_BY_COLOR', title: 'Shop by Palette', active: true, displayOrder: 6 },
+          { sectionKey: 'LIMITED_STOCK', title: 'Limited Weaves', active: true, displayOrder: 7 },
+          { sectionKey: 'BRAND_STORY', title: 'The AGVIA Legacy', active: true, displayOrder: 8 }
+        ],
+        bestSellers: catalog.filter(p => p.bestseller).slice(0, 8),
+        trending: catalog.slice(2, 10),
+        newArrivals: catalog.slice(0, 8),
+        limitedStock: catalog.filter(p => p.stockStatus === 'LOW_STOCK').slice(0, 8),
+        featured: catalog.slice(0, 8),
+        collections: [
+          { id: 1, name: 'Bridal & Wedding Edit', slug: 'bridal-wedding', coverImage: '/images/wedding_lehenga.jpg', description: 'Heirloom weaves and hand-embroidered silks.' },
+          { id: 2, name: 'Pure Mulberry Kanjeevaram', slug: 'pure-kanjeevaram', coverImage: '/images/classic_silk_saree.jpg', description: 'Pure silk certified with real zari work.' },
+          { id: 3, name: 'Festive Organza & Georgette', slug: 'festive-organza', coverImage: '/images/floral_organza_saree.jpg', description: 'Featherlight drapes in luminous pastels.' },
+          { id: 4, name: 'Royal Anarkali Sets', slug: 'royal-anarkali', coverImage: '/images/anarkali_set.jpg', description: 'Flowing regal silhouettes tailored for festivities.' }
+        ],
+        colors: [
+          { colorName: 'Royal Maroon', colorCode: '#800020', productCount: 12 },
+          { colorName: 'Emerald Green', colorCode: '#1B4D3E', productCount: 10 },
+          { colorName: 'Royal Blue', colorCode: '#2A52BE', productCount: 8 },
+          { colorName: 'Rani Pink', colorCode: '#E75480', productCount: 9 },
+          { colorName: 'Regal Purple', colorCode: '#4B0082', productCount: 6 },
+          { colorName: 'Mustard Gold', colorCode: '#D4AF37', productCount: 7 }
+        ]
+      }
+    }
+  },
+
+  async getCollections() {
+    try {
+      const { data } = await api.get('/collections')
+      return data?.data || []
+    } catch {
+      return []
+    }
+  },
+
+  async getCollectionBySlug(slug) {
+    try {
+      const { data } = await api.get(`/collections/${slug}`)
+      const coll = data?.data
+      if (coll && coll.products) {
+        coll.products = coll.products.map(normalizeProduct)
+      }
+      return coll
+    } catch {
+      return null
     }
   }
 }

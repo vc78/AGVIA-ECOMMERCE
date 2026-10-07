@@ -88,19 +88,43 @@ export function useCart() {
   const addToCart = useCallback((product, qty = 1) => {
     if (!product || !product.id) return
     const current = readCart()
-    const idx = current.findIndex((i) => i.id === product.id)
+    const targetCartId = product.variantId
+      ? `${product.id}_v_${product.variantId}`
+      : `${product.id}_size_${product.size || 'M'}`
+
+    const idx = current.findIndex((i) => {
+      if (i.cartItemId) return i.cartItemId === targetCartId
+      if (product.variantId) return i.id === product.id && i.variantId === product.variantId
+      return i.id === product.id && (i.size || 'M') === (product.size || 'M')
+    })
+
     if (idx >= 0) {
       current[idx].qty += qty
     } else {
-      current.push({ id: product.id, name: product.name, price: product.price, unit: product.unit, image: product.image, qty })
+      current.push({
+        cartItemId: targetCartId,
+        id: product.id,
+        productId: product.id,
+        variantId: product.variantId || null,
+        colorName: product.colorName || null,
+        colorCode: product.colorCode || null,
+        sku: product.sku || null,
+        size: product.size || null,
+        name: product.name,
+        price: product.price,
+        unit: product.unit,
+        image: product.image,
+        paymentOption: product.paymentOption || 'COD_AND_ONLINE',
+        qty
+      })
     }
     writeCart(current)
     trackAddToCart(product, qty)
   }, [])
 
-  const updateQty = useCallback((id, qty) => {
+  const updateQty = useCallback((cartItemIdOrId, qty) => {
     const current = readCart()
-    const idx = current.findIndex((i) => i.id === id)
+    const idx = current.findIndex((i) => i.cartItemId === cartItemIdOrId || i.id === cartItemIdOrId)
     if (idx >= 0) {
       if (qty <= 0) current.splice(idx, 1)
       else current[idx].qty = qty
@@ -108,8 +132,8 @@ export function useCart() {
     writeCart(current)
   }, [])
 
-  const removeFromCart = useCallback((id) => {
-    writeCart(readCart().filter((i) => i.id !== id))
+  const removeFromCart = useCallback((cartItemIdOrId) => {
+    writeCart(readCart().filter((i) => i.cartItemId !== cartItemIdOrId && i.id !== cartItemIdOrId))
   }, [])
 
   const clearCart = useCallback(() => writeCart([]), [])

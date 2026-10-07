@@ -57,6 +57,17 @@ public class AdminProductController {
         return ResponseEntity.ok(ApiResponse.success("AI content generated successfully", adminProductService.generateAiContent(request)));
     }
 
+    @GetMapping("/{id}/variants")
+    public ResponseEntity<ApiResponse<java.util.List<com.ems.pragathisweets.dto.ProductVariantResponse>>> getVariants(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(adminProductService.getVariants(id)));
+    }
+
+    @DeleteMapping("/variants/{variantId}")
+    public ResponseEntity<ApiResponse<Void>> deleteVariant(@PathVariable Long variantId) {
+        adminProductService.deleteVariant(variantId);
+        return ResponseEntity.ok(ApiResponse.success("Variant deleted", null));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         adminProductService.delete(id);

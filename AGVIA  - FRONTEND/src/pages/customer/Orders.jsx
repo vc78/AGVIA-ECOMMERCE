@@ -456,6 +456,20 @@ export default function Orders() {
                                             />
                                             <div>
                                               <p className="font-display text-sm font-bold text-[#8B0000]">{item.name || item.productName || 'AGVIA Silhouette'}</p>
+                                               {(item.colorName || item.sku) && (
+                                                 <div className="flex items-center gap-1.5 text-[10px] text-[#3A2D23]/60 mt-0.5">
+                                                   {item.colorName && (
+                                                     <span className="font-medium bg-[#F5E6C8]/60 px-1.5 py-0.5 rounded text-[#8B0000]">
+                                                       Color: {item.colorName}
+                                                     </span>
+                                                   )}
+                                                   {item.sku && (
+                                                     <span className="font-mono text-[9.5px] text-[#3A2D23]/60">
+                                                       SKU: {item.sku}
+                                                     </span>
+                                                   )}
+                                                 </div>
+                                               )}
                                               <p className="text-[10px] text-[#3A2D23]/40">
                                                 ₹{item.price || item.unitPrice || 0} {item.unit ? `/ ${item.unit}` : ''}
                                               </p>

@@ -23,6 +23,9 @@ export default function ProductDetails() {
   const navigate = useNavigate()
   const { user, isAuthenticated } = useSelector((state) => state.auth)
   const [product, setProduct] = useState(null)
+  const [selectedVariant, setSelectedVariant] = useState(null)
+  const [activeImage, setActiveImage] = useState(null)
+  const [galleryImages, setGalleryImages] = useState([])
   const [qty, setQty] = useState(1)
   const [selectedSize, setSelectedSize] = useState('M')
   const [reviews, setReviews] = useState([])
@@ -49,6 +52,32 @@ export default function ProductDetails() {
       setProduct(prod)
       if (prod) {
         trackProductView(prod)
+
+        // Handle variant initialization from URL parameter (?color=maroon) or first variant
+        if (prod.variants && prod.variants.length > 0) {
+          const urlParam = new URLSearchParams(window.location.search).get('color')
+          let matched = null
+          if (urlParam) {
+            matched = prod.variants.find(
+              v => v.colorName.toLowerCase().replace(/\s+/g, '-') === urlParam.toLowerCase()
+            )
+          }
+          const chosen = matched || prod.variants[0]
+          setSelectedVariant(chosen)
+
+          if (chosen.images && chosen.images.length > 0) {
+            const urls = chosen.images.map(img => img.imageUrl)
+            setGalleryImages(urls)
+            const prim = chosen.images.find(img => img.isPrimary) || chosen.images[0]
+            setActiveImage(prim.imageUrl)
+          } else {
+            setGalleryImages([prod.image])
+            setActiveImage(prod.image)
+          }
+        } else {
+          setGalleryImages([prod.image])
+          setActiveImage(prod.image)
+        }
       }
     })
     productService.getRelated(id, 4).then((list) => {
@@ -56,6 +85,24 @@ export default function ProductDetails() {
     })
     productService.getReviews(id).then(setReviews)
   }, [id])
+
+  const handleSelectVariant = (variant) => {
+    setSelectedVariant(variant)
+    if (variant.images && variant.images.length > 0) {
+      const urls = variant.images.map(img => img.imageUrl)
+      setGalleryImages(urls)
+      const prim = variant.images.find(img => img.isPrimary) || variant.images[0]
+      setActiveImage(prim.imageUrl)
+    } else {
+      setGalleryImages([product.image])
+      setActiveImage(product.image)
+    }
+
+    // Preserve selected variant in URL without reloading
+    const url = new URL(window.location.href)
+    url.searchParams.set('color', variant.colorName.toLowerCase().replace(/\s+/g, '-'))
+    window.history.replaceState({}, '', url.toString())
+  }
 
   if (!product) {
     return (
@@ -69,18 +116,50 @@ export default function ProductDetails() {
     )
   }
 
+  // Dynamic values derived from selected variant or base product
+  const displayPrice = selectedVariant?.effectivePrice ?? (selectedVariant?.price || product.price)
+  const displaySku = selectedVariant?.sku || product.sku
+  const displayStock = selectedVariant ? selectedVariant.stockQuantity : product.stock
+  const displayThreshold = selectedVariant ? (selectedVariant.lowStockThreshold || 5) : (product.lowStockThreshold || 5)
+  const displayPaymentOption = selectedVariant?.paymentOption || product.paymentOption || 'COD_AND_ONLINE'
+  const isOutOfStock = displayStock <= 0
+  const isLowStock = displayStock > 0 && displayStock <= displayThreshold
+
   const handleAdd = () => {
-    addToCart({ ...product, size: selectedSize }, qty)
+    const itemToAdd = {
+      ...product,
+      variantId: selectedVariant ? selectedVariant.id : null,
+      colorName: selectedVariant ? selectedVariant.colorName : null,
+      colorCode: selectedVariant ? selectedVariant.colorCode : null,
+      sku: displaySku,
+      price: displayPrice,
+      image: activeImage || selectedVariant?.primaryImageUrl || product.image,
+      paymentOption: displayPaymentOption,
+      size: selectedSize
+    }
+    addToCart(itemToAdd, qty)
     trackAddToCart(product, qty)
-    toast.success(`${qty} × ${product.name} (${selectedSize}) added to bag!`, {
+    const colorLabel = selectedVariant ? ` (${selectedVariant.colorName})` : ''
+    toast.success(`${qty} × ${product.name}${colorLabel} added to bag!`, {
       style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
     })
   }
 
   const handleBuyNow = () => {
-    addToCart({ ...product, size: selectedSize }, qty)
+    const itemToAdd = {
+      ...product,
+      variantId: selectedVariant ? selectedVariant.id : null,
+      colorName: selectedVariant ? selectedVariant.colorName : null,
+      colorCode: selectedVariant ? selectedVariant.colorCode : null,
+      sku: displaySku,
+      price: displayPrice,
+      image: activeImage || selectedVariant?.primaryImageUrl || product.image,
+      paymentOption: displayPaymentOption,
+      size: selectedSize
+    }
+    addToCart(itemToAdd, qty)
     trackAddToCart(product, qty)
-    trackCheckoutStarted(qty, product.price * qty)
+    trackCheckoutStarted(qty, displayPrice * qty)
     navigate('/checkout')
   }
 
@@ -226,8 +305,8 @@ export default function ProductDetails() {
           <div className="lg:col-span-6 relative">
             <div className="aspect-[3/4] rounded-2xl overflow-hidden border border-[#C9A45C]/20 shadow-sm bg-[#F2ECE4] relative group">
               <ReliableImage
-                src={product.image}
-                alt={product.name}
+                src={activeImage || product.image}
+                alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
                 priority={true}
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -241,19 +320,31 @@ export default function ProductDetails() {
               </button>
             </div>
             
-            <div className="flex gap-2.5 mt-3">
-              {[product.image, product.image].map((img, idx) => (
-                <div key={idx} className="w-16 h-20 rounded-xl overflow-hidden border border-[#C9A45C]/30 relative cursor-pointer hover:border-[#5A1020] transition-all bg-[#F2ECE4]">
-                  <ReliableImage
-                    src={img}
-                    alt="Thumbnail"
-                    sizes="80px"
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
+            {/* Multiple Variant Image Thumbnails Gallery */}
+            {galleryImages && galleryImages.length > 1 && (
+              <div className="flex gap-2.5 mt-3 overflow-x-auto pb-1 scrollbar-none">
+                {galleryImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImage(img)}
+                    className={`w-16 h-20 rounded-xl overflow-hidden relative cursor-pointer transition-all bg-[#F2ECE4] shrink-0 border-2 ${
+                      activeImage === img
+                        ? 'border-[#5A1020] ring-2 ring-[#5A1020]/20 scale-105'
+                        : 'border-[#C9A45C]/30 hover:border-[#5A1020] opacity-80 hover:opacity-100'
+                    }`}
+                  >
+                    <ReliableImage
+                      src={img}
+                      alt={`View ${idx + 1}`}
+                      sizes="80px"
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Garment Descriptions & Purchase */}
@@ -280,13 +371,81 @@ export default function ProductDetails() {
                 <span className="text-[#211D1E]/60 text-[11px] font-medium">({product.rating || 4.8} / 5 · {reviews.length} reviews)</span>
               </div>
 
-              <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 mt-3 pb-3 border-b border-[#C9A45C]/15">
-                <span className="font-serif text-2xl md:text-3xl text-[#5A1020] font-bold">₹{product.price}</span>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 pb-3 border-b border-[#C9A45C]/15">
+                <span className="font-serif text-2xl md:text-3xl text-[#5A1020] font-bold">₹{displayPrice}</span>
                 <span className="text-[11px] text-[#211D1E]/50">inclusive of all taxes</span>
-                <span className="sm:ml-auto text-[8.5px] bg-[#FAF7F2] text-[#5A1020] border border-[#C9A45C]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                  {product.stock > 5 ? 'In Stock' : 'Bespoke Atelier Piece'}
-                </span>
+                
+                <div className="sm:ml-auto flex flex-wrap items-center gap-1.5">
+                  {/* Stock Status Badge */}
+                  {isOutOfStock ? (
+                    <span className="text-[8.5px] bg-[#FDE8E8] text-[#9B1C1C] border border-[#F8B4B4] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                      🔴 Out of Stock
+                    </span>
+                  ) : isLowStock ? (
+                    <span className="text-[8.5px] bg-[#FEF08A] text-[#854D0E] border border-[#FACC15] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold animate-pulse">
+                      ⚠ Only {displayStock} Left in Atelier
+                    </span>
+                  ) : (
+                    <span className="text-[8.5px] bg-[#DEF7EC] text-[#03543F] border border-[#31C48D] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                      ✓ In Stock · Ready to Dispatch
+                    </span>
+                  )}
+
+                  {/* Payment Acceptance Badge */}
+                  {displayPaymentOption === 'ONLINE_ONLY' ? (
+                    <span className="text-[8.5px] bg-[#EBF5FF] text-[#1E429F] border border-[#3F83F8] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                      Online Payment Only (COD Restricted)
+                    </span>
+                  ) : displayPaymentOption === 'COD_ONLY' ? (
+                    <span className="text-[8.5px] bg-[#FDF6B2] text-[#723B13] border border-[#E3A008] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                      Cash on Delivery Only
+                    </span>
+                  ) : (
+                    <span className="text-[8.5px] bg-[#FAF7F2] text-[#5A1020] border border-[#C9A45C]/50 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                      COD & Online Accepted
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {/* Color Swatch Selection (Section 9 & 10) */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="mt-4 p-3.5 bg-white/80 rounded-2xl border border-[#C9A45C]/25">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[9px] tracking-wider uppercase text-[#C9A45C] font-bold">
+                      Color Palette: <span className="text-[#5A1020] font-serif font-bold text-xs capitalize">{selectedVariant?.colorName}</span>
+                    </span>
+                    <span className="text-[10px] text-gray-500 font-mono">SKU: {displaySku}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Product color swatches">
+                    {product.variants.map((v) => {
+                      const isSel = selectedVariant?.id ? selectedVariant.id === v.id : selectedVariant?.sku === v.sku
+                      return (
+                        <button
+                          key={v.id || v.sku}
+                          type="button"
+                          role="radio"
+                          aria-checked={isSel}
+                          aria-label={`Select ${v.colorName}`}
+                          onClick={() => handleSelectVariant(v)}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
+                            isSel
+                              ? 'border-[#5A1020] bg-[#5A1020] text-white shadow-xs'
+                              : 'border-gray-200 bg-white text-[#211D1E] hover:border-[#C9A45C]'
+                          }`}
+                        >
+                          <span
+                            className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0"
+                            style={{ backgroundColor: v.colorCode || '#800020' }}
+                          />
+                          <span>{v.colorName}</span>
+                          {isSel && <span className="text-white text-xs">✓</span>}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-3 text-xs leading-relaxed text-[#211D1E]/85 tracking-wide whitespace-pre-line bg-white/70 border border-[#C9A45C]/20 rounded-2xl p-4 shadow-2xs font-sans">
                 {product.description}
@@ -342,11 +501,19 @@ export default function ProductDetails() {
                 </div>
 
                 <div className="flex-1 flex flex-col sm:flex-row gap-2.5">
-                  <button onClick={handleAdd} className="btn-primary flex-1 text-center flex items-center justify-center gap-1.5 min-h-[48px]">
-                    Add to Bag <Plus size={14} />
+                  <button
+                    onClick={handleAdd}
+                    disabled={isOutOfStock}
+                    className="btn-primary flex-1 text-center flex items-center justify-center gap-1.5 min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isOutOfStock ? 'Out of Stock' : <>Add to Bag <Plus size={14} /></>}
                   </button>
-                  <button onClick={handleBuyNow} className="bg-[#C9A45C] hover:bg-[#b08b47] text-[#211D1E] font-sans text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all flex items-center justify-center gap-1.5 shadow-xs min-h-[48px] active:scale-98">
-                    <Zap size={14} fill="currentColor" /> Buy Now
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={isOutOfStock}
+                    className="bg-[#C9A45C] hover:bg-[#b08b47] text-[#211D1E] font-sans text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all flex items-center justify-center gap-1.5 shadow-xs min-h-[48px] active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Zap size={14} fill="currentColor" /> {isOutOfStock ? 'Unavailable' : 'Buy Now'}
                   </button>
                 </div>
               </div>

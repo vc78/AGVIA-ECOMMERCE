@@ -31,5 +31,12 @@ public class ProductResponse {
     private Double avgRating;
     private Integer numReviews;
     private boolean inStock;
+    private com.ems.pragathisweets.entity.ProductPaymentOption paymentOption;
+    private Integer lowStockThreshold;
+    private String stockStatus;
+    private boolean codAllowed;
+    private boolean onlineAllowed;
+    private boolean hasVariants;
+    private java.util.List<ProductVariantResponse> variants;
     private LocalDateTime createdAt;
 }

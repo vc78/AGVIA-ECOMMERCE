@@ -30,6 +30,10 @@ public class SecurityConfig {
     private final CorsConfigurationSource corsConfigurationSource;
 
     private static final String[] PUBLIC_GET_ENDPOINTS = {
+            "/api/homepage/**",
+            "/api/homepage",
+            "/api/collections/**",
+            "/api/collections",
             "/api/products/**",
             "/api/categories/**",
             "/api/reviews/product/**",

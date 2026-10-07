@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
-import { IndianRupee, ShoppingBag, Users, Package, RefreshCw, Radio, FileText, QrCode, Printer, Download } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { IndianRupee, ShoppingBag, Users, Package, RefreshCw, Radio, FileText, QrCode, Printer, Download, Clock, AlertTriangle, AlertCircle, CreditCard, Banknote, ArrowRight } from 'lucide-react'
 import AdminLayout from '../../components/admin/AdminLayout'
 import StatCard from '../../components/admin/StatCard'
 import SalesChart from '../../components/admin/SalesChart'
@@ -229,8 +230,51 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
-          {/* Responsive KPI Grid: 2 cols on mobile, 4 on desktop */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8 font-body">
+          {/* Actionable Inventory Alert Banners */}
+          {(stats.lowStockCount > 0 || stats.outOfStockCount > 0) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 select-none font-body">
+              {stats.outOfStockCount > 0 && (
+                <div className="flex items-center justify-between p-3.5 bg-red-50 border border-red-200 rounded-2xl text-red-800">
+                  <div className="flex items-center gap-2.5">
+                    <AlertCircle size={18} className="text-red-600 shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold font-serif">{stats.outOfStockCount} Silhouettes Out of Stock</p>
+                      <p className="text-[10px] text-red-700/80">Customers cannot purchase these pieces until restocked.</p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/admin/inventory?filter=out"
+                    className="flex items-center gap-1 px-3 py-1 bg-red-700 hover:bg-red-800 text-white text-[11px] font-bold rounded-xl transition-all shadow-xs shrink-0"
+                  >
+                    <span>Restock</span>
+                    <ArrowRight size={12} />
+                  </Link>
+                </div>
+              )}
+
+              {stats.lowStockCount > 0 && (
+                <div className="flex items-center justify-between p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900">
+                  <div className="flex items-center gap-2.5">
+                    <AlertTriangle size={18} className="text-amber-600 shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold font-serif">{stats.lowStockCount} Silhouettes Low on Stock</p>
+                      <p className="text-[10px] text-amber-800/80">Inventory count has reached the defined minimum threshold.</p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/admin/inventory?filter=low"
+                    className="flex items-center gap-1 px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold rounded-xl transition-all shadow-xs shrink-0"
+                  >
+                    <span>View Low Stock</span>
+                    <ArrowRight size={12} />
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Primary Revenue & Operational KPI Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 font-body">
             <StatCard 
               label="Total Revenue" 
               value={`₹${Number(stats.totalRevenue).toLocaleString('en-IN')}`} 
@@ -238,10 +282,16 @@ export default function Dashboard() {
               trend="+14% this month" 
             />
             <StatCard 
+              label="Today's Sales" 
+              value={`₹${Number(stats.todaySales || 0).toLocaleString('en-IN')}`} 
+              icon={IndianRupee} 
+              trend="Gross orders today" 
+            />
+            <StatCard 
               label="Atelier Orders" 
               value={stats.totalOrders} 
               icon={ShoppingBag} 
-              trend="Active couture bookings" 
+              trend="Total lifetime orders" 
             />
             <StatCard 
               label="Registered Patrons" 
@@ -249,11 +299,33 @@ export default function Dashboard() {
               icon={Users} 
               trend="Loyal clientele" 
             />
+          </div>
+
+          {/* Secondary Operational Breakdown */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8 font-body">
+            <StatCard 
+              label="COD Orders" 
+              value={stats.codOrders ?? 0} 
+              icon={Banknote} 
+              trend="Doorstep settlement" 
+            />
+            <StatCard 
+              label="Online Payments" 
+              value={stats.onlinePayments ?? 0} 
+              icon={CreditCard} 
+              trend="Gateway prepaid" 
+            />
+            <StatCard 
+              label="Pending Payments" 
+              value={stats.pendingPayments ?? 0} 
+              icon={Clock} 
+              trend="Awaiting clearance" 
+            />
             <StatCard 
               label="Active Silhouettes" 
               value={stats.totalProducts} 
               icon={Package} 
-              trend="Live atelier collection" 
+              trend="Live atelier catalog" 
             />
           </div>
 

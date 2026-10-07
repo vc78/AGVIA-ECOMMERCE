@@ -37,21 +37,34 @@ public class AnalyticsService {
         long totalProducts = productRepository.count();
         long totalOrders = orderRepository.count();
         long pendingOrders = orderRepository.countByStatus(OrderStatus.PENDING);
-        long lowStock = productRepository.findByStockQuantityLessThanEqualAndActiveTrue(LOW_STOCK_THRESHOLD).size();
+        long lowStockCount = productRepository.countLowStockProducts();
+        long outOfStockCount = productRepository.countOutOfStockProducts();
 
         BigDecimal totalRevenue = orderRepository.sumRevenueBetween(epoch, LocalDateTime.now());
         BigDecimal todayRevenue = orderRepository.sumRevenueBetween(startOfToday, endOfToday);
         long todayOrders = orderRepository.countByCreatedAtBetween(startOfToday, endOfToday);
+        long pendingPayments = orderRepository.countByPaymentStatus(com.ems.pragathisweets.entity.PaymentStatus.PENDING);
+        long codOrders = orderRepository.countByPaymentMethod(com.ems.pragathisweets.entity.PaymentMethod.COD);
+        long onlinePayments = orderRepository.countByPaymentMethodAndPaymentStatus(
+                com.ems.pragathisweets.entity.PaymentMethod.RAZORPAY,
+                com.ems.pragathisweets.entity.PaymentStatus.SUCCESS
+        );
 
         return DashboardResponse.builder()
                 .totalUsers(totalUsers)
                 .totalProducts(totalProducts)
                 .totalOrders(totalOrders)
                 .pendingOrders(pendingOrders)
-                .lowStockProducts(lowStock)
-                .totalRevenue(totalRevenue)
-                .todayRevenue(todayRevenue)
+                .lowStockProducts(lowStockCount)
+                .lowStockCount(lowStockCount)
+                .outOfStockCount(outOfStockCount)
+                .totalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO)
+                .todayRevenue(todayRevenue != null ? todayRevenue : BigDecimal.ZERO)
+                .todaySales(todayRevenue != null ? todayRevenue : BigDecimal.ZERO)
                 .todayOrders(todayOrders)
+                .pendingPayments(pendingPayments)
+                .codOrders(codOrders)
+                .onlinePayments(onlinePayments)
                 .build();
     }
 

@@ -30,6 +30,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final com.ems.pragathisweets.repository.ProductVariantRepository productVariantRepository;
     private final UserRepository userRepository;
     private final CouponService couponService;
     private final EmailService emailService;
@@ -72,51 +73,111 @@ public class OrderService {
                 .discountAmount(BigDecimal.ZERO)
                 .build();
 
+        // Validate mixed cart payment availability against MySQL products & variants
+        for (CartItem cartItem : cart.getItems()) {
+            Product p = productRepository.findById(cartItem.getProduct().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + cartItem.getProduct().getId()));
+
+            boolean codAllowed = p.isCodAllowed();
+            boolean onlineAllowed = p.isOnlineAllowed();
+
+            if (cartItem.getVariantId() != null) {
+                com.ems.pragathisweets.entity.ProductVariant v = productVariantRepository.findById(cartItem.getVariantId()).orElse(null);
+                if (v != null && v.getPaymentOption() != null) {
+                    codAllowed = v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY;
+                    onlineAllowed = v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY;
+                }
+            }
+
+            if (paymentMethod == PaymentMethod.COD && !codAllowed) {
+                throw new IllegalArgumentException("Cash on Delivery isn't available for one or more items in your order. Please choose online payment.");
+            }
+            if (paymentMethod == PaymentMethod.RAZORPAY && !onlineAllowed) {
+                throw new IllegalArgumentException("Online payment isn't available for one or more items in your order. Please choose Cash on Delivery.");
+            }
+        }
+
         for (CartItem cartItem : cart.getItems()) {
             // Pessimistic write lock ensures atomic check-and-decrement under high concurrency (e.g. flash sales)
             Product product = productRepository.findByIdWithPessimisticLock(cartItem.getProduct().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + cartItem.getProduct().getId()));
 
-            if (product.getStockQuantity() < cartItem.getQuantity()) {
-                throw new InsufficientStockException("Insufficient stock for " + product.getName()
-                        + ". Available: " + product.getStockQuantity());
+            com.ems.pragathisweets.entity.ProductVariant variant = null;
+            if (cartItem.getVariantId() != null) {
+                variant = productVariantRepository.findByIdForUpdate(cartItem.getVariantId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Product variant not found: " + cartItem.getVariantId()));
+
+                if (variant.getStockQuantity() < cartItem.getQuantity()) {
+                    throw new InsufficientStockException("Insufficient stock for " + product.getName()
+                            + " (" + variant.getColorName() + "). Available: " + variant.getStockQuantity());
+                }
+            } else {
+                if (product.getStockQuantity() < cartItem.getQuantity()) {
+                    throw new InsufficientStockException("Insufficient stock for " + product.getName()
+                            + ". Available: " + product.getStockQuantity());
+                }
             }
 
-            BigDecimal subtotal = product.getEffectivePrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            BigDecimal effectivePrice = (variant != null)
+                    ? variant.getEffectivePrice(product.getEffectivePrice())
+                    : product.getEffectivePrice();
+
+            BigDecimal subtotal = effectivePrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             totalAmount = totalAmount.add(subtotal);
+
+            String itemSku = (variant != null && variant.getSku() != null) ? variant.getSku() : product.getSku();
+            String itemColor = (variant != null) ? variant.getColorName() : cartItem.getColorName();
+            String itemImage = (variant != null && variant.getPrimaryImage() != null)
+                    ? variant.getPrimaryImage().getImageUrl()
+                    : (cartItem.getImageUrl() != null ? cartItem.getImageUrl() : product.getImageUrl());
 
             OrderItem orderItem = OrderItem.builder()
                     .product(product)
                     .productName(product.getName())
                     .quantity(cartItem.getQuantity())
-                    .price(product.getEffectivePrice())
+                    .price(effectivePrice)
                     .subtotal(subtotal)
+                    .variantId(variant != null ? variant.getId() : null)
+                    .colorName(itemColor)
+                    .sku(itemSku)
+                    .imageUrl(itemImage)
                     .build();
             order.addItem(orderItem);
 
+            // Decrement variant stock if applicable
+            if (variant != null) {
+                variant.setStockQuantity(variant.getStockQuantity() - cartItem.getQuantity());
+                productVariantRepository.save(variant);
+            }
+
             // Decrement stock (reserved at order creation time)
-            int remainingStock = product.getStockQuantity() - cartItem.getQuantity();
+            int previousStock = product.getStockQuantity();
+            int threshold = product.getEffectiveLowStockThreshold();
+            int remainingStock = Math.max(0, previousStock - cartItem.getQuantity());
             product.setStockQuantity(remainingStock);
             productRepository.save(product);
 
-            // Publish inventory alerts
-            if (remainingStock == 0) {
-                eventPublisher.publishEvent(new AdminNotificationEvent(
-                        NotificationType.OUT_OF_STOCK,
-                        "Out of Stock: " + product.getName(),
-                        "Silhouette " + product.getName() + " (SKU: " + product.getSku() + ") is now OUT OF STOCK.",
-                        String.valueOf(product.getId()),
-                        "PRODUCT",
-                        java.util.Map.of("productId", product.getId(), "name", product.getName(), "sku", product.getSku())
-                ));
-            } else if (remainingStock <= 10) {
+            // State-transition inventory alerts (prevents redundant duplicate alerts):
+            // 1. IN_STOCK -> LOW_STOCK: ONLY trigger on transition from > threshold to <= threshold and > 0
+            if (previousStock > threshold && remainingStock <= threshold && remainingStock > 0) {
                 eventPublisher.publishEvent(new AdminNotificationEvent(
                         NotificationType.LOW_STOCK,
                         "Low Stock: " + product.getName(),
-                        "Silhouette " + product.getName() + " has only " + remainingStock + " piece(s) remaining.",
+                        "Stock is running low for " + product.getName() + " — " + remainingStock + " remaining.",
                         String.valueOf(product.getId()),
                         "PRODUCT",
-                        java.util.Map.of("productId", product.getId(), "name", product.getName(), "stock", remainingStock)
+                        java.util.Map.of("productId", product.getId(), "name", product.getName(), "stock", remainingStock, "threshold", threshold)
+                ));
+            }
+            // 2. Any stock -> OUT_OF_STOCK: ONLY trigger on transition to 0
+            else if (previousStock > 0 && remainingStock == 0) {
+                eventPublisher.publishEvent(new AdminNotificationEvent(
+                        NotificationType.OUT_OF_STOCK,
+                        "Out of Stock: " + product.getName(),
+                        product.getName() + " is now out of stock.",
+                        String.valueOf(product.getId()),
+                        "PRODUCT",
+                        java.util.Map.of("productId", product.getId(), "name", product.getName(), "sku", product.getSku() != null ? product.getSku() : "")
                 ));
             }
         }
@@ -250,6 +311,12 @@ public class OrderService {
 
         // Restock items
         for (OrderItem item : order.getItems()) {
+            if (item.getVariantId() != null) {
+                productVariantRepository.findById(item.getVariantId()).ifPresent(v -> {
+                    v.setStockQuantity(v.getStockQuantity() + item.getQuantity());
+                    productVariantRepository.save(v);
+                });
+            }
             if (item.getProduct() != null) {
                 Product product = item.getProduct();
                 product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
@@ -293,6 +360,10 @@ public class OrderService {
                         .quantity(item.getQuantity())
                         .price(item.getPrice())
                         .subtotal(item.getSubtotal())
+                        .variantId(item.getVariantId())
+                        .colorName(item.getColorName())
+                        .sku(item.getSku())
+                        .imageUrl(item.getImageUrl())
                         .build())
                 .toList();
 

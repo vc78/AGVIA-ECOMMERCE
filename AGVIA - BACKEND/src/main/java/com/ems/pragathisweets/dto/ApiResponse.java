@@ -32,7 +32,15 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, message, data, LocalDateTime.now());
     }
 
+    public static <T> ApiResponse<T> ok(String message, T data) {
+        return new ApiResponse<>(true, message, data, LocalDateTime.now());
+    }
+
     public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(true, "success", data, LocalDateTime.now());
+    }
+
+    public static <T> ApiResponse<T> ok(T data) {
         return new ApiResponse<>(true, "success", data, LocalDateTime.now());
     }
 

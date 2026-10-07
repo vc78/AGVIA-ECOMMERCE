@@ -43,4 +43,12 @@ public class AdminProductService {
     public void delete(Long id) {
         productService.delete(id);
     }
+
+    public java.util.List<com.ems.pragathisweets.dto.ProductVariantResponse> getVariants(Long id) {
+        return productService.getVariantsByProductId(id);
+    }
+
+    public void deleteVariant(Long variantId) {
+        productService.deleteVariant(variantId);
+    }
 }

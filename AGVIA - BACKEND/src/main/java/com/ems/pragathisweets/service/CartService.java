@@ -27,6 +27,7 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final com.ems.pragathisweets.repository.ProductVariantRepository productVariantRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -46,27 +47,55 @@ public class CartService {
             throw new ResourceNotFoundException("Product is not available: " + product.getName());
         }
 
-        CartItem existingItem = cartItemRepository
-                .findByCartIdAndProductId(cart.getId(), product.getId())
+        com.ems.pragathisweets.entity.ProductVariant variant = null;
+        if (request.getVariantId() != null) {
+            variant = productVariantRepository.findById(request.getVariantId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Variant not found: " + request.getVariantId()));
+            if (!variant.isActive()) {
+                throw new ResourceNotFoundException("Variant is not available: " + variant.getColorName());
+            }
+        }
+
+        // Match existing cart item with same product AND same variantId
+        final Long reqVariantId = request.getVariantId();
+        CartItem existingItem = cart.getItems().stream()
+                .filter(i -> i.getProduct().getId().equals(product.getId()) && java.util.Objects.equals(i.getVariantId(), reqVariantId))
+                .findFirst()
                 .orElse(null);
 
         int newQuantity = request.getQuantity() + (existingItem != null ? existingItem.getQuantity() : 0);
 
-        if (product.getStockQuantity() < newQuantity) {
-            throw new InsufficientStockException("Only " + product.getStockQuantity() + " units of "
-                    + product.getName() + " are available in stock");
+        int availableStock = (variant != null) ? variant.getStockQuantity() : product.getStockQuantity();
+        if (availableStock < newQuantity) {
+            String name = (variant != null) ? product.getName() + " (" + variant.getColorName() + ")" : product.getName();
+            throw new InsufficientStockException("Only " + availableStock + " units of " + name + " are available in stock");
         }
+
+        BigDecimal priceSnapshot = (variant != null)
+                ? variant.getEffectivePrice(product.getEffectivePrice())
+                : product.getEffectivePrice();
+
+        String sku = (variant != null && variant.getSku() != null) ? variant.getSku() : product.getSku();
+        String colorName = (variant != null) ? variant.getColorName() : request.getColorName();
+        String imageUrl = (variant != null && variant.getPrimaryImage() != null)
+                ? variant.getPrimaryImage().getImageUrl()
+                : (request.getImageUrl() != null ? request.getImageUrl() : product.getImageUrl());
 
         if (existingItem != null) {
             existingItem.setQuantity(newQuantity);
-            existingItem.setPriceSnapshot(product.getEffectivePrice());
+            existingItem.setPriceSnapshot(priceSnapshot);
+            existingItem.setImageUrl(imageUrl);
             cartItemRepository.save(existingItem);
         } else {
             CartItem item = CartItem.builder()
                     .cart(cart)
                     .product(product)
                     .quantity(request.getQuantity())
-                    .priceSnapshot(product.getEffectivePrice())
+                    .priceSnapshot(priceSnapshot)
+                    .variantId(variant != null ? variant.getId() : null)
+                    .colorName(colorName)
+                    .sku(sku)
+                    .imageUrl(imageUrl)
                     .build();
             cart.addItem(item);
             cartItemRepository.save(item);
@@ -131,16 +160,23 @@ public class CartService {
 
     private CartResponse toResponse(Cart cart) {
         var items = cart.getItems().stream()
-                .map(item -> CartItemResponse.builder()
-                        .id(item.getId())
-                        .productId(item.getProduct().getId())
-                        .productName(item.getProduct().getName())
-                        .productImageUrl(item.getProduct().getImageUrl())
-                        .price(item.getPriceSnapshot())
-                        .quantity(item.getQuantity())
-                        .subtotal(item.getSubtotal())
-                        .inStock(item.getProduct().isInStock())
-                        .build())
+                .map(item -> {
+                    String imgUrl = item.getImageUrl() != null ? item.getImageUrl() : item.getProduct().getImageUrl();
+                    return CartItemResponse.builder()
+                            .id(item.getId())
+                            .productId(item.getProduct().getId())
+                            .productName(item.getProduct().getName())
+                            .productImageUrl(imgUrl)
+                            .price(item.getPriceSnapshot())
+                            .quantity(item.getQuantity())
+                            .subtotal(item.getSubtotal())
+                            .inStock(item.getProduct().isInStock())
+                            .variantId(item.getVariantId())
+                            .colorName(item.getColorName())
+                            .sku(item.getSku())
+                            .variantImageUrl(imgUrl)
+                            .build();
+                })
                 .toList();
 
         BigDecimal total = items.stream()

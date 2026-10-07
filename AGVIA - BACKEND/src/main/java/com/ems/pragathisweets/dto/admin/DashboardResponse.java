@@ -20,5 +20,11 @@ public class DashboardResponse {
     private long lowStockProducts;
     private BigDecimal totalRevenue;
     private BigDecimal todayRevenue;
+    private BigDecimal todaySales;
     private long todayOrders;
+    private long pendingPayments;
+    private long codOrders;
+    private long onlinePayments;
+    private long lowStockCount;
+    private long outOfStockCount;
 }

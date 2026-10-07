@@ -25,18 +25,30 @@ public class AdminOrderController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<OrderResponse>>> getAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String paymentMethod,
+            @RequestParam(required = false) String paymentStatus,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String dateRange,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        if (status != null && !status.isBlank()) {
-            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
-            return ResponseEntity.ok(ApiResponse.success(adminOrderService.getByStatus(orderStatus, pageable)));
-        }
+        Page<OrderResponse> results = adminOrderService.searchOrders(
+                search,
+                paymentMethod,
+                paymentStatus,
+                status,
+                dateRange,
+                startDate,
+                endDate,
+                pageable
+        );
 
-        return ResponseEntity.ok(ApiResponse.success(adminOrderService.getAll(pageable)));
+        return ResponseEntity.ok(ApiResponse.success(results));
     }
 
     @GetMapping("/{id}")

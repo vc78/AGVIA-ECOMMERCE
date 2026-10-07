@@ -57,6 +57,12 @@ export const adminService = {
         totalOrders: dashData.totalOrders || 0,
         totalCustomers: dashData.totalUsers || 0,
         totalProducts: dashData.totalProducts || 0,
+        todaySales: dashData.todaySales || 0,
+        pendingPayments: dashData.pendingPayments || 0,
+        codOrders: dashData.codOrders || 0,
+        onlinePayments: dashData.onlinePayments || 0,
+        lowStockCount: dashData.lowStockCount || 0,
+        outOfStockCount: dashData.outOfStockCount || 0,
         salesTrend,
         recentOrders: recentOrdersList
       }
@@ -67,6 +73,12 @@ export const adminService = {
         totalOrders: 0,
         totalCustomers: 0,
         totalProducts: 25,
+        todaySales: 0,
+        pendingPayments: 0,
+        codOrders: 0,
+        onlinePayments: 0,
+        lowStockCount: 0,
+        outOfStockCount: 0,
         salesTrend: SALES_TREND,
         recentOrders: []
       }
@@ -136,6 +148,9 @@ export const adminService = {
       imageUrl: image || payload.imageUrl || '',
       categoryId: categoryId,
       active: payload.active ?? true,
+      paymentOption: payload.paymentOption || 'COD_AND_ONLINE',
+      lowStockThreshold: payload.lowStockThreshold != null ? Number(payload.lowStockThreshold) : 5,
+      variants: Array.isArray(payload.variants) ? payload.variants : undefined,
     }
 
     try {
@@ -195,6 +210,9 @@ export const adminService = {
       imageUrl: image || payload.imageUrl || '',
       categoryId: categoryId,
       active: payload.active ?? true,
+      paymentOption: payload.paymentOption || 'COD_AND_ONLINE',
+      lowStockThreshold: payload.lowStockThreshold != null ? Number(payload.lowStockThreshold) : 5,
+      variants: Array.isArray(payload.variants) ? payload.variants : undefined,
     }
 
     try {
@@ -474,19 +492,31 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
   },
 
   // ── Excel Reporting Layer (AGVIA_ORDERS.xlsx) ──
-  async downloadOrdersExcel() {
+  async downloadOrdersExcel(params = {}) {
     try {
-      const response = await api.get('/admin/reports/orders-excel', {
+      const response = await api.get('/admin/reports/orders/excel', {
+        params,
         responseType: 'blob',
         timeout: 45000
       })
       const blob = new Blob([response.data], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       })
+
+      // Extract filename from Content-Disposition header if available
+      let filename = 'AGVIA_ORDERS.xlsx'
+      const disposition = response.headers?.['content-disposition'] || response.headers?.['Content-Disposition']
+      if (disposition && disposition.includes('filename=')) {
+        const match = disposition.match(/filename=["']?([^"';]+)["']?/)
+        if (match && match[1]) filename = match[1]
+      } else if (params.startDate || params.endDate || params.status) {
+        filename = `AGVIA_ORDERS_filtered_${new Date().toISOString().slice(0, 10)}.xlsx`
+      }
+
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'AGVIA_ORDERS.xlsx')
+      link.setAttribute('download', filename)
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -1150,6 +1180,63 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       console.error('[adminService.resetSettings] Error:', err)
       throw err
     }
+  },
+
+  // Homepage Sections Management
+  async getHomepageSections() {
+    try {
+      const { data } = await api.get('/admin/homepage-sections')
+      return data?.data || []
+    } catch (err) {
+      console.warn('Failed to load homepage sections from backend:', err)
+      return []
+    }
+  },
+
+  async createHomepageSection(payload) {
+    const { data } = await api.post('/admin/homepage-sections', payload)
+    return data?.data
+  },
+
+  async updateHomepageSection(id, payload) {
+    const { data } = await api.put(`/admin/homepage-sections/${id}`, payload)
+    return data?.data
+  },
+
+  async deleteHomepageSection(id) {
+    const { data } = await api.delete(`/admin/homepage-sections/${id}`)
+    return data?.data
+  },
+
+  async reorderHomepageSections(reorderList) {
+    const { data } = await api.put('/admin/homepage-sections/reorder', reorderList)
+    return data?.data
+  },
+
+  // Collections Management
+  async getCollections() {
+    try {
+      const { data } = await api.get('/admin/collections')
+      return data?.data || []
+    } catch (err) {
+      console.warn('Failed to load collections from backend:', err)
+      return []
+    }
+  },
+
+  async createCollection(payload) {
+    const { data } = await api.post('/admin/collections', payload)
+    return data?.data
+  },
+
+  async updateCollection(id, payload) {
+    const { data } = await api.put(`/admin/collections/${id}`, payload)
+    return data?.data
+  },
+
+  async deleteCollection(id) {
+    const { data } = await api.delete(`/admin/collections/${id}`)
+    return data?.data
   }
 }
 

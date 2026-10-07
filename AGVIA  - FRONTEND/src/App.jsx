@@ -32,35 +32,40 @@ export default function App() {
 
     // 2. Authoritative session verification on application startup
     let isMounted = true
+    const token = typeof window !== 'undefined' ? localStorage.getItem('ps_token') : null
 
-    authService.getCurrentUser()
-      .then((userData) => {
-        if (isMounted && userData) {
-          dispatch(profileUpdated({
-            id: userData.id,
-            name: userData.fullName || userData.name,
-            email: userData.email,
-            phone: userData.phone,
-            phoneVerified: userData.phoneVerified,
-            role: userData.role === 'ROLE_ADMIN' || userData.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER'
-          }))
-        }
-      })
-      .catch((err) => {
-        if (isMounted) {
-          // If token is invalid or expired (401/403), invalidate local session
-          if (err.response?.status === 401 || err.response?.status === 403) {
-            if (localStorage.getItem('ps_token')) {
-              dispatch(loggedOut())
+    if (!token) {
+      dispatch(authCheckCompleted())
+    } else {
+      authService.getCurrentUser()
+        .then((userData) => {
+          if (isMounted && userData) {
+            dispatch(profileUpdated({
+              id: userData.id,
+              name: userData.fullName || userData.name,
+              email: userData.email,
+              phone: userData.phone,
+              phoneVerified: userData.phoneVerified,
+              role: userData.role === 'ROLE_ADMIN' || userData.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER'
+            }))
+          }
+        })
+        .catch((err) => {
+          if (isMounted) {
+            // ONLY log out if backend explicitly returns 401 Unauthorized or 403 Forbidden
+            if (err.response?.status === 401 || err.response?.status === 403) {
+              if (localStorage.getItem('ps_token')) {
+                dispatch(loggedOut())
+              }
             }
           }
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          dispatch(authCheckCompleted())
-        }
-      })
+        })
+        .finally(() => {
+          if (isMounted) {
+            dispatch(authCheckCompleted())
+          }
+        })
+    }
 
     return () => {
       isMounted = false
@@ -75,4 +80,3 @@ export default function App() {
     </>
   )
 }
-

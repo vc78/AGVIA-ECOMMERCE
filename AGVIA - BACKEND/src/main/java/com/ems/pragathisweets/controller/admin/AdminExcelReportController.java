@@ -1,23 +1,29 @@
 package com.ems.pragathisweets.controller.admin;
 
 import com.ems.pragathisweets.dto.ApiResponse;
+import com.ems.pragathisweets.entity.OrderStatus;
 import com.ems.pragathisweets.service.admin.ExcelReportingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/reports/orders-excel")
+@RequestMapping({"/api/admin/reports/orders-excel", "/api/admin/reports/orders/excel"})
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Admin - Excel Reporting Layer", description = "AGVIA_ORDERS.xlsx export and on-demand regeneration from MySQL")
@@ -26,15 +32,39 @@ public class AdminExcelReportController {
     private final ExcelReportingService excelReportingService;
 
     @GetMapping({"", "/", "/download"})
-    @Operation(summary = "Download authoritative AGVIA_ORDERS.xlsx report generated from MySQL")
-    public ResponseEntity<Resource> downloadOrdersExcel() {
-        File file = excelReportingService.getOrGenerateExcelReport();
+    @Operation(summary = "Download authoritative AGVIA_ORDERS.xlsx report or filtered orders export generated from MySQL")
+    public ResponseEntity<Resource> downloadOrdersExcel(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) OrderStatus status) throws IOException {
 
+        if (startDate != null || endDate != null || status != null) {
+            byte[] excelData = excelReportingService.generateFilteredExcelReport(startDate, endDate, status);
+            String timestamp = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+            String filename = "AGVIA_ORDERS_filtered_" + timestamp + ".xlsx";
+
+            ByteArrayResource resource = new ByteArrayResource(excelData);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                    .header(HttpHeaders.PRAGMA, "no-cache")
+                    .header(HttpHeaders.EXPIRES, "0")
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .contentLength(excelData.length)
+                    .body(resource);
+        }
+
+        File file = excelReportingService.getOrGenerateExcelReport();
         Resource resource = new FileSystemResource(file);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .header(HttpHeaders.PRAGMA, "no-cache")
+                .header(HttpHeaders.EXPIRES, "0")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .contentLength(file.length())
                 .body(resource);

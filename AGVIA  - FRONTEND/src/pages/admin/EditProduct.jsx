@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import AdminLayout from '../../components/admin/AdminLayout'
 import ProductImagePicker, { DEFAULT_IMAGE_PRESETS as IMAGE_PRESETS } from '../../components/admin/ProductImagePicker'
+import VariantManager from '../../components/admin/VariantManager'
 import { adminService } from '../../services/adminService'
 import { productService } from '../../services/productService'
 import { Image, Sparkles, Loader2, Wand2 } from 'lucide-react'
@@ -14,6 +15,8 @@ export default function EditProduct() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [aiGenerating, setAiGenerating] = useState(false)
+  const [hasVariants, setHasVariants] = useState(false)
+  const [variants, setVariants] = useState([])
   const [form, setForm] = useState({
     name: '',
     categoryId: '',
@@ -22,6 +25,8 @@ export default function EditProduct() {
     discountPrice: '',
     unit: 'piece',
     stock: '25',
+    lowStockThreshold: '5',
+    paymentOption: 'COD_AND_ONLINE',
     description: '',
     image: '',
     sku: '',
@@ -52,10 +57,17 @@ export default function EditProduct() {
             discountPrice: prod.discountPrice ?? '',
             unit: prod.unit || 'piece',
             stock: prod.stock ?? '25',
+            lowStockThreshold: prod.lowStockThreshold ?? '5',
+            paymentOption: prod.paymentOption || 'COD_AND_ONLINE',
             description: prod.description || '',
             image: prod.image || IMAGE_PRESETS[0].url,
             sku: prod.sku || '',
           })
+
+          if (Array.isArray(prod.variants) && prod.variants.length > 0) {
+            setVariants(prod.variants)
+            setHasVariants(true)
+          }
         }
       } catch (err) {
         console.error('Failed to load product data:', err)
@@ -100,6 +112,47 @@ export default function EditProduct() {
       return
     }
 
+    if (hasVariants) {
+      if (!variants || variants.length === 0) {
+        toast.error('Please add at least one color variant or switch to Simple Product.')
+        return
+      }
+
+      const skus = new Set()
+      for (let i = 0; i < variants.length; i++) {
+        const v = variants[i]
+        if (!v.colorName || !v.colorName.trim()) {
+          toast.error(`Please enter a color name for Variant #${i + 1}`)
+          return
+        }
+        if (!v.sku || !v.sku.trim()) {
+          toast.error(`Please specify a SKU for variant '${v.colorName}'`)
+          return
+        }
+        const skuUpper = v.sku.trim().toUpperCase()
+        if (skus.has(skuUpper)) {
+          toast.error(`Duplicate SKU detected: ${skuUpper}. Each variant must have a unique SKU.`)
+          return
+        }
+        skus.add(skuUpper)
+
+        if (Number(v.stockQuantity) < 0) {
+          toast.error(`Stock cannot be negative for variant '${v.colorName}'`)
+          return
+        }
+      }
+    }
+
+    // Auto-select primary image from first variant if available
+    let primaryPhoto = form.image
+    if (hasVariants && variants.length > 0) {
+      const firstVarWithImgs = variants.find(v => v.images && v.images.length > 0)
+      if (firstVarWithImgs) {
+        const prim = firstVarWithImgs.images.find(img => img.isPrimary) || firstVarWithImgs.images[0]
+        if (prim && prim.imageUrl) primaryPhoto = prim.imageUrl
+      }
+    }
+
     setSaving(true)
     try {
       await adminService.updateProduct(id, {
@@ -109,10 +162,13 @@ export default function EditProduct() {
         price: Number(form.price),
         discountPrice: form.discountPrice ? Number(form.discountPrice) : null,
         stock: Number(form.stock),
+        lowStockThreshold: Number(form.lowStockThreshold || 5),
+        paymentOption: form.paymentOption || 'COD_AND_ONLINE',
         unit: form.unit,
         description: form.description,
-        image: form.image,
+        image: primaryPhoto,
         sku: form.sku.trim() || undefined,
+        variants: hasVariants ? variants : undefined
       })
       toast.success('Silhouette updated successfully!', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
@@ -265,14 +321,94 @@ export default function EditProduct() {
                 placeholder="AGV-SR-001 (Optional)"
               />
             </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">Low Stock Alert Threshold *</label>
+              <input
+                name="lowStockThreshold"
+                type="number"
+                min="1"
+                required
+                value={form.lowStockThreshold}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="5"
+              />
+            </div>
           </div>
 
-          {/* Garment Image Selection & Local Device Upload */}
-          <ProductImagePicker
-            value={form.image}
-            onChange={(newImage) => setForm(prev => ({ ...prev, image: newImage }))}
-            presets={IMAGE_PRESETS}
+          {/* Payment Method Acceptance Rule */}
+          <div className="bg-[#FAF7F2] p-4 rounded-2xl border border-[#C9A45C]/20 space-y-2">
+            <label className="text-[10px] font-bold text-[#5A1020] tracking-widest uppercase block select-none">
+              Payment Acceptance Option *
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${form.paymentOption === 'COD_AND_ONLINE' ? 'bg-[#5A1020] text-white border-[#5A1020] shadow-sm' : 'bg-white text-[#211D1E] border-[#C9A45C]/20 hover:border-[#5A1020]/40'}`}>
+                <input
+                  type="radio"
+                  name="paymentOption"
+                  value="COD_AND_ONLINE"
+                  checked={form.paymentOption === 'COD_AND_ONLINE'}
+                  onChange={handleChange}
+                  className="accent-[#C9A45C]"
+                />
+                <div className="text-left">
+                  <p className="text-xs font-bold leading-tight">COD + Online</p>
+                  <p className={`text-[10px] ${form.paymentOption === 'COD_AND_ONLINE' ? 'text-white/80' : 'text-[#211D1E]/60'}`}>All payments accepted</p>
+                </div>
+              </label>
+
+              <label className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${form.paymentOption === 'ONLINE_ONLY' ? 'bg-[#5A1020] text-white border-[#5A1020] shadow-sm' : 'bg-white text-[#211D1E] border-[#C9A45C]/20 hover:border-[#5A1020]/40'}`}>
+                <input
+                  type="radio"
+                  name="paymentOption"
+                  value="ONLINE_ONLY"
+                  checked={form.paymentOption === 'ONLINE_ONLY'}
+                  onChange={handleChange}
+                  className="accent-[#C9A45C]"
+                />
+                <div className="text-left">
+                  <p className="text-xs font-bold leading-tight">Online Only</p>
+                  <p className={`text-[10px] ${form.paymentOption === 'ONLINE_ONLY' ? 'text-white/80' : 'text-[#211D1E]/60'}`}>COD restricted (prepaid only)</p>
+                </div>
+              </label>
+
+              <label className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${form.paymentOption === 'COD_ONLY' ? 'bg-[#5A1020] text-white border-[#5A1020] shadow-sm' : 'bg-white text-[#211D1E] border-[#C9A45C]/20 hover:border-[#5A1020]/40'}`}>
+                <input
+                  type="radio"
+                  name="paymentOption"
+                  value="COD_ONLY"
+                  checked={form.paymentOption === 'COD_ONLY'}
+                  onChange={handleChange}
+                  className="accent-[#C9A45C]"
+                />
+                <div className="text-left">
+                  <p className="text-xs font-bold leading-tight">COD Only</p>
+                  <p className={`text-[10px] ${form.paymentOption === 'COD_ONLY' ? 'text-white/80' : 'text-[#211D1E]/60'}`}>Doorstep cash only</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Product Color Variants & Multi-Image Gallery Manager */}
+          <VariantManager
+            hasVariants={hasVariants}
+            onToggleHasVariants={setHasVariants}
+            variants={variants}
+            onChange={setVariants}
+            baseSku={form.sku}
+            basePrice={form.price}
+            basePaymentOption={form.paymentOption}
           />
+
+          {/* Simple Product Fallback Image Picker (used when Simple Product mode is active) */}
+          {!hasVariants && (
+            <ProductImagePicker
+              value={form.image}
+              onChange={(newImage) => setForm(prev => ({ ...prev, image: newImage }))}
+              presets={IMAGE_PRESETS}
+            />
+          )}
 
           {/* Description & AI Generator */}
           <div className="space-y-2">

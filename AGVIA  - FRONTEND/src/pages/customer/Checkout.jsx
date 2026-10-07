@@ -44,6 +44,29 @@ export default function Checkout() {
   const [placingStep, setPlacingStep] = useState('')
   const [activeStep, setActiveStep] = useState(1) // 1: Shipping, 2: Payment
 
+  // Mixed Cart Payment Rules
+  const hasOnlineOnlyItem = items.some(item =>
+    item.paymentOption === 'ONLINE_ONLY' ||
+    item.product?.paymentOption === 'ONLINE_ONLY' ||
+    item.codAllowed === false ||
+    item.product?.codAllowed === false
+  )
+
+  const hasCodOnlyItem = items.some(item =>
+    item.paymentOption === 'COD_ONLY' ||
+    item.product?.paymentOption === 'COD_ONLY' ||
+    item.onlineAllowed === false ||
+    item.product?.onlineAllowed === false
+  )
+
+  useEffect(() => {
+    if (hasOnlineOnlyItem && paymentMethod === 'cod') {
+      setPaymentMethod('razorpay')
+    } else if (hasCodOnlyItem && paymentMethod === 'razorpay') {
+      setPaymentMethod('cod')
+    }
+  }, [hasOnlineOnlyItem, hasCodOnlyItem, paymentMethod])
+
   const deliveryFee = items.length > 0 ? (subtotal >= 999 ? 0 : 50) : 0
   const total = Math.max(0, subtotal + deliveryFee - discount)
 
@@ -199,7 +222,16 @@ export default function Checkout() {
     }
 
     if (paymentMethod === 'cod') {
+      if (hasOnlineOnlyItem) {
+        toast.error("Cash on Delivery isn't available for one or more items in your order. Please choose online payment.")
+        return
+      }
       return placeOrder({ paymentStatus: 'Pending' })
+    }
+
+    if (paymentMethod === 'razorpay' && hasCodOnlyItem) {
+      toast.error("Online payment isn't available for one or more items in your order. Please choose Cash on Delivery.")
+      return
     }
 
     const authOk = await ensureAuthenticated()
@@ -433,10 +465,15 @@ export default function Checkout() {
                 </h2>
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-3 border border-[#C9A45C]/20 hover:border-[#C9A45C]/50 rounded-xl p-3 sm:p-3.5 cursor-pointer transition-all has-[input:checked]:border-[#5A1020] has-[input:checked]:bg-[#5A1020]/[0.02]">
+                  <label className={`flex items-center gap-3 border rounded-xl p-3 sm:p-3.5 transition-all ${
+                    hasCodOnlyItem
+                      ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-200'
+                      : 'border-[#C9A45C]/20 hover:border-[#C9A45C]/50 cursor-pointer has-[input:checked]:border-[#5A1020] has-[input:checked]:bg-[#5A1020]/[0.02]'
+                  }`}>
                     <input
                       type="radio"
                       name="pm"
+                      disabled={hasCodOnlyItem}
                       checked={paymentMethod === 'razorpay'}
                       onChange={() => setPaymentMethod('razorpay')}
                       className="accent-[#5A1020] shrink-0"
@@ -444,13 +481,23 @@ export default function Checkout() {
                     <div className="flex-1">
                       <span className="font-serif font-bold text-xs sm:text-sm text-[#5A1020] block">Online Payment (Cards / UPI / Netbanking)</span>
                       <span className="text-[10px] text-[#211D1E]/60 mt-0.5 block font-sans">Pay securely via Razorpay gateway with instant dispatch.</span>
+                      {hasCodOnlyItem && (
+                        <p className="text-[10.5px] text-[#9B1C1C] mt-1 font-sans font-semibold">
+                          Online payment isn't available for one or more items in your order. Please choose Cash on Delivery.
+                        </p>
+                      )}
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 border border-[#C9A45C]/20 hover:border-[#C9A45C]/50 rounded-xl p-3 sm:p-3.5 cursor-pointer transition-all has-[input:checked]:border-[#5A1020] has-[input:checked]:bg-[#5A1020]/[0.02]">
+                  <label className={`flex items-center gap-3 border rounded-xl p-3 sm:p-3.5 transition-all ${
+                    hasOnlineOnlyItem
+                      ? 'opacity-60 cursor-not-allowed bg-amber-50/50 border-amber-200'
+                      : 'border-[#C9A45C]/20 hover:border-[#C9A45C]/50 cursor-pointer has-[input:checked]:border-[#5A1020] has-[input:checked]:bg-[#5A1020]/[0.02]'
+                  }`}>
                     <input
                       type="radio"
                       name="pm"
+                      disabled={hasOnlineOnlyItem}
                       checked={paymentMethod === 'cod'}
                       onChange={() => setPaymentMethod('cod')}
                       className="accent-[#5A1020] shrink-0"
@@ -458,6 +505,11 @@ export default function Checkout() {
                     <div className="flex-1">
                       <span className="font-serif font-bold text-xs sm:text-sm text-[#5A1020] block">Cash on Delivery (COD)</span>
                       <span className="text-[10px] text-[#211D1E]/60 mt-0.5 block font-sans">Pay upon arrival of your atelier garment parcel.</span>
+                      {hasOnlineOnlyItem && (
+                        <p className="text-[10.5px] text-[#B45309] bg-amber-100/60 p-2 rounded-lg mt-1.5 font-sans font-medium leading-relaxed border border-amber-300/60">
+                          ⚠️ Cash on Delivery isn't available for one or more items in your order. Please choose online payment.
+                        </p>
+                      )}
                     </div>
                   </label>
                 </div>
@@ -507,13 +559,41 @@ export default function Checkout() {
                 Wardrobe Summary
               </h2>
 
-              <div className="space-y-2.5 max-h-48 overflow-y-auto pr-2">
-                {items.map((item) => (
-                  <div key={item.id} className="flex gap-2 justify-between items-center text-xs text-[#211D1E]/70 font-sans">
-                    <span className="font-bold truncate max-w-[150px]">{item.name} <strong className="text-[#C9A45C] font-normal">× {item.qty}</strong></span>
-                    <span className="font-serif text-[#5A1020] font-bold">₹{item.price * item.qty}</span>
-                  </div>
-                ))}
+              <div className="space-y-2.5 max-h-56 overflow-y-auto pr-2">
+                {items.map((item) => {
+                  const itemKey = item.cartItemId || (item.variantId ? `${item.id}_v_${item.variantId}` : `${item.id}_${item.size || 'M'}`)
+                  return (
+                    <div key={itemKey} className="flex gap-2.5 justify-between items-center text-xs text-[#211D1E]/70 font-sans py-1 border-b border-[#C9A45C]/10 last:border-b-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {item.image && (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-9 h-11 object-cover rounded-md border border-[#C9A45C]/30 shrink-0 bg-[#FAF7F2]"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <span className="font-bold truncate block max-w-[170px] text-[#211D1E]">
+                            {item.name} <strong className="text-[#C9A45C] font-normal">× {item.qty}</strong>
+                          </span>
+                          {(item.colorName || item.sku) && (
+                            <span className="text-[10px] text-[#211D1E]/60 flex items-center gap-1.5 mt-0.5">
+                              {item.colorCode && (
+                                <span
+                                  style={{ backgroundColor: item.colorCode }}
+                                  className="w-2.5 h-2.5 rounded-full inline-block border border-white shadow-xs"
+                                />
+                              )}
+                              {item.colorName && <strong className="font-medium text-[#211D1E]/80">{item.colorName}</strong>}
+                              {item.sku && <span className="font-mono text-[9px] text-[#211D1E]/50">[{item.sku}]</span>}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="font-serif text-[#5A1020] font-bold shrink-0">₹{(item.price * item.qty).toLocaleString('en-IN')}</span>
+                    </div>
+                  )
+                })}
               </div>
 
               <div className="border-t border-[#C9A45C]/15 pt-3 space-y-2 text-xs text-[#211D1E]/70 font-sans">

@@ -42,4 +42,10 @@ public class ProductRequest {
     private Long categoryId;
 
     private Boolean active;
+
+    private com.ems.pragathisweets.entity.ProductPaymentOption paymentOption;
+
+    private Integer lowStockThreshold;
+
+    private java.util.List<ProductVariantRequest> variants;
 }

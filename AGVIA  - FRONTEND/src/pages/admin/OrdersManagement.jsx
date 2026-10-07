@@ -28,7 +28,11 @@ export default function OrdersManagement() {
   const [error, setError] = useState(null)
   const [liveSync, setLiveSync] = useState(true)
   const [lastSyncTime, setLastSyncTime] = useState(new Date())
+  const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('ALL')
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState('ALL')
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState('ALL')
+  const [dateFilter, setDateFilter] = useState('ALL')
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null)
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false)
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null)
@@ -130,9 +134,31 @@ export default function OrdersManagement() {
       setExcelLoading(true)
       toast.loading('Compiling AGVIA_ORDERS.xlsx...', { id: 'excel-orders' })
 
+      const params = {}
+      if (statusFilter !== 'ALL') params.status = statusFilter
+      if (dateFilter === 'TODAY') {
+        const todayStr = new Date().toISOString().slice(0, 10)
+        params.startDate = todayStr
+        params.endDate = todayStr
+      } else if (dateFilter === 'YESTERDAY') {
+        const y = new Date()
+        y.setDate(y.getDate() - 1)
+        const yStr = y.toISOString().slice(0, 10)
+        params.startDate = yStr
+        params.endDate = yStr
+      } else if (dateFilter === '7DAYS') {
+        const d = new Date()
+        d.setDate(d.getDate() - 7)
+        params.startDate = d.toISOString().slice(0, 10)
+      } else if (dateFilter === '30DAYS') {
+        const d = new Date()
+        d.setDate(d.getDate() - 30)
+        params.startDate = d.toISOString().slice(0, 10)
+      }
+
       // 1. Attempt authoritative server-side download first
       try {
-        await adminService.downloadOrdersExcel()
+        await adminService.downloadOrdersExcel(params)
         toast.success('Downloaded official AGVIA_ORDERS.xlsx from server!', {
           id: 'excel-orders',
           style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
@@ -222,9 +248,59 @@ export default function OrdersManagement() {
 
   // Filtered orders
   const filteredOrders = useMemo(() => {
-    if (statusFilter === 'ALL') return orders
-    return orders.filter(o => String(o.status || '').toUpperCase() === statusFilter)
-  }, [orders, statusFilter])
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const sevenDaysAgo = new Date(today)
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const thirtyDaysAgo = new Date(today)
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    return orders.filter(o => {
+      // 1. Order Status filter
+      if (statusFilter !== 'ALL' && String(o.status || '').toUpperCase() !== statusFilter) {
+        return false
+      }
+      // 2. Payment Method filter
+      if (paymentMethodFilter !== 'ALL') {
+        const pm = String(o.paymentMethod || '').toUpperCase()
+        if (paymentMethodFilter === 'COD' && pm !== 'COD') return false
+        if (paymentMethodFilter === 'RAZORPAY' && pm !== 'RAZORPAY' && pm !== 'ONLINE') return false
+      }
+      // 3. Payment Status filter
+      if (paymentStatusFilter !== 'ALL') {
+        const ps = String(o.payment || o.paymentStatus || '').toUpperCase()
+        if (paymentStatusFilter === 'PENDING' && !ps.includes('PENDING')) return false
+        if (paymentStatusFilter === 'SUCCESS' && (!ps.includes('SUCCESS') && !ps.includes('COLLECTED') && !ps.includes('PAID'))) return false
+        if (paymentStatusFilter === 'FAILED' && !ps.includes('FAILED')) return false
+      }
+      // 4. Date filter
+      if (dateFilter !== 'ALL') {
+        const dateVal = o.createdAt || o.date
+        if (dateVal) {
+          const d = new Date(dateVal)
+          d.setHours(0, 0, 0, 0)
+          if (dateFilter === 'TODAY' && d.getTime() !== today.getTime()) return false
+          if (dateFilter === 'YESTERDAY' && d.getTime() !== yesterday.getTime()) return false
+          if (dateFilter === '7DAYS' && d.getTime() < sevenDaysAgo.getTime()) return false
+          if (dateFilter === '30DAYS' && d.getTime() < thirtyDaysAgo.getTime()) return false
+        }
+      }
+      // 5. Keyword search filter
+      if (searchTerm.trim()) {
+        const term = searchTerm.trim().toLowerCase()
+        const orderNum = String(o.orderNumber || o.id || '').toLowerCase()
+        const customer = String(o.customer || o.userName || '').toLowerCase()
+        const email = String(o.userEmail || o.email || '').toLowerCase()
+        const phone = String(o.contactPhone || o.phone || '').toLowerCase()
+        if (!orderNum.includes(term) && !customer.includes(term) && !email.includes(term) && !phone.includes(term)) {
+          return false
+        }
+      }
+      return true
+    })
+  }, [orders, statusFilter, paymentMethodFilter, paymentStatusFilter, dateFilter, searchTerm])
 
   const columns = [
     {
@@ -252,8 +328,44 @@ export default function OrdersManagement() {
     },
     {
       key: 'items',
-      label: 'Pieces',
-      render: (r) => <span className="text-xs font-semibold text-[#211D1E]/80 whitespace-nowrap">{r.items} box/piece(s)</span>
+      label: 'Ordered Items & Variants',
+      render: (r) => (
+        <div className="min-w-[180px] max-w-[260px]">
+          <span className="text-xs font-semibold text-[#211D1E]/80 whitespace-nowrap block">
+            {r.items} item(s)
+          </span>
+          {Array.isArray(r.itemsList) && r.itemsList.length > 0 && (
+            <div className="space-y-1.5 mt-1">
+              {r.itemsList.slice(0, 3).map((it, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-xs bg-[#FAF7F2] p-1 rounded-lg border border-[#C9A45C]/15">
+                  {it.imageUrl && (
+                    <img
+                      src={it.imageUrl}
+                      alt=""
+                      className="w-7 h-9 object-cover rounded shrink-0 border border-[#C9A45C]/20 bg-white"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1 leading-tight">
+                    <span className="font-bold text-[11px] text-[#211D1E] truncate block">{it.productName || it.name}</span>
+                    <div className="flex items-center gap-1.5 text-[9.5px] text-[#211D1E]/60 flex-wrap">
+                      {it.colorName && (
+                        <span className="font-semibold text-[#5A1020] bg-[#5A1020]/10 px-1 py-0.2 rounded">
+                          {it.colorName}
+                        </span>
+                      )}
+                      {it.sku && <span className="font-mono text-[9px] text-gray-500">[{it.sku}]</span>}
+                      <span>× {it.quantity || it.qty || 1}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {r.itemsList.length > 3 && (
+                <span className="text-[10px] text-[#C9A45C] font-semibold block">+{r.itemsList.length - 3} more items</span>
+              )}
+            </div>
+          )}
+        </div>
+      )
     },
     {
       key: 'total',
@@ -417,24 +529,103 @@ export default function OrdersManagement() {
         </div>
       </div>
 
-      {/* Status Filter Tabs (Horizontal Scroll on Mobile) */}
-      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-none select-none font-body mb-4">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-[#C9A45C] shrink-0 mr-1 flex items-center gap-1">
-          <Filter size={12} /> Filter:
-        </span>
-        {['ALL', 'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((st) => (
-          <button
-            key={st}
-            onClick={() => setStatusFilter(st)}
-            className={`px-3 py-1.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-wider uppercase transition-all whitespace-nowrap touch-target ${
-              statusFilter === st
-                ? 'bg-[#5A1020] text-[#FAF7F2] shadow-xs'
-                : 'bg-white border border-[#C9A45C]/20 text-[#211D1E]/70 hover:bg-[#FAF7F2] hover:text-[#5A1020]'
-            }`}
-          >
-            {st} {st !== 'ALL' && `(${orders.filter(o => String(o.status || '').toUpperCase() === st).length})`}
-          </button>
-        ))}
+      {/* Multi-faceted Search & Operational Filter Bar */}
+      <div className="bg-white border border-[#C9A45C]/20 rounded-2xl p-4 shadow-sm mb-4 space-y-3 font-body">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          {/* Keyword Search */}
+          <div className="space-y-1">
+            <label className="text-[9px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">Search Orders</label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Order ID, patron, phone, email..."
+              className="w-full px-3 py-1.5 rounded-xl border border-[#C9A45C]/30 text-xs focus:outline-none focus:border-[#5A1020]"
+            />
+          </div>
+
+          {/* Payment Method Filter */}
+          <div className="space-y-1">
+            <label className="text-[9px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">Payment Method</label>
+            <select
+              value={paymentMethodFilter}
+              onChange={(e) => setPaymentMethodFilter(e.target.value)}
+              className="w-full px-3 py-1.5 rounded-xl border border-[#C9A45C]/30 text-xs bg-white focus:outline-none focus:border-[#5A1020]"
+            >
+              <option value="ALL">All Methods (COD & Online)</option>
+              <option value="COD">Cash on Delivery (COD)</option>
+              <option value="RAZORPAY">Razorpay / Online</option>
+            </select>
+          </div>
+
+          {/* Payment Status Filter */}
+          <div className="space-y-1">
+            <label className="text-[9px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">Payment Status</label>
+            <select
+              value={paymentStatusFilter}
+              onChange={(e) => setPaymentStatusFilter(e.target.value)}
+              className="w-full px-3 py-1.5 rounded-xl border border-[#C9A45C]/30 text-xs bg-white focus:outline-none focus:border-[#5A1020]"
+            >
+              <option value="ALL">All Payment States</option>
+              <option value="SUCCESS">Success / Collected</option>
+              <option value="PENDING">Pending Verification</option>
+              <option value="FAILED">Failed / Declined</option>
+            </select>
+          </div>
+
+          {/* Date Filter */}
+          <div className="space-y-1">
+            <label className="text-[9px] font-bold text-[#C9A45C] tracking-widest uppercase block select-none">Date Range</label>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="w-full px-3 py-1.5 rounded-xl border border-[#C9A45C]/30 text-xs bg-white focus:outline-none focus:border-[#5A1020]"
+            >
+              <option value="ALL">All Time</option>
+              <option value="TODAY">Today's Orders</option>
+              <option value="YESTERDAY">Yesterday's Orders</option>
+              <option value="7DAYS">Last 7 Days</option>
+              <option value="30DAYS">Last 30 Days</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Status Filter Tabs */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#C9A45C]/15 flex-wrap">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none select-none">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#C9A45C] shrink-0 mr-1 flex items-center gap-1">
+              <Filter size={12} /> Status:
+            </span>
+            {['ALL', 'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all whitespace-nowrap touch-target ${
+                  statusFilter === st
+                    ? 'bg-[#5A1020] text-[#FAF7F2] shadow-xs'
+                    : 'bg-[#FAF7F2] border border-[#C9A45C]/20 text-[#211D1E]/70 hover:bg-white hover:text-[#5A1020]'
+                }`}
+              >
+                {st} {st !== 'ALL' && `(${orders.filter(o => String(o.status || '').toUpperCase() === st).length})`}
+              </button>
+            ))}
+          </div>
+
+          {(searchTerm || statusFilter !== 'ALL' || paymentMethodFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || dateFilter !== 'ALL') && (
+            <button
+              onClick={() => {
+                setSearchTerm('')
+                setStatusFilter('ALL')
+                setPaymentMethodFilter('ALL')
+                setPaymentStatusFilter('ALL')
+                setDateFilter('ALL')
+              }}
+              className="text-[10px] font-bold text-[#5A1020] hover:text-[#C9A45C] underline uppercase tracking-wider whitespace-nowrap"
+            >
+              Reset Filters
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="text-[10px] text-[#211D1E]/40 font-mono mb-3 text-right select-none">

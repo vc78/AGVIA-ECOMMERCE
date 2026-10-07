@@ -10,7 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public interface OrderRepository extends JpaRepository<Order, Long> {
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
 
     Page<Order> findByUserId(Long userId, Pageable pageable);
 
@@ -27,6 +29,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                             @org.springframework.data.repository.query.Param("end") LocalDateTime end);
 
     long countByStatus(OrderStatus status);
+
+    long countByPaymentStatus(com.ems.pragathisweets.entity.PaymentStatus paymentStatus);
+
+    long countByPaymentMethod(com.ems.pragathisweets.entity.PaymentMethod paymentMethod);
+
+    long countByPaymentMethodAndPaymentStatus(com.ems.pragathisweets.entity.PaymentMethod paymentMethod, com.ems.pragathisweets.entity.PaymentStatus paymentStatus);
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 

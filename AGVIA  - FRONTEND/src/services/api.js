@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { store } from '../store'
 import { loggedOut } from '../store/authSlice'
+import { getFriendlyErrorMessage, logDeveloperError } from './errorMessageService'
 
 const RAW_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -29,12 +30,20 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
+    // Log complete technical diagnostics for developers in console
+    logDeveloperError(originalRequest?.url || 'API Request', error)
+
     if (error.response?.status === 401) {
-      // If this was an initial auth probe (/auth/me), don't trigger global loggedOut side-effects prematurely
-      const isAuthCheck = originalRequest?.url?.includes('/auth/me') || originalRequest?._isAuthCheck
-      if (!isAuthCheck) {
+      // If this was an initial session probe, don't destroy local session state before App.jsx evaluates it
+      const isAuthCheck =
+        originalRequest?.url?.includes('/auth/me') ||
+        originalRequest?.url?.includes('/users/profile') ||
+        originalRequest?._isAuthCheck
+
+      if (!isAuthCheck && localStorage.getItem('ps_token')) {
         store.dispatch(loggedOut())
       }
+      error.customerMessage = getFriendlyErrorMessage(error, 'Please sign in to continue.')
       return Promise.reject(error)
     }
 
@@ -51,15 +60,8 @@ api.interceptors.response.use(
       return api(originalRequest)
     }
 
-    // Customer-friendly messaging for network/timeout errors
-    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-      error.customerMessage = 'This is taking longer than expected. Please try again.'
-      error.message = 'This is taking longer than expected. Please try again.'
-    } else if (!error.response && (error.message === 'Network Error' || error.code === 'ERR_NETWORK')) {
-      error.customerMessage = 'We couldn\'t connect right now. Please check your internet connection and try again.'
-      error.message = 'We couldn\'t connect right now. Please check your internet connection and try again.'
-    }
-
+    // Always sanitize error message into customer-friendly wording
+    error.customerMessage = getFriendlyErrorMessage(error)
     return Promise.reject(error)
   }
 )

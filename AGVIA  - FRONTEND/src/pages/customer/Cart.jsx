@@ -122,18 +122,21 @@ export default function Cart() {
   // Carousel ref for "You May Also Like"
   const carouselRef = useRef(null)
 
+  const getItemKey = (item) => item.cartItemId || (item.variantId ? `${item.id}_v_${item.variantId}` : `${item.id}_size_${item.size || 'M'}`)
+
   // Keep selectedIds in sync with items
   useEffect(() => {
     setSelectedIds((prev) => {
       const next = { ...prev }
       items.forEach((item) => {
-        if (next[item.id] === undefined) {
-          next[item.id] = true // select by default
+        const k = getItemKey(item)
+        if (next[k] === undefined) {
+          next[k] = true // select by default
         }
       })
       // remove old keys
       Object.keys(next).forEach((key) => {
-        if (!items.find((i) => String(i.id) === String(key))) {
+        if (!items.find((i) => getItemKey(i) === key)) {
           delete next[key]
         }
       })
@@ -143,11 +146,11 @@ export default function Cart() {
 
   const allSelected = useMemo(() => {
     if (items.length === 0) return false
-    return items.every((i) => selectedIds[i.id])
+    return items.every((i) => selectedIds[getItemKey(i)])
   }, [items, selectedIds])
 
   const selectedItems = useMemo(() => {
-    return items.filter((i) => selectedIds[i.id])
+    return items.filter((i) => selectedIds[getItemKey(i)])
   }, [items, selectedIds])
 
   const selectedSubtotal = useMemo(() => {
@@ -162,15 +165,15 @@ export default function Cart() {
     const nextVal = !allSelected
     const next = {}
     items.forEach((i) => {
-      next[i.id] = nextVal
+      next[getItemKey(i)] = nextVal
     })
     setSelectedIds(next)
   }
 
-  const handleToggleSelectItem = (id) => {
+  const handleToggleSelectItem = (k) => {
     setSelectedIds((prev) => ({
       ...prev,
-      [id]: !prev[id],
+      [k]: !prev[k],
     }))
   }
 
@@ -455,10 +458,11 @@ export default function Cart() {
               <div className="space-y-2.5">
                 <AnimatePresence>
                   {items.map((item, idx) => {
-                    const isChecked = !!selectedIds[item.id]
+                    const itemKey = getItemKey(item)
+                    const isChecked = !!selectedIds[itemKey]
                     const attr = SAMPLE_ATTRIBUTES[idx % SAMPLE_ATTRIBUTES.length]
-                    const colorName = item.color || attr.colorName
-                    const swatches = attr.swatches
+                    const colorName = item.colorName || item.color || attr.colorName
+                    const swatches = item.colorCode ? [item.colorCode] : attr.swatches
                     const sizeLabel = item.size || attr.size
                     const badgeText = item.badge || attr.badge
                     const badgeIcon = attr.badgeIcon
@@ -471,7 +475,7 @@ export default function Cart() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.96 }}
                         transition={{ duration: 0.3 }}
-                        key={item.id}
+                        key={itemKey}
                         className={`bg-white rounded-xl p-3 sm:p-3.5 border transition-all duration-300 relative shadow-xs hover:shadow-md ${
                           isChecked ? 'border-[#E6C687]/40 ring-1 ring-[#E6C687]/30' : 'border-gray-200/80 opacity-80'
                         }`}
@@ -482,7 +486,7 @@ export default function Cart() {
                             <input
                               type="checkbox"
                               checked={isChecked}
-                              onChange={() => handleToggleSelectItem(item.id)}
+                              onChange={() => handleToggleSelectItem(itemKey)}
                               className="w-3.5 h-3.5 rounded text-[#5A1020] accent-[#5A1020] focus:ring-0 cursor-pointer"
                             />
                           </div>
@@ -512,26 +516,43 @@ export default function Cart() {
 
                             {/* Color attribute & swatches */}
                             <div className="flex items-center gap-1.5 mt-1 text-[11px] text-[#211D1E]/75">
+                              {item.colorCode && (
+                                <span
+                                  style={{ backgroundColor: item.colorCode }}
+                                  className="w-3.5 h-3.5 rounded-full inline-block border border-white shadow-xs ring-1 ring-[#C9A45C]"
+                                />
+                              )}
                               <span className="text-[10.5px] font-medium text-[#211D1E]/70">
                                 Colour: <strong className="font-semibold text-[#211D1E]">{colorName}</strong>
                               </span>
-                              <div className="flex items-center gap-1 ml-1">
-                                {swatches.map((color, sIdx) => (
-                                  <span
-                                    key={sIdx}
-                                    style={{ backgroundColor: color }}
-                                    className={`w-3 h-3 rounded-full inline-block border border-white shadow-xs ${
-                                      sIdx === 0 ? 'ring-1.5 ring-offset-1 ring-[#C9A45C]' : 'opacity-70'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
+                              {!item.colorCode && (
+                                <div className="flex items-center gap-1 ml-1">
+                                  {swatches.map((color, sIdx) => (
+                                    <span
+                                      key={sIdx}
+                                      style={{ backgroundColor: color }}
+                                      className={`w-3 h-3 rounded-full inline-block border border-white shadow-xs ${
+                                        sIdx === 0 ? 'ring-1.5 ring-offset-1 ring-[#C9A45C]' : 'opacity-70'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              )}
                             </div>
 
+                            {/* SKU attribute */}
+                            {item.sku && (
+                              <p className="text-[10px] font-mono text-[#211D1E]/60 mt-0.5">
+                                SKU: {item.sku}
+                              </p>
+                            )}
+
                             {/* Size attribute */}
-                            <p className="text-[10.5px] text-[#211D1E]/70 mt-0.5">
-                              Size: <span className="font-semibold text-[#211D1E]">{sizeLabel}</span>
-                            </p>
+                            {sizeLabel && (
+                              <p className="text-[10.5px] text-[#211D1E]/70 mt-0.5">
+                                Size: <span className="font-semibold text-[#211D1E]">{sizeLabel}</span>
+                              </p>
+                            )}
                           </div>
 
                           {/* Right Controls: Badge, Price, Quantity, Wishlist, Trash */}
@@ -558,7 +579,7 @@ export default function Cart() {
                             <div className="flex items-center border border-[#E6C687]/50 rounded-lg bg-white overflow-hidden shadow-2xs">
                               <button
                                 type="button"
-                                onClick={() => updateQty(item.id, item.qty - 1)}
+                                onClick={() => updateQty(itemKey, item.qty - 1)}
                                 className="w-7 h-7 flex items-center justify-center text-[#211D1E]/70 hover:bg-[#FAF7F2] transition-colors"
                                 aria-label="Decrease quantity"
                               >
@@ -569,7 +590,7 @@ export default function Cart() {
                               </span>
                               <button
                                 type="button"
-                                onClick={() => updateQty(item.id, item.qty + 1)}
+                                onClick={() => updateQty(itemKey, item.qty + 1)}
                                 className="w-7 h-7 flex items-center justify-center text-[#211D1E]/70 hover:bg-[#FAF7F2] transition-colors"
                                 aria-label="Increase quantity"
                               >
@@ -593,7 +614,7 @@ export default function Cart() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  removeFromCart(item.id)
+                                  removeFromCart(itemKey)
                                   toast.success(`${item.name} removed from bag`)
                                 }}
                                 className="p-1.5 rounded-full hover:bg-red-50 text-[#211D1E]/50 hover:text-red-700 transition-colors"
