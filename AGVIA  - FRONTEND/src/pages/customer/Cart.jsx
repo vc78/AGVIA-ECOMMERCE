@@ -161,6 +161,13 @@ export default function Cart() {
   const discount = discountAmount
   const total = Math.max(0, selectedSubtotal + deliveryFee - discount)
 
+  const hasCodOnlyItem = selectedItems.some(
+    (i) => i.paymentOption === 'COD_ONLY' || i.product?.paymentOption === 'COD_ONLY'
+  )
+  const hasOnlineOnlyItem = selectedItems.some(
+    (i) => i.paymentOption === 'ONLINE_ONLY' || i.product?.paymentOption === 'ONLINE_ONLY'
+  )
+
   const handleToggleSelectAll = () => {
     const nextVal = !allSelected
     const next = {}
@@ -553,6 +560,23 @@ export default function Cart() {
                                 Size: <span className="font-semibold text-[#211D1E]">{sizeLabel}</span>
                               </p>
                             )}
+
+                            {/* Payment Method Applicability Pill */}
+                            <div className="mt-1.5">
+                              {item.paymentOption === 'COD_ONLY' ? (
+                                <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
+                                  💵 For this piece: Only COD applicable
+                                </span>
+                              ) : item.paymentOption === 'ONLINE_ONLY' ? (
+                                <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-300">
+                                  ⚡ For this piece: Only Online Payment applicable
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[9.5px] font-medium px-2 py-0.5 rounded-full bg-[#FAF7F2] text-[#5A1020] border border-[#C9A45C]/30">
+                                  ✓ COD & Online applicable
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           {/* Right Controls: Badge, Price, Quantity, Wishlist, Trash */}
@@ -686,6 +710,23 @@ export default function Cart() {
                     </span>
                   </div>
                 </div>
+
+                {/* Payment Option Notice */}
+                {hasCodOnlyItem && hasOnlineOnlyItem ? (
+                  <div className="p-2.5 rounded-xl bg-red-50 border border-red-300 text-red-900 text-[11px] leading-snug">
+                    ⚠️ <strong>Payment Conflict:</strong> Your selection includes both COD-only and Online-only pieces. Please order them in separate bags.
+                  </div>
+                ) : hasCodOnlyItem ? (
+                  <div className="p-2.5 rounded-xl bg-amber-50/90 border border-amber-300 text-amber-900 text-[11px] flex items-center gap-2">
+                    <span className="text-sm">💵</span>
+                    <span><strong>Note:</strong> For selected piece(s), only <strong>Cash on Delivery (COD)</strong> is applicable.</span>
+                  </div>
+                ) : hasOnlineOnlyItem ? (
+                  <div className="p-2.5 rounded-xl bg-blue-50/90 border border-blue-300 text-blue-900 text-[11px] flex items-center gap-2">
+                    <span className="text-sm">⚡</span>
+                    <span><strong>Note:</strong> For selected piece(s), only <strong>Online Payment</strong> is applicable.</span>
+                  </div>
+                ) : null}
 
                 {/* Primary Action Button: Proceed to Checkout */}
                 <button

@@ -193,9 +193,10 @@ export default function Checkout() {
         ),
         { duration: 5000, style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' } }
       )
-      navigate('/orders', {
+      navigate(`/payment-success?orderId=${order.orderNumber || order.id}&paymentMethod=COD`, {
         state: {
           newOrderId: order.id,
+          orderNumber: order.orderNumber || order.id,
           orderDetails: order,
           customerPhone: address.phone || user?.phone,
         }
@@ -296,9 +297,10 @@ export default function Checkout() {
               ),
               { duration: 5000, style: { background: '#166534', color: '#FAF7F2', borderRadius: '12px' } }
             )
-            navigate('/orders', {
+            navigate(`/payment-success?orderId=${orderRef}&paymentMethod=RAZORPAY`, {
               state: {
                 newOrderId: order.id,
+                orderNumber: orderRef,
                 orderDetails: order,
                 customerPhone: address.phone || user?.phone,
               }
@@ -464,54 +466,117 @@ export default function Checkout() {
                   <CreditCard size={16} className="text-[#C9A45C]" /> Payment Method
                 </h2>
 
-                <div className="space-y-3">
-                  <label className={`flex items-center gap-3 border rounded-xl p-3 sm:p-3.5 transition-all ${
-                    hasCodOnlyItem
-                      ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-200'
-                      : 'border-[#C9A45C]/20 hover:border-[#C9A45C]/50 cursor-pointer has-[input:checked]:border-[#5A1020] has-[input:checked]:bg-[#5A1020]/[0.02]'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="pm"
-                      disabled={hasCodOnlyItem}
-                      checked={paymentMethod === 'razorpay'}
-                      onChange={() => setPaymentMethod('razorpay')}
-                      className="accent-[#5A1020] shrink-0"
-                    />
-                    <div className="flex-1">
-                      <span className="font-serif font-bold text-xs sm:text-sm text-[#5A1020] block">Online Payment (Cards / UPI / Netbanking)</span>
-                      <span className="text-[10px] text-[#211D1E]/60 mt-0.5 block font-sans">Pay securely via Razorpay gateway with instant dispatch.</span>
-                      {hasCodOnlyItem && (
-                        <p className="text-[10.5px] text-[#9B1C1C] mt-1 font-sans font-semibold">
-                          Online payment isn't available for one or more items in your order. Please choose Cash on Delivery.
-                        </p>
-                      )}
+                {/* Cart Payment Restriction Banner */}
+                {hasCodOnlyItem && hasOnlineOnlyItem ? (
+                  <div className="p-3 bg-red-50 border border-red-300 rounded-xl text-xs text-red-900 font-medium">
+                    ⚠️ <strong>Payment Method Conflict:</strong> Your wardrobe contains both COD-only and Online-only products. Please checkout matching items separately.
+                  </div>
+                ) : hasCodOnlyItem ? (
+                  <div className="p-3 bg-amber-50/90 border border-amber-300/80 rounded-xl text-xs text-amber-900 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">💵</span>
+                      <span><strong>For this product only Cash on Delivery (COD) is applicable.</strong> Online payment is unavailable.</span>
                     </div>
-                  </label>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-amber-200 text-amber-900 rounded-full shrink-0">COD Only</span>
+                  </div>
+                ) : hasOnlineOnlyItem ? (
+                  <div className="p-3 bg-blue-50/90 border border-blue-300/80 rounded-xl text-xs text-blue-900 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">⚡</span>
+                      <span><strong>For this product only Online Payment is applicable.</strong> Cash on Delivery (COD) is unavailable.</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-blue-200 text-blue-900 rounded-full shrink-0">Online Only</span>
+                  </div>
+                ) : null}
 
-                  <label className={`flex items-center gap-3 border rounded-xl p-3 sm:p-3.5 transition-all ${
-                    hasOnlineOnlyItem
-                      ? 'opacity-60 cursor-not-allowed bg-amber-50/50 border-amber-200'
+                <div className="space-y-3">
+                  {/* Online Payment Card */}
+                  <div className={`relative border rounded-xl transition-all overflow-hidden ${
+                    hasCodOnlyItem
+                      ? 'border-dashed border-gray-300 bg-gray-100/70 select-none'
                       : 'border-[#C9A45C]/20 hover:border-[#C9A45C]/50 cursor-pointer has-[input:checked]:border-[#5A1020] has-[input:checked]:bg-[#5A1020]/[0.02]'
                   }`}>
-                    <input
-                      type="radio"
-                      name="pm"
-                      disabled={hasOnlineOnlyItem}
-                      checked={paymentMethod === 'cod'}
-                      onChange={() => setPaymentMethod('cod')}
-                      className="accent-[#5A1020] shrink-0"
-                    />
-                    <div className="flex-1">
-                      <span className="font-serif font-bold text-xs sm:text-sm text-[#5A1020] block">Cash on Delivery (COD)</span>
-                      <span className="text-[10px] text-[#211D1E]/60 mt-0.5 block font-sans">Pay upon arrival of your atelier garment parcel.</span>
-                      {hasOnlineOnlyItem && (
-                        <p className="text-[10.5px] text-[#B45309] bg-amber-100/60 p-2 rounded-lg mt-1.5 font-sans font-medium leading-relaxed border border-amber-300/60">
-                          ⚠️ Cash on Delivery isn't available for one or more items in your order. Please choose online payment.
-                        </p>
-                      )}
-                    </div>
-                  </label>
+                    <label className={`flex items-center gap-3 p-3 sm:p-3.5 ${
+                      hasCodOnlyItem
+                        ? 'filter blur-[1.5px] opacity-40 pointer-events-none cursor-not-allowed select-none'
+                        : 'cursor-pointer'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="pm"
+                        disabled={hasCodOnlyItem}
+                        checked={paymentMethod === 'razorpay'}
+                        onChange={() => setPaymentMethod('razorpay')}
+                        className="accent-[#5A1020] shrink-0"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-serif font-bold text-xs sm:text-sm text-[#5A1020] block">Online Payment (Cards / UPI / Netbanking)</span>
+                          {!hasCodOnlyItem && (
+                            <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">Available</span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-[#211D1E]/60 mt-0.5 block font-sans">Pay securely via Razorpay gateway with instant dispatch.</span>
+                      </div>
+                    </label>
+
+                    {/* Unblurred Explicit Notice Overlay for COD-Only Products */}
+                    {hasCodOnlyItem && (
+                      <div className="p-2.5 bg-amber-50/95 border-t border-amber-200 text-amber-900 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold">
+                          <span>⚠️</span>
+                          <span>For this product only Cash on Delivery (COD) is applicable. Online payment unavailable.</span>
+                        </div>
+                        <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 bg-amber-200/80 text-amber-900 rounded-md shrink-0">
+                          Online Disabled
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Cash on Delivery (COD) Card */}
+                  <div className={`relative border rounded-xl transition-all overflow-hidden ${
+                    hasOnlineOnlyItem
+                      ? 'border-dashed border-gray-300 bg-gray-100/70 select-none'
+                      : 'border-[#C9A45C]/20 hover:border-[#C9A45C]/50 cursor-pointer has-[input:checked]:border-[#5A1020] has-[input:checked]:bg-[#5A1020]/[0.02]'
+                  }`}>
+                    <label className={`flex items-center gap-3 p-3 sm:p-3.5 ${
+                      hasOnlineOnlyItem
+                        ? 'filter blur-[1.5px] opacity-40 pointer-events-none cursor-not-allowed select-none'
+                        : 'cursor-pointer'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="pm"
+                        disabled={hasOnlineOnlyItem}
+                        checked={paymentMethod === 'cod'}
+                        onChange={() => setPaymentMethod('cod')}
+                        className="accent-[#5A1020] shrink-0"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-serif font-bold text-xs sm:text-sm text-[#5A1020] block">Cash on Delivery (COD)</span>
+                          {!hasOnlineOnlyItem && (
+                            <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">Available</span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-[#211D1E]/60 mt-0.5 block font-sans">Pay upon arrival of your atelier garment parcel.</span>
+                      </div>
+                    </label>
+
+                    {/* Unblurred Explicit Notice Overlay for Online-Only Products */}
+                    {hasOnlineOnlyItem && (
+                      <div className="p-2.5 bg-blue-50/95 border-t border-blue-200 text-blue-900 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold">
+                          <span>⚠️</span>
+                          <span>For this product only Online Payment is applicable. Cash on Delivery (COD) unavailable.</span>
+                        </div>
+                        <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 bg-blue-200/80 text-blue-900 rounded-md shrink-0">
+                          COD Disabled
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#C9A45C]/15">

@@ -394,15 +394,15 @@ export default function ProductDetails() {
                   {/* Payment Acceptance Badge */}
                   {displayPaymentOption === 'ONLINE_ONLY' ? (
                     <span className="text-[8.5px] bg-[#EBF5FF] text-[#1E429F] border border-[#3F83F8] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                      Online Payment Only (COD Restricted)
+                      ⚡ For this product only Online Payment applicable
                     </span>
                   ) : displayPaymentOption === 'COD_ONLY' ? (
                     <span className="text-[8.5px] bg-[#FDF6B2] text-[#723B13] border border-[#E3A008] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                      Cash on Delivery Only
+                      💵 For this product only COD applicable
                     </span>
                   ) : (
                     <span className="text-[8.5px] bg-[#FAF7F2] text-[#5A1020] border border-[#C9A45C]/50 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                      COD & Online Accepted
+                      ✓ COD & Online Accepted
                     </span>
                   )}
                 </div>
@@ -446,6 +446,38 @@ export default function ProductDetails() {
                   </div>
                 </div>
               )}
+
+              {/* Payment Acceptance Notification Banner */}
+              <div className="mt-3">
+                {displayPaymentOption === 'COD_ONLY' ? (
+                  <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-300 text-amber-900 flex items-start gap-2.5 text-xs">
+                    <span className="text-base leading-none">💵</span>
+                    <div>
+                      <strong className="font-semibold block text-amber-950">For this product, only Cash on Delivery (COD) is applicable</strong>
+                      <span className="text-[11px] text-amber-800/90 leading-tight block mt-0.5">
+                        Online payment is unavailable for this silhouette. You can pay with cash upon doorstep delivery.
+                      </span>
+                    </div>
+                  </div>
+                ) : displayPaymentOption === 'ONLINE_ONLY' ? (
+                  <div className="p-3 rounded-xl bg-blue-50/90 border border-blue-300 text-blue-900 flex items-start gap-2.5 text-xs">
+                    <span className="text-base leading-none">⚡</span>
+                    <div>
+                      <strong className="font-semibold block text-blue-950">For this product, only Online Payment is applicable</strong>
+                      <span className="text-[11px] text-blue-800/90 leading-tight block mt-0.5">
+                        Cash on Delivery (COD) is unavailable for this silhouette. Please checkout securely via UPI, Cards, or Netbanking.
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl bg-[#FAF7F2] border border-[#C9A45C]/30 text-[#5A1020] flex items-center gap-2 text-xs">
+                    <span className="text-sm">✓</span>
+                    <span className="text-[11.5px] font-medium text-[#211D1E]/80">
+                      Both <strong>Cash on Delivery (COD)</strong> and <strong>Online Payment</strong> are applicable for this silhouette.
+                    </span>
+                  </div>
+                )}
+              </div>
 
               <div className="mt-3 text-xs leading-relaxed text-[#211D1E]/85 tracking-wide whitespace-pre-line bg-white/70 border border-[#C9A45C]/20 rounded-2xl p-4 shadow-2xs font-sans">
                 {product.description}
