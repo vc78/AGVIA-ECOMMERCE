@@ -66,6 +66,11 @@ export default function AddProduct() {
         categoryId: value,
         category: selected ? selected.name : prev.category
       }))
+    } else if (name === 'paymentOption') {
+      setForm(prev => ({ ...prev, paymentOption: value }))
+      if (variants && variants.length > 0) {
+        setVariants(prev => prev.map(v => ({ ...v, paymentOption: value })))
+      }
     } else {
       setForm(prev => ({ ...prev, [name]: value }))
     }
@@ -146,7 +151,10 @@ export default function AddProduct() {
         description: form.description,
         image: primaryPhoto,
         sku: form.sku.trim() || undefined,
-        variants: hasVariants ? variants : undefined
+        variants: hasVariants && Array.isArray(variants) ? variants.map(v => ({
+          ...v,
+          paymentOption: form.paymentOption || 'COD_AND_ONLINE'
+        })) : undefined
       })
       toast.success('Silhouette added successfully to atelier catalogue!', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }

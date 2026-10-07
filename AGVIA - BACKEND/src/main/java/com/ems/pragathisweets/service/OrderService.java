@@ -81,7 +81,13 @@ public class OrderService {
             boolean codAllowed = p.isCodAllowed();
             boolean onlineAllowed = p.isOnlineAllowed();
 
-            if (cartItem.getVariantId() != null) {
+            if (p.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY) {
+                codAllowed = true;
+                onlineAllowed = false;
+            } else if (p.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY) {
+                codAllowed = false;
+                onlineAllowed = true;
+            } else if (cartItem.getVariantId() != null) {
                 com.ems.pragathisweets.entity.ProductVariant v = productVariantRepository.findById(cartItem.getVariantId()).orElse(null);
                 if (v != null && v.getPaymentOption() != null) {
                     codAllowed = v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY;

@@ -10,7 +10,7 @@ import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
 import { motion } from 'framer-motion'
-import { ShieldCheck, Truck, CreditCard, ChevronRight, Ticket, Sparkles, MessageCircle } from 'lucide-react'
+import { ShieldCheck, Truck, CreditCard, ChevronRight, Ticket, Sparkles, MessageCircle, Banknote, Lock } from 'lucide-react'
 import api from '../../services/api'
 import { trackCheckoutStarted, trackPurchase } from '../../services/analytics'
 import SEOHead from '../../components/common/SEOHead'
@@ -589,16 +589,51 @@ export default function Checkout() {
                   </button>
                   <button
                     type="submit"
-                    disabled={placing}
-                    className="btn-primary px-6 py-2.5 disabled:opacity-75 text-xs font-bold tracking-wider min-h-[48px] flex items-center justify-center gap-2.5"
+                    disabled={
+                      placing ||
+                      (hasCodOnlyItem && paymentMethod === 'razorpay') ||
+                      (hasOnlineOnlyItem && paymentMethod === 'cod') ||
+                      (hasCodOnlyItem && hasOnlineOnlyItem)
+                    }
+                    className={`px-6 py-2.5 text-xs font-bold tracking-wider min-h-[48px] flex items-center justify-center gap-2.5 transition-all ${
+                      (hasCodOnlyItem && paymentMethod === 'razorpay') ||
+                      (hasOnlineOnlyItem && paymentMethod === 'cod') ||
+                      (hasCodOnlyItem && hasOnlineOnlyItem)
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300 shadow-none'
+                        : 'btn-primary disabled:opacity-75'
+                    }`}
                   >
                     {placing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#FAF7F2]/40 border-t-[#FAF7F2] rounded-full animate-spin shrink-0" />
                         <span>{placingStep || 'Connecting to Payment...'}</span>
                       </>
+                    ) : hasCodOnlyItem && hasOnlineOnlyItem ? (
+                      'Payment Method Conflict (Separate Bags Required)'
+                    ) : hasCodOnlyItem ? (
+                      paymentMethod === 'cod' ? (
+                        <>
+                          <Banknote size={16} /> Place Order with Cash on Delivery (COD)
+                        </>
+                      ) : (
+                        'Online Razorpay Unavailable for this Order'
+                      )
+                    ) : hasOnlineOnlyItem ? (
+                      paymentMethod === 'razorpay' ? (
+                        <>
+                          <CreditCard size={16} /> Pay Securely via Online Razorpay
+                        </>
+                      ) : (
+                        'Cash on Delivery Unavailable for this Order'
+                      )
+                    ) : paymentMethod === 'cod' ? (
+                      <>
+                        <Banknote size={16} /> Place Order with Cash on Delivery (COD)
+                      </>
                     ) : (
-                      'Authorize & Place Order'
+                      <>
+                        <CreditCard size={16} /> Pay Securely via Online Razorpay
+                      </>
                     )}
                   </button>
                 </div>

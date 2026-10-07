@@ -69,8 +69,14 @@ public class ProductMapper {
             }
         }
 
-        com.ems.pragathisweets.entity.ProductPaymentOption opt = variant.getPaymentOption() != null ? variant.getPaymentOption() :
-                (product != null ? product.getPaymentOption() : com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE);
+        com.ems.pragathisweets.entity.ProductPaymentOption opt;
+        if (product != null && (product.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY
+                || product.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY)) {
+            opt = product.getPaymentOption();
+        } else {
+            opt = variant.getPaymentOption() != null ? variant.getPaymentOption() :
+                    (product != null ? product.getPaymentOption() : com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE);
+        }
         boolean codAllowed = opt == null || opt == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || opt == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY;
         boolean onlineAllowed = opt == null || opt == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || opt == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY;
 

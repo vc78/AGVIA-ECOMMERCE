@@ -115,6 +115,9 @@ export function useCart() {
         unit: product.unit,
         image: product.image,
         paymentOption: product.paymentOption || 'COD_AND_ONLINE',
+        codAllowed: product.paymentOption !== 'ONLINE_ONLY',
+        onlineAllowed: product.paymentOption !== 'COD_ONLY',
+        product: product,
         qty
       })
     }

@@ -191,7 +191,12 @@ public class ProductService {
             variant.setDiscountPrice(vr.getDiscountPrice());
             variant.setStockQuantity(vr.getStockQuantity() != null ? vr.getStockQuantity() : 0);
             variant.setLowStockThreshold(vr.getLowStockThreshold() != null ? vr.getLowStockThreshold() : 5);
-            variant.setPaymentOption(vr.getPaymentOption());
+            if (product.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY
+                    || product.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY) {
+                variant.setPaymentOption(product.getPaymentOption());
+            } else {
+                variant.setPaymentOption(vr.getPaymentOption() != null ? vr.getPaymentOption() : product.getPaymentOption());
+            }
             variant.setActive(vr.getActive() == null || vr.getActive());
 
             // Handle images

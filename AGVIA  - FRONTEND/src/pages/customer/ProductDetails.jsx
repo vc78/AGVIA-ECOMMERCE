@@ -121,13 +121,20 @@ export default function ProductDetails() {
   const displaySku = selectedVariant?.sku || product.sku
   const displayStock = selectedVariant ? selectedVariant.stockQuantity : product.stock
   const displayThreshold = selectedVariant ? (selectedVariant.lowStockThreshold || 5) : (product.lowStockThreshold || 5)
-  const displayPaymentOption = selectedVariant?.paymentOption || product.paymentOption || 'COD_AND_ONLINE'
+  const displayPaymentOption = (() => {
+    if (product.paymentOption === 'COD_ONLY' || product.paymentOption === 'ONLINE_ONLY') {
+      return product.paymentOption
+    }
+    return selectedVariant?.paymentOption || product.paymentOption || 'COD_AND_ONLINE'
+  })()
   const isOutOfStock = displayStock <= 0
   const isLowStock = displayStock > 0 && displayStock <= displayThreshold
 
   const handleAdd = () => {
     const itemToAdd = {
       ...product,
+      id: product.id,
+      productId: product.id,
       variantId: selectedVariant ? selectedVariant.id : null,
       colorName: selectedVariant ? selectedVariant.colorName : null,
       colorCode: selectedVariant ? selectedVariant.colorCode : null,
@@ -135,6 +142,14 @@ export default function ProductDetails() {
       price: displayPrice,
       image: activeImage || selectedVariant?.primaryImageUrl || product.image,
       paymentOption: displayPaymentOption,
+      codAllowed: displayPaymentOption !== 'ONLINE_ONLY',
+      onlineAllowed: displayPaymentOption !== 'COD_ONLY',
+      product: {
+        ...product,
+        paymentOption: displayPaymentOption,
+        codAllowed: displayPaymentOption !== 'ONLINE_ONLY',
+        onlineAllowed: displayPaymentOption !== 'COD_ONLY',
+      },
       size: selectedSize
     }
     addToCart(itemToAdd, qty)
@@ -148,6 +163,8 @@ export default function ProductDetails() {
   const handleBuyNow = () => {
     const itemToAdd = {
       ...product,
+      id: product.id,
+      productId: product.id,
       variantId: selectedVariant ? selectedVariant.id : null,
       colorName: selectedVariant ? selectedVariant.colorName : null,
       colorCode: selectedVariant ? selectedVariant.colorCode : null,
@@ -155,6 +172,14 @@ export default function ProductDetails() {
       price: displayPrice,
       image: activeImage || selectedVariant?.primaryImageUrl || product.image,
       paymentOption: displayPaymentOption,
+      codAllowed: displayPaymentOption !== 'ONLINE_ONLY',
+      onlineAllowed: displayPaymentOption !== 'COD_ONLY',
+      product: {
+        ...product,
+        paymentOption: displayPaymentOption,
+        codAllowed: displayPaymentOption !== 'ONLINE_ONLY',
+        onlineAllowed: displayPaymentOption !== 'COD_ONLY',
+      },
       size: selectedSize
     }
     addToCart(itemToAdd, qty)

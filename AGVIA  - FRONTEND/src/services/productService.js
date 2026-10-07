@@ -362,8 +362,10 @@ export function normalizeProduct(p) {
   const stock = p.stock ?? p.stockQuantity ?? 20
   const lowStockThreshold = p.lowStockThreshold != null ? Number(p.lowStockThreshold) : 5
   const paymentOption = p.paymentOption || 'COD_AND_ONLINE'
-  const codAllowed = p.codAllowed != null ? p.codAllowed : (paymentOption !== 'ONLINE_ONLY')
-  const onlineAllowed = p.onlineAllowed != null ? p.onlineAllowed : (paymentOption !== 'COD_ONLY')
+  const isStrictCod = paymentOption === 'COD_ONLY'
+  const isStrictOnline = paymentOption === 'ONLINE_ONLY'
+  const codAllowed = isStrictOnline ? false : (isStrictCod ? true : (p.codAllowed ?? true))
+  const onlineAllowed = isStrictCod ? false : (isStrictOnline ? true : (p.onlineAllowed ?? true))
 
   let stockStatus = p.stockStatus
   if (!stockStatus) {
@@ -373,14 +375,20 @@ export function normalizeProduct(p) {
   }
 
   const rawVariants = Array.isArray(p.variants) ? p.variants : []
-  const variants = rawVariants.map(v => ({
-    ...v,
-    primaryImageUrl: resolveImageUrl(v.primaryImageUrl || v.imageUrl),
-    images: Array.isArray(v.images) ? v.images.map(img => ({
-      ...img,
-      imageUrl: resolveImageUrl(img.imageUrl)
-    })) : []
-  }))
+  const variants = rawVariants.map(v => {
+    const vOpt = isStrictCod ? 'COD_ONLY' : (isStrictOnline ? 'ONLINE_ONLY' : (v.paymentOption || paymentOption))
+    return {
+      ...v,
+      paymentOption: vOpt,
+      codAllowed: vOpt !== 'ONLINE_ONLY',
+      onlineAllowed: vOpt !== 'COD_ONLY',
+      primaryImageUrl: resolveImageUrl(v.primaryImageUrl || v.imageUrl),
+      images: Array.isArray(v.images) ? v.images.map(img => ({
+        ...img,
+        imageUrl: resolveImageUrl(img.imageUrl)
+      })) : []
+    }
+  })
 
   return {
     ...p,
