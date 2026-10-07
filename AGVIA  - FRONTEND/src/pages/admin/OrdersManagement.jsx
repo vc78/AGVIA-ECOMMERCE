@@ -6,7 +6,7 @@ import { adminService } from '../../services/adminService'
 import { adminWebSocket } from '../../services/adminWebSocket'
 import { exportOrdersPDF, exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
 import { generateAndDownloadOrdersExcel } from '../../utils/excelExportUtils'
-import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag, QrCode, Printer, FileSpreadsheet, Database } from 'lucide-react'
+import { RefreshCw, Radio, Download, FileText, Filter, ShoppingBag, QrCode, Printer, FileSpreadsheet, Database, Calendar } from 'lucide-react'
 import ParcelReceiptModal from '../../components/admin/ParcelReceiptModal'
 
 const STATUS_OPTIONS = [
@@ -33,6 +33,8 @@ export default function OrdersManagement() {
   const [paymentMethodFilter, setPaymentMethodFilter] = useState('ALL')
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('ALL')
   const [dateFilter, setDateFilter] = useState('ALL')
+  const [customStartDate, setCustomStartDate] = useState('')
+  const [customEndDate, setCustomEndDate] = useState('')
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null)
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false)
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null)
@@ -43,7 +45,17 @@ export default function OrdersManagement() {
   const loadOrders = async (silent = false) => {
     if (!silent) setLoading(true)
     try {
-      const data = await adminService.getOrders()
+      const params = { size: 1000 }
+      if (statusFilter !== 'ALL') params.status = statusFilter
+      if (paymentMethodFilter !== 'ALL') params.paymentMethod = paymentMethodFilter
+      if (paymentStatusFilter !== 'ALL') params.paymentStatus = paymentStatusFilter
+      if (dateFilter === 'CUSTOM') {
+        if (customStartDate) params.startDate = customStartDate
+        if (customEndDate) params.endDate = customEndDate
+      } else if (dateFilter !== 'ALL') {
+        params.dateRange = dateFilter
+      }
+      const data = await adminService.getOrders(params)
       setOrders(data)
       setError(null)
       setLastSyncTime(new Date())
@@ -154,6 +166,9 @@ export default function OrdersManagement() {
         const d = new Date()
         d.setDate(d.getDate() - 30)
         params.startDate = d.toISOString().slice(0, 10)
+      } else if (dateFilter === 'CUSTOM') {
+        if (customStartDate) params.startDate = customStartDate
+        if (customEndDate) params.endDate = customEndDate
       }
 
       // 1. Attempt authoritative server-side download first
@@ -285,6 +300,18 @@ export default function OrdersManagement() {
           if (dateFilter === 'YESTERDAY' && d.getTime() !== yesterday.getTime()) return false
           if (dateFilter === '7DAYS' && d.getTime() < sevenDaysAgo.getTime()) return false
           if (dateFilter === '30DAYS' && d.getTime() < thirtyDaysAgo.getTime()) return false
+          if (dateFilter === 'CUSTOM') {
+            if (customStartDate) {
+              const start = new Date(customStartDate)
+              start.setHours(0, 0, 0, 0)
+              if (d.getTime() < start.getTime()) return false
+            }
+            if (customEndDate) {
+              const end = new Date(customEndDate)
+              end.setHours(23, 59, 59, 999)
+              if (d.getTime() > end.getTime()) return false
+            }
+          }
         }
       }
       // 5. Keyword search filter
@@ -300,7 +327,7 @@ export default function OrdersManagement() {
       }
       return true
     })
-  }, [orders, statusFilter, paymentMethodFilter, paymentStatusFilter, dateFilter, searchTerm])
+  }, [orders, statusFilter, paymentMethodFilter, paymentStatusFilter, dateFilter, customStartDate, customEndDate, searchTerm])
 
   const columns = [
     {
@@ -586,8 +613,50 @@ export default function OrdersManagement() {
               <option value="YESTERDAY">Yesterday's Orders</option>
               <option value="7DAYS">Last 7 Days</option>
               <option value="30DAYS">Last 30 Days</option>
+              <option value="CUSTOM">📅 Custom Calendar Range</option>
             </select>
           </div>
+
+          {/* Custom Calendar Date Pickers */}
+          {dateFilter === 'CUSTOM' && (
+            <div className="col-span-full bg-[#FAF7F2] p-3 rounded-xl border border-[#C9A45C]/30 flex flex-wrap items-center justify-between gap-3 animate-fadeIn">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#5A1020] text-white flex items-center justify-center">
+                  <Calendar size={14} />
+                </div>
+                <span className="text-xs font-bold text-[#5A1020]">Select Calendar Window:</span>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[10px] uppercase font-bold text-[#211D1E]/60">Start Date:</label>
+                  <input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="px-2.5 py-1 text-xs border rounded-lg bg-white border-[#C9A45C]/40 text-[#211D1E] focus:outline-none focus:border-[#5A1020]"
+                  />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[10px] uppercase font-bold text-[#211D1E]/60">End Date:</label>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="px-2.5 py-1 text-xs border rounded-lg bg-white border-[#C9A45C]/40 text-[#211D1E] focus:outline-none focus:border-[#5A1020]"
+                  />
+                </div>
+                {(customStartDate || customEndDate) && (
+                  <button
+                    type="button"
+                    onClick={() => { setCustomStartDate(''); setCustomEndDate(''); }}
+                    className="text-[10px] font-bold text-[#5A1020] uppercase underline hover:text-[#8B0000]"
+                  >
+                    Reset Dates
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Status Filter Tabs */}
@@ -611,7 +680,7 @@ export default function OrdersManagement() {
             ))}
           </div>
 
-          {(searchTerm || statusFilter !== 'ALL' || paymentMethodFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || dateFilter !== 'ALL') && (
+          {(searchTerm || statusFilter !== 'ALL' || paymentMethodFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || dateFilter !== 'ALL' || customStartDate || customEndDate) && (
             <button
               onClick={() => {
                 setSearchTerm('')
@@ -619,6 +688,8 @@ export default function OrdersManagement() {
                 setPaymentMethodFilter('ALL')
                 setPaymentStatusFilter('ALL')
                 setDateFilter('ALL')
+                setCustomStartDate('')
+                setCustomEndDate('')
               }}
               className="text-[10px] font-bold text-[#5A1020] hover:text-[#C9A45C] underline uppercase tracking-wider whitespace-nowrap"
             >
@@ -628,8 +699,26 @@ export default function OrdersManagement() {
         </div>
       </div>
 
-      <div className="text-[10px] text-[#211D1E]/40 font-mono mb-3 text-right select-none">
-        Last updated: {lastSyncTime.toLocaleTimeString()} ({filteredOrders.length} orders shown)
+      <div className="flex items-center justify-between text-[10px] text-[#211D1E]/60 font-body mb-3 select-none flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-[#5A1020] bg-[#FAF7F2] px-2.5 py-1 rounded-lg border border-[#C9A45C]/20 flex items-center gap-1">
+            <Calendar size={11} className="text-[#C9A45C]" />
+            {dateFilter === 'ALL' && 'All-Time Records'}
+            {dateFilter === 'TODAY' && "Today's Orders"}
+            {dateFilter === 'YESTERDAY' && "Yesterday's Orders"}
+            {dateFilter === '7DAYS' && 'Last 7 Days'}
+            {dateFilter === '30DAYS' && 'Last 30 Days'}
+            {dateFilter === 'CUSTOM' && (
+              customStartDate || customEndDate
+                ? `${customStartDate || 'Any'} to ${customEndDate || 'Today'}`
+                : 'Pick Custom Calendar Dates'
+            )}
+          </span>
+          <span>({filteredOrders.length} orders shown)</span>
+        </div>
+        <span className="font-mono text-[#211D1E]/40">
+          Last updated: {lastSyncTime.toLocaleTimeString()}
+        </span>
       </div>
 
       {loading ? (
