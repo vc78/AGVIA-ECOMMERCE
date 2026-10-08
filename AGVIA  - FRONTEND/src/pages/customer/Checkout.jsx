@@ -40,7 +40,11 @@ export default function Checkout() {
   const [validatingCoupon, setValidatingCoupon] = useState(false)
 
   const [address, setAddress] = useState({ name: user?.name || '', phone: '', line1: '', city: '', pincode: '' })
-  const [paymentMethod, setPaymentMethod] = useState('razorpay')
+  const [paymentMethod, setPaymentMethod] = useState(() => {
+    const initPol = evaluatePaymentPolicy(items)
+    if (initPol.codAllowed && !initPol.onlineAllowed) return 'cod'
+    return 'razorpay'
+  })
   const [placing, setPlacing] = useState(false)
   const [placingStep, setPlacingStep] = useState('')
   const [activeStep, setActiveStep] = useState(1) // 1: Shipping, 2: Payment

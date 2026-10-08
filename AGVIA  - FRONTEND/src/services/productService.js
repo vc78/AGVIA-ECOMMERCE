@@ -361,7 +361,8 @@ export const BOUTIQUE_CATALOG_26 = [
 export function normalizeProduct(p) {
   const stock = p.stock ?? p.stockQuantity ?? 20
   const lowStockThreshold = p.lowStockThreshold != null ? Number(p.lowStockThreshold) : 5
-  const paymentOption = p.paymentOption || 'COD_AND_ONLINE'
+  const rawPaymentOption = p.paymentPolicy?.mode || p.paymentPolicy?.paymentMode || p.paymentOption || p.payment_option || 'COD_AND_ONLINE'
+  const paymentOption = String(rawPaymentOption).trim().toUpperCase()
   const isStrictCod = paymentOption === 'COD_ONLY'
   const isStrictOnline = paymentOption === 'ONLINE_ONLY'
   const codAllowed = isStrictOnline ? false : (isStrictCod ? true : (p.codAllowed ?? true))
@@ -376,7 +377,12 @@ export function normalizeProduct(p) {
 
   const rawVariants = Array.isArray(p.variants) ? p.variants : []
   const variants = rawVariants.map(v => {
-    const vOpt = isStrictCod ? 'COD_ONLY' : (isStrictOnline ? 'ONLINE_ONLY' : (v.paymentOption || paymentOption))
+    const rawVariantOpt = v.paymentPolicy?.mode || v.paymentPolicy?.paymentMode || v.paymentOption || v.payment_option
+    const vOpt = isStrictCod
+      ? 'COD_ONLY'
+      : (isStrictOnline
+        ? 'ONLINE_ONLY'
+        : (rawVariantOpt ? String(rawVariantOpt).trim().toUpperCase() : paymentOption))
     return {
       ...v,
       paymentOption: vOpt,

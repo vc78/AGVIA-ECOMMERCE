@@ -88,9 +88,9 @@ public class OrderService {
                 onlineAllowed = true;
             } else if (cartItem.getVariantId() != null) {
                 com.ems.pragathisweets.entity.ProductVariant v = productVariantRepository.findById(cartItem.getVariantId()).orElse(null);
-                if (v != null && v.getPaymentOption() != null) {
-                    codAllowed = v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY;
-                    onlineAllowed = v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || v.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY;
+                if (v != null) {
+                    codAllowed = v.isCodAllowed(p);
+                    onlineAllowed = v.isOnlineAllowed(p);
                 }
             }
 
@@ -431,10 +431,10 @@ public class OrderService {
                 codAllowed = false;
                 onlineAllowed = true;
                 paymentOpt = "ONLINE_ONLY";
-            } else if (variant != null && variant.getPaymentOption() != null) {
-                codAllowed = variant.isCodAllowed();
-                onlineAllowed = variant.isOnlineAllowed();
-                paymentOpt = variant.getPaymentOption().name();
+            } else if (variant != null) {
+                codAllowed = variant.isCodAllowed(product);
+                onlineAllowed = variant.isOnlineAllowed(product);
+                paymentOpt = variant.getEffectivePaymentOption(product).name();
             }
 
             if (!codAllowed) anyCodDisallowed = true;

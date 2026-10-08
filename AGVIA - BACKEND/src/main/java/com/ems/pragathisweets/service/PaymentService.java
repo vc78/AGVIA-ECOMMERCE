@@ -83,7 +83,7 @@ public class PaymentService {
             }
             if (item.getVariantId() != null) {
                 com.ems.pragathisweets.entity.ProductVariant v = productVariantRepository.findById(item.getVariantId()).orElse(null);
-                if (v != null && !v.isOnlineAllowed()) {
+                if (v != null && !v.isOnlineAllowed(p)) {
                     throw new PaymentVerificationException("Online payment is not available for " + item.getProductName() + " (" + v.getColorName() + ") (Cash on Delivery only).");
                 }
             }

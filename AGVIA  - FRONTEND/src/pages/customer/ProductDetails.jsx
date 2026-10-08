@@ -122,10 +122,15 @@ export default function ProductDetails() {
   const displayStock = selectedVariant ? selectedVariant.stockQuantity : product.stock
   const displayThreshold = selectedVariant ? (selectedVariant.lowStockThreshold || 5) : (product.lowStockThreshold || 5)
   const displayPaymentOption = (() => {
-    if (product.paymentOption === 'COD_ONLY' || product.paymentOption === 'ONLINE_ONLY') {
-      return product.paymentOption
+    const parentOpt = String(product.paymentPolicy?.mode || product.paymentPolicy?.paymentMode || product.paymentOption || '').trim().toUpperCase()
+    if (parentOpt === 'COD_ONLY' || parentOpt === 'ONLINE_ONLY') {
+      return parentOpt
     }
-    return selectedVariant?.paymentOption || product.paymentOption || 'COD_AND_ONLINE'
+    const varOpt = String(selectedVariant?.paymentOption || '').trim().toUpperCase()
+    if (varOpt === 'COD_ONLY' || varOpt === 'ONLINE_ONLY') {
+      return varOpt
+    }
+    return parentOpt || 'COD_AND_ONLINE'
   })()
   const isOutOfStock = displayStock <= 0
   const isLowStock = displayStock > 0 && displayStock <= displayThreshold

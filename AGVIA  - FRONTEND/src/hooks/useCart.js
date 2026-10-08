@@ -92,6 +92,13 @@ export function useCart() {
       ? `${product.id}_v_${product.variantId}`
       : `${product.id}_size_${product.size || 'M'}`
 
+    const rawOption = product.paymentOption || product.paymentPolicy?.mode || product.paymentPolicy?.paymentMode || product.product?.paymentOption || 'COD_AND_ONLINE'
+    const resolvedOption = String(rawOption).trim().toUpperCase()
+    const isStrictCod = resolvedOption === 'COD_ONLY'
+    const isStrictOnline = resolvedOption === 'ONLINE_ONLY'
+    const codAllowed = isStrictOnline ? false : (isStrictCod ? true : (product.codAllowed ?? true))
+    const onlineAllowed = isStrictCod ? false : (isStrictOnline ? true : (product.onlineAllowed ?? true))
+
     const idx = current.findIndex((i) => {
       if (i.cartItemId) return i.cartItemId === targetCartId
       if (product.variantId) return i.id === product.id && i.variantId === product.variantId
@@ -100,6 +107,14 @@ export function useCart() {
 
     if (idx >= 0) {
       current[idx].qty += qty
+      current[idx].paymentOption = resolvedOption
+      current[idx].codAllowed = codAllowed
+      current[idx].onlineAllowed = onlineAllowed
+      if (current[idx].product) {
+        current[idx].product.paymentOption = resolvedOption
+        current[idx].product.codAllowed = codAllowed
+        current[idx].product.onlineAllowed = onlineAllowed
+      }
     } else {
       current.push({
         cartItemId: targetCartId,
@@ -114,9 +129,9 @@ export function useCart() {
         price: product.price,
         unit: product.unit,
         image: product.image,
-        paymentOption: product.paymentOption || 'COD_AND_ONLINE',
-        codAllowed: product.paymentOption !== 'ONLINE_ONLY',
-        onlineAllowed: product.paymentOption !== 'COD_ONLY',
+        paymentOption: resolvedOption,
+        codAllowed,
+        onlineAllowed,
         product: product,
         qty
       })

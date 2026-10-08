@@ -8,6 +8,7 @@ export function evaluatePaymentPolicy(items = []) {
   if (!Array.isArray(items) || items.length === 0) {
     return {
       paymentMode: 'COD_AND_ONLINE',
+      mode: 'COD_AND_ONLINE',
       codAllowed: true,
       onlineAllowed: true,
       conflict: false,
@@ -17,18 +18,19 @@ export function evaluatePaymentPolicy(items = []) {
   }
 
   const hasCodOnly = items.some(item => {
-    const opt = item.paymentOption || item.product?.paymentOption
+    const opt = String(item.paymentOption || item.product?.paymentOption || item.paymentPolicy?.mode || item.paymentPolicy?.paymentMode || item.product?.paymentPolicy?.mode || item.product?.paymentPolicy?.paymentMode || '').trim().toUpperCase()
     return opt === 'COD_ONLY' || item.onlineAllowed === false || item.product?.onlineAllowed === false
   })
 
   const hasOnlineOnly = items.some(item => {
-    const opt = item.paymentOption || item.product?.paymentOption
+    const opt = String(item.paymentOption || item.product?.paymentOption || item.paymentPolicy?.mode || item.paymentPolicy?.paymentMode || item.product?.paymentPolicy?.mode || item.product?.paymentPolicy?.paymentMode || '').trim().toUpperCase()
     return opt === 'ONLINE_ONLY' || item.codAllowed === false || item.product?.codAllowed === false
   })
 
   if (hasCodOnly && hasOnlineOnly) {
     return {
       paymentMode: 'CONFLICT',
+      mode: 'CONFLICT',
       codAllowed: false,
       onlineAllowed: false,
       conflict: true,
@@ -40,6 +42,7 @@ export function evaluatePaymentPolicy(items = []) {
   if (hasCodOnly) {
     return {
       paymentMode: 'COD_ONLY',
+      mode: 'COD_ONLY',
       codAllowed: true,
       onlineAllowed: false,
       conflict: false,
@@ -51,6 +54,7 @@ export function evaluatePaymentPolicy(items = []) {
   if (hasOnlineOnly) {
     return {
       paymentMode: 'ONLINE_ONLY',
+      mode: 'ONLINE_ONLY',
       codAllowed: false,
       onlineAllowed: true,
       conflict: false,
@@ -61,6 +65,7 @@ export function evaluatePaymentPolicy(items = []) {
 
   return {
     paymentMode: 'COD_AND_ONLINE',
+    mode: 'COD_AND_ONLINE',
     codAllowed: true,
     onlineAllowed: true,
     conflict: false,

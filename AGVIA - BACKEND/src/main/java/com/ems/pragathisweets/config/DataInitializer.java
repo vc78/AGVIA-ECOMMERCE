@@ -127,6 +127,17 @@ public class DataInitializer implements CommandLineRunner {
         try {
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN phone_verified BOOLEAN NOT NULL DEFAULT FALSE");
         } catch (Exception ignored) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE products ADD COLUMN payment_option VARCHAR(20) DEFAULT 'COD_AND_ONLINE'");
+        } catch (Exception ignored) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE product_variants ADD COLUMN payment_option VARCHAR(20) DEFAULT 'COD_AND_ONLINE'");
+        } catch (Exception ignored) {}
+        try {
+            // Self-healing synchronization: variants cannot relax parent product restrictions
+            jdbcTemplate.execute("UPDATE product_variants pv INNER JOIN products p ON pv.product_id = p.id SET pv.payment_option = 'COD_ONLY' WHERE p.payment_option = 'COD_ONLY' AND (pv.payment_option IS NULL OR pv.payment_option != 'COD_ONLY')");
+            jdbcTemplate.execute("UPDATE product_variants pv INNER JOIN products p ON pv.product_id = p.id SET pv.payment_option = 'ONLINE_ONLY' WHERE p.payment_option = 'ONLINE_ONLY' AND (pv.payment_option IS NULL OR pv.payment_option != 'ONLINE_ONLY')");
+        } catch (Exception ignored) {}
     }
 
     private void bootstrapAdminUser() {

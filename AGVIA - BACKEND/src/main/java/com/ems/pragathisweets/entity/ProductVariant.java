@@ -122,25 +122,45 @@ public class ProductVariant {
         image.setVariant(this);
     }
 
-    public ProductPaymentOption getEffectivePaymentOption() {
-        if (product != null && product.getPaymentOption() != null) {
-            if (product.getPaymentOption() == ProductPaymentOption.COD_ONLY) {
+    public ProductPaymentOption getEffectivePaymentOption(Product parentProduct) {
+        Product p = parentProduct != null ? parentProduct : this.product;
+        if (p != null && p.getPaymentOption() != null) {
+            // Parent restrictions are strictly authoritative and cannot be relaxed by variant
+            if (p.getPaymentOption() == ProductPaymentOption.COD_ONLY) {
                 return ProductPaymentOption.COD_ONLY;
             }
-            if (product.getPaymentOption() == ProductPaymentOption.ONLINE_ONLY) {
+            if (p.getPaymentOption() == ProductPaymentOption.ONLINE_ONLY) {
                 return ProductPaymentOption.ONLINE_ONLY;
             }
         }
-        return paymentOption != null ? paymentOption : (product != null && product.getPaymentOption() != null ? product.getPaymentOption() : ProductPaymentOption.COD_AND_ONLINE);
+        if (paymentOption != null) {
+            return paymentOption;
+        }
+        if (p != null && p.getPaymentOption() != null) {
+            return p.getPaymentOption();
+        }
+        return ProductPaymentOption.COD_AND_ONLINE;
     }
 
-    public boolean isCodAllowed() {
-        ProductPaymentOption opt = getEffectivePaymentOption();
+    public ProductPaymentOption getEffectivePaymentOption() {
+        return getEffectivePaymentOption(this.product);
+    }
+
+    public boolean isCodAllowed(Product parentProduct) {
+        ProductPaymentOption opt = getEffectivePaymentOption(parentProduct);
         return opt == ProductPaymentOption.COD_AND_ONLINE || opt == ProductPaymentOption.COD_ONLY;
     }
 
-    public boolean isOnlineAllowed() {
-        ProductPaymentOption opt = getEffectivePaymentOption();
+    public boolean isCodAllowed() {
+        return isCodAllowed(this.product);
+    }
+
+    public boolean isOnlineAllowed(Product parentProduct) {
+        ProductPaymentOption opt = getEffectivePaymentOption(parentProduct);
         return opt == ProductPaymentOption.COD_AND_ONLINE || opt == ProductPaymentOption.ONLINE_ONLY;
+    }
+
+    public boolean isOnlineAllowed() {
+        return isOnlineAllowed(this.product);
     }
 }
