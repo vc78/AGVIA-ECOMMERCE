@@ -21,6 +21,20 @@ public class ProductMapper {
             }
         }
 
+                com.ems.pragathisweets.entity.ProductPaymentOption prodOpt = product.getPaymentOption() != null ? product.getPaymentOption() : com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE;
+        boolean prodCodAllowed = product.isCodAllowed();
+        boolean prodOnlineAllowed = product.isOnlineAllowed();
+        com.ems.pragathisweets.dto.PaymentPolicyResponse prodPolicy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                .paymentMode(prodOpt.name())
+                .codAllowed(prodCodAllowed)
+                .onlineAllowed(prodOnlineAllowed)
+                .conflict(false)
+                .message(prodCodAllowed && prodOnlineAllowed ? "Cash on Delivery and Online Payment are available." :
+                        prodCodAllowed ? "For this product only Cash on Delivery is applicable." :
+                        "For this product only Online Payment is applicable.")
+                .reasonCode("OK")
+                .build();
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -39,11 +53,12 @@ public class ProductMapper {
                 .avgRating(product.getAvgRating())
                 .numReviews(product.getNumReviews())
                 .inStock(product.isInStock())
-                .paymentOption(product.getPaymentOption() != null ? product.getPaymentOption() : com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE)
+                .paymentOption(prodOpt)
                 .lowStockThreshold(product.getEffectiveLowStockThreshold())
                 .stockStatus(product.getStockStatus())
-                .codAllowed(product.isCodAllowed())
-                .onlineAllowed(product.isOnlineAllowed())
+                .codAllowed(prodCodAllowed)
+                .onlineAllowed(prodOnlineAllowed)
+                .paymentPolicy(prodPolicy)
                 .hasVariants(!variantResponses.isEmpty())
                 .variants(variantResponses)
                 .createdAt(product.getCreatedAt())
@@ -80,6 +95,17 @@ public class ProductMapper {
         boolean codAllowed = opt == null || opt == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || opt == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY;
         boolean onlineAllowed = opt == null || opt == com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE || opt == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY;
 
+        com.ems.pragathisweets.dto.PaymentPolicyResponse variantPolicy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                .paymentMode(opt != null ? opt.name() : "COD_AND_ONLINE")
+                .codAllowed(codAllowed)
+                .onlineAllowed(onlineAllowed)
+                .conflict(false)
+                .message(codAllowed && onlineAllowed ? "Cash on Delivery and Online Payment are available." :
+                        codAllowed ? "For this product only Cash on Delivery is applicable." :
+                        "For this product only Online Payment is applicable.")
+                .reasonCode("OK")
+                .build();
+
         return com.ems.pragathisweets.dto.ProductVariantResponse.builder()
                 .id(variant.getId())
                 .productId(product != null ? product.getId() : (variant.getProduct() != null ? variant.getProduct().getId() : null))
@@ -96,6 +122,7 @@ public class ProductMapper {
                 .paymentOption(opt)
                 .codAllowed(codAllowed)
                 .onlineAllowed(onlineAllowed)
+                .paymentPolicy(variantPolicy)
                 .active(variant.isActive())
                 .primaryImageUrl(primaryImg != null ? primaryImg.getImageUrl() : (product != null ? product.getImageUrl() : null))
                 .images(imgDtos)

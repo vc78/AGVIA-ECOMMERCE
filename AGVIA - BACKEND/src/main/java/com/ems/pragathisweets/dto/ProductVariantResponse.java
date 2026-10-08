@@ -29,6 +29,7 @@ public class ProductVariantResponse {
     private ProductPaymentOption paymentOption;
     private boolean codAllowed;
     private boolean onlineAllowed;
+    private PaymentPolicyResponse paymentPolicy;
     private boolean active;
     private String primaryImageUrl;
 

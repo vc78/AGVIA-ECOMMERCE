@@ -137,6 +137,16 @@ public class ProductService {
         }
         if (request.getPaymentOption() != null) {
             product.setPaymentOption(request.getPaymentOption());
+            if (request.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY
+                    || request.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY) {
+                List<com.ems.pragathisweets.entity.ProductVariant> existingVariants = productVariantRepository.findByProductId(product.getId());
+                if (existingVariants != null) {
+                    for (com.ems.pragathisweets.entity.ProductVariant v : existingVariants) {
+                        v.setPaymentOption(request.getPaymentOption());
+                        productVariantRepository.save(v);
+                    }
+                }
+            }
         }
         product.setUnit(request.getUnit());
         product.setImageUrl(request.getImageUrl());

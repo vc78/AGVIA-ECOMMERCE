@@ -368,6 +368,31 @@ export default function AddProduct() {
                 </div>
               </label>
             </div>
+
+            {/* Payment Acceptance Status Indicator */}
+            <div className="mt-2 p-2.5 rounded-xl bg-white border border-[#C9A45C]/30 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span className="text-[11px] font-semibold text-[#5A1020]">Effective Checkout Gate:</span>
+              <div className="flex items-center gap-3 font-mono font-bold text-xs">
+                {form.paymentOption === 'COD_ONLY' && (
+                  <>
+                    <span className="text-emerald-700">✓ COD Available</span>
+                    <span className="text-rose-600">✕ Online Payment Disabled</span>
+                  </>
+                )}
+                {form.paymentOption === 'ONLINE_ONLY' && (
+                  <>
+                    <span className="text-rose-600">✕ COD Disabled</span>
+                    <span className="text-emerald-700">✓ Online Payment Available</span>
+                  </>
+                )}
+                {form.paymentOption === 'COD_AND_ONLINE' && (
+                  <>
+                    <span className="text-emerald-700">✓ COD Available</span>
+                    <span className="text-emerald-700">✓ Online Payment Available</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Product Color Variants & Multi-Image Gallery Manager */}

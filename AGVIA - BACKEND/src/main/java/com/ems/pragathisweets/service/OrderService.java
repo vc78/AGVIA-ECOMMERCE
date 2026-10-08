@@ -34,7 +34,6 @@ public class OrderService {
     private final UserRepository userRepository;
     private final CouponService couponService;
     private final EmailService emailService;
-    private final WhatsAppService whatsAppService;
     private final OrderNotificationService orderNotificationService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -272,12 +271,6 @@ public class OrderService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public String getOrderWhatsAppMessage(Long userId, String identifier) {
-        Order order = findUserOrderEntity(userId, identifier);
-        OrderResponse response = toResponse(order);
-        return whatsAppService.buildOrderConfirmationMessage(response, order.getUser().getFullName());
-    }
 
     @Transactional(readOnly = true)
     public OrderResponse trackOrder(String identifier) {

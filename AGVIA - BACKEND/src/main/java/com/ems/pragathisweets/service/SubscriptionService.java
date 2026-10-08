@@ -34,7 +34,6 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final RazorpayClient razorpayClient;
     private final RazorpayConfig razorpayConfig;
-    private final WhatsAppService whatsAppService;
 
     private static final BigDecimal DEFAULT_PLAN_AMOUNT = new BigDecimal("299.00");
 
@@ -172,22 +171,6 @@ public class SubscriptionService {
 
         // Sync with Subscriber table
         syncSubscriberEntity(saved);
-
-        // Send confirmation WhatsApp if phone is available
-        if (saved.getCustomerPhone() != null && !saved.getCustomerPhone().isBlank()) {
-            String msg = "👑 *AGVIA HAUTE CIRCLE VIP ACTIVATED* 👑\n" +
-                         "━━━━━━━━━━━━━━━━━━━━━━\n" +
-                         "Dear *" + saved.getCustomerName() + "*,\n\n" +
-                         "🎉 Your VIP Membership is now *ACTIVE*!\n\n" +
-                         "✨ *Your VIP Privileges:*\n" +
-                         "• 15% Designer Credit Voucher: *" + saved.getExclusiveCoupon() + "*\n" +
-                         "• Complimentary Royal Keepsake Wrap with Gold Ribbon\n" +
-                         "• Priority Atelier Preparation & Same-Day Dispatch\n" +
-                         "• Private Couture Showcases & Festive Pre-Access\n\n" +
-                         "📅 Valid Till: " + saved.getValidTill().toLocalDate() + "\n\n" +
-                         "Wear Your Story with AGVIA Boutique ✨";
-            whatsAppService.sendOrderStatusUpdate("VIP-" + saved.getId(), "CONFIRMED", saved.getCustomerName(), saved.getCustomerPhone());
-        }
 
         return toResponse(saved);
     }

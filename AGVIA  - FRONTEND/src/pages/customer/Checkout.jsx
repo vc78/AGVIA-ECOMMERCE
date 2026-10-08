@@ -11,7 +11,7 @@ import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
 import { motion } from 'framer-motion'
-import { ShieldCheck, Truck, CreditCard, ChevronRight, Ticket, Sparkles, MessageCircle, Banknote, Lock } from 'lucide-react'
+import { ShieldCheck, Truck, CreditCard, ChevronRight, Ticket, Sparkles, Banknote, Lock } from 'lucide-react'
 import api from '../../services/api'
 import { trackCheckoutStarted, trackPurchase } from '../../services/analytics'
 import SEOHead from '../../components/common/SEOHead'
@@ -496,17 +496,6 @@ export default function Checkout() {
                   <div className="space-y-1">
                     <span className="text-[8.5px] tracking-wider uppercase text-[#C9A45C] font-bold block">Postal Code / Pincode</span>
                     <input name="pincode" value={address.pincode} onChange={handleChange} placeholder="500033" required className="input-field" />
-                  </div>
-                </div>
-
-                {/* WhatsApp Notification Callout */}
-                <div className="flex items-start gap-2.5 bg-[#25D366]/8 border border-[#25D366]/25 rounded-xl p-3">
-                  <MessageCircle size={18} className="text-[#25D366] mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs font-bold text-[#1a7a43]">📱 WhatsApp Dispatch Updates</p>
-                    <p className="text-[10.5px] text-[#211D1E]/70 mt-0.5 leading-normal font-sans">
-                      A bespoke digital order receipt and tracking updates will be dispatched to your WhatsApp number.
-                    </p>
                   </div>
                 </div>
 

@@ -57,11 +57,6 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success(orderService.getUserOrder(principal.getId(), id)));
     }
 
-    @GetMapping("/{identifier}/whatsapp-preview")
-    public ResponseEntity<ApiResponse<String>> getWhatsAppPreview(@AuthenticationPrincipal UserDetailsImpl principal,
-                                                                   @PathVariable String identifier) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getOrderWhatsAppMessage(principal.getId(), identifier)));
-    }
 
     @GetMapping("/track/{identifier}")
     public ResponseEntity<ApiResponse<OrderResponse>> trackOrder(@PathVariable String identifier) {

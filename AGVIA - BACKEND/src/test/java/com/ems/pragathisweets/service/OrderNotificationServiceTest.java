@@ -37,9 +37,6 @@ class OrderNotificationServiceTest {
     @Mock
     private OrderNotificationLogRepository notificationLogRepository;
 
-    @Mock
-    private WhatsAppService whatsAppService;
-
     @InjectMocks
     private OrderNotificationService notificationService;
 

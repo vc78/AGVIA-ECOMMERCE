@@ -36,6 +36,7 @@ public class ProductResponse {
     private String stockStatus;
     private boolean codAllowed;
     private boolean onlineAllowed;
+    private PaymentPolicyResponse paymentPolicy;
     private boolean hasVariants;
     private java.util.List<ProductVariantResponse> variants;
     private LocalDateTime createdAt;

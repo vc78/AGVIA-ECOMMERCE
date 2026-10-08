@@ -37,7 +37,6 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final EmailService emailService;
-    private final WhatsAppService whatsAppService;
     private final OrderService orderService;
     private final OrderNotificationService orderNotificationService;
     private final com.ems.pragathisweets.repository.ProductVariantRepository productVariantRepository;

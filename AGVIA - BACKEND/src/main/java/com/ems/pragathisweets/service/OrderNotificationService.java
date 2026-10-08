@@ -29,7 +29,6 @@ public class OrderNotificationService {
     private final EmailService emailService;
     private final EmailTemplateService templateService;
     private final OrderNotificationLogRepository notificationLogRepository;
-    private final WhatsAppService whatsAppService;
 
     @Value("${app.mail.admin-email:${PRAGATHI_ADMIN_EMAIL:${app.mail.store-notification-email:${STORE_NOTIFICATION_EMAIL:orders@pragathisweets.com}}}}")
     private String adminEmail;
@@ -75,14 +74,6 @@ public class OrderNotificationService {
             EmailTemplateService.EmailContent adminContent = templateService.buildAdminNewOrderNotification(emailData);
             dispatchEmail(order.getId(), order.getOrderNumber(), "ADMIN_NEW_ORDER", adminEmail, "ADMIN", adminContent);
         }
-
-        // 3. WhatsApp Notification (if configured)
-        try {
-            String contactPhone = (phone != null && !phone.isBlank()) ? phone : order.getContactPhone();
-            whatsAppService.sendOrderConfirmation(order, customerName, contactPhone);
-        } catch (Exception ex) {
-            log.warn("[OrderNotification] WhatsApp confirmation failed for order {}: {}", order.getOrderNumber(), ex.getMessage());
-        }
     }
 
     /**
@@ -117,14 +108,6 @@ public class OrderNotificationService {
 
         if (content != null) {
             dispatchEmail(order.getId(), order.getOrderNumber(), eventType, customerEmail, "CUSTOMER", content);
-        }
-
-        // WhatsApp status alert
-        try {
-            String contactPhone = (phone != null && !phone.isBlank()) ? phone : order.getContactPhone();
-            whatsAppService.sendOrderStatusUpdate(order.getOrderNumber(), newStatus, customerName, contactPhone);
-        } catch (Exception ex) {
-            log.warn("[OrderNotification] WhatsApp status update failed for order {}: {}", order.getOrderNumber(), ex.getMessage());
         }
     }
 
