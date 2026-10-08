@@ -3,6 +3,16 @@ import api from './api'
 let isOrderSubmitting = false
 
 export const orderService = {
+  async validateCheckout(payload) {
+    try {
+      const { data } = await api.post('/orders/validate', payload)
+      return data?.data
+    } catch (err) {
+      console.error('[orderService.validateCheckout] Error:', err)
+      throw err
+    }
+  },
+
   async createOrder(payload) {
     if (isOrderSubmitting) {
       throw new Error('An order is currently being processed. Please wait.')

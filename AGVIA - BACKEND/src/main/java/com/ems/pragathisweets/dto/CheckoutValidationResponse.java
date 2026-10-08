@@ -14,11 +14,13 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartResponse {
-
-    private Long cartId;
-    private List<CartItemResponse> items;
-    private BigDecimal totalAmount;
-    private int totalItems;
+public class CheckoutValidationResponse {
+    private boolean valid;
     private PaymentPolicyResponse paymentPolicy;
+    private BigDecimal subtotal;
+    private BigDecimal discount;
+    private BigDecimal shippingFee;
+    private BigDecimal total;
+    private List<String> issues;
+    private List<CartItemResponse> validatedItems;
 }

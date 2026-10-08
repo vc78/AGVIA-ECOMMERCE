@@ -54,6 +54,7 @@ public class SecurityConfig {
             "/api/health",
             "/actuator/health",
             "/api/payments/webhook",
+            "/api/orders/validate",
             "/api/analytics/**",
             "/ws/**",
             "/v3/api-docs/**",

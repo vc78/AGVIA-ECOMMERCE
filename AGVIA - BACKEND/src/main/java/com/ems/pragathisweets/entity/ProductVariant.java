@@ -121,4 +121,26 @@ public class ProductVariant {
         images.add(image);
         image.setVariant(this);
     }
+
+    public ProductPaymentOption getEffectivePaymentOption() {
+        if (product != null && product.getPaymentOption() != null) {
+            if (product.getPaymentOption() == ProductPaymentOption.COD_ONLY) {
+                return ProductPaymentOption.COD_ONLY;
+            }
+            if (product.getPaymentOption() == ProductPaymentOption.ONLINE_ONLY) {
+                return ProductPaymentOption.ONLINE_ONLY;
+            }
+        }
+        return paymentOption != null ? paymentOption : (product != null && product.getPaymentOption() != null ? product.getPaymentOption() : ProductPaymentOption.COD_AND_ONLINE);
+    }
+
+    public boolean isCodAllowed() {
+        ProductPaymentOption opt = getEffectivePaymentOption();
+        return opt == ProductPaymentOption.COD_AND_ONLINE || opt == ProductPaymentOption.COD_ONLY;
+    }
+
+    public boolean isOnlineAllowed() {
+        ProductPaymentOption opt = getEffectivePaymentOption();
+        return opt == ProductPaymentOption.COD_AND_ONLINE || opt == ProductPaymentOption.ONLINE_ONLY;
+    }
 }

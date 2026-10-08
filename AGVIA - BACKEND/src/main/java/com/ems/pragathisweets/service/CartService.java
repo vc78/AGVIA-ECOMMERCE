@@ -161,20 +161,46 @@ public class CartService {
     private CartResponse toResponse(Cart cart) {
         var items = cart.getItems().stream()
                 .map(item -> {
-                    String imgUrl = item.getImageUrl() != null ? item.getImageUrl() : item.getProduct().getImageUrl();
+                    Product p = item.getProduct();
+                    String imgUrl = item.getImageUrl() != null ? item.getImageUrl() : p.getImageUrl();
+
+                    boolean codAllowed = p.isCodAllowed();
+                    boolean onlineAllowed = p.isOnlineAllowed();
+                    String paymentOpt = p.getPaymentOption() != null ? p.getPaymentOption().name() : "COD_AND_ONLINE";
+
+                    if (p.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY) {
+                        codAllowed = true;
+                        onlineAllowed = false;
+                        paymentOpt = "COD_ONLY";
+                    } else if (p.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY) {
+                        codAllowed = false;
+                        onlineAllowed = true;
+                        paymentOpt = "ONLINE_ONLY";
+                    } else if (item.getVariantId() != null) {
+                        com.ems.pragathisweets.entity.ProductVariant v = productVariantRepository.findById(item.getVariantId()).orElse(null);
+                        if (v != null && v.getPaymentOption() != null) {
+                            codAllowed = v.isCodAllowed();
+                            onlineAllowed = v.isOnlineAllowed();
+                            paymentOpt = v.getPaymentOption().name();
+                        }
+                    }
+
                     return CartItemResponse.builder()
                             .id(item.getId())
-                            .productId(item.getProduct().getId())
-                            .productName(item.getProduct().getName())
+                            .productId(p.getId())
+                            .productName(p.getName())
                             .productImageUrl(imgUrl)
                             .price(item.getPriceSnapshot())
                             .quantity(item.getQuantity())
                             .subtotal(item.getSubtotal())
-                            .inStock(item.getProduct().isInStock())
+                            .inStock(p.isInStock())
                             .variantId(item.getVariantId())
                             .colorName(item.getColorName())
                             .sku(item.getSku())
                             .variantImageUrl(imgUrl)
+                            .paymentOption(paymentOpt)
+                            .codAllowed(codAllowed)
+                            .onlineAllowed(onlineAllowed)
                             .build();
                 })
                 .toList();
@@ -185,11 +211,63 @@ public class CartService {
 
         int totalItems = items.stream().mapToInt(CartItemResponse::getQuantity).sum();
 
+        boolean anyCodDisallowed = items.stream().anyMatch(i -> !i.isCodAllowed());
+        boolean anyOnlineDisallowed = items.stream().anyMatch(i -> !i.isOnlineAllowed());
+
+        com.ems.pragathisweets.dto.PaymentPolicyResponse policy;
+        if (items.isEmpty()) {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("COD_AND_ONLINE")
+                    .codAllowed(true)
+                    .onlineAllowed(true)
+                    .conflict(false)
+                    .reasonCode("OK")
+                    .message("All payment methods are available.")
+                    .build();
+        } else if (anyCodDisallowed && anyOnlineDisallowed) {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("CONFLICT")
+                    .codAllowed(false)
+                    .onlineAllowed(false)
+                    .conflict(true)
+                    .reasonCode("PAYMENT_CONFLICT")
+                    .message("Your bag contains items that only support Cash on Delivery and items that only support Online Payment. Please purchase them separately.")
+                    .build();
+        } else if (anyOnlineDisallowed) {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("COD_ONLY")
+                    .codAllowed(true)
+                    .onlineAllowed(false)
+                    .conflict(false)
+                    .reasonCode("COD_ONLY_ITEMS")
+                    .message("For this product only Cash on Delivery (COD) is applicable. Online payment is unavailable.")
+                    .build();
+        } else if (anyCodDisallowed) {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("ONLINE_ONLY")
+                    .codAllowed(false)
+                    .onlineAllowed(true)
+                    .conflict(false)
+                    .reasonCode("ONLINE_ONLY_ITEMS")
+                    .message("For this product only Online Payment is applicable. Cash on Delivery is unavailable.")
+                    .build();
+        } else {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("COD_AND_ONLINE")
+                    .codAllowed(true)
+                    .onlineAllowed(true)
+                    .conflict(false)
+                    .reasonCode("OK")
+                    .message("Both Cash on Delivery and Online Payment are available.")
+                    .build();
+        }
+
         return CartResponse.builder()
                 .cartId(cart.getId())
                 .items(items)
                 .totalAmount(total)
                 .totalItems(totalItems)
+                .paymentPolicy(policy)
                 .build();
     }
 }

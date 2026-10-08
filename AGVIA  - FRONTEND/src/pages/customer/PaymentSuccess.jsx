@@ -14,24 +14,31 @@ export default function PaymentSuccess() {
   const rawOrderId = searchParams.get('orderId') || searchParams.get('id') || location.state?.orderNumber || location.state?.newOrderId || 'AGV-' + Math.floor(100000 + Math.random() * 900000)
   const orderId = String(rawOrderId).replace(/^ORD-/, '')
 
-  const initialPaymentMethod = searchParams.get('paymentMethod') || location.state?.orderDetails?.paymentMethod || 'RAZORPAY'
-  const isCod = String(initialPaymentMethod).toUpperCase() === 'COD'
-
   const [order, setOrder] = useState(location.state?.orderDetails || null)
   const [loading, setLoading] = useState(!location.state?.orderDetails)
 
   useEffect(() => {
     window.scrollTo(0, 0)
 
-    if (!order && rawOrderId && !rawOrderId.startsWith('AGV-')) {
-      orderService.getOrderById(rawOrderId)
-        .then((data) => setOrder(data))
-        .catch(() => {})
+    if (rawOrderId && (!order || !order.items || order.items.length === 0)) {
+      setLoading(true)
+      orderService.trackOrder(rawOrderId)
+        .then((data) => {
+          if (data) setOrder(data)
+        })
+        .catch(() => {
+          if (!isNaN(rawOrderId)) {
+            orderService.getOrderById(rawOrderId).then(setOrder).catch(() => {})
+          }
+        })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
     }
-  }, [order, rawOrderId])
+  }, [rawOrderId])
+
+  const effectivePaymentMethod = order?.paymentMethod || searchParams.get('paymentMethod') || location.state?.orderDetails?.paymentMethod || 'RAZORPAY'
+  const isCod = String(effectivePaymentMethod).toUpperCase() === 'COD'
 
   const paymentMethodLabel = isCod ? 'Cash on Delivery (COD)' : 'Razorpay Secure Online'
   const paymentStatusLabel = isCod ? 'Payable upon Doorstep Delivery' : 'Authorized & Paid'

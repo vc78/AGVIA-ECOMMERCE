@@ -352,6 +352,200 @@ public class OrderService {
         return response;
     }
 
+    @Transactional(readOnly = true)
+    public com.ems.pragathisweets.dto.CheckoutValidationResponse validateCheckout(Long userId, com.ems.pragathisweets.dto.CheckoutValidationRequest request) {
+        java.util.List<String> issues = new java.util.ArrayList<>();
+        java.util.List<com.ems.pragathisweets.dto.CartItemResponse> validatedItems = new java.util.ArrayList<>();
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        java.util.List<com.ems.pragathisweets.dto.CartItemRequest> items = request != null ? request.getItems() : null;
+
+        if ((items == null || items.isEmpty()) && userId != null) {
+            Cart userCart = cartRepository.findByUserId(userId).orElse(null);
+            if (userCart != null && !userCart.getItems().isEmpty()) {
+                items = userCart.getItems().stream()
+                        .map(i -> com.ems.pragathisweets.dto.CartItemRequest.builder()
+                                .productId(i.getProduct().getId())
+                                .variantId(i.getVariantId())
+                                .quantity(i.getQuantity())
+                                .build())
+                        .toList();
+            }
+        }
+
+        if (items == null || items.isEmpty()) {
+            return com.ems.pragathisweets.dto.CheckoutValidationResponse.builder()
+                    .valid(false)
+                    .subtotal(BigDecimal.ZERO)
+                    .discount(BigDecimal.ZERO)
+                    .shippingFee(BigDecimal.ZERO)
+                    .total(BigDecimal.ZERO)
+                    .issues(java.util.List.of("Your shopping bag is empty."))
+                    .validatedItems(java.util.List.of())
+                    .paymentPolicy(com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                            .paymentMode("COD_AND_ONLINE")
+                            .codAllowed(true)
+                            .onlineAllowed(true)
+                            .conflict(false)
+                            .reasonCode("OK")
+                            .message("No items in bag.")
+                            .build())
+                    .build();
+        }
+
+        boolean anyCodDisallowed = false;
+        boolean anyOnlineDisallowed = false;
+
+        for (com.ems.pragathisweets.dto.CartItemRequest itemReq : items) {
+            Product product = productRepository.findById(itemReq.getProductId()).orElse(null);
+            if (product == null || !product.isActive()) {
+                issues.add("One of the selected items is no longer available.");
+                continue;
+            }
+
+            com.ems.pragathisweets.entity.ProductVariant variant = null;
+            if (itemReq.getVariantId() != null) {
+                variant = productVariantRepository.findById(itemReq.getVariantId()).orElse(null);
+                if (variant == null || !variant.isActive()) {
+                    issues.add("Variant for " + product.getName() + " is no longer available.");
+                    continue;
+                }
+                if (variant.getStockQuantity() < itemReq.getQuantity()) {
+                    issues.add("Only " + variant.getStockQuantity() + " units available for " + product.getName() + " (" + variant.getColorName() + ").");
+                }
+            } else {
+                if (product.getStockQuantity() < itemReq.getQuantity()) {
+                    issues.add("Only " + product.getStockQuantity() + " units available for " + product.getName() + ".");
+                }
+            }
+
+            BigDecimal effectivePrice = (variant != null)
+                    ? variant.getEffectivePrice(product.getEffectivePrice())
+                    : product.getEffectivePrice();
+
+            BigDecimal lineSubtotal = effectivePrice.multiply(BigDecimal.valueOf(itemReq.getQuantity()));
+            subtotal = subtotal.add(lineSubtotal);
+
+            boolean codAllowed = product.isCodAllowed();
+            boolean onlineAllowed = product.isOnlineAllowed();
+            String paymentOpt = product.getPaymentOption() != null ? product.getPaymentOption().name() : "COD_AND_ONLINE";
+
+            if (product.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY) {
+                codAllowed = true;
+                onlineAllowed = false;
+                paymentOpt = "COD_ONLY";
+            } else if (product.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.ONLINE_ONLY) {
+                codAllowed = false;
+                onlineAllowed = true;
+                paymentOpt = "ONLINE_ONLY";
+            } else if (variant != null && variant.getPaymentOption() != null) {
+                codAllowed = variant.isCodAllowed();
+                onlineAllowed = variant.isOnlineAllowed();
+                paymentOpt = variant.getPaymentOption().name();
+            }
+
+            if (!codAllowed) anyCodDisallowed = true;
+            if (!onlineAllowed) anyOnlineDisallowed = true;
+
+            String img = (variant != null && variant.getPrimaryImage() != null)
+                    ? variant.getPrimaryImage().getImageUrl()
+                    : product.getImageUrl();
+
+            validatedItems.add(com.ems.pragathisweets.dto.CartItemResponse.builder()
+                    .productId(product.getId())
+                    .productName(product.getName())
+                    .productImageUrl(img)
+                    .price(effectivePrice)
+                    .quantity(itemReq.getQuantity())
+                    .subtotal(lineSubtotal)
+                    .inStock(product.isInStock())
+                    .variantId(variant != null ? variant.getId() : null)
+                    .colorName(variant != null ? variant.getColorName() : null)
+                    .sku(variant != null ? variant.getSku() : product.getSku())
+                    .variantImageUrl(img)
+                    .paymentOption(paymentOpt)
+                    .codAllowed(codAllowed)
+                    .onlineAllowed(onlineAllowed)
+                    .build());
+        }
+
+        com.ems.pragathisweets.dto.PaymentPolicyResponse policy;
+        if (anyCodDisallowed && anyOnlineDisallowed) {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("CONFLICT")
+                    .codAllowed(false)
+                    .onlineAllowed(false)
+                    .conflict(true)
+                    .reasonCode("PAYMENT_CONFLICT")
+                    .message("Your bag contains items that only support Cash on Delivery and items that only support Online Payment. Please purchase them separately.")
+                    .build();
+            issues.add("Payment method conflict: Some items are COD-only and others are Online-only. Please checkout separately.");
+        } else if (anyOnlineDisallowed) {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("COD_ONLY")
+                    .codAllowed(true)
+                    .onlineAllowed(false)
+                    .conflict(false)
+                    .reasonCode("COD_ONLY_ITEMS")
+                    .message("For this product only Cash on Delivery (COD) is applicable. Online payment is unavailable.")
+                    .build();
+        } else if (anyCodDisallowed) {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("ONLINE_ONLY")
+                    .codAllowed(false)
+                    .onlineAllowed(true)
+                    .conflict(false)
+                    .reasonCode("ONLINE_ONLY_ITEMS")
+                    .message("For this product only Online Payment is applicable. Cash on Delivery is unavailable.")
+                    .build();
+        } else {
+            policy = com.ems.pragathisweets.dto.PaymentPolicyResponse.builder()
+                    .paymentMode("COD_AND_ONLINE")
+                    .codAllowed(true)
+                    .onlineAllowed(true)
+                    .conflict(false)
+                    .reasonCode("OK")
+                    .message("Both Cash on Delivery and Online Payment are available.")
+                    .build();
+        }
+
+        if (request != null && request.getPaymentMethod() != null) {
+            String pm = request.getPaymentMethod().trim().toUpperCase();
+            if ("COD".equals(pm) && !policy.isCodAllowed()) {
+                issues.add("Cash on Delivery is not available for one or more items in your order.");
+            } else if (("RAZORPAY".equals(pm) || "ONLINE".equals(pm)) && !policy.isOnlineAllowed()) {
+                issues.add("Online payment is not available for one or more items in your order.");
+            }
+        }
+
+        BigDecimal discount = BigDecimal.ZERO;
+        if (request != null && request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
+            try {
+                com.ems.pragathisweets.dto.CouponValidationResponse couponResult = couponService.validate(request.getCouponCode(), subtotal);
+                if (couponResult != null && couponResult.isValid() && couponResult.getDiscountAmount() != null) {
+                    discount = couponResult.getDiscountAmount();
+                }
+            } catch (Exception ignored) {}
+        }
+
+        BigDecimal shippingFee = (subtotal.compareTo(new BigDecimal("999")) >= 0 || subtotal.compareTo(BigDecimal.ZERO) == 0)
+                ? BigDecimal.ZERO
+                : new BigDecimal("50");
+
+        BigDecimal total = subtotal.add(shippingFee).subtract(discount).max(BigDecimal.ZERO);
+
+        return com.ems.pragathisweets.dto.CheckoutValidationResponse.builder()
+                .valid(issues.isEmpty())
+                .paymentPolicy(policy)
+                .subtotal(subtotal)
+                .discount(discount)
+                .shippingFee(shippingFee)
+                .total(total)
+                .issues(issues)
+                .validatedItems(validatedItems)
+                .build();
+    }
+
     private String generateOrderNumber() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         int random = ThreadLocalRandom.current().nextInt(100, 999);

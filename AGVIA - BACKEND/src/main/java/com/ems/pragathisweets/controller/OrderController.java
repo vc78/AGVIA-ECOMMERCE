@@ -24,6 +24,16 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
+
+    @PostMapping("/validate")
+    public ResponseEntity<ApiResponse<com.ems.pragathisweets.dto.CheckoutValidationResponse>> validateCheckout(
+            @AuthenticationPrincipal UserDetailsImpl principal,
+            @RequestBody(required = false) com.ems.pragathisweets.dto.CheckoutValidationRequest request) {
+        Long userId = principal != null ? principal.getId() : null;
+        var response = orderService.validateCheckout(userId, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
     @PostMapping("/checkout")
     public ResponseEntity<ApiResponse<OrderResponse>> checkout(@AuthenticationPrincipal UserDetailsImpl principal,
                                                                 @Valid @RequestBody CheckoutRequest request) {

@@ -131,14 +131,15 @@ class ExcelReportingServiceTest {
         try (FileInputStream fis = new FileInputStream(generatedFile.toFile());
              Workbook workbook = new XSSFWorkbook(fis)) {
 
-            assertNotNull(workbook.getSheet("Orders Master"), "Sheet 'Orders Master' must exist");
-            assertNotNull(workbook.getSheet("Order Line Items"), "Sheet 'Order Line Items' must exist");
-            assertNotNull(workbook.getSheet("Payments Ledger"), "Sheet 'Payments Ledger' must exist");
+            assertNotNull(workbook.getSheet("ORDERS"), "Sheet 'ORDERS' must exist");
+            assertNotNull(workbook.getSheet("ORDER ITEMS"), "Sheet 'ORDER ITEMS' must exist");
+            assertNotNull(workbook.getSheet("CUSTOMERS"), "Sheet 'CUSTOMERS' must exist");
+            assertNotNull(workbook.getSheet("SUMMARY"), "Sheet 'SUMMARY' must exist");
 
-            var ordersSheet = workbook.getSheet("Orders Master");
-            assertEquals("AGV-2026-0001", ordersSheet.getRow(2).getCell(0).getStringCellValue());
-            assertEquals("Lakshmi Devi", ordersSheet.getRow(2).getCell(2).getStringCellValue());
-            assertEquals(13500.0, ordersSheet.getRow(2).getCell(8).getNumericCellValue(), 0.01);
+            var ordersSheet = workbook.getSheet("ORDERS");
+            assertEquals("AGV-2026-0001", ordersSheet.getRow(1).getCell(0).getStringCellValue());
+            assertEquals("Lakshmi Devi", ordersSheet.getRow(1).getCell(2).getStringCellValue());
+            assertEquals(13500.0, ordersSheet.getRow(1).getCell(11).getNumericCellValue(), 0.01);
         }
     }
 }

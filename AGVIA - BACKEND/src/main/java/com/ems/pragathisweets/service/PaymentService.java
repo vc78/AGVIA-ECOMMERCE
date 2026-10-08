@@ -6,6 +6,7 @@ import com.ems.pragathisweets.dto.PaymentVerificationRequest;
 import com.ems.pragathisweets.entity.Order;
 import com.ems.pragathisweets.entity.Payment;
 import com.ems.pragathisweets.entity.PaymentStatus;
+import com.ems.pragathisweets.entity.Product;
 import com.ems.pragathisweets.exception.PaymentVerificationException;
 import com.ems.pragathisweets.exception.ResourceNotFoundException;
 import com.ems.pragathisweets.repository.OrderRepository;
@@ -39,6 +40,7 @@ public class PaymentService {
     private final WhatsAppService whatsAppService;
     private final OrderService orderService;
     private final OrderNotificationService orderNotificationService;
+    private final com.ems.pragathisweets.repository.ProductVariantRepository productVariantRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     private Order findOrderByIdOrNumber(String orderIdentifier) {
@@ -63,6 +65,30 @@ public class PaymentService {
     @Transactional
     public PaymentOrderResponse createRazorpayOrder(String internalOrderNumber) {
         Order order = findOrderByIdOrNumber(internalOrderNumber);
+
+        if (order.getPaymentMethod() == com.ems.pragathisweets.entity.PaymentMethod.COD) {
+            throw new PaymentVerificationException("This order is designated for Cash on Delivery. Online payment cannot be initiated.");
+        }
+
+        if (order.getPaymentStatus() == PaymentStatus.SUCCESS || order.getPaymentStatus() == PaymentStatus.COLLECTED) {
+            throw new PaymentVerificationException("This order has already been paid.");
+        }
+
+        // Strict server-side verification: Check if order has any items with COD_ONLY or disallowed online payment
+        for (com.ems.pragathisweets.entity.OrderItem item : order.getItems()) {
+            Product p = item.getProduct();
+            if (p != null) {
+                if (p.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY || !p.isOnlineAllowed()) {
+                    throw new PaymentVerificationException("Online payment is not available for " + item.getProductName() + " (Cash on Delivery only).");
+                }
+            }
+            if (item.getVariantId() != null) {
+                com.ems.pragathisweets.entity.ProductVariant v = productVariantRepository.findById(item.getVariantId()).orElse(null);
+                if (v != null && !v.isOnlineAllowed()) {
+                    throw new PaymentVerificationException("Online payment is not available for " + item.getProductName() + " (" + v.getColorName() + ") (Cash on Delivery only).");
+                }
+            }
+        }
 
         long amountInPaise = order.getFinalAmount().multiply(BigDecimal.valueOf(100)).longValue();
 

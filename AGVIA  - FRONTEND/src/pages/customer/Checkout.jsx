@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useSelector, useDispatch } from 'react-redux'
@@ -6,6 +6,7 @@ import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { useCart } from '../../hooks/useCart'
 import { orderService } from '../../services/orderService'
+import { evaluatePaymentPolicy } from '../../services/paymentPolicyService'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
@@ -44,20 +45,47 @@ export default function Checkout() {
   const [placingStep, setPlacingStep] = useState('')
   const [activeStep, setActiveStep] = useState(1) // 1: Shipping, 2: Payment
 
-  // Mixed Cart Payment Rules
-  const hasOnlineOnlyItem = items.some(item =>
-    item.paymentOption === 'ONLINE_ONLY' ||
-    item.product?.paymentOption === 'ONLINE_ONLY' ||
-    item.codAllowed === false ||
-    item.product?.codAllowed === false
-  )
+  const [serverPolicy, setServerPolicy] = useState(null)
+  const [policyNotice, setPolicyNotice] = useState('')
 
-  const hasCodOnlyItem = items.some(item =>
-    item.paymentOption === 'COD_ONLY' ||
-    item.product?.paymentOption === 'COD_ONLY' ||
-    item.onlineAllowed === false ||
-    item.product?.onlineAllowed === false
-  )
+  // Authoritative Client-side evaluation
+  const clientPolicy = useMemo(() => evaluatePaymentPolicy(items), [items])
+  const policy = serverPolicy || clientPolicy
+
+  const hasOnlineOnlyItem = !policy.codAllowed && policy.onlineAllowed
+  const hasCodOnlyItem = policy.codAllowed && !policy.onlineAllowed
+  const hasConflict = Boolean(policy.conflict || policy.paymentMode === 'CONFLICT')
+
+  useEffect(() => {
+    let active = true
+    const checkLivePolicy = async () => {
+      if (!items || items.length === 0) return
+      try {
+        const val = await orderService.validateCheckout({
+          items: items.map(i => ({
+            productId: Number(i.productId || i.id),
+            variantId: i.variantId ? Number(i.variantId) : null,
+            quantity: Math.max(1, Number(i.qty || 1))
+          })),
+          couponCode: couponCode || null,
+          paymentMethod: paymentMethod === 'cod' ? 'COD' : 'RAZORPAY'
+        })
+        if (active && val?.paymentPolicy) {
+          setServerPolicy(val.paymentPolicy)
+          setPolicyNotice(val.paymentPolicy.message || '')
+          if (val.paymentPolicy.codAllowed && !val.paymentPolicy.onlineAllowed && paymentMethod === 'razorpay') {
+            setPaymentMethod('cod')
+          } else if (!val.paymentPolicy.codAllowed && val.paymentPolicy.onlineAllowed && paymentMethod === 'cod') {
+            setPaymentMethod('razorpay')
+          }
+        }
+      } catch (e) {
+        console.warn('Real-time checkout validation check skipped:', e)
+      }
+    }
+    checkLivePolicy()
+    return () => { active = false }
+  }, [items, couponCode])
 
   useEffect(() => {
     if (hasOnlineOnlyItem && paymentMethod === 'cod') {
@@ -220,6 +248,48 @@ export default function Checkout() {
     if (activeStep === 1) {
       setActiveStep(2)
       return
+    }
+
+    if (hasConflict) {
+      toast.error('Payment Method Conflict: Your bag contains items that only support Cash on Delivery and items that only support Online Payment. Please purchase them separately.')
+      return
+    }
+
+    // Live Authoritative Backend Check before submitting
+    try {
+      const liveCheck = await orderService.validateCheckout({
+        items: items.map(i => ({
+          productId: Number(i.productId || i.id),
+          variantId: i.variantId ? Number(i.variantId) : null,
+          quantity: Math.max(1, Number(i.qty || 1))
+        })),
+        couponCode: couponCode || null,
+        paymentMethod: paymentMethod === 'cod' ? 'COD' : 'RAZORPAY'
+      })
+
+      if (liveCheck?.paymentPolicy) {
+        const lp = liveCheck.paymentPolicy
+        setServerPolicy(lp)
+
+        if (lp.conflict) {
+          toast.error(lp.message || 'Payment Method Conflict: Please purchase items with different payment options in separate orders.')
+          return
+        }
+
+        if (paymentMethod === 'cod' && !lp.codAllowed) {
+          setPaymentMethod('razorpay')
+          toast.error('Payment options for this product have changed. Cash on Delivery is unavailable. Please review your payment method.')
+          return
+        }
+
+        if (paymentMethod === 'razorpay' && !lp.onlineAllowed) {
+          setPaymentMethod('cod')
+          toast.error('Payment options for this product have changed. Online payment is unavailable. Please review your payment method.')
+          return
+        }
+      }
+    } catch (checkErr) {
+      console.warn('Live pre-submission check skipped:', checkErr)
     }
 
     if (paymentMethod === 'cod') {
