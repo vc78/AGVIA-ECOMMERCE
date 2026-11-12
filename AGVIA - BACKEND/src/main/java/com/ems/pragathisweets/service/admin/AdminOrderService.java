@@ -14,16 +14,23 @@ import com.ems.pragathisweets.service.WhatsAppService;
 import com.ems.pragathisweets.entity.NotificationType;
 import com.ems.pragathisweets.event.AdminNotificationEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminOrderService {
 
     private final OrderRepository orderRepository;
@@ -32,6 +39,10 @@ public class AdminOrderService {
     private final WhatsAppService whatsAppService;
     private final com.ems.pragathisweets.service.OrderNotificationService orderNotificationService;
     private final ApplicationEventPublisher eventPublisher;
+    private final com.ems.pragathisweets.repository.ProductRepository productRepository;
+    private final com.ems.pragathisweets.repository.ProductVariantRepository productVariantRepository;
+    private final com.ems.pragathisweets.repository.UserRepository userRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAll(Pageable pageable) {
@@ -222,6 +233,213 @@ public class AdminOrderService {
         eventPublisher.publishEvent(new com.ems.pragathisweets.event.OrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), "ADMIN_UPDATE_" + newStatus.name()));
 
         return orderResponse;
+    }
+
+    @Transactional
+    public OrderResponse createPosBill(com.ems.pragathisweets.dto.admin.CreatePosBillRequest request, String adminEmail) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new IllegalArgumentException("In-store bill must contain at least one silhouette item.");
+        }
+
+        // 1. Resolve or Create Patron User
+        com.ems.pragathisweets.entity.User patron = resolvePatron(request, adminEmail);
+
+        // 2. Generate unique POS invoice/order number
+        String datePrefix = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now());
+        String orderNumber = "POS-" + datePrefix + "-" + (int) (Math.random() * 9000 + 1000);
+
+        // 3. Resolve Payment Method & Status
+        PaymentMethod paymentMethod = PaymentMethod.COD;
+        String rawMethod = request.getPaymentMethod() != null ? request.getPaymentMethod().toUpperCase() : "CASH";
+        if ("RAZORPAY".equalsIgnoreCase(rawMethod) || "ONLINE".equalsIgnoreCase(rawMethod) || "CARD".equalsIgnoreCase(rawMethod) || "UPI".equalsIgnoreCase(rawMethod)) {
+            paymentMethod = PaymentMethod.RAZORPAY;
+        }
+
+        PaymentStatus paymentStatus = PaymentStatus.SUCCESS;
+        if ("PENDING".equalsIgnoreCase(request.getPaymentStatus())) {
+            paymentStatus = PaymentStatus.PENDING;
+        }
+
+        // 4. Build base order
+        String customerName = (request.getCustomerName() != null && !request.getCustomerName().isBlank())
+                ? request.getCustomerName().trim()
+                : patron.getFullName();
+        String customerPhone = (request.getCustomerPhone() != null && !request.getCustomerPhone().isBlank())
+                ? request.getCustomerPhone().trim()
+                : patron.getPhone();
+
+        StringBuilder notesBuilder = new StringBuilder();
+        notesBuilder.append("[IN_STORE_POS] Cashier: ").append(adminEmail != null ? adminEmail : "Admin");
+        notesBuilder.append(" | Customer: ").append(customerName);
+        notesBuilder.append(" | Mode: ").append(rawMethod);
+        if (request.getDiscountReason() != null && !request.getDiscountReason().isBlank()) {
+            notesBuilder.append(" | Concession: ").append(request.getDiscountReason().trim());
+        }
+        if (request.getNotes() != null && !request.getNotes().isBlank()) {
+            notesBuilder.append(" | Note: ").append(request.getNotes().trim());
+        }
+
+        String storeAddress = "AGVIA Atelier Storefront — Walk-in Patron";
+        if (request.getCustomerAddress() != null && !request.getCustomerAddress().isBlank()) {
+            storeAddress += " (" + request.getCustomerAddress().trim() + ")";
+        }
+
+        BigDecimal customDiscount = request.getCustomDiscount() != null ? request.getCustomDiscount() : BigDecimal.ZERO;
+        BigDecimal taxAmount = request.getTaxAmount() != null ? request.getTaxAmount() : BigDecimal.ZERO;
+
+        Order order = Order.builder()
+                .orderNumber(orderNumber)
+                .user(patron)
+                .status(OrderStatus.DELIVERED)
+                .paymentMethod(paymentMethod)
+                .paymentStatus(paymentStatus)
+                .shippingAddress(storeAddress)
+                .contactPhone(customerPhone)
+                .notes(notesBuilder.toString())
+                .discountAmount(customDiscount)
+                .totalAmount(BigDecimal.ZERO)
+                .finalAmount(BigDecimal.ZERO)
+                .build();
+
+        // 5. Process Items & Deduct Real-Time Stock
+        BigDecimal subtotalSum = BigDecimal.ZERO;
+        BigDecimal itemDiscountsSum = BigDecimal.ZERO;
+
+        for (com.ems.pragathisweets.dto.admin.PosBillItemRequest itemReq : request.getItems()) {
+            com.ems.pragathisweets.entity.Product product = productRepository.findById(itemReq.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemReq.getProductId()));
+
+            int qty = itemReq.getQuantity() != null && itemReq.getQuantity() > 0 ? itemReq.getQuantity() : 1;
+            BigDecimal unitPrice = itemReq.getUnitPrice() != null ? itemReq.getUnitPrice() : product.getPrice();
+            BigDecimal lineDiscount = itemReq.getDiscount() != null ? itemReq.getDiscount() : BigDecimal.ZERO;
+            BigDecimal lineSubtotal = unitPrice.multiply(BigDecimal.valueOf(qty)).subtract(lineDiscount);
+            if (lineSubtotal.compareTo(BigDecimal.ZERO) < 0) lineSubtotal = BigDecimal.ZERO;
+
+            subtotalSum = subtotalSum.add(unitPrice.multiply(BigDecimal.valueOf(qty)));
+            itemDiscountsSum = itemDiscountsSum.add(lineDiscount);
+
+            // Deduct product stock safely
+            if (product.getStockQuantity() != null) {
+                int newStock = Math.max(0, product.getStockQuantity() - qty);
+                product.setStockQuantity(newStock);
+                productRepository.save(product);
+            }
+
+            // Deduct variant stock if variant specified
+            String variantColor = null;
+            String itemSku = itemReq.getSku() != null ? itemReq.getSku() : product.getSku();
+            if (itemReq.getVariantId() != null) {
+                com.ems.pragathisweets.entity.ProductVariant variant = productVariantRepository.findById(itemReq.getVariantId()).orElse(null);
+                if (variant != null) {
+                    if (variant.getStockQuantity() != null) {
+                        variant.setStockQuantity(Math.max(0, variant.getStockQuantity() - qty));
+                        productVariantRepository.save(variant);
+                    }
+                    variantColor = variant.getColorName();
+                    if (variant.getSku() != null && !variant.getSku().isBlank()) {
+                        itemSku = variant.getSku();
+                    }
+                }
+            }
+
+            com.ems.pragathisweets.entity.OrderItem orderItem = com.ems.pragathisweets.entity.OrderItem.builder()
+                    .product(product)
+                    .productName(itemReq.getProductName() != null ? itemReq.getProductName() : product.getName())
+                    .quantity(qty)
+                    .price(unitPrice)
+                    .subtotal(lineSubtotal)
+                    .variantId(itemReq.getVariantId())
+                    .colorName(itemReq.getColorName() != null ? itemReq.getColorName() : variantColor)
+                    .sku(itemSku)
+                    .imageUrl(product.getImageUrl())
+                    .build();
+
+            order.addItem(orderItem);
+        }
+
+        BigDecimal totalDiscount = itemDiscountsSum.add(customDiscount);
+        BigDecimal finalAmount = subtotalSum.subtract(totalDiscount).add(taxAmount);
+        if (finalAmount.compareTo(BigDecimal.ZERO) < 0) finalAmount = BigDecimal.ZERO;
+
+        order.setTotalAmount(subtotalSum);
+        order.setDiscountAmount(totalDiscount);
+        order.setFinalAmount(finalAmount);
+
+        Order savedOrder = orderRepository.save(order);
+
+        // 6. Real-time WebSocket Broadcast to all Admin sessions
+        try {
+            eventPublisher.publishEvent(new AdminNotificationEvent(
+                    NotificationType.NEW_ORDER,
+                    "In-Store Walk-in Bill Generated",
+                    "Bill " + savedOrder.getOrderNumber() + " generated at atelier counter for ₹" + savedOrder.getFinalAmount() + " (" + customerName + ")",
+                    String.valueOf(savedOrder.getId()),
+                    "ORDER",
+                    Map.of(
+                            "orderId", savedOrder.getId(),
+                            "orderNumber", savedOrder.getOrderNumber(),
+                            "amount", savedOrder.getFinalAmount(),
+                            "customer", customerName,
+                            "type", "WALK_IN_POS"
+                    )
+            ));
+        } catch (Exception e) {
+            log.warn("[POS_EVENT_WARN] Could not broadcast POS order event: {}", e.getMessage());
+        }
+
+        // 7. Email Receipt if real email is present
+        if (patron.getEmail() != null && !patron.getEmail().endsWith("@agviastore.internal")) {
+            try {
+                emailService.sendOrderConfirmationEmail(orderService.toResponse(savedOrder), patron.getEmail(), patron.getFullName());
+            } catch (Exception e) {
+                log.warn("[POS_EMAIL_WARN] Could not dispatch receipt email: {}", e.getMessage());
+            }
+        }
+
+        // 8. Sync Excel log event
+        try {
+            eventPublisher.publishEvent(new com.ems.pragathisweets.event.OrderConfirmedEvent(savedOrder.getId(), savedOrder.getOrderNumber(), "IN_STORE_POS"));
+        } catch (Exception e) {
+            log.warn("[POS_EXCEL_SYNC_WARN] Could not sync POS order event: {}", e.getMessage());
+        }
+
+        return orderService.toResponse(savedOrder);
+    }
+
+    private com.ems.pragathisweets.entity.User resolvePatron(com.ems.pragathisweets.dto.admin.CreatePosBillRequest req, String adminEmail) {
+        String phone = req.getCustomerPhone() != null && !req.getCustomerPhone().isBlank() ? req.getCustomerPhone().trim() : null;
+        String email = req.getCustomerEmail() != null && !req.getCustomerEmail().isBlank() ? req.getCustomerEmail().trim().toLowerCase() : null;
+
+        if (email != null) {
+            Optional<com.ems.pragathisweets.entity.User> existing = userRepository.findByEmail(email);
+            if (existing.isPresent()) return existing.get();
+        }
+
+        if (phone != null) {
+            Optional<com.ems.pragathisweets.entity.User> existing = userRepository.findByPhone(phone);
+            if (existing.isPresent()) return existing.get();
+        }
+
+        // If phone or email provided, create a walk-in patron profile
+        String name = (req.getCustomerName() != null && !req.getCustomerName().isBlank())
+                ? req.getCustomerName().trim()
+                : "Walk-in Patron";
+
+        String targetEmail = email != null ? email : "patron_" + System.currentTimeMillis() + "@agviastore.internal";
+        String targetPhone = phone != null ? phone : "WALKIN-" + System.currentTimeMillis();
+
+        com.ems.pragathisweets.entity.User newPatron = com.ems.pragathisweets.entity.User.builder()
+                .fullName(name)
+                .email(targetEmail)
+                .phone(targetPhone)
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .address(req.getCustomerAddress() != null && !req.getCustomerAddress().isBlank() ? req.getCustomerAddress().trim() : "In-Store Counter")
+                .role(com.ems.pragathisweets.entity.Role.ROLE_USER)
+                .enabled(true)
+                .phoneVerified(phone != null)
+                .build();
+
+        return userRepository.save(newPatron);
     }
 
     private Order findEntity(Long id) {

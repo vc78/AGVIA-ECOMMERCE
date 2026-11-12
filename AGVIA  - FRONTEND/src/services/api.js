@@ -6,7 +6,7 @@ import { getFriendlyErrorMessage, logDeveloperError } from './errorMessageServic
 const RAW_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  'https://agvia-ecommerce.onrender.com/api'
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '/api' : 'http://localhost:8080/api')
 
 // Ensure /api suffix is present and clean trailing slashes
 const cleanUrl = RAW_URL.trim().replace(/\/+$/, '')

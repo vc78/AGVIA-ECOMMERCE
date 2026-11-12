@@ -75,7 +75,7 @@ class AdminWebSocketManager {
     const rawUrl =
       import.meta.env.VITE_API_BASE_URL ||
       import.meta.env.VITE_API_URL ||
-      'https://agvia-ecommerce.onrender.com/api'
+      (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '/api' : 'http://localhost:8080/api')
 
     const clean = rawUrl.trim().replace(/\/+$/, '')
     const origin = clean.endsWith('/api') ? clean.slice(0, -4) : clean
@@ -83,46 +83,54 @@ class AdminWebSocketManager {
   }
 
   connect() {
-    const state = store.getState()
-    const token = state.auth?.token
-    const user = state.auth?.user
+    try {
+      const state = store.getState()
+      const token = state.auth?.token
+      const user = state.auth?.user
 
-    // Authorize admin: Accept both 'ADMIN' and 'ROLE_ADMIN'
-    const isAdmin = user && (user.role === 'ADMIN' || user.role === 'ROLE_ADMIN')
-    if (!token || !isAdmin) {
-      return
-    }
+      // Authorize admin: Accept both 'ADMIN' and 'ROLE_ADMIN'
+      const isAdmin = user && (user.role === 'ADMIN' || user.role === 'ROLE_ADMIN')
+      if (!token || !isAdmin) {
+        return
+      }
 
-    // Always ensure latest notifications are synced immediately upon connection invocation
-    this.syncInitialNotifications()
-    this.startPolling()
+      // Always ensure latest notifications are synced immediately upon connection invocation
+      this.syncInitialNotifications()
+      this.startPolling()
 
-    if (this.client && this.client.active) {
-      return
-    }
+      if (this.client && this.client.active) {
+        return
+      }
 
-    this.isManualDisconnect = false
-    this.updateStatus('CONNECTING')
+      this.isManualDisconnect = false
+      this.updateStatus('CONNECTING')
 
-    const sockJsUrl = this.getWebSocketUrl()
+      const sockJsUrl = this.getWebSocketUrl()
 
-    this.client = new Client({
-      webSocketFactory: () => new SockJS(sockJsUrl, null, {
-        timeout: 60000,         // 60s transport timeout — survives Render free-tier cold start (~30-50s)
-        transports: ['websocket', 'xhr-streaming', 'xhr-polling']
-      }),
-      connectHeaders: {
-        Authorization: `Bearer ${token}`
-      },
-      heartbeatIncoming: 25000,
-      heartbeatOutgoing: 25000,
-      reconnectDelay: 0, // Managed manually via controlled exponential backoff
-      debug: (msg) => {
-        if (import.meta.env.DEV) {
-          // console.debug('[STOMP]', msg)
-        }
-      },
-      onConnect: (frame) => {
+      this.client = new Client({
+        webSocketFactory: () => {
+          try {
+            return new SockJS(sockJsUrl, null, {
+              timeout: 60000,
+              transports: ['websocket', 'xhr-streaming', 'xhr-polling']
+            })
+          } catch (e) {
+            console.warn('[AdminWS] SockJS instantiation warning:', e)
+            throw e
+          }
+        },
+        connectHeaders: {
+          Authorization: `Bearer ${token}`
+        },
+        heartbeatIncoming: 25000,
+        heartbeatOutgoing: 25000,
+        reconnectDelay: 0, // Managed manually via controlled exponential backoff
+        debug: (msg) => {
+          if (import.meta.env.DEV) {
+            // console.debug('[STOMP]', msg)
+          }
+        },
+        onConnect: (frame) => {
         this.updateStatus('CONNECTED')
         this.reconnectAttempt = 0
 
@@ -200,7 +208,11 @@ class AdminWebSocketManager {
       console.error('[AdminWS] Activation error:', err)
       this.handleConnectionDrop()
     }
+  } catch (err) {
+    console.error('[AdminWS] connect() error:', err)
+    this.handleConnectionDrop()
   }
+}
 
   handleConnectionDrop() {
     this.updateStatus('RECONNECTING')

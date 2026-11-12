@@ -1,15 +1,16 @@
 version: '3.8'
 
 services:
+  # Optional local MySQL container (can be used for offline development)
   mysql:
     image: mysql:8.0
     container_name: agvia-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-agvia_db}
+      MYSQL_DATABASE: ${DB_NAME:-defaultdb}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
-      MYSQL_USER: ${DB_USER:-agvia_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-agvia_pass}
+      MYSQL_USER: ${DB_USER:-avnadmin}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -28,25 +29,29 @@ services:
       dockerfile: Dockerfile
     container_name: agvia-backend
     restart: unless-stopped
-    depends_on:
-      mysql:
-        condition: service_healthy
     environment:
       PORT: 8080
       SERVER_PORT: 8080
-      DB_URL: ${DB_URL:-jdbc:mysql://mysql:3306/${DB_NAME:-agvia_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-      DB_USERNAME: ${DB_USER:-agvia_user}
-      DB_PASSWORD: ${DB_PASSWORD:-agvia_pass}
-      DDL_AUTO: update
-      SHOW_SQL: "false"
+      DB_HOST: ${DB_HOST:-mysql-2b47628b-agvia-123.k.aivencloud.com}
+      DB_PORT: ${DB_PORT:-11088}
+      DB_NAME: ${DB_NAME:-defaultdb}
+      DB_USER: ${DB_USER:-avnadmin}
+      DB_USERNAME: ${DB_USERNAME:-avnadmin}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_URL: ${DB_URL:-jdbc:mysql://${DB_HOST:-mysql-2b47628b-agvia-123.k.aivencloud.com}:${DB_PORT:-11088}/${DB_NAME:-defaultdb}?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      DDL_AUTO: ${DDL_AUTO:-update}
+      SHOW_SQL: ${SHOW_SQL:-false}
+      FORMAT_SQL: ${FORMAT_SQL:-false}
       JAVA_TOOL_OPTIONS: "-Xmx512m"
       JWT_SECRET: ${JWT_SECRET:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVm}
-      JWT_EXPIRATION_MS: 86400000
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      JWT_REFRESH_EXPIRATION_MS: ${JWT_REFRESH_EXPIRATION_MS:-604800000}
       RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_TDnNEoRLz2m96G}
       RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-25E7Iiv68Owji2k1dKm18quw}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:5173,https://agvia.vercel.app,https://agvia-ecommerce.vercel.app}
       DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@agvia.com}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-agvia@123}
+      DEFAULT_ADMIN_NAME: ${DEFAULT_ADMIN_NAME:-AGVIA Administrator}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
     ports:
       - "8080:8080"
@@ -57,6 +62,10 @@ services:
     build:
       context: "./AGVIA  - FRONTEND"
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_API_URL: ${VITE_API_URL:-/api}
+        VITE_RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_TDnNEoRLz2m96G}
     container_name: agvia-frontend
     restart: unless-stopped
     depends_on:

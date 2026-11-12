@@ -314,8 +314,8 @@ Configure these variables in your deployment environments:
 
 | Variable | Recommended / Default Value | Purpose |
 |---|---|---|
-| `DB_HOST` | `mysql-20386652-agvia.a.aivencloud.com` | Aiven MySQL Host |
-| `DB_PORT` | `14519` | Aiven MySQL Port |
+| `DB_HOST` | `mysql-2b47628b-agvia-123.k.aivencloud.com` | Aiven MySQL Host |
+| `DB_PORT` | `11088` | Aiven MySQL Port |
 | `DB_NAME` | `defaultdb` | MySQL Database Name |
 | `DB_USERNAME` | `avnadmin` | MySQL Username |
 | `DB_PASSWORD` | *(Set in Render)* | MySQL Password |

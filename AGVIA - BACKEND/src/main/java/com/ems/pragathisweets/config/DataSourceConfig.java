@@ -53,7 +53,7 @@ public class DataSourceConfig {
      */
     private String sanitizeJdbcUrl(String url) {
         if (url == null) {
-            return "jdbc:mysql://mysql-20386652-agvia.a.aivencloud.com:14519/defaultdb?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            return "jdbc:mysql://mysql-2b47628b-agvia-123.k.aivencloud.com:11088/defaultdb?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC";
         }
         String trimmed = url.trim();
         if (trimmed.startsWith("DB_URL=")) {

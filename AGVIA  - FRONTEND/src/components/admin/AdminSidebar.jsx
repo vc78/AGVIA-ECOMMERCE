@@ -1,11 +1,12 @@
 import { NavLink, Link } from 'react-router-dom'
 import {
-  LayoutDashboard, Package, PlusSquare, ClipboardList, Users, Boxes, Tag, Star, BarChart3, Crown, Layers, Settings as SettingsIcon, X
+  LayoutDashboard, Package, PlusSquare, ClipboardList, Users, Boxes, Tag, Star, BarChart3, Crown, Layers, Settings as SettingsIcon, X, Receipt
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const links = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/admin/pos', label: 'Store Billing (POS)', icon: Receipt },
   { to: '/admin/products', label: 'Couture Edits', icon: Package },
   { to: '/admin/products/add', label: 'Add Silhouette', icon: PlusSquare },
   { to: '/admin/categories', label: 'Categories', icon: Layers },

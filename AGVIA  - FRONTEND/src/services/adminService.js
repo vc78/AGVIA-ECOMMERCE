@@ -263,7 +263,8 @@ export const adminService = {
         price: p.price,
         image: p.image || p.imageUrl,
         inStock: (p.stock ?? p.stockQuantity ?? 0) > 0,
-        lowStockThreshold: 10,
+        lowStockThreshold: p.lowStockThreshold || 10,
+        paymentOption: p.paymentOption || 'COD_AND_ONLINE',
       }))
     } catch (err) {
       console.error('Failed to get inventory:', err)
@@ -472,6 +473,17 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       throw err
     }
   },
+
+  async createPosBill(payload) {
+    try {
+      const { data } = await api.post('/admin/orders/pos', payload)
+      return data.data
+    } catch (err) {
+      console.error('[adminService.createPosBill] Error:', err)
+      throw err
+    }
+  },
+
   async updateOrderStatus(id, status) {
     try {
       const { data } = await api.patch(`/admin/orders/${id}/status`, { status })
@@ -584,32 +596,6 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     }
   },
 
-  // Inventory
-  async getInventory() {
-    try {
-      const { data } = await api.get('/admin/products')
-      return (data.data?.content || []).map((p) => ({
-        id: p.id,
-        name: p.name,
-        stock: p.stockQuantity ?? 0,
-        unit: p.unit || 'kg',
-        lowStockThreshold: p.lowStockThreshold || 10
-      }))
-    } catch (err) {
-      console.error(err)
-      throw err
-    }
-  },
-  async updateStock(id, stock) {
-    try {
-      const { data } = await api.put(`/admin/inventory/${id}`, { quantity: stock })
-      return data.data
-    } catch (err) {
-      if (err.response) throw err
-      return { id, stock }
-    }
-  },
-
   // Offers
   async getOffers() {
     try {
@@ -674,36 +660,6 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     } catch (err) {
       if (err.response) throw err
       return { id }
-    }
-  },
-
-  // Reviews
-  async getReviews() {
-    try {
-      const { data } = await api.get('/admin/reviews')
-      const list = data.data?.content || data.data || []
-      return list.map(r => ({
-        id: r.id,
-        product: r.productName || `Product #${r.productId}`,
-        customer: r.userName || 'Customer',
-        rating: r.rating || 5,
-        comment: r.comment || '',
-        approved: true
-      }))
-    } catch (err) {
-      console.error('Failed to get reviews:', err)
-      return []
-    }
-  },
-  async moderateReview(id, approved) {
-    try {
-      if (!approved) {
-        await api.delete(`/admin/reviews/${id}`)
-      }
-      return { id, approved }
-    } catch (err) {
-      console.error('Failed to moderate review:', err)
-      throw err
     }
   },
 

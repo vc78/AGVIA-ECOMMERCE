@@ -21,7 +21,7 @@ const initialState = {
   user: storedUser,       // { id, name, email, role: 'CUSTOMER' | 'ADMIN' }
   token: storedToken,
   isAuthenticated: !!(storedToken && storedUser),
-  isAuthLoading: true,    // Distinguishes "checking authentication" from "definitely logged out"
+  isAuthLoading: !!storedToken, // Only show initial loading spinner if there is a token to verify
 }
 
 const authSlice = createSlice({

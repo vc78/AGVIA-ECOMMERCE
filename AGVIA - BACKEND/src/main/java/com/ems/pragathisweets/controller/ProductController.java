@@ -45,12 +45,16 @@ public class ProductController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<Page<ProductResponse>>> search(
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "100") int size) {
 
+        String query = (keyword != null && !keyword.isBlank())
+                ? keyword.trim()
+                : ((q != null && !q.isBlank()) ? q.trim() : "");
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(ApiResponse.success(productService.search(keyword, pageable)));
+        return ResponseEntity.ok(ApiResponse.success(productService.search(query, pageable)));
     }
 
     @GetMapping("/featured")

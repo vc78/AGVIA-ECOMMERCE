@@ -2,6 +2,8 @@ import api from './api'
 
 // All authentication decisions and state verifications are authoritative on Spring Boot.
 
+const normalizeRole = (role) => (role === 'ROLE_ADMIN' || role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER')
+
 export const authService = {
   /**
    * Request Sign-Up OTP for new account registration.
@@ -42,7 +44,7 @@ export const authService = {
           email: result.user.email,
           phone: result.user.phone,
           phoneVerified: result.user.phoneVerified,
-          role: result.user.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
+          role: normalizeRole(result.user.role)
         }
       }
     } catch (err) {
@@ -77,6 +79,7 @@ export const authService = {
       }
 
       // Fallback for direct token issuance if any
+      const rawRole = res.role || res.user?.role
       return {
         token: res.accessToken || res.token,
         user: {
@@ -84,7 +87,7 @@ export const authService = {
           name: res.fullName || res.user?.fullName,
           email: res.email || res.user?.email,
           phone: res.phone || res.user?.phone,
-          role: (res.role === 'ROLE_ADMIN' || res.user?.role === 'ROLE_ADMIN') ? 'ADMIN' : 'CUSTOMER'
+          role: normalizeRole(rawRole)
         }
       }
     } catch (err) {
@@ -111,7 +114,7 @@ export const authService = {
           email: result.user.email,
           phone: result.user.phone,
           phoneVerified: result.user.phoneVerified,
-          role: result.user.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
+          role: normalizeRole(result.user.role)
         }
       }
     } catch (err) {
@@ -148,7 +151,7 @@ export const authService = {
           email: res.user.email,
           phone: res.user.phone,
           phoneVerified: res.user.phoneVerified,
-          role: res.user.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
+          role: normalizeRole(res.user.role)
         }
       }
     } catch (err) {
@@ -204,7 +207,7 @@ export const authService = {
         email: data.data.email,
         phone: data.data.phone,
         address: data.data.address,
-        role: data.data.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
+        role: normalizeRole(data.data.role)
       }
     } catch (err) {
       console.error(err)
@@ -232,7 +235,7 @@ export const authService = {
         phone: data.data.phone,
         phoneVerified: data.data.phoneVerified,
         address: data.data.address,
-        role: data.data.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
+        role: normalizeRole(data.data.role)
       }
     } catch (err) {
       console.error(err)
@@ -260,7 +263,7 @@ export const authService = {
         phone: data.data.phone,
         phoneVerified: data.data.phoneVerified,
         address: data.data.address,
-        role: data.data.role === 'ROLE_ADMIN' ? 'ADMIN' : 'CUSTOMER'
+        role: normalizeRole(data.data.role)
       }
     } catch (err) {
       console.error(err)

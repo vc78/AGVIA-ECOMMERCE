@@ -69,8 +69,8 @@ function getNotificationBadge(type) {
 export default function NotificationCenter({ onClose }) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { items, unreadCount, connectionStatus, soundEnabled, page, hasMore } = useSelector(
-    (state) => state.notifications
+  const { items = [], unreadCount = 0, connectionStatus = 'OFFLINE', soundEnabled = true, page = 0, hasMore = false } = useSelector(
+    (state) => state.notifications || {}
   )
   const [filter, setFilter] = useState('ALL') // 'ALL' | 'UNREAD'
   const [loadingMore, setLoadingMore] = useState(false)

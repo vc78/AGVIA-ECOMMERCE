@@ -22,8 +22,8 @@ import NotificationCenter from './NotificationCenter'
 import { adminWebSocket } from '../../services/adminWebSocket'
 
 export default function AdminNavbar({ onMenuToggle }) {
-  const { user } = useSelector((state) => state.auth)
-  const { unreadCount, connectionStatus } = useSelector((state) => state.notifications)
+  const { user } = useSelector((state) => state.auth || {})
+  const { unreadCount = 0, connectionStatus = 'OFFLINE' } = useSelector((state) => state.notifications || {})
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [exportOpen, setExportOpen] = useState(false)
@@ -34,8 +34,16 @@ export default function AdminNavbar({ onMenuToggle }) {
 
   // Initialize centralized WebSocket manager when admin is mounted
   useEffect(() => {
-    adminWebSocket.setNavigateHandler(navigate)
-    adminWebSocket.connect()
+    try {
+      if (adminWebSocket && typeof adminWebSocket.setNavigateHandler === 'function') {
+        adminWebSocket.setNavigateHandler(navigate)
+      }
+      if (adminWebSocket && typeof adminWebSocket.connect === 'function') {
+        adminWebSocket.connect()
+      }
+    } catch (err) {
+      console.warn('[AdminNavbar] WebSocket setup failed safely:', err)
+    }
   }, [navigate])
 
   // Close dropdowns on click outside

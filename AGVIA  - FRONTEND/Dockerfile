@@ -2,6 +2,15 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Build arguments for Vite environment variables
+ARG VITE_API_BASE_URL=/api
+ARG VITE_API_URL=/api
+ARG VITE_RAZORPAY_KEY_ID=rzp_test_TDnNEoRLz2m96G
+
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_RAZORPAY_KEY_ID=$VITE_RAZORPAY_KEY_ID
+
 # Install dependencies first for efficient caching
 COPY package*.json ./
 RUN npm ci

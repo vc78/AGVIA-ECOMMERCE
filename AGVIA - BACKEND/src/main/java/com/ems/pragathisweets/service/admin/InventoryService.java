@@ -34,6 +34,22 @@ public class InventoryService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, Object> getInventoryOverview() {
+        List<Product> allProducts = productRepository.findAll();
+        long totalProducts = allProducts.size();
+        long inStock = allProducts.stream().filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > lowStockThreshold).count();
+        long lowStock = allProducts.stream().filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStockQuantity() <= lowStockThreshold).count();
+        long outOfStock = allProducts.stream().filter(p -> p.getStockQuantity() == null || p.getStockQuantity() <= 0).count();
+        return Map.of(
+                "totalProducts", totalProducts,
+                "inStock", inStock,
+                "lowStock", lowStock,
+                "outOfStock", outOfStock,
+                "threshold", lowStockThreshold
+        );
+    }
+
     @Transactional
     public ProductResponse adjustStock(Long productId, Integer quantity) {
         Product product = productRepository.findById(productId)

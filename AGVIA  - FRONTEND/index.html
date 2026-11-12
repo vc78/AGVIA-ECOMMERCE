@@ -25,6 +25,13 @@
     <meta name="twitter:description" content="Timeless Indian luxury & modern silhouettes. Handcrafted sarees, bridal lehengas, and couture festive edits." />
     <meta name="twitter:image" content="/images/agvia-logo.png" />
 
+    <!-- Global polyfill for SockJS / STOMP browser compatibility -->
+    <script>
+      if (typeof window !== 'undefined' && typeof window.global === 'undefined') {
+        window.global = window;
+      }
+    </script>
+
     <!-- High-Performance Editorial Font Preconnect & Stylesheets -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

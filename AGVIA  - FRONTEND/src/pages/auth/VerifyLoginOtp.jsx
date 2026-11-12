@@ -51,7 +51,8 @@ export default function VerifyLoginOtp() {
       toast.success(`Welcome back, ${user.name}!`, {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })
-      navigate(user.role === 'ADMIN' && from === '/' ? '/admin/dashboard' : from, { replace: true })
+      const isAdmin = user.role === 'ADMIN' || user.role === 'ROLE_ADMIN'
+      navigate(isAdmin && from === '/' ? '/admin/dashboard' : from, { replace: true })
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || 'Verification failed. Please try again.')
     } finally {

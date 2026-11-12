@@ -66,4 +66,15 @@ public class AdminOrderController {
                                                                     @Valid @RequestBody OrderStatusRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Order status updated", adminOrderService.updateStatus(id, request)));
     }
+
+    @PostMapping({"/pos", "/billing"})
+    @io.swagger.v3.oas.annotations.Operation(summary = "Generate in-store POS walk-in bill with real-time stock deduction and invoice generation")
+    public ResponseEntity<ApiResponse<OrderResponse>> createPosBill(
+            @Valid @RequestBody com.ems.pragathisweets.dto.admin.CreatePosBillRequest request,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+
+        String adminEmail = userDetails != null ? userDetails.getUsername() : "admin@agvia.com";
+        OrderResponse response = adminOrderService.createPosBill(request, adminEmail);
+        return ResponseEntity.ok(ApiResponse.success("In-store bill generated successfully", response));
+    }
 }

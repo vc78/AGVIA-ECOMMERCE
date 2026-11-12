@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   Menu, X, User, Search, Heart, ShoppingBag, LogOut,
   ArrowRight, ChevronDown, Sparkles, Truck, Gift,
-  Crown, Flower2, Gem, Scissors, Feather, Layers, Home
+  Crown, Flower2, Gem, Scissors, Feather, Layers, Home, ShieldCheck
 } from 'lucide-react'
 import { loggedOut } from '../../store/authSlice'
 import { authService } from '../../services/authService'
@@ -452,6 +452,18 @@ export default function Navbar() {
                 </div>
               </form>
 
+              {/* Atelier Admin Direct Header Badge */}
+              {isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
+                <Link
+                  to="/admin/dashboard"
+                  className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-[#5A1020] text-[#FAF7F2] border border-[#C9A45C]/60 rounded-full text-[10px] font-bold tracking-widest uppercase hover:bg-[#72152b] transition-all shadow-xs shrink-0"
+                  title="Open Atelier Admin Console"
+                >
+                  <ShieldCheck size={13} className="text-[#C9A45C]" />
+                  <span>Admin Panel</span>
+                </Link>
+              )}
+
               {/* User Profile & Sign In / Out */}
               {isAuthenticated ? (
                 <div className="flex relative group/user items-center gap-1 sm:gap-1.5">
@@ -470,7 +482,16 @@ export default function Navbar() {
 
                   {/* Desktop hover menu */}
                   <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
-                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[130px] text-xs">
+                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[145px] text-xs">
+                      {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') ? (
+                        <Link to="/admin/dashboard" className="px-2.5 py-1.5 hover:bg-[#5A1020]/10 rounded-lg text-[#5A1020] font-bold flex items-center gap-1.5 border-b border-[#E8DEC0]/60 mb-1">
+                          <ShieldCheck size={13} className="text-[#C9A45C]" /> Atelier Admin
+                        </Link>
+                      ) : (
+                        <Link to="/admin/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#5A1020] font-medium block text-[11px] border-b border-gray-100 mb-1">
+                          Atelier Admin Portal
+                        </Link>
+                      )}
                       <Link to="/profile" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
                         My Profile
                       </Link>
@@ -497,7 +518,7 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                <div className="flex relative group/user items-center">
+                <div className="flex relative group/user items-center gap-1.5">
                   <Link
                     to="/login"
                     className="flex items-center gap-1 py-1 px-2.5 sm:px-3 rounded-full bg-[#5A1020]/10 hover:bg-[#5A1020] text-[#5A1020] hover:text-white transition-all text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider border border-[#5A1020]/30 shadow-2xs"
@@ -506,6 +527,18 @@ export default function Navbar() {
                     <User size={14} strokeWidth={2} />
                     <span>Sign In</span>
                   </Link>
+
+                  {/* Desktop hover menu for unauthenticated */}
+                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
+                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[135px] text-xs">
+                      <Link to="/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                        Patron Sign In
+                      </Link>
+                      <Link to="/admin/login" className="px-2.5 py-1.5 hover:bg-[#5A1020]/10 rounded-lg text-[#5A1020] font-bold block border-t border-gray-100 mt-0.5">
+                        Atelier Admin
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -721,6 +754,15 @@ export default function Navbar() {
                 >
                   <span>My Orders</span>
                   <ArrowRight size={13} className="text-[#B68C48]/60" />
+                </Link>
+
+                <Link
+                  to={user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN' ? '/admin/dashboard' : '/admin/login'}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between font-serif text-[14px] font-semibold text-[#5A1020] hover:bg-[#5A1020]/10 px-4 py-3 rounded-xl transition-all min-h-[44px] border border-[#C9A45C]/30 bg-[#FFFDF8] mt-1"
+                >
+                  <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#C9A45C]" /> Atelier Admin</span>
+                  <ArrowRight size={13} className="text-[#C9A45C]" />
                 </Link>
               </div>
 

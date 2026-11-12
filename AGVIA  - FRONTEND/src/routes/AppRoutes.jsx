@@ -71,6 +71,7 @@ const VerifyLoginOtp = lazy(() => import('../pages/auth/VerifyLoginOtp'))
 // Lazy loaded admin pages
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'))
 const Dashboard = lazy(() => import('../pages/admin/Dashboard'))
+const StoreBilling = lazy(() => import('../pages/admin/StoreBilling'))
 const ProductsManagement = lazy(() => import('../pages/admin/ProductsManagement'))
 const AddProduct = lazy(() => import('../pages/admin/AddProduct'))
 const EditProduct = lazy(() => import('../pages/admin/EditProduct'))
@@ -161,6 +162,8 @@ export default function AppRoutes() {
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
           <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
+          <Route path="/admin/pos" element={<ProtectedRoute role="ADMIN"><PageTransition><StoreBilling /></PageTransition></ProtectedRoute>} />
+          <Route path="/admin/billing" element={<Navigate to="/admin/pos" replace />} />
           <Route path="/admin/products" element={<ProtectedRoute role="ADMIN"><PageTransition><ProductsManagement /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/products/add" element={<ProtectedRoute role="ADMIN"><PageTransition><AddProduct /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/products/edit/:id" element={<ProtectedRoute role="ADMIN"><PageTransition><EditProduct /></PageTransition></ProtectedRoute>} />

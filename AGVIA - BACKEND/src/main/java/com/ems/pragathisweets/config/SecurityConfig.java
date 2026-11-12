@@ -42,6 +42,8 @@ public class SecurityConfig {
             "/api/orders/track/**",
             "/api/settings/**",
             "/api/settings",
+            "/api/store-settings/**",
+            "/api/store-settings",
             "/api/sitemap.xml"
     };
 
@@ -53,7 +55,7 @@ public class SecurityConfig {
             "/api/subscriptions/activate-instant",
             "/api/health",
             "/actuator/health",
-            "/api/payments/webhook",
+            "/api/payments/**",
             "/api/orders/validate",
             "/api/analytics/**",
             "/ws/**",

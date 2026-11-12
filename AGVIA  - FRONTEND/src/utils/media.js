@@ -1,4 +1,4 @@
-const rawApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://agvia-ecommerce.onrender.com/api'
+const rawApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api'
 const apiOrigin = new URL(
     rawApiUrl,
     window.location.origin

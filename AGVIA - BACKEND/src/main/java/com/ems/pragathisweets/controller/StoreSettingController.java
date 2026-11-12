@@ -30,7 +30,7 @@ public class StoreSettingController {
     /**
      * Public storefront endpoint to retrieve active operational settings (tariffs, announcements, maintenance status).
      */
-    @GetMapping("/api/settings")
+    @GetMapping({"/api/settings", "/api/store-settings"})
     @Operation(summary = "Get public store operational settings (shipping rules, announcements, maintenance)")
     public ResponseEntity<ApiResponse<StoreSettingDto>> getPublicSettings() {
         return ResponseEntity.ok(ApiResponse.success(storeSettingService.getSettings()));
@@ -39,7 +39,7 @@ public class StoreSettingController {
     /**
      * Admin endpoint to inspect full boutique settings.
      */
-    @GetMapping("/api/admin/settings")
+    @GetMapping({"/api/admin/settings", "/api/admin/store-settings"})
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get comprehensive boutique settings for admin panel")
     public ResponseEntity<ApiResponse<StoreSettingDto>> getAdminSettings() {
@@ -49,7 +49,7 @@ public class StoreSettingController {
     /**
      * Admin endpoint to update e-commerce settings in real time.
      */
-    @PutMapping("/api/admin/settings")
+    @PutMapping({"/api/admin/settings", "/api/admin/store-settings"})
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update store settings and broadcast real-time changes to active sessions")
     public ResponseEntity<ApiResponse<StoreSettingDto>> updateSettings(

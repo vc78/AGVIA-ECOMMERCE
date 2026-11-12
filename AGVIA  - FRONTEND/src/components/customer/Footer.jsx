@@ -93,6 +93,7 @@ export default function Footer() {
     { label: 'Blogs & Style Guide', to: '/blogs' },
     { label: 'Store Locations', to: '/store-locations' },
     { label: 'Careers', to: '/careers' },
+    { label: 'Atelier Console (Admin)', to: '/admin/login' },
   ]
 
   const helpLinks = [
@@ -130,6 +131,7 @@ export default function Footer() {
     { label: 'Size Guide', to: '/size-guide' },
     { label: 'FAQs', to: '/faq' },
     { label: 'Contact Us', to: '/contact' },
+    { label: 'Atelier Admin', to: '/admin/login' },
   ]
 
   const socials = [

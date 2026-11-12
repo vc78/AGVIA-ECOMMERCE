@@ -8,7 +8,7 @@ import {
   Bell, Shield, Award, Crown, Sparkles, Check, Copy,
   ExternalLink, Edit3, Trash2, Plus, CheckCircle2, AlertCircle,
   Clock, Lock, Smartphone, Laptop, LogOut, ChevronRight, X,
-  Calendar, Ticket, RefreshCw, Eye, EyeOff, Camera
+  Calendar, Ticket, RefreshCw, Eye, EyeOff, Camera, ShieldCheck
 } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
@@ -647,6 +647,16 @@ export default function Profile() {
                 {personalForm.displayName || user?.name}
               </h3>
               <p className="text-xs text-[#3A2D23]/60 font-body mb-3">{user?.email}</p>
+
+              {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
+                <Link
+                  to="/admin/dashboard"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 mb-2.5 rounded-full bg-[#5A1020] hover:bg-[#72152b] text-[#FAF7F2] border border-[#C9A45C]/50 text-[10px] font-bold uppercase tracking-wider transition-all shadow-xs"
+                >
+                  <ShieldCheck size={13} className="text-[#C9A45C]" />
+                  <span>Open Admin Console →</span>
+                </Link>
+              )}
 
               {isVipActive && (
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#B8860B] to-[#E6C687] text-[#1A0A0A] text-[10px] font-bold uppercase tracking-wider">
