@@ -9,6 +9,7 @@ import AdminLayout from '../../components/admin/AdminLayout'
 import { adminService } from '../../services/adminService'
 import { exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
 import { resolveImageUrl } from '../../utils/media'
+import { safeOpenWindow } from '../../utils/windowManager'
 import toast from 'react-hot-toast'
 import QRCode from 'qrcode'
 
@@ -338,12 +339,33 @@ export default function StoreBilling() {
     }
   }
 
-  // Print Invoice directly
+  const isPrintingRef = useRef(false)
+
+  // Print Invoice directly with debounce to prevent duplicate print windows
   const handlePrint = () => {
-    window.print()
+    if (isPrintingRef.current) return
+    isPrintingRef.current = true
+    try {
+      window.print()
+    } finally {
+      setTimeout(() => {
+        isPrintingRef.current = false
+      }, 1200)
+    }
   }
 
-  // WhatsApp Share Invoice Link
+  // Dismiss modal on Escape key to prevent duplicate overlays
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showInvoiceModal) {
+        setShowInvoiceModal(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showInvoiceModal])
+
+  // WhatsApp Share Invoice Link (reusing existing window/tab)
   const handleShareWhatsApp = (order = completedOrder) => {
     if (!order) return
     const phone = order.contactPhone || customer.phone
@@ -361,7 +383,7 @@ export default function StoreBilling() {
       ? `https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${message}`
       : `https://wa.me/?text=${message}`
     
-    window.open(waUrl, '_blank')
+    safeOpenWindow(waUrl, 'agvia_pos_whatsapp', 'noopener,noreferrer')
   }
 
   return (
@@ -988,12 +1010,41 @@ export default function StoreBilling() {
           </div>
         )}
 
+        {/* Scoped print styling: ensures ONLY the official invoice slip prints cleanly without duplicate UI/overlays */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media print {
+            body * {
+              visibility: hidden !important;
+            }
+            #pos-printable-receipt, #pos-printable-receipt * {
+              visibility: visible !important;
+            }
+            #pos-printable-receipt {
+              position: fixed !important;
+              left: 0 !important;
+              top: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 24px !important;
+              background: #ffffff !important;
+              color: #111111 !important;
+              box-shadow: none !important;
+              border: none !important;
+              z-index: 999999 !important;
+            }
+            .pos-no-print {
+              display: none !important;
+            }
+          }
+        ` }} />
+
         {/* Invoice & Bill Success Modal */}
         {showInvoiceModal && completedOrder && (
           <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-3xl max-w-lg w-full border border-[#C9A45C]/40 shadow-2xl overflow-hidden my-6">
+            <div id="pos-printable-receipt" className="bg-white rounded-3xl max-w-lg w-full border border-[#C9A45C]/40 shadow-2xl overflow-hidden my-6">
               {/* Modal Top Banner */}
-              <div className="bg-gradient-to-r from-[#1A0B10] via-[#5A1020] to-[#1A0B10] text-[#FAF7F2] p-5 text-center relative">
+              <div className="bg-gradient-to-r from-[#1A0B10] via-[#5A1020] to-[#1A0B10] text-[#FAF7F2] p-5 text-center relative pos-no-print">
                 <button
                   onClick={() => setShowInvoiceModal(false)}
                   className="absolute top-4 right-4 text-white/60 hover:text-white"
@@ -1096,7 +1147,7 @@ export default function StoreBilling() {
                 </div>
 
                 {/* Actions: Print, PDF, WhatsApp */}
-                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-neutral-200">
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-neutral-200 pos-no-print">
                   <button
                     onClick={handlePrint}
                     className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-[#C9A45C]/40 bg-[#FAF7F2] hover:bg-[#5A1020] text-[#5A1020] hover:text-white font-bold text-xs uppercase tracking-wider transition-all"
@@ -1124,7 +1175,7 @@ export default function StoreBilling() {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 bg-neutral-50 border-t border-neutral-100 flex justify-end">
+              <div className="p-4 bg-neutral-50 border-t border-neutral-100 flex justify-end pos-no-print">
                 <button
                   onClick={() => setShowInvoiceModal(false)}
                   className="px-5 py-2 bg-neutral-800 hover:bg-neutral-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider"

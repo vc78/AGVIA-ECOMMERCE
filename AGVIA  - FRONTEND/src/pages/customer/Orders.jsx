@@ -27,6 +27,7 @@ import Footer from '../../components/customer/Footer'
 import { orderService } from '../../services/orderService'
 import ReliableImage from '../../components/common/ReliableImage'
 import { BUSINESS } from '../../constants/business'
+import { safeOpenWindow } from '../../utils/windowManager'
 import SEOHead from '../../components/common/SEOHead'
 
 const getStatusBadge = (status = '') => {
@@ -575,7 +576,7 @@ export default function Orders() {
                                   <button
                                     onClick={() => {
                                       const text = encodeURIComponent(`Hello AGVIA Concierge, I would like assistance regarding my atelier order #${o.orderNumber || o.id}.`)
-                                      window.open(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, '_blank')
+                                      safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_support_window', 'noopener,noreferrer')
                                     }}
                                     className="btn-outline !py-2 !px-4 text-[10px] flex items-center gap-1.5 font-bold"
                                   >

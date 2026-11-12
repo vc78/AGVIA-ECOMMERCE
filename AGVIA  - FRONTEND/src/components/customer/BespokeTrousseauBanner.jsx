@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { BUSINESS } from '../../constants/business'
+import { safeOpenWindow } from '../../utils/windowManager'
 
 export default function BespokeTrousseauBanner() {
   // activePanel: null | 'video' | 'atelier'
@@ -30,7 +31,7 @@ export default function BespokeTrousseauBanner() {
       `Hello AGVIA Atelier! I would like to consult with a bridal stylist regarding bespoke trousseau curation and heirloom silks.`
     )
     const url = `https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${message}`
-    window.open(url, '_blank', 'noopener,noreferrer')
+    safeOpenWindow(url, 'agvia_whatsapp_consult', 'noopener,noreferrer')
     toast.success('Connecting with AGVIA Atelier stylist on WhatsApp...')
   }
 
@@ -425,7 +426,7 @@ function InlineVideoScheduler({ onClose }) {
     )
     const location = encodeURIComponent(meetingDetails.meetUrl)
     const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`
-    window.open(calUrl, '_blank', 'noopener,noreferrer')
+    safeOpenWindow(calUrl, 'agvia_calendar_sync', 'noopener,noreferrer')
   }
 
   const handleSendToWhatsApp = () => {
@@ -433,7 +434,7 @@ function InlineVideoScheduler({ onClose }) {
     const text = encodeURIComponent(
       `Hello AGVIA Atelier! I have scheduled a Video Consultation for ${meetingDetails.service}.\nDate: ${meetingDetails.date} at ${meetingDetails.timeSlot}\nGoogle Meet Link: ${meetingDetails.meetUrl}\nName: ${meetingDetails.name}`
     )
-    window.open(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, '_blank', 'noopener,noreferrer')
+    safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_whatsapp_consult', 'noopener,noreferrer')
   }
 
   if (step === 'confirmed' && meetingDetails) {
@@ -729,7 +730,7 @@ function InlineAtelierScheduler({ onClose }) {
     const text = encodeURIComponent(
       `Hello AGVIA Atelier! I have scheduled an in-store appointment at the Jubilee Hills salon.\nBooking Ref: ${bookingRef}\nDate: ${formData.date}\nSlot: ${formData.timeSlot}\nName: ${formData.name}\nParty Size: ${formData.guests}\nOccasion: ${formData.occasion}`
     )
-    window.open(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, '_blank', 'noopener,noreferrer')
+    safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_whatsapp_appointment', 'noopener,noreferrer')
   }
 
   if (step === 'confirmed') {

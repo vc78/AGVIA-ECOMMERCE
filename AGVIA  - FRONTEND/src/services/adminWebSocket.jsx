@@ -65,6 +65,30 @@ class AdminWebSocketManager {
     this.navigateHandler = null
     this.isManualDisconnect = false
     this.pollingTimer = null
+
+    // Multi-Window / Multi-Tab deduplication coordinates
+    this.tabId = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `tab_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
+    
+    this.channel = typeof window !== 'undefined' && 'BroadcastChannel' in window
+      ? new BroadcastChannel('agvia_admin_ws_channel')
+      : null
+
+    this.isLeader = false
+    this.leaderHeartbeatTimer = null
+
+    if (this.channel) {
+      this.channel.onmessage = (event) => {
+        this.handleBroadcastMessage(event.data)
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => {
+        this.releaseLeadership()
+      })
+    }
   }
 
   setNavigateHandler(navigate) {
@@ -94,47 +118,157 @@ class AdminWebSocketManager {
         return
       }
 
-      // Always ensure latest notifications are synced immediately upon connection invocation
-      this.syncInitialNotifications()
-      this.startPolling()
-
-      if (this.client && this.client.active) {
-        return
-      }
-
       this.isManualDisconnect = false
-      this.updateStatus('CONNECTING')
+      this.syncInitialNotifications()
 
-      const sockJsUrl = this.getWebSocketUrl()
+      // Multi-Window Deduplication: Elect a single leader tab to own the WebSocket & polling
+      this.initTabLeaderElection()
+    } catch (err) {
+      console.error('[AdminWS] connect() error:', err)
+      this.handleConnectionDrop()
+    }
+  }
 
-      this.client = new Client({
-        webSocketFactory: () => {
-          try {
-            return new SockJS(sockJsUrl, null, {
-              timeout: 60000,
-              transports: ['websocket', 'xhr-streaming', 'xhr-polling']
-            })
-          } catch (e) {
-            console.warn('[AdminWS] SockJS instantiation warning:', e)
-            throw e
+  initTabLeaderElection() {
+    if (typeof window === 'undefined') {
+      this.activateConnection()
+      return
+    }
+
+    const evaluateLeadership = () => {
+      try {
+        const raw = localStorage.getItem('agvia_ws_leader')
+        const now = Date.now()
+        let currentLeader = null
+        try {
+          currentLeader = raw ? JSON.parse(raw) : null
+        } catch (_) {}
+
+        // If no leader or leader has expired (> 6 seconds without heartbeat), this tab assumes leadership
+        if (!currentLeader || !currentLeader.id || (now - currentLeader.timestamp > 6000) || currentLeader.id === this.tabId) {
+          this.claimLeadership()
+        } else {
+          // Another tab is currently the active leader
+          if (this.isLeader) {
+            this.demoteToFollower()
           }
-        },
-        connectHeaders: {
-          Authorization: `Bearer ${token}`
-        },
-        heartbeatIncoming: 25000,
-        heartbeatOutgoing: 25000,
-        reconnectDelay: 0, // Managed manually via controlled exponential backoff
-        debug: (msg) => {
-          if (import.meta.env.DEV) {
-            // console.debug('[STOMP]', msg)
-          }
-        },
-        onConnect: (frame) => {
+        }
+      } catch (err) {
+        // Fallback for private browsing without localStorage access
+        if (!this.isLeader && (!this.client || !this.client.active)) {
+          this.isLeader = true
+          this.activateConnection()
+          this.startPolling()
+        }
+      }
+    }
+
+    evaluateLeadership()
+
+    if (!this.leaderHeartbeatTimer) {
+      this.leaderHeartbeatTimer = setInterval(evaluateLeadership, 2500)
+    }
+  }
+
+  claimLeadership() {
+    try {
+      localStorage.setItem('agvia_ws_leader', JSON.stringify({
+        id: this.tabId,
+        timestamp: Date.now()
+      }))
+    } catch (_) {}
+
+    if (!this.isLeader) {
+      this.isLeader = true
+      this.activateConnection()
+      this.startPolling()
+      this.broadcastEvent({ type: 'LEADER_ELECTED', leaderId: this.tabId })
+    }
+  }
+
+  demoteToFollower() {
+    this.isLeader = false
+    this.stopPolling()
+    if (this.client) {
+      try {
+        this.client.deactivate()
+      } catch (_) {}
+      this.client = null
+    }
+    this.updateStatus('CONNECTED')
+  }
+
+  releaseLeadership() {
+    if (this.isLeader) {
+      try {
+        localStorage.removeItem('agvia_ws_leader')
+      } catch (_) {}
+      this.broadcastEvent({ type: 'LEADER_EXIT', leaderId: this.tabId })
+    }
+    if (this.leaderHeartbeatTimer) {
+      clearInterval(this.leaderHeartbeatTimer)
+      this.leaderHeartbeatTimer = null
+    }
+    if (this.channel) {
+      try {
+        this.channel.close()
+      } catch (_) {}
+    }
+  }
+
+  broadcastEvent(data) {
+    if (this.channel) {
+      try {
+        this.channel.postMessage({ ...data, senderTabId: this.tabId })
+      } catch (_) {}
+    }
+  }
+
+  handleBroadcastMessage(data) {
+    if (!data || data.senderTabId === this.tabId) return
+
+    if (data.type === 'NOTIFICATION_BROADCAST') {
+      this.handleIncomingNotification(data.payload, true)
+    } else if (data.type === 'SETTINGS_BROADCAST') {
+      this.handleIncomingSettings(data.payload, true)
+    } else if (data.type === 'LEADER_EXIT') {
+      this.claimLeadership()
+    }
+  }
+
+  activateConnection() {
+    if (this.client && this.client.active) return
+
+    const state = store.getState()
+    const token = state.auth?.token
+    const user = state.auth?.user
+    if (!token) return
+
+    this.updateStatus('CONNECTING')
+    const sockJsUrl = this.getWebSocketUrl()
+
+    this.client = new Client({
+      webSocketFactory: () => {
+        try {
+          return new SockJS(sockJsUrl, null, {
+            timeout: 60000,
+            transports: ['websocket', 'xhr-streaming', 'xhr-polling']
+          })
+        } catch (e) {
+          console.warn('[AdminWS] SockJS instantiation warning:', e)
+          throw e
+        }
+      },
+      connectHeaders: {
+        Authorization: `Bearer ${token}`
+      },
+      heartbeatIncoming: 25000,
+      heartbeatOutgoing: 25000,
+      reconnectDelay: 0,
+      debug: () => {},
+      onConnect: (frame) => {
         this.updateStatus('CONNECTED')
         this.reconnectAttempt = 0
-
-        // Synchronize latest database state to prevent missed events during offline/reconnect
         this.syncInitialNotifications()
 
         // 1. Subscribe to global admin notifications topic
@@ -208,11 +342,7 @@ class AdminWebSocketManager {
       console.error('[AdminWS] Activation error:', err)
       this.handleConnectionDrop()
     }
-  } catch (err) {
-    console.error('[AdminWS] connect() error:', err)
-    this.handleConnectionDrop()
   }
-}
 
   handleConnectionDrop() {
     this.updateStatus('RECONNECTING')
@@ -292,19 +422,23 @@ class AdminWebSocketManager {
     }
   }
 
-  handleIncomingNotification(notification) {
+  handleIncomingNotification(notification, fromBroadcast = false) {
     if (!notification || !notification.id) return
 
-    // 1. Commit to Redux store
+    // 1. Commit to Redux store in this window/tab
     store.dispatch(addNotification(notification))
 
-    // 2. Play luxury audio chime
-    playLuxuryChime()
+    // 2. Play luxury audio chime & toast ONLY on the primary active window to prevent duplicate sound/dialogs
+    if (!fromBroadcast) {
+      playLuxuryChime()
+      this.displayNotificationToast(notification)
+      this.broadcastEvent({
+        type: 'NOTIFICATION_BROADCAST',
+        payload: notification
+      })
+    }
 
-    // 3. Display interactive toast
-    this.displayNotificationToast(notification)
-
-    // 4. Notify registered domain listeners (Dashboard, Orders, etc.)
+    // 3. Notify registered domain listeners (Dashboard, Orders, etc.) across all open windows
     this.listeners.forEach((listener) => {
       try {
         listener(notification)
@@ -314,9 +448,15 @@ class AdminWebSocketManager {
     })
   }
 
-  handleIncomingSettings(settingsPayload) {
+  handleIncomingSettings(settingsPayload, fromBroadcast = false) {
     if (!settingsPayload) return
     logSettingChange(settingsPayload)
+    if (!fromBroadcast) {
+      this.broadcastEvent({
+        type: 'SETTINGS_BROADCAST',
+        payload: settingsPayload
+      })
+    }
     this.settingsListeners.forEach((listener) => {
       try {
         listener(settingsPayload)

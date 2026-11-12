@@ -3,6 +3,7 @@ import { Share2, Copy, Check, MessageCircle, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { shareProduct, copyProductLink, getProductWhatsAppShareUrl, getProductShareUrl } from '../../utils/shareUtils'
 import { trackProductShare } from '../../services/analytics'
+import { safeOpenWindow } from '../../utils/windowManager'
 
 export default function ProductShareButton({ product, variant = 'icon', className = '' }) {
   const [open, setOpen] = useState(false)
@@ -52,7 +53,7 @@ export default function ProductShareButton({ product, variant = 'icon', classNam
     e.stopPropagation()
     trackProductShare(product, 'WHATSAPP')
     const waUrl = getProductWhatsAppShareUrl(product)
-    window.open(waUrl, '_blank', 'noopener,noreferrer')
+    safeOpenWindow(waUrl, 'agvia_product_share', 'noopener,noreferrer')
     setOpen(false)
   }
 

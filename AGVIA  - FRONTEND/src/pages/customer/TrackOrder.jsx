@@ -11,6 +11,7 @@ import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { orderService } from '../../services/orderService'
 import { BUSINESS } from '../../constants/business'
+import { safeOpenWindow } from '../../utils/windowManager'
 import toast from 'react-hot-toast'
 
 // Steps mapping
@@ -142,7 +143,7 @@ export default function TrackOrder() {
       `Hello AGVIA Concierge! 👋\nI am tracking my atelier order *#${orderNum}* (Status: ${trackingOrder.status}). Could you please share an update on the courier dispatch schedule?\n\nThank you!`
     )
     const storeRaw = (BUSINESS?.contact?.whatsappRaw || '919032306961').replace(/\D/g, '')
-    window.open(`https://api.whatsapp.com/send?phone=${storeRaw}&text=${text}`, '_blank', 'noopener,noreferrer')
+    safeOpenWindow(`https://api.whatsapp.com/send?phone=${storeRaw}&text=${text}`, 'agvia_tracking_support', 'noopener,noreferrer')
   }
 
   return (
