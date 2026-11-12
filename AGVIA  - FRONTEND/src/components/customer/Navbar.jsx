@@ -483,13 +483,9 @@ export default function Navbar() {
                   {/* Desktop hover menu */}
                   <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
                     <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[145px] text-xs">
-                      {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') ? (
+                      {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
                         <Link to="/admin/dashboard" className="px-2.5 py-1.5 hover:bg-[#5A1020]/10 rounded-lg text-[#5A1020] font-bold flex items-center gap-1.5 border-b border-[#E8DEC0]/60 mb-1">
                           <ShieldCheck size={13} className="text-[#C9A45C]" /> Atelier Admin
-                        </Link>
-                      ) : (
-                        <Link to="/admin/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#5A1020] font-medium block text-[11px] border-b border-gray-100 mb-1">
-                          Atelier Admin Portal
                         </Link>
                       )}
                       <Link to="/profile" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
@@ -497,6 +493,9 @@ export default function Navbar() {
                       </Link>
                       <Link to="/orders" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
                         My Orders
+                      </Link>
+                      <Link to="/wishlist" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                        My Wishlist
                       </Link>
                       <button
                         onClick={handleLogout}
@@ -534,8 +533,8 @@ export default function Navbar() {
                       <Link to="/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
                         Patron Sign In
                       </Link>
-                      <Link to="/admin/login" className="px-2.5 py-1.5 hover:bg-[#5A1020]/10 rounded-lg text-[#5A1020] font-bold block border-t border-gray-100 mt-0.5">
-                        Atelier Admin
+                      <Link to="/register" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#5A1020] font-medium block border-t border-gray-100 mt-0.5">
+                        Create Account
                       </Link>
                     </div>
                   </div>
@@ -756,14 +755,16 @@ export default function Navbar() {
                   <ArrowRight size={13} className="text-[#B68C48]/60" />
                 </Link>
 
-                <Link
-                  to={user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN' ? '/admin/dashboard' : '/admin/login'}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] font-semibold text-[#5A1020] hover:bg-[#5A1020]/10 px-4 py-3 rounded-xl transition-all min-h-[44px] border border-[#C9A45C]/30 bg-[#FFFDF8] mt-1"
-                >
-                  <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#C9A45C]" /> Atelier Admin</span>
-                  <ArrowRight size={13} className="text-[#C9A45C]" />
-                </Link>
+                {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
+                  <Link
+                    to="/admin/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between font-serif text-[14px] font-semibold text-[#5A1020] hover:bg-[#5A1020]/10 px-4 py-3 rounded-xl transition-all min-h-[44px] border border-[#C9A45C]/30 bg-[#FFFDF8] mt-1"
+                  >
+                    <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#C9A45C]" /> Atelier Admin</span>
+                    <ArrowRight size={13} className="text-[#C9A45C]" />
+                  </Link>
+                )}
               </div>
 
               {/* Drawer Footer */}
