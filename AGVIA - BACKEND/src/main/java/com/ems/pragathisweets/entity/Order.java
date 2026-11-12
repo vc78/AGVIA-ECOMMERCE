@@ -77,7 +77,7 @@ public class Order {
     private String trackingToken;
 
     @Builder.Default
-    @Column(name = "tracking_token_revoked", nullable = false)
+    @Column(name = "tracking_token_revoked", nullable = false, columnDefinition = "bit not null default 0")
     private Boolean trackingTokenRevoked = false;
 
     @Column(name = "created_at", updatable = false)

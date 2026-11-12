@@ -88,3 +88,4 @@ assert.strictEqual(getTabUser('CUSTOMER').name, 'Customer Priya')
 console.log('✅ Scenario 5 Passed: Logging out Admin in Tab B does NOT log out Customer in Tab A.')
 
 console.log('🎉 ALL 5 CROSS-TAB SESSION ISOLATION TESTS PASSED!')
+

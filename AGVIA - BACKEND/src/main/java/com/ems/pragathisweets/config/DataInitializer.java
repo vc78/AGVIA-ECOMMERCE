@@ -134,6 +134,15 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE product_variants ADD COLUMN payment_option VARCHAR(20) DEFAULT 'COD_AND_ONLINE'");
         } catch (Exception ignored) {}
         try {
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN tracking_token VARCHAR(64)");
+        } catch (Exception ignored) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN tracking_token_revoked BIT NOT NULL DEFAULT 0");
+        } catch (Exception ignored) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE orders MODIFY COLUMN tracking_token_revoked BIT NOT NULL DEFAULT 0");
+        } catch (Exception ignored) {}
+        try {
             // Self-healing synchronization: variants cannot relax parent product restrictions
             jdbcTemplate.execute("UPDATE product_variants pv INNER JOIN products p ON pv.product_id = p.id SET pv.payment_option = 'COD_ONLY' WHERE p.payment_option = 'COD_ONLY' AND (pv.payment_option IS NULL OR pv.payment_option != 'COD_ONLY')");
             jdbcTemplate.execute("UPDATE product_variants pv INNER JOIN products p ON pv.product_id = p.id SET pv.payment_option = 'ONLINE_ONLY' WHERE p.payment_option = 'ONLINE_ONLY' AND (pv.payment_option IS NULL OR pv.payment_option != 'ONLINE_ONLY')");

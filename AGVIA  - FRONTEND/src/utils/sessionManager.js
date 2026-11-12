@@ -187,3 +187,4 @@ export function clearTabSession(roleToClear) {
     console.warn('[sessionManager] Failed to clear session:', e)
   }
 }
+
