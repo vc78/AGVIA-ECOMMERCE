@@ -5,6 +5,14 @@
   "outputDirectory": "AGVIA  - FRONTEND/dist",
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://agvia.onrender.com/api/$1"
+    },
+    {
+      "source": "/ws/(.*)",
+      "destination": "https://agvia.onrender.com/ws/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

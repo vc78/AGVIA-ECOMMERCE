@@ -58,3 +58,4 @@ export function closeNamedWindow(name) {
   }
   windowRegistry.delete(cleanName)
 }
+
