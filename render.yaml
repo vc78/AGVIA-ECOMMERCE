@@ -3,34 +3,43 @@ services:
   - type: web
     name: agvia-backend
     runtime: docker
+    plan: starter
+    branch: main
 
+    # Repository-root-relative Docker paths
     dockerfilePath: "./AGVIA - BACKEND/Dockerfile"
     dockerContext: "./AGVIA - BACKEND"
 
+    # Deployment settings
+    autoDeployTrigger: commit
     healthCheckPath: /api/health
-    autoDeploy: true
 
     envVars:
+      # Application configuration
       - key: PORT
         value: "8080"
 
       - key: JAVA_TOOL_OPTIONS
         value: "-Xmx512m"
 
+      - key: SPRING_PROFILES_ACTIVE
+        value: "prod"
+
+      # Aiven MySQL configuration
       - key: DB_HOST
-        value: mysql-2b47628b-agvia-123.k.aivencloud.com
+        value: "mysql-2b47628b-agvia-123.k.aivencloud.com"
 
       - key: DB_PORT
         value: "11088"
 
       - key: DB_NAME
-        value: defaultdb
+        value: "defaultdb"
 
       - key: DB_USER
-        value: avnadmin
+        value: "avnadmin"
 
       - key: DB_USERNAME
-        value: avnadmin
+        value: "avnadmin"
 
       - key: DB_PASSWORD
         sync: false
@@ -38,27 +47,32 @@ services:
       - key: DB_URL
         value: "jdbc:mysql://mysql-2b47628b-agvia-123.k.aivencloud.com:11088/defaultdb?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC"
 
+      # Database schema configuration
       - key: DDL_AUTO
-        value: update
+        value: "update"
 
+      # JWT authentication
       - key: JWT_SECRET
         sync: false
 
       - key: JWT_EXPIRATION_MS
         value: "86400000"
 
+      # Razorpay payment gateway
       - key: RAZORPAY_KEY_ID
         sync: false
 
       - key: RAZORPAY_KEY_SECRET
         sync: false
 
+      # Frontend and CORS
       - key: CORS_ALLOWED_ORIGINS
-        value: "http://localhost:5173,http://localhost:3000,http://localhost,https://agvia.vercel.app,https://agvia-ecommerce.vercel.app"
+        value: "https://agvia-ecommerce.vercel.app,https://agvia.vercel.app,http://localhost:5173,http://localhost:3000"
 
       - key: FRONTEND_URL
         value: "https://agvia-ecommerce.vercel.app"
 
+      # Default administrator
       - key: DEFAULT_ADMIN_EMAIL
         value: "admin@agvia.com"
 
