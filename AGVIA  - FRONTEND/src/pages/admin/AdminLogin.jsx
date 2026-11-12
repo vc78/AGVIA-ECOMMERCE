@@ -5,6 +5,7 @@ import { ShieldCheck, ArrowLeft, KeyRound, Sparkles, UserCheck } from 'lucide-re
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
+import { setActiveTabContext } from '../../utils/sessionManager'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
@@ -55,8 +56,9 @@ export default function AdminLogin() {
         toast.error('Access restricted to atelier administrators only')
         return
       }
-      dispatch(credentialsReceived({ user: userData, token }))
-      broadcastAuthEvent('LOGIN', { user: userData, token })
+      setActiveTabContext('ADMIN')
+      dispatch(credentialsReceived({ user: userData, token, role: 'ADMIN' }))
+      broadcastAuthEvent('LOGIN', { user: userData, token, role: 'ADMIN' })
       toast.success('Welcome to AGVIA Atelier Workspace', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })

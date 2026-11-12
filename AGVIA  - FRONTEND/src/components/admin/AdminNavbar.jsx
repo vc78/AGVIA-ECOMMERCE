@@ -67,8 +67,8 @@ export default function AdminNavbar({ onMenuToggle }) {
     } catch {
       // ignore
     }
-    dispatch(loggedOut())
-    broadcastAuthEvent('LOGOUT')
+    dispatch(loggedOut({ role: 'ADMIN' }))
+    broadcastAuthEvent('LOGOUT', { role: 'ADMIN' })
     navigate('/admin/login')
   }
 

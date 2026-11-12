@@ -12,7 +12,8 @@ import java.util.List;
 @Table(name = "orders", indexes = {
     @Index(name = "idx_orders_user_id", columnList = "user_id"),
     @Index(name = "idx_orders_status", columnList = "status"),
-    @Index(name = "idx_orders_order_number", columnList = "order_number")
+    @Index(name = "idx_orders_order_number", columnList = "order_number"),
+    @Index(name = "idx_orders_tracking_token", columnList = "tracking_token")
 })
 @Getter
 @Setter
@@ -72,6 +73,13 @@ public class Order {
     @Column(length = 500)
     private String notes;
 
+    @Column(name = "tracking_token", unique = true, length = 64)
+    private String trackingToken;
+
+    @Builder.Default
+    @Column(name = "tracking_token_revoked", nullable = false)
+    private Boolean trackingTokenRevoked = false;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -82,6 +90,17 @@ public class Order {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        if (this.trackingToken == null || this.trackingToken.isBlank()) {
+            this.trackingToken = generateSecureTrackingToken();
+        }
+        if (this.trackingTokenRevoked == null) {
+            this.trackingTokenRevoked = false;
+        }
+    }
+
+    public static String generateSecureTrackingToken() {
+        return java.util.UUID.randomUUID().toString().replace("-", "")
+             + java.util.UUID.randomUUID().toString().replace("-", "");
     }
 
     @PreUpdate

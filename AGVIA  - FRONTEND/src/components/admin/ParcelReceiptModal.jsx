@@ -22,7 +22,10 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
       ? window.location.origin 
       : 'https://agvia.vercel.app'
     const trackingRef = order.orderNumber || String(order.id)
-    const trackingUrl = `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
+    const trackingToken = order.trackingToken || fullOrder?.trackingToken || null
+    const trackingUrl = trackingToken
+      ? `${siteUrl}/track-order?token=${encodeURIComponent(trackingToken)}`
+      : `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
 
     QRCode.toDataURL(trackingUrl, {
       width: 256,

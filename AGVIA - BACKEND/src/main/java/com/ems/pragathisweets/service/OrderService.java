@@ -3,6 +3,7 @@ package com.ems.pragathisweets.service;
 import com.ems.pragathisweets.dto.CheckoutRequest;
 import com.ems.pragathisweets.dto.OrderItemResponse;
 import com.ems.pragathisweets.dto.OrderResponse;
+import com.ems.pragathisweets.dto.PublicOrderTrackingResponse;
 import com.ems.pragathisweets.entity.*;
 import com.ems.pragathisweets.exception.InsufficientStockException;
 import com.ems.pragathisweets.exception.ResourceNotFoundException;
@@ -603,7 +604,153 @@ public class OrderService {
                 .shippingAddress(order.getShippingAddress())
                 .contactPhone(order.getContactPhone() != null ? order.getContactPhone() : (order.getUser() != null ? order.getUser().getPhone() : null))
                 .notes(order.getNotes())
+                .trackingToken(order.getTrackingToken())
+                .trackingTokenRevoked(order.getTrackingTokenRevoked())
                 .createdAt(order.getCreatedAt())
                 .build();
+    }
+
+    @Transactional
+    public PublicOrderTrackingResponse getPublicTracking(String trackingToken) {
+        if (trackingToken == null || trackingToken.isBlank()) {
+            throw new ResourceNotFoundException("Tracking reference is required");
+        }
+
+        String clean = trackingToken.trim();
+
+        // 1. Lookup by active tracking token
+        java.util.Optional<Order> orderOpt = orderRepository.findByActiveTrackingTokenWithDetails(clean);
+
+        // 2. Fallback to orderNumber if token not set on older order
+        if (orderOpt.isEmpty()) {
+            orderOpt = orderRepository.findByOrderNumberWithDetails(clean);
+            if (orderOpt.isEmpty()) {
+                orderOpt = orderRepository.findByOrderNumberIgnoreCase(clean);
+            }
+        }
+
+        Order order = orderOpt.orElseThrow(() -> new ResourceNotFoundException("No active tracking record found for the provided reference."));
+
+        if (Boolean.TRUE.equals(order.getTrackingTokenRevoked())) {
+            throw new ResourceNotFoundException("This tracking link has been revoked or expired. Please contact AGVIA concierge.");
+        }
+
+        // Ensure token exists on order
+        if (order.getTrackingToken() == null || order.getTrackingToken().isBlank()) {
+            order.setTrackingToken(Order.generateSecureTrackingToken());
+            order = orderRepository.save(order);
+        }
+
+        String rawOrderNum = order.getOrderNumber() != null ? order.getOrderNumber() : "ORD" + order.getId();
+        String maskedOrderNumber = maskOrderNumber(rawOrderNum);
+        String city = extractCity(order.getShippingAddress());
+        String state = extractState(order.getShippingAddress());
+
+        java.util.List<PublicOrderTrackingResponse.TrackingMilestone> timeline = buildPublicTimeline(order);
+        int totalItems = order.getItems() != null
+                ? order.getItems().stream().mapToInt(OrderItem::getQuantity).sum()
+                : 0;
+
+        return PublicOrderTrackingResponse.builder()
+                .trackingToken(order.getTrackingToken())
+                .maskedOrderNumber(maskedOrderNumber)
+                .status(order.getStatus() != null ? order.getStatus().name() : "CONFIRMED")
+                .createdAt(order.getCreatedAt())
+                .estimatedDelivery("2–4 Business Days")
+                .totalItems(totalItems)
+                .destinationCity(city)
+                .destinationState(state)
+                .carrier("AGVIA Insured Express Logistics")
+                .requiresAuthForFullDetails(true)
+                .timeline(timeline)
+                .build();
+    }
+
+    private String maskOrderNumber(String orderNumber) {
+        if (orderNumber == null || orderNumber.length() < 6) return "AGV-****";
+        int len = orderNumber.length();
+        String prefix = orderNumber.substring(0, Math.min(3, len));
+        String suffix = orderNumber.substring(Math.max(0, len - 4));
+        return prefix + "-****-" + suffix;
+    }
+
+    private String extractCity(String address) {
+        if (address == null || address.isBlank()) return "Hyderabad";
+        String[] parts = address.split("[,\\-]");
+        if (parts.length >= 2) {
+            String candidate = parts[parts.length - 2].trim();
+            candidate = candidate.replaceAll("\\d", "").trim();
+            if (!candidate.isBlank()) return candidate;
+        }
+        return "Hyderabad Area";
+    }
+
+    private String extractState(String address) {
+        if (address == null || address.isBlank()) return "Telangana";
+        String lower = address.toLowerCase();
+        if (lower.contains("karnataka") || lower.contains("bangalore") || lower.contains("bengaluru")) return "Karnataka";
+        if (lower.contains("maharashtra") || lower.contains("mumbai") || lower.contains("pune")) return "Maharashtra";
+        if (lower.contains("tamil nadu") || lower.contains("chennai")) return "Tamil Nadu";
+        if (lower.contains("delhi")) return "Delhi NCR";
+        return "Telangana";
+    }
+
+    private java.util.List<PublicOrderTrackingResponse.TrackingMilestone> buildPublicTimeline(Order order) {
+        java.util.List<PublicOrderTrackingResponse.TrackingMilestone> milestones = new java.util.ArrayList<>();
+        OrderStatus status = order.getStatus() != null ? order.getStatus() : OrderStatus.PENDING;
+        LocalDateTime created = order.getCreatedAt() != null ? order.getCreatedAt() : LocalDateTime.now();
+
+        boolean confirmed = true;
+        boolean processing = status == OrderStatus.PROCESSING || status == OrderStatus.SHIPPED || status == OrderStatus.DELIVERED;
+        boolean packaged = status == OrderStatus.SHIPPED || status == OrderStatus.DELIVERED;
+        boolean shipped = status == OrderStatus.SHIPPED || status == OrderStatus.DELIVERED;
+        boolean delivered = status == OrderStatus.DELIVERED;
+
+        milestones.add(PublicOrderTrackingResponse.TrackingMilestone.builder()
+                .step("CONFIRMED")
+                .title("Order Confirmed")
+                .description("Transmitted to atelier tailoring division")
+                .timestamp(created)
+                .completed(confirmed)
+                .current(status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED)
+                .build());
+
+        milestones.add(PublicOrderTrackingResponse.TrackingMilestone.builder()
+                .step("PROCESSING")
+                .title("Atelier Quality Inspection")
+                .description("Artisan inspection and bespoke packaging")
+                .timestamp(processing ? created.plusHours(4) : null)
+                .completed(processing)
+                .current(status == OrderStatus.PROCESSING)
+                .build());
+
+        milestones.add(PublicOrderTrackingResponse.TrackingMilestone.builder()
+                .step("PACKAGED")
+                .title("Heirloom Keepsake Packaging")
+                .description("Sealed in acid-free archival casing")
+                .timestamp(packaged ? created.plusHours(12) : null)
+                .completed(packaged)
+                .current(false)
+                .build());
+
+        milestones.add(PublicOrderTrackingResponse.TrackingMilestone.builder()
+                .step("SHIPPED")
+                .title("Dispatched with Courier Partner")
+                .description("In transit under secure tamper-evident tracking")
+                .timestamp(shipped ? created.plusHours(24) : null)
+                .completed(shipped)
+                .current(status == OrderStatus.SHIPPED)
+                .build());
+
+        milestones.add(PublicOrderTrackingResponse.TrackingMilestone.builder()
+                .step("DELIVERED")
+                .title("Delivered")
+                .description("Handed over to recipient")
+                .timestamp(delivered ? (order.getUpdatedAt() != null ? order.getUpdatedAt() : created.plusDays(2)) : null)
+                .completed(delivered)
+                .current(status == OrderStatus.DELIVERED)
+                .build());
+
+        return milestones;
     }
 }

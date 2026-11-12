@@ -1,27 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit'
+import {
+  getActiveTabContext,
+  getTabToken,
+  getTabUser,
+  setTabSession,
+  clearTabSession,
+} from '../utils/sessionManager'
 
-const storedUser = (() => {
-  try {
-    const raw = typeof window !== 'undefined' ? localStorage.getItem('ps_user') : null
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-})()
-
-const storedToken = (() => {
-  try {
-    return typeof window !== 'undefined' ? (localStorage.getItem('ps_token') || null) : null
-  } catch {
-    return null
-  }
-})()
+const initialRole = getActiveTabContext()
+const storedUser = getTabUser(initialRole)
+const storedToken = getTabToken(initialRole)
 
 const initialState = {
-  user: storedUser,       // { id, name, email, role: 'CUSTOMER' | 'ADMIN' }
+  user: storedUser, // { id, name, email, role: 'CUSTOMER' | 'ADMIN' }
   token: storedToken,
   isAuthenticated: !!(storedToken && storedUser),
-  isAuthLoading: !!storedToken, // Only show initial loading spinner if there is a token to verify
+  isAuthLoading: !!storedToken,
+  tabRole: initialRole, // 'CUSTOMER' | 'ADMIN'
 }
 
 const authSlice = createSlice({
@@ -29,52 +24,59 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     credentialsReceived: (state, action) => {
-      const { user, token } = action.payload
-      state.user = user || state.user
-      state.token = token || state.token
-      state.isAuthenticated = true
+      const { user, token, role } = action.payload || {}
+      const targetUser = user || state.user
+      const targetToken = token || state.token
+      const effectiveRole =
+        role ||
+        (targetUser?.role?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER')
+
+      state.user = targetUser
+      state.token = targetToken
+      state.isAuthenticated = !!(targetUser && targetToken)
       state.isAuthLoading = false
-      try {
-        if (user) localStorage.setItem('ps_user', JSON.stringify(state.user))
-        if (token) localStorage.setItem('ps_token', state.token)
-      } catch (e) {
-        console.warn('Could not persist auth to localStorage:', e)
-      }
+      state.tabRole = effectiveRole
+
+      setTabSession({
+        role: effectiveRole,
+        user: targetUser,
+        token: targetToken,
+      })
     },
-    loggedOut: (state) => {
+    loggedOut: (state, action) => {
+      const targetRole = action?.payload?.role || state.tabRole || getActiveTabContext()
       const currentUserId = state.user?.id
+
+      // Clear the target role's storage without touching the other role
+      clearTabSession(targetRole)
+
+      if (currentUserId && targetRole === 'CUSTOMER') {
+        try {
+          localStorage.removeItem(`ps_cart_${currentUserId}`)
+          localStorage.removeItem(`ps_user_addresses_${currentUserId}`)
+        } catch (_) {}
+      }
+
       state.user = null
       state.token = null
       state.isAuthenticated = false
       state.isAuthLoading = false
-      // Clear ALL session-scoped keys so the next user starts completely fresh
-      try {
-        localStorage.removeItem('ps_user')
-        localStorage.removeItem('ps_token')
-        localStorage.removeItem('ps_cart')
-        localStorage.removeItem('ps_wishlist')
-        localStorage.removeItem('ps_circle_member')
-        if (currentUserId) {
-          localStorage.removeItem(`ps_cart_${currentUserId}`)
-          localStorage.removeItem(`ps_user_addresses_${currentUserId}`)
-        }
-      } catch (e) {
-        console.warn('Could not clear localStorage on logout:', e)
-      }
-      // Notify cart hook listeners so UI count badge resets immediately
+
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('ps-cart-updated'))
       }
     },
     profileUpdated: (state, action) => {
-      state.user = { ...(state.user || {}), ...action.payload }
+      const updatedUser = { ...(state.user || {}), ...action.payload }
+      state.user = updatedUser
       state.isAuthenticated = true
       state.isAuthLoading = false
-      try {
-        localStorage.setItem('ps_user', JSON.stringify(state.user))
-      } catch (e) {
-        console.warn('Could not persist updated profile:', e)
-      }
+
+      setTabSession({
+        role: state.tabRole,
+        user: updatedUser,
+        token: state.token,
+      })
     },
     authCheckStarted: (state) => {
       state.isAuthLoading = true
@@ -83,11 +85,25 @@ const authSlice = createSlice({
       state.isAuthLoading = false
     },
     syncFromStorage: (state, action) => {
-      const { user, token, isAuthenticated } = action.payload
+      const { user, token, role, isAuthenticated } = action.payload || {}
+      const tabContext = getActiveTabContext()
+
+      // CRUCIAL: Cross-tab sync must NEVER overwrite a customer tab with admin credentials,
+      // and vice versa. Only sync if the incoming role matches the active tab's context.
+      const incomingRole =
+        role ||
+        (user?.role?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER')
+
+      if (incomingRole !== tabContext) {
+        // Silently drop cross-role sync event
+        return
+      }
+
       state.user = user || null
       state.token = token || null
       state.isAuthenticated = !!isAuthenticated
       state.isAuthLoading = false
+      state.tabRole = tabContext
     },
   },
 })

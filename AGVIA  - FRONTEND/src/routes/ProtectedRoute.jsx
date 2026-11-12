@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import BoutiqueSpinner from '../components/customer/BoutiqueSpinner'
+import { setActiveTabContext } from '../utils/sessionManager'
 
 /**
  * Guards a route by authentication and (optionally) role.
@@ -33,12 +34,12 @@ export default function ProtectedRoute({ children, role }) {
     if (!isAdmin) {
       return <Navigate to="/admin/login" replace />
     }
+    setActiveTabContext('ADMIN')
     return children
   }
 
-  // Customer or general authenticated route:
-  // Any logged-in customer (with role CUSTOMER, USER, ROLE_USER, etc., or even ADMIN) is allowed to view customer pages.
-  // Never redirect an authenticated user to Home ('/') when they visit customer pages like /orders or /profile!
+  // Customer or general authenticated route
+  setActiveTabContext('CUSTOMER')
   return children
 }
 

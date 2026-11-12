@@ -39,6 +39,8 @@ public class SecurityConfig {
             "/api/reviews/product/**",
             "/api/festival-offers/**",
             "/api/coupons/**",
+            "/api/orders/public-track/**",
+            "/api/orders/public-track",
             "/api/orders/track/**",
             "/api/orders/track",
             "/api/settings/**",

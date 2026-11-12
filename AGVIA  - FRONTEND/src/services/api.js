@@ -2,11 +2,14 @@ import axios from 'axios'
 import { store } from '../store'
 import { loggedOut } from '../store/authSlice'
 import { getFriendlyErrorMessage, logDeveloperError } from './errorMessageService'
+import { getTabToken, getActiveTabContext, clearTabSession } from '../utils/sessionManager'
 
 const RAW_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'https://agvia.onrender.com/api' : 'http://localhost:8080/api')
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'https://agvia.onrender.com/api'
+    : 'http://localhost:8080/api')
 
 // Ensure /api suffix is present and clean trailing slashes
 const cleanUrl = RAW_URL.trim().replace(/\/+$/, '')
@@ -20,8 +23,27 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = store.getState()?.auth?.token || localStorage.getItem('ps_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  const url = config.url || ''
+  const isExplicitAdminApi = url.includes('/admin/') || url.startsWith('/admin')
+  const currentTabContext = getActiveTabContext()
+
+  // Select token based on the target endpoint and active tab context
+  let token = null
+  if (isExplicitAdminApi || currentTabContext === 'ADMIN') {
+    token = getTabToken('ADMIN')
+  } else {
+    token = getTabToken('CUSTOMER')
+  }
+
+  // Fallback to store token if not resolved by tab storage
+  if (!token) {
+    const storeState = store.getState()?.auth
+    token = storeState?.token || null
+  }
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
   return config
 })
 
@@ -30,19 +52,25 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // Log complete technical diagnostics for developers in console
+    // Log diagnostics in developer console
     logDeveloperError(originalRequest?.url || 'API Request', error)
 
     if (error.response?.status === 401) {
-      // If this was an initial session probe, don't destroy local session state before App.jsx evaluates it
       const isAuthCheck =
         originalRequest?.url?.includes('/auth/me') ||
         originalRequest?.url?.includes('/users/profile') ||
         originalRequest?._isAuthCheck
 
-      if (!isAuthCheck && localStorage.getItem('ps_token')) {
-        store.dispatch(loggedOut())
+      const isExplicitAdminApi =
+        originalRequest?.url?.includes('/admin/') ||
+        originalRequest?.url?.startsWith('/admin')
+      const targetRole = isExplicitAdminApi ? 'ADMIN' : 'CUSTOMER'
+
+      if (!isAuthCheck) {
+        clearTabSession(targetRole)
+        store.dispatch(loggedOut({ role: targetRole }))
       }
+
       error.customerMessage = getFriendlyErrorMessage(error, 'Please sign in to continue.')
       return Promise.reject(error)
     }
@@ -52,7 +80,9 @@ api.interceptors.response.use(
       originalRequest &&
       originalRequest.method?.toLowerCase() === 'get' &&
       !originalRequest._retryCount &&
-      (!error.response || error.code === 'ECONNABORTED' || (error.response.status >= 502 && error.response.status <= 504))
+      (!error.response ||
+        error.code === 'ECONNABORTED' ||
+        (error.response.status >= 502 && error.response.status <= 504))
     ) {
       originalRequest._retryCount = (originalRequest._retryCount || 0) + 1
       const delayMs = originalRequest._retryCount * 1000

@@ -101,8 +101,9 @@ export default function Register() {
         otp: otpCode
       })
 
-      dispatch(credentialsReceived({ user, token }))
-      broadcastAuthEvent('LOGIN', { user, token })
+      const effectiveRole = user?.role?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER'
+      dispatch(credentialsReceived({ user, token, role: effectiveRole }))
+      broadcastAuthEvent('LOGIN', { user, token, role: effectiveRole })
       toast.success(`Account created successfully — welcome, ${user.name}!`, {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })

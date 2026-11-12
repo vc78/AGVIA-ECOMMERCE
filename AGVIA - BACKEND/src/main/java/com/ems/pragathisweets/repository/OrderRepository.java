@@ -19,6 +19,12 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     Optional<Order> findByOrderNumber(String orderNumber);
     Optional<Order> findByOrderNumberIgnoreCase(String orderNumber);
 
+    Optional<Order> findByTrackingToken(String trackingToken);
+    Optional<Order> findByTrackingTokenAndTrackingTokenRevokedFalse(String trackingToken);
+
+    @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i LEFT JOIN FETCH i.product WHERE o.trackingToken = :token AND (o.trackingTokenRevoked = false OR o.trackingTokenRevoked IS NULL)")
+    Optional<Order> findByActiveTrackingTokenWithDetails(@org.springframework.data.repository.query.Param("token") String token);
+
     @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i LEFT JOIN FETCH i.product LEFT JOIN FETCH o.user WHERE LOWER(o.orderNumber) = LOWER(:orderNumber)")
     Optional<Order> findByOrderNumberWithDetails(@org.springframework.data.repository.query.Param("orderNumber") String orderNumber);
 

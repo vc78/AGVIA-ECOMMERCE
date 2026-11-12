@@ -58,6 +58,15 @@ public class OrderController {
     }
 
 
+    @GetMapping({"/public-track/{token}", "/public-track"})
+    public ResponseEntity<ApiResponse<com.ems.pragathisweets.dto.PublicOrderTrackingResponse>> getPublicTracking(
+            @PathVariable(required = false) String token,
+            @RequestParam(value = "token", required = false) String tokenParam) {
+        String effectiveToken = token != null && !token.isBlank() ? token : tokenParam;
+        var response = orderService.getPublicTracking(effectiveToken);
+        return ResponseEntity.ok(ApiResponse.success("Tracking information retrieved", response));
+    }
+
     @GetMapping({"/track/{identifier}", "/track"})
     public ResponseEntity<ApiResponse<OrderResponse>> trackOrder(
             @PathVariable(required = false) String identifier,

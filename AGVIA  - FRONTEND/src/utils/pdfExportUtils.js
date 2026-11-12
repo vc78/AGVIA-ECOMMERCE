@@ -316,7 +316,10 @@ export async function exportOrderParcelReceiptPDF(order) {
     ? window.location.origin 
     : 'https://agvia.vercel.app'
   const trackingRef = order.orderNumber || String(order.id)
-  const qrTrackingUrl = `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
+  const trackingToken = order.trackingToken || null
+  const qrTrackingUrl = trackingToken
+    ? `${siteUrl}/track-order?token=${encodeURIComponent(trackingToken)}`
+    : `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
   
   let qrDataUrl = null
   try {

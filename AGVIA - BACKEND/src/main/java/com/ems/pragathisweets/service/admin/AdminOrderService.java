@@ -448,4 +448,21 @@ public class AdminOrderService {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
     }
+
+    @Transactional
+    public String rotateTrackingToken(Long id) {
+        Order order = findEntity(id);
+        String newToken = Order.generateSecureTrackingToken();
+        order.setTrackingToken(newToken);
+        order.setTrackingTokenRevoked(false);
+        orderRepository.save(order);
+        return newToken;
+    }
+
+    @Transactional
+    public void revokeTrackingToken(Long id) {
+        Order order = findEntity(id);
+        order.setTrackingTokenRevoked(true);
+        orderRepository.save(order);
+    }
 }

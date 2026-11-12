@@ -77,4 +77,16 @@ public class AdminOrderController {
         OrderResponse response = adminOrderService.createPosBill(request, adminEmail);
         return ResponseEntity.ok(ApiResponse.success("In-store bill generated successfully", response));
     }
+
+    @PostMapping("/{id}/rotate-tracking-token")
+    public ResponseEntity<ApiResponse<String>> rotateTrackingToken(@PathVariable Long id) {
+        String newToken = adminOrderService.rotateTrackingToken(id);
+        return ResponseEntity.ok(ApiResponse.success("Tracking token rotated successfully", newToken));
+    }
+
+    @PostMapping("/{id}/revoke-tracking-token")
+    public ResponseEntity<ApiResponse<Void>> revokeTrackingToken(@PathVariable Long id) {
+        adminOrderService.revokeTrackingToken(id);
+        return ResponseEntity.ok(ApiResponse.success("Tracking token revoked successfully", null));
+    }
 }

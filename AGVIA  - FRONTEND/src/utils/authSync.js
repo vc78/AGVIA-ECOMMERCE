@@ -1,7 +1,13 @@
 import { syncFromStorage, loggedOut } from '../store/authSlice'
+import {
+  getActiveTabContext,
+  getTabToken,
+  getTabUser,
+  STORAGE_KEYS,
+} from './sessionManager'
 
-const CHANNEL_NAME = 'agvia_auth_sync_channel'
-const SYNC_KEY = 'ps_auth_sync'
+const CHANNEL_NAME = 'agvia_auth_sync_channel_v2'
+const SYNC_KEY = STORAGE_KEYS.SYNC_EVENT
 
 let broadcastChannel = null
 try {
@@ -14,11 +20,17 @@ try {
 
 /**
  * Broadcast an authentication event to all other tabs.
- * Uses both BroadcastChannel (immediate) and localStorage storage event (universal).
+ * Explicitly carries the target role (CUSTOMER or ADMIN) to enforce cross-tab session isolation.
  */
 export function broadcastAuthEvent(type, payload = {}) {
+  const currentTabRole = getActiveTabContext()
+  const explicitRole =
+    payload.role ||
+    (payload.user?.role?.includes('ADMIN') ? 'ADMIN' : currentTabRole)
+
   const eventData = {
     type, // 'LOGIN' | 'LOGOUT' | 'PROFILE_UPDATED'
+    role: explicitRole,
     timestamp: Date.now(),
     ...payload,
   }
@@ -41,8 +53,8 @@ export function broadcastAuthEvent(type, payload = {}) {
 }
 
 /**
- * Initialize multi-tab synchronization.
- * Listens for cross-tab login/logout events, storage changes, and tab visibility changes.
+ * Initialize multi-tab synchronization with role isolation.
+ * Tabs only react to events targeted at their own active role context.
  *
  * @param {Function} dispatch Redux dispatch function
  * @param {Function} onSessionRestored Optional callback to re-verify/fetch authoritative session
@@ -54,18 +66,32 @@ export function initAuthSync(dispatch, onSessionRestored) {
   const handleSyncEvent = (eventData) => {
     if (!eventData || !eventData.type) return
 
+    const tabContext = getActiveTabContext()
+    const eventRole = eventData.role || 'CUSTOMER'
+
+    // ISOLATION BARRIER: Ignore events meant for another role context
+    if (eventRole !== tabContext) {
+      return
+    }
+
     if (eventData.type === 'LOGOUT') {
-      dispatch(loggedOut())
+      dispatch(loggedOut({ role: tabContext }))
     } else if (eventData.type === 'LOGIN' || eventData.type === 'PROFILE_UPDATED') {
       try {
-        const rawUser = localStorage.getItem('ps_user')
-        const token = localStorage.getItem('ps_token')
-        const user = rawUser ? JSON.parse(rawUser) : eventData.user
+        const token = getTabToken(tabContext)
+        const user = getTabUser(tabContext) || eventData.user
 
         if (token && user) {
-          dispatch(syncFromStorage({ user, token, isAuthenticated: true }))
+          dispatch(
+            syncFromStorage({
+              user,
+              token,
+              role: tabContext,
+              isAuthenticated: true,
+            })
+          )
           if (typeof onSessionRestored === 'function') {
-            onSessionRestored(token)
+            onSessionRestored(token, tabContext)
           }
         }
       } catch (e) {
@@ -85,8 +111,10 @@ export function initAuthSync(dispatch, onSessionRestored) {
     broadcastChannel.addEventListener('message', handleBroadcastMessage)
   }
 
-  // 2. Window storage event listener (fired only in other tabs when localStorage changes)
+  // 2. Window storage event listener (fired in other tabs when localStorage changes)
   const handleStorage = (e) => {
+    const tabContext = getActiveTabContext()
+
     if (e.key === SYNC_KEY && e.newValue) {
       try {
         const data = JSON.parse(e.newValue)
@@ -94,21 +122,26 @@ export function initAuthSync(dispatch, onSessionRestored) {
       } catch (err) {
         console.warn('[authSync] Invalid storage sync payload:', err)
       }
-    } else if (e.key === 'ps_token' || e.key === 'ps_user') {
-      const token = localStorage.getItem('ps_token')
-      const rawUser = localStorage.getItem('ps_user')
+    } else if (
+      (tabContext === 'CUSTOMER' && (e.key === STORAGE_KEYS.CUSTOMER_TOKEN || e.key === STORAGE_KEYS.CUSTOMER_USER)) ||
+      (tabContext === 'ADMIN' && (e.key === STORAGE_KEYS.ADMIN_TOKEN || e.key === STORAGE_KEYS.ADMIN_USER))
+    ) {
+      const token = getTabToken(tabContext)
+      const user = getTabUser(tabContext)
 
       if (!token) {
-        dispatch(loggedOut())
-      } else if (rawUser) {
-        try {
-          const user = JSON.parse(rawUser)
-          dispatch(syncFromStorage({ user, token, isAuthenticated: true }))
-          if (typeof onSessionRestored === 'function') {
-            onSessionRestored(token)
-          }
-        } catch {
-          // ignore parsing error
+        dispatch(loggedOut({ role: tabContext }))
+      } else if (user) {
+        dispatch(
+          syncFromStorage({
+            user,
+            token,
+            role: tabContext,
+            isAuthenticated: true,
+          })
+        )
+        if (typeof onSessionRestored === 'function') {
+          onSessionRestored(token, tabContext)
         }
       }
     }
@@ -117,27 +150,28 @@ export function initAuthSync(dispatch, onSessionRestored) {
   window.addEventListener('storage', handleStorage)
 
   // 3. Tab focus & visibility change revalidation
-  // When user switches back to this tab from another tab where they logged in/out
   const handleVisibility = () => {
     if (document.visibilityState === 'visible') {
-      const token = localStorage.getItem('ps_token')
-      const rawUser = localStorage.getItem('ps_user')
+      const tabContext = getActiveTabContext()
+      const token = getTabToken(tabContext)
+      const user = getTabUser(tabContext)
 
+      const sessionMarker = `agvia_session_${tabContext.toLowerCase()}`
       if (!token) {
-        // Only trigger loggedOut if session state was active (indicated by sync key or stored auth)
-        const hasSyncKey = sessionStorage.getItem('agvia_had_session')
-        if (hasSyncKey) {
-          sessionStorage.removeItem('agvia_had_session')
-          dispatch(loggedOut())
+        if (sessionStorage.getItem(sessionMarker)) {
+          sessionStorage.removeItem(sessionMarker)
+          dispatch(loggedOut({ role: tabContext }))
         }
-      } else if (rawUser) {
-        sessionStorage.setItem('agvia_had_session', 'true')
-        try {
-          const user = JSON.parse(rawUser)
-          dispatch(syncFromStorage({ user, token, isAuthenticated: true }))
-        } catch {
-          // ignore
-        }
+      } else if (user) {
+        sessionStorage.setItem(sessionMarker, 'true')
+        dispatch(
+          syncFromStorage({
+            user,
+            token,
+            role: tabContext,
+            isAuthenticated: true,
+          })
+        )
       }
     }
   }

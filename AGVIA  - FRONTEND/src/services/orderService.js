@@ -182,6 +182,24 @@ export const orderService = {
   },
 
 
+  async getPublicTracking(token) {
+    const clean = String(token || '').replace(/^[#\s]+/, '').trim()
+    if (!clean) throw new Error('Tracking token reference is required')
+
+    try {
+      const { data } = await api.get(`/orders/public-track?token=${encodeURIComponent(clean)}`)
+      return data?.data
+    } catch (err) {
+      try {
+        const { data } = await api.get(`/orders/public-track/${encodeURIComponent(clean)}`)
+        return data?.data
+      } catch (pathErr) {
+        console.warn('Public tracking lookup failed:', pathErr)
+        throw pathErr
+      }
+    }
+  },
+
   async trackOrder(identifier) {
     const clean = String(identifier || '').replace(/^[#\s]+/, '').trim()
     if (!clean) throw new Error('Order reference is required')

@@ -5,57 +5,74 @@ import LoadingScreen from './components/customer/LoadingScreen'
 import { authService } from './services/authService'
 import { loggedOut, profileUpdated, authCheckCompleted } from './store/authSlice'
 import { initAuthSync } from './utils/authSync'
+import { getActiveTabContext, getTabToken } from './utils/sessionManager'
 
 export default function App() {
   const dispatch = useDispatch()
   const { isAuthLoading } = useSelector((state) => state.auth)
 
   useEffect(() => {
-    // 1. Initialize cross-tab synchronization (storage events + BroadcastChannel)
-    const cleanupAuthSync = initAuthSync(dispatch, () => {
-      // Authoritatively refresh profile when another tab completes login
-      authService.getCurrentUser()
-        .then((userData) => {
-          if (userData) {
-            dispatch(profileUpdated({
-              id: userData.id,
-              name: userData.fullName || userData.name,
-              email: userData.email,
-              phone: userData.phone,
-              phoneVerified: userData.phoneVerified,
-              role: userData.role === 'ROLE_ADMIN' || userData.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER'
-            }))
-          }
-        })
-        .catch(() => {})
+    const tabContext = getActiveTabContext()
+
+    // 1. Initialize cross-tab synchronization with strict role isolation
+    const cleanupAuthSync = initAuthSync(dispatch, (token, role) => {
+      // Authoritatively refresh profile when another tab of the SAME role completes login
+      if (role === tabContext) {
+        authService
+          .getCurrentUser()
+          .then((userData) => {
+            if (userData) {
+              dispatch(
+                profileUpdated({
+                  id: userData.id,
+                  name: userData.fullName || userData.name,
+                  email: userData.email,
+                  phone: userData.phone,
+                  phoneVerified: userData.phoneVerified,
+                  role:
+                    userData.role === 'ROLE_ADMIN' || userData.role === 'ADMIN'
+                      ? 'ADMIN'
+                      : 'CUSTOMER',
+                })
+              )
+            }
+          })
+          .catch(() => {})
+      }
     })
 
-    // 2. Authoritative session verification on application startup
+    // 2. Authoritative session verification on application startup for the active tab context
     let isMounted = true
-    const token = typeof window !== 'undefined' ? localStorage.getItem('ps_token') : null
+    const token = getTabToken(tabContext)
 
     if (!token) {
       dispatch(authCheckCompleted())
     } else {
-      authService.getCurrentUser()
+      authService
+        .getCurrentUser()
         .then((userData) => {
           if (isMounted && userData) {
-            dispatch(profileUpdated({
-              id: userData.id,
-              name: userData.fullName || userData.name,
-              email: userData.email,
-              phone: userData.phone,
-              phoneVerified: userData.phoneVerified,
-              role: userData.role === 'ROLE_ADMIN' || userData.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER'
-            }))
+            dispatch(
+              profileUpdated({
+                id: userData.id,
+                name: userData.fullName || userData.name,
+                email: userData.email,
+                phone: userData.phone,
+                phoneVerified: userData.phoneVerified,
+                role:
+                  userData.role === 'ROLE_ADMIN' || userData.role === 'ADMIN'
+                    ? 'ADMIN'
+                    : 'CUSTOMER',
+              })
+            )
           }
         })
         .catch((err) => {
           if (isMounted) {
-            // ONLY log out if backend explicitly returns 401 Unauthorized or 403 Forbidden
+            // ONLY log out the current tab's role if backend explicitly returns 401 Unauthorized or 403 Forbidden
             if (err.response?.status === 401 || err.response?.status === 403) {
-              if (localStorage.getItem('ps_token')) {
-                dispatch(loggedOut())
+              if (getTabToken(tabContext)) {
+                dispatch(loggedOut({ role: tabContext }))
               }
             }
           }

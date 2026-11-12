@@ -31,5 +31,7 @@ public class OrderResponse {
     private String shippingAddress;
     private String contactPhone;
     private String notes;
+    private String trackingToken;
+    private Boolean trackingTokenRevoked;
     private LocalDateTime createdAt;
 }

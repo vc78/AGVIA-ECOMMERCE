@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
+import { setActiveTabContext } from '../../utils/sessionManager'
 import { ArrowLeft } from 'lucide-react'
 import OtpVerificationCard from '../../components/auth/OtpVerificationCard'
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
@@ -66,8 +67,10 @@ export default function Login() {
         })
       } else if (res.token && res.user) {
         // Direct authentication fallback
-        dispatch(credentialsReceived({ user: res.user, token: res.token }))
-        broadcastAuthEvent('LOGIN', { user: res.user, token: res.token })
+        const effectiveRole = res.user.role?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER'
+        setActiveTabContext(effectiveRole)
+        dispatch(credentialsReceived({ user: res.user, token: res.token, role: effectiveRole }))
+        broadcastAuthEvent('LOGIN', { user: res.user, token: res.token, role: effectiveRole })
         toast.success(`Welcome back, ${res.user.name}!`, {
           style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
         })
@@ -93,8 +96,10 @@ export default function Login() {
         otp: otpCode
       })
 
-      dispatch(credentialsReceived({ user, token }))
-      broadcastAuthEvent('LOGIN', { user, token })
+      const effectiveRole = user.role?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER'
+      setActiveTabContext(effectiveRole)
+      dispatch(credentialsReceived({ user, token, role: effectiveRole }))
+      broadcastAuthEvent('LOGIN', { user, token, role: effectiveRole })
       toast.success(`Welcome back, ${user.name}!`, {
         style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
       })

@@ -170,8 +170,8 @@ export default function Navbar() {
     } catch {
       // ignore
     }
-    dispatch(loggedOut())
-    broadcastAuthEvent('LOGOUT')
+    dispatch(loggedOut({ role: 'CUSTOMER' }))
+    broadcastAuthEvent('LOGOUT', { role: 'CUSTOMER' })
     toast.success('Signed out successfully')
     navigate('/')
   }
