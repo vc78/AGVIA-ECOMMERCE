@@ -17,6 +17,10 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     Page<Order> findByUserId(Long userId, Pageable pageable);
 
     Optional<Order> findByOrderNumber(String orderNumber);
+    Optional<Order> findByOrderNumberIgnoreCase(String orderNumber);
+
+    @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i LEFT JOIN FETCH i.product LEFT JOIN FETCH o.user WHERE LOWER(o.orderNumber) = LOWER(:orderNumber)")
+    Optional<Order> findByOrderNumberWithDetails(@org.springframework.data.repository.query.Param("orderNumber") String orderNumber);
 
     Optional<Order> findByIdAndUserId(Long id, Long userId);
     Optional<Order> findByOrderNumberAndUserId(String orderNumber, Long userId);

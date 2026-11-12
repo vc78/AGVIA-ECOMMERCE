@@ -311,11 +311,11 @@ export async function exportOrderParcelReceiptPDF(order) {
 
   const logoData = await loadLogoBase64()
 
-  // 1. Generate Unique QR Code
+  // 1. Generate Unique QR Code (clean URL without # for instant phone camera scanning)
   const siteUrl = typeof window !== 'undefined' && window.location?.origin 
     ? window.location.origin 
-    : 'https://agvia-ecommerce.vercel.app'
-  const trackingRef = order.orderNumber || `#${order.id}`
+    : 'https://agvia.vercel.app'
+  const trackingRef = order.orderNumber || String(order.id)
   const qrTrackingUrl = `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
   
   let qrDataUrl = null

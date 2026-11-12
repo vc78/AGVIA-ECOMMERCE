@@ -277,21 +277,47 @@ public class OrderService {
         if (identifier == null || identifier.isBlank()) {
             throw new IllegalArgumentException("Order reference is required");
         }
-        String clean = identifier.trim();
-        java.util.Optional<Order> orderOpt = orderRepository.findByOrderNumber(clean);
+        // Sanitize any URL fragments, leading hashes, or extra whitespace
+        String clean = identifier.replace("#", "").trim();
+        if (clean.toUpperCase().startsWith("ORD-")) {
+            clean = clean.substring(4).trim();
+        }
+
+        // 1. Direct fetch with items and user details (case-insensitive)
+        java.util.Optional<Order> orderOpt = orderRepository.findByOrderNumberWithDetails(clean);
+
+        // 2. Try standard findByOrderNumber
         if (orderOpt.isEmpty()) {
-            String alt = clean.startsWith("PS-") ? clean : "PS-" + clean;
-            orderOpt = orderRepository.findByOrderNumber(alt);
+            orderOpt = orderRepository.findByOrderNumber(clean);
         }
-        if (orderOpt.isEmpty() && clean.startsWith("#")) {
-            orderOpt = orderRepository.findByOrderNumber(clean.substring(1));
+
+        // 3. Try case-insensitive standard
+        if (orderOpt.isEmpty()) {
+            orderOpt = orderRepository.findByOrderNumberIgnoreCase(clean);
         }
+
+        // 4. Try variations with PS prefix
+        if (orderOpt.isEmpty()) {
+            String psAlt = clean.toUpperCase().startsWith("PS") ? clean : "PS" + clean;
+            orderOpt = orderRepository.findByOrderNumberWithDetails(psAlt);
+            if (orderOpt.isEmpty()) {
+                orderOpt = orderRepository.findByOrderNumberIgnoreCase(psAlt);
+            }
+        }
+
+        // 5. Try numeric ID lookup (e.g. order 1, 2, 3...)
         if (orderOpt.isEmpty()) {
             try {
-                Long id = Long.parseLong(clean.replaceAll("[^0-9]", ""));
-                orderOpt = orderRepository.findById(id);
+                if (clean.matches("^[0-9]+$")) {
+                    Long numericId = Long.parseLong(clean);
+                    orderOpt = orderRepository.findByIdWithDetails(numericId);
+                    if (orderOpt.isEmpty()) {
+                        orderOpt = orderRepository.findById(numericId);
+                    }
+                }
             } catch (Exception ignored) {}
         }
+
         Order order = orderOpt.orElseThrow(() -> new ResourceNotFoundException("No order found with reference: " + identifier));
         return toResponse(order);
     }
@@ -546,7 +572,7 @@ public class OrderService {
     }
 
     public OrderResponse toResponse(Order order) {
-        var items = order.getItems().stream()
+        var items = order.getItems() != null ? order.getItems().stream()
                 .map(item -> OrderItemResponse.builder()
                         .productId(item.getProduct() != null ? item.getProduct().getId() : null)
                         .productName(item.getProductName())
@@ -558,24 +584,24 @@ public class OrderService {
                         .sku(item.getSku())
                         .imageUrl(item.getImageUrl())
                         .build())
-                .toList();
+                .toList() : java.util.Collections.<OrderItemResponse>emptyList();
 
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
-                .userId(order.getUser().getId())
-                .userName(order.getUser().getFullName())
-                .userEmail(order.getUser().getEmail())
+                .userId(order.getUser() != null ? order.getUser().getId() : null)
+                .userName(order.getUser() != null ? order.getUser().getFullName() : (order.getContactPhone() != null ? "Patron " + order.getContactPhone() : "Valued Customer"))
+                .userEmail(order.getUser() != null ? order.getUser().getEmail() : null)
                 .items(items)
-                .totalAmount(order.getTotalAmount())
-                .discountAmount(order.getDiscountAmount())
-                .finalAmount(order.getFinalAmount())
+                .totalAmount(order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
+                .discountAmount(order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO)
+                .finalAmount(order.getFinalAmount() != null ? order.getFinalAmount() : BigDecimal.ZERO)
                 .couponCode(order.getCouponCode())
-                .status(order.getStatus().name())
-                .paymentMethod(order.getPaymentMethod().name())
-                .paymentStatus(order.getPaymentStatus().name())
+                .status(order.getStatus() != null ? order.getStatus().name() : "PLACED")
+                .paymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod().name() : "COD")
+                .paymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus().name() : "PENDING")
                 .shippingAddress(order.getShippingAddress())
-                .contactPhone(order.getContactPhone())
+                .contactPhone(order.getContactPhone() != null ? order.getContactPhone() : (order.getUser() != null ? order.getUser().getPhone() : null))
                 .notes(order.getNotes())
                 .createdAt(order.getCreatedAt())
                 .build();

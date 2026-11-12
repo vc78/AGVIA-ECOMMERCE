@@ -58,9 +58,15 @@ public class OrderController {
     }
 
 
-    @GetMapping("/track/{identifier}")
-    public ResponseEntity<ApiResponse<OrderResponse>> trackOrder(@PathVariable String identifier) {
-        return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully", orderService.trackOrder(identifier)));
+    @GetMapping({"/track/{identifier}", "/track"})
+    public ResponseEntity<ApiResponse<OrderResponse>> trackOrder(
+            @PathVariable(required = false) String identifier,
+            @RequestParam(value = "order", required = false) String order,
+            @RequestParam(value = "orderNumber", required = false) String orderNumber) {
+        String target = identifier != null && !identifier.isBlank()
+                ? identifier
+                : (order != null && !order.isBlank() ? order : orderNumber);
+        return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully", orderService.trackOrder(target)));
     }
 
     @PostMapping("/{id}/cancel")

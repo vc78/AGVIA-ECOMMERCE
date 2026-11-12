@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Compass, ShieldCheck, Clock, MapPin, Package,
   CheckCircle2, AlertCircle, RefreshCw, MessageSquare, ExternalLink,
-  ChevronRight, Truck, Sparkles, ChefHat, Box, ArrowRight
+  ChevronRight, Truck, Sparkles, ChefHat, Box, ArrowRight, Printer
 } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
@@ -113,19 +113,41 @@ export default function TrackOrder() {
     }
   }, [initialOrderParam])
 
-  // Real-time polling every 8 seconds when order is being tracked
+  // Real-time synchronization: Poll every 6 seconds AND listen for live broadcast notifications
   useEffect(() => {
-    if (trackingOrder?.orderNumber || trackingOrder?.id) {
-      const targetId = trackingOrder.orderNumber || trackingOrder.id
-      pollingRef.current = setInterval(() => {
-        fetchOrderStatus(targetId, true)
-      }, 8000)
-    }
+    if (!trackingOrder?.orderNumber && !trackingOrder?.id) return
+
+    const targetId = trackingOrder.orderNumber || trackingOrder.id
+
+    // 1. Polling fallback every 6 seconds
+    pollingRef.current = setInterval(() => {
+      fetchOrderStatus(targetId, true)
+    }, 6000)
+
+    // 2. Instant real-time broadcast channel listener for inter-tab status updates
+    let channel = null
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        channel = new BroadcastChannel('agvia_notifications_v1')
+        channel.onmessage = (event) => {
+          const payload = event?.data
+          if (
+            payload?.type === 'ORDER_STATUS_CHANGED' ||
+            payload?.type === 'ORDER_CANCELLED' ||
+            payload?.data?.orderNumber === trackingOrder.orderNumber ||
+            String(payload?.data?.orderId) === String(trackingOrder.backendId)
+          ) {
+            fetchOrderStatus(targetId, true)
+          }
+        }
+      }
+    } catch (_) {}
 
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current)
+      if (channel) channel.close()
     }
-  }, [trackingOrder?.orderNumber, trackingOrder?.id])
+  }, [trackingOrder?.orderNumber, trackingOrder?.id, trackingOrder?.backendId])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -234,53 +256,85 @@ export default function TrackOrder() {
 
         {/* Live Tracking Card */}
         {trackingOrder && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white border border-[#B8860B]/20 rounded-3xl shadow-xl overflow-hidden mb-12"
-          >
-            {/* Header Status Bar */}
-            <div className="bg-gradient-to-r from-[#FAF6EE] via-white to-[#FAF6EE] border-b border-[#B8860B]/15 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2.5 mb-1">
-                  <span className="text-xs font-bold text-[#8B0000] font-mono">
-                    #{trackingOrder.orderNumber || trackingOrder.id}
-                  </span>
-                  <span
-                    className={`px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                      isCancelled
-                        ? 'bg-red-50 text-red-700 border-red-200'
-                        : trackingOrder.status === 'DELIVERED'
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-amber-50 text-[#8B0000] border-[#B8860B]/30'
-                    }`}
-                  >
-                    {trackingOrder.status}
-                  </span>
+          <>
+            <style>{`
+              @media print {
+                body * { visibility: hidden !important; }
+                #track-order-canvas, #track-order-canvas * { visibility: visible !important; }
+                #track-order-canvas {
+                  position: fixed !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 100vw !important;
+                  margin: 0 !important;
+                  padding: 8mm 10mm !important;
+                  background: #FFFFFF !important;
+                  color: #000000 !important;
+                  z-index: 9999999 !important;
+                  border: none !important;
+                  box-shadow: none !important;
+                }
+              }
+            `}</style>
+            <motion.div
+              id="track-order-canvas"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white border border-[#B8860B]/20 rounded-3xl shadow-xl overflow-hidden mb-12"
+            >
+              {/* Header Status Bar */}
+              <div className="bg-gradient-to-r from-[#FAF6EE] via-white to-[#FAF6EE] border-b border-[#B8860B]/15 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-1">
+                    <span className="text-xs font-bold text-[#8B0000] font-mono">
+                      #{trackingOrder.orderNumber || trackingOrder.id}
+                    </span>
+                    <span
+                      className={`px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                        isCancelled
+                          ? 'bg-red-50 text-red-700 border-red-200'
+                          : trackingOrder.status === 'DELIVERED'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-amber-50 text-[#8B0000] border-[#B8860B]/30'
+                      }`}
+                    >
+                      {trackingOrder.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Placed on <strong>{trackingOrder.date || 'Today'}</strong> by <strong>{trackingOrder.customer}</strong>
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Placed on <strong>{trackingOrder.date || 'Today'}</strong> by <strong>{trackingOrder.customer}</strong>
-                </p>
-              </div>
 
-              {/* Real-Time Sync Indicator */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-xl font-medium">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                  <span>Real-Time Sync Active</span>
+                {/* Real-Time Sync Indicator & Action Buttons */}
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-xl font-medium">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <span>Real-Time Sync Active</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="p-2 text-[#5A1020] hover:text-white hover:bg-[#5A1020] rounded-xl border border-[#C9A45C]/40 transition-all flex items-center gap-1.5 text-xs font-semibold print:hidden"
+                    title="Print Consignment Tracking Slip"
+                  >
+                    <Printer size={14} />
+                    <span className="hidden sm:inline">Print Slip</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fetchOrderStatus(trackingOrder.orderNumber || trackingOrder.id, true)}
+                    disabled={isRefreshing}
+                    className="p-2 text-gray-500 hover:text-[#8B0000] hover:bg-[#FAF6EE] rounded-xl border border-gray-200 transition-all print:hidden"
+                    title="Refresh now"
+                  >
+                    <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => fetchOrderStatus(trackingOrder.orderNumber || trackingOrder.id, true)}
-                  disabled={isRefreshing}
-                  className="p-2 text-gray-500 hover:text-[#8B0000] hover:bg-[#FAF6EE] rounded-xl border border-gray-200 transition-all"
-                  title="Refresh now"
-                >
-                  <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
-                </button>
               </div>
-            </div>
 
             {/* Stepper Visual Pipeline */}
             <div className="p-6 md:p-8 bg-white border-b border-[#B8860B]/10">
@@ -362,9 +416,17 @@ export default function TrackOrder() {
                       className="flex items-center justify-between p-3 bg-[#FAF6EE]/50 rounded-xl border border-[#B8860B]/10 text-xs"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-amber-100/50 flex items-center justify-center text-base">
-                          🍮
-                        </div>
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.productName || item.name}
+                            className="w-10 h-10 rounded-lg object-cover border border-[#C9A45C]/30 shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-[#5A1020]/10 text-[#5A1020] flex items-center justify-center text-xs font-serif font-bold shrink-0">
+                            AGVIA
+                          </div>
+                        )}
                         <div>
                           <p className="font-bold text-[#3A2D23]">{item.productName || item.name}</p>
                           <p className="text-[10px] text-gray-500">Qty: {item.quantity || item.qty} × ₹{item.price}</p>
@@ -415,8 +477,15 @@ export default function TrackOrder() {
                   </div>
                 </div>
 
-                {/* WhatsApp Support Actions */}
-                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                {/* WhatsApp & Print Actions */}
+                <div className="flex flex-col sm:flex-row gap-2 pt-2 print:hidden">
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="py-3 px-4 bg-white hover:bg-[#FAF6EE] text-[#5A1020] border border-[#C9A45C]/50 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95"
+                  >
+                    <Printer size={14} /> Print Slip
+                  </button>
                   <button
                     type="button"
                     onClick={handleWhatsAppInquiry}
@@ -428,12 +497,13 @@ export default function TrackOrder() {
                     to="/orders"
                     className="py-3 px-4 bg-[#FAF6EE] hover:bg-[#F5E6C8] text-[#8B0000] border border-[#B8860B]/20 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
                   >
-                    View All Orders <ArrowRight size={13} />
+                    Orders <ArrowRight size={13} />
                   </Link>
                 </div>
               </div>
             </div>
           </motion.div>
+          </>
         )}
       </main>
 

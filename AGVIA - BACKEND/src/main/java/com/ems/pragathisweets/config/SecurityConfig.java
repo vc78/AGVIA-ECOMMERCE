@@ -40,6 +40,7 @@ public class SecurityConfig {
             "/api/festival-offers/**",
             "/api/coupons/**",
             "/api/orders/track/**",
+            "/api/orders/track",
             "/api/settings/**",
             "/api/settings",
             "/api/store-settings/**",

@@ -20,7 +20,9 @@ import {
   Clock,
   MessageCircle,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  QrCode,
+  Download
 } from 'lucide-react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
@@ -28,6 +30,7 @@ import { orderService } from '../../services/orderService'
 import ReliableImage from '../../components/common/ReliableImage'
 import { BUSINESS } from '../../constants/business'
 import { safeOpenWindow } from '../../utils/windowManager'
+import { exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
 import SEOHead from '../../components/common/SEOHead'
 
 const getStatusBadge = (status = '') => {
@@ -572,22 +575,38 @@ export default function Orders() {
                                 </div>
 
                                 {/* Bottom actions */}
-                                <div className="border-t border-[#B8860B]/10 pt-4 flex flex-wrap gap-3 justify-end items-center">
+                                <div className="border-t border-[#B8860B]/10 pt-4 flex flex-wrap gap-2.5 justify-end items-center">
+                                  <Link
+                                    to={`/track-order?order=${encodeURIComponent(o.orderNumber || String(o.id))}`}
+                                    className="btn-primary !py-2 !px-3.5 text-[10px] flex items-center gap-1.5 font-bold shadow-xs"
+                                  >
+                                    <QrCode size={12} /> Track Order Live
+                                  </Link>
+
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      try {
+                                        await exportOrderParcelReceiptPDF(o)
+                                      } catch (e) {
+                                        console.warn('PDF receipt export failed', e)
+                                      }
+                                    }}
+                                    className="btn-outline !py-2 !px-3.5 text-[10px] flex items-center gap-1.5 font-bold"
+                                    title="Download printable parcel receipt & invoice with QR code"
+                                  >
+                                    <Download size={12} /> Receipt & QR
+                                  </button>
+
                                   <button
                                     onClick={() => {
                                       const text = encodeURIComponent(`Hello AGVIA Concierge, I would like assistance regarding my atelier order #${o.orderNumber || o.id}.`)
                                       safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_support_window', 'noopener,noreferrer')
                                     }}
-                                    className="btn-outline !py-2 !px-4 text-[10px] flex items-center gap-1.5 font-bold"
+                                    className="btn-outline !py-2 !px-3.5 text-[10px] flex items-center gap-1.5 font-bold"
                                   >
                                     <HelpCircle size={12} /> Atelier Support
                                   </button>
-                                  <Link
-                                    to="/products"
-                                    className="btn-primary !py-2 !px-4 text-[10px] flex items-center gap-1.5 font-bold"
-                                  >
-                                    <RotateCcw size={12} /> Explore Collection
-                                  </Link>
                                 </div>
 
                               </div>

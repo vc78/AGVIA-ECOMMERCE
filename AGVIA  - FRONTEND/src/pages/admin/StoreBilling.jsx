@@ -292,9 +292,9 @@ export default function StoreBilling() {
       const order = await adminService.createPosBill(payload)
       setCompletedOrder(order)
 
-      // Generate instant QR Code for invoice verification
+      // Generate instant QR Code for invoice verification (clean URL without # for instant phone camera scanning)
       const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://agvia.vercel.app'
-      const invoiceRef = order.orderNumber || `#${order.id}`
+      const invoiceRef = order.orderNumber || String(order.id)
       const verifyUrl = `${siteOrigin}/track-order?order=${encodeURIComponent(invoiceRef)}`
       try {
         const qr = await QRCode.toDataURL(verifyUrl, { width: 260, margin: 1 })

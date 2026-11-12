@@ -197,16 +197,18 @@ public class AdminOrderService {
                 && order.getPaymentMethod() == PaymentMethod.COD
                 && order.getPaymentStatus() == PaymentStatus.PENDING) {
             order.setPaymentStatus(PaymentStatus.COLLECTED);
-            emailService.sendCodPaymentCollectedEmail(
-                    order.getUser().getEmail(),
-                    order.getOrderNumber(),
-                    order.getFinalAmount().toString());
+            if (order.getUser() != null && order.getUser().getEmail() != null) {
+                emailService.sendCodPaymentCollectedEmail(
+                        order.getUser().getEmail(),
+                        order.getOrderNumber(),
+                        order.getFinalAmount().toString());
+            }
         }
 
         Order saved = orderRepository.save(order);
         OrderResponse orderResponse = orderService.toResponse(saved);
 
-        String phone = order.getContactPhone() != null ? order.getContactPhone() : order.getUser().getPhone();
+        String phone = order.getContactPhone() != null ? order.getContactPhone() : (order.getUser() != null ? order.getUser().getPhone() : null);
         String customerEmail = order.getUser() != null ? order.getUser().getEmail() : null;
         String customerName = order.getUser() != null ? order.getUser().getFullName() : "Valued Customer";
 

@@ -17,11 +17,11 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
 
     setFullOrder(order)
 
-    // Generate unique QR Code for this order
+    // Generate unique QR Code for this order (Clean URL without # symbol to ensure instant phone camera scanning)
     const siteUrl = typeof window !== 'undefined' && window.location?.origin 
       ? window.location.origin 
-      : 'https://agvia-ecommerce.vercel.app'
-    const trackingRef = order.orderNumber || `#${order.id}`
+      : 'https://agvia.vercel.app'
+    const trackingRef = order.orderNumber || String(order.id)
     const trackingUrl = `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
 
     QRCode.toDataURL(trackingUrl, {
@@ -79,11 +79,30 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 print:p-0 print:bg-white print:static">
-      <div 
-        className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-[#C9A45C]/30 overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:w-full print:rounded-none"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <>
+      <style>{`
+        @media print {
+          body * { visibility: hidden !important; }
+          #parcel-slip-printable, #parcel-slip-printable * { visibility: visible !important; }
+          #parcel-slip-printable {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 8mm 10mm !important;
+            background: #FFFFFF !important;
+            color: #000000 !important;
+            z-index: 9999999 !important;
+          }
+        }
+      `}</style>
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 print:p-0 print:bg-white print:static">
+        <div 
+          className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-[#C9A45C]/30 overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:w-full print:rounded-none"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Modal Top Control Bar (Hidden during Print) */}
         <div className="flex items-center justify-between px-5 py-3.5 bg-[#5A1020] text-[#FAF7F2] border-b border-[#C9A45C]/30 print:hidden select-none">
           <div className="flex items-center gap-2">
@@ -128,7 +147,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
 
         {/* Printable Parcel Slip Canvas */}
         <div className="overflow-y-auto p-5 sm:p-8 space-y-5 font-body print:p-0 print:overflow-visible">
-          <div className="border border-[#C9A45C]/40 rounded-2xl p-5 sm:p-6 bg-[#FFFDF8] relative overflow-hidden print:border print:rounded-none">
+          <div id="parcel-slip-printable" className="border border-[#C9A45C]/40 rounded-2xl p-5 sm:p-6 bg-[#FFFDF8] relative overflow-hidden print:border print:rounded-none">
             
             {/* Top Luxury Banner */}
             <div className="bg-[#5A1020] -m-5 sm:-m-6 mb-4 p-3.5 px-5 flex items-center justify-between text-[#FAF7F2] border-b-2 border-[#C9A45C]">
@@ -386,5 +405,6 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
         </div>
       </div>
     </div>
+    </>
   )
 }

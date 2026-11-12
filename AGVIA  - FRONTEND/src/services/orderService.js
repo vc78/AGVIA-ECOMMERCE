@@ -183,9 +183,12 @@ export const orderService = {
 
 
   async trackOrder(identifier) {
+    const clean = String(identifier || '').replace(/^[#\s]+/, '').trim()
+    if (!clean) throw new Error('Order reference is required')
+
     try {
-      const clean = String(identifier).trim()
-      const { data } = await api.get(`/orders/track/${encodeURIComponent(clean)}`)
+      // Primary: query parameter for seamless special character handling
+      const { data } = await api.get(`/orders/track?order=${encodeURIComponent(clean)}`)
       const o = data.data
       return {
         id: o.orderNumber || `ORD-${o.id}`,
@@ -212,14 +215,50 @@ export const orderService = {
           name: i.productName,
           quantity: i.quantity,
           qty: i.quantity,
-          price: Number(i.unitPrice || 0),
+          price: Number(i.price || i.unitPrice || 0),
           subtotal: Number(i.subtotal || 0),
-          image: i.productImage || ''
+          image: i.imageUrl || i.productImage || ''
         })) : []
       }
     } catch (err) {
-      console.error('Error tracking order:', err)
-      throw err
+      // Secondary fallback: path variable format
+      try {
+        const { data } = await api.get(`/orders/track/${encodeURIComponent(clean)}`)
+        const o = data.data
+        return {
+          id: o.orderNumber || `ORD-${o.id}`,
+          orderNumber: o.orderNumber,
+          backendId: o.id,
+          customer: o.userName || 'Valued Customer',
+          date: o.createdAt ? o.createdAt.split('T')[0] : 'N/A',
+          createdAt: o.createdAt,
+          total: Number(o.finalAmount || o.totalAmount || 0),
+          finalAmount: Number(o.finalAmount || 0),
+          totalAmount: Number(o.totalAmount || 0),
+          discountAmount: Number(o.discountAmount || 0),
+          status: o.status,
+          paymentStatus: o.paymentStatus,
+          paymentMethod: o.paymentMethod,
+          shippingAddress: o.shippingAddress,
+          contactPhone: o.contactPhone,
+          awbNumber: o.awbNumber || null,
+          trackingUrl: o.trackingUrl || null,
+          items: Array.isArray(o.items) ? o.items.map(i => ({
+            id: i.id,
+            productId: i.productId,
+            productName: i.productName,
+            name: i.productName,
+            quantity: i.quantity,
+            qty: i.quantity,
+            price: Number(i.price || i.unitPrice || 0),
+            subtotal: Number(i.subtotal || 0),
+            image: i.imageUrl || i.productImage || ''
+          })) : []
+        }
+      } catch (pathErr) {
+        console.error('Error tracking order:', pathErr)
+        throw pathErr
+      }
     }
   },
 }
