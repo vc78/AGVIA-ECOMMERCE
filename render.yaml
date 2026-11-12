@@ -1,46 +1,69 @@
+
 services:
   - type: web
     name: agvia-backend
     runtime: docker
-    dockerfilePath: Dockerfile
+
+    dockerfilePath: "./AGVIA - BACKEND/Dockerfile"
+    dockerContext: "./AGVIA - BACKEND"
+
     healthCheckPath: /api/health
     autoDeploy: true
+
     envVars:
       - key: PORT
-        value: 8080
+        value: "8080"
+
       - key: JAVA_TOOL_OPTIONS
         value: "-Xmx512m"
+
       - key: DB_HOST
         value: mysql-2b47628b-agvia-123.k.aivencloud.com
+
       - key: DB_PORT
         value: "11088"
+
       - key: DB_NAME
         value: defaultdb
+
       - key: DB_USER
         value: avnadmin
+
       - key: DB_USERNAME
         value: avnadmin
+
       - key: DB_PASSWORD
         sync: false
+
       - key: DB_URL
-        value: jdbc:mysql://mysql-2b47628b-agvia-123.k.aivencloud.com:11088/defaultdb?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+        value: "jdbc:mysql://mysql-2b47628b-agvia-123.k.aivencloud.com:11088/defaultdb?sslMode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+
       - key: DDL_AUTO
         value: update
+
       - key: JWT_SECRET
-        value: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVm
+        sync: false
+
       - key: JWT_EXPIRATION_MS
         value: "86400000"
+
       - key: RAZORPAY_KEY_ID
-        value: rzp_test_TDnNEoRLz2m96G
+        sync: false
+
       - key: RAZORPAY_KEY_SECRET
-        value: 25E7Iiv68Owji2k1dKm18quw
+        sync: false
+
       - key: CORS_ALLOWED_ORIGINS
         value: "http://localhost:5173,http://localhost:3000,http://localhost,https://agvia.vercel.app,https://agvia-ecommerce.vercel.app"
+
       - key: FRONTEND_URL
-        value: https://agvia-ecommerce.vercel.app
+        value: "https://agvia-ecommerce.vercel.app"
+
       - key: DEFAULT_ADMIN_EMAIL
-        value: admin@agvia.com
+        value: "admin@agvia.com"
+
       - key: DEFAULT_ADMIN_PASSWORD
-        value: agvia@123
+        sync: false
+
       - key: DEFAULT_ADMIN_NAME
-        value: AGVIA Administrator
+        value: "AGVIA Administrator"
