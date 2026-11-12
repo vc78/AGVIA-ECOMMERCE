@@ -127,35 +127,35 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException ex) {
         log.warn("[METHOD_NOT_SUPPORTED] Method '{}' not supported for this URL. Supported: {}", ex.getMethod(), ex.getSupportedHttpMethods());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(ApiResponse.error("HTTP method '" + ex.getMethod() + "' is not supported for this endpoint."));
+                .body(ApiResponse.error("This action is currently not supported. Please refresh and try again."));
     }
 
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
         log.warn("[RESOURCE_NOT_FOUND] Static or endpoint resource not found: {}", ex.getResourcePath());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error("Requested endpoint or resource was not found."));
+                .body(ApiResponse.error("We couldn't find the item or resource you were looking for."));
     }
 
     @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse<Object>> handleMissingParam(org.springframework.web.bind.MissingServletRequestParameterException ex) {
         log.warn("[MISSING_PARAMETER] Missing required parameter: {}", ex.getParameterName());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error("Required parameter '" + ex.getParameterName() + "' is missing."));
+                .body(ApiResponse.error("A required detail was not provided. Please check your submission and try again."));
     }
 
     @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex) {
         log.warn("[TYPE_MISMATCH] Invalid parameter type for '{}': {}", ex.getName(), ex.getValue());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error("Invalid value provided for parameter '" + ex.getName() + "'."));
+                .body(ApiResponse.error("The information entered is in an unexpected format. Please check and try again."));
     }
 
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Object>> handleNotReadable(org.springframework.http.converter.HttpMessageNotReadableException ex) {
         log.warn("[MESSAGE_NOT_READABLE] Malformed request body: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error("Invalid or malformed request body. Please check the JSON format."));
+                .body(ApiResponse.error("The information provided could not be processed. Please check your entries and try again."));
     }
 
     @ExceptionHandler(java.sql.SQLException.class)

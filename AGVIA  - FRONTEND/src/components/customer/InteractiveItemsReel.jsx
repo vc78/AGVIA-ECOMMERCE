@@ -263,7 +263,7 @@ export default function InteractiveItemsReel() {
   }
 
   return (
-    <section className="relative py-8 sm:py-10 md:py-12 overflow-hidden border-y border-[#E6C687]/35 select-none bg-[#FFFDF8]">
+    <section className="relative py-5 sm:py-8 md:py-12 overflow-hidden border-y border-[#E6C687]/35 select-none bg-[#FFFDF8]">
       {/* ══ PALATIAL BOUTIQUE SHOWCASE BACKGROUND ══════════════════ */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <div
@@ -278,10 +278,10 @@ export default function InteractiveItemsReel() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#FFFDF8]/85 via-transparent to-[#FFFDF8]/90 pointer-events-none" />
       </div>
 
-      <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] relative z-10">
+      <div className="w-full max-w-[1320px] mx-auto px-3 sm:px-[clamp(16px,3vw,40px)] relative z-10">
         {/* ══ 3-COLUMN HEADER SECTION (RESPONSIVE EDITORIAL COMPOSITION) ═════ */}
-        <div className="relative mb-6 sm:mb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 items-center gap-3 sm:gap-4">
+        <div className="relative mb-3.5 sm:mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 items-center gap-2 sm:gap-4">
             {/* Left Column: AGVIA Brand & Tradition Meets Modern Style (Desktop) */}
             <div className="hidden lg:flex flex-col items-start pl-2">
               <div className="flex items-center gap-2 mb-1 text-[#5A1020]">
@@ -315,10 +315,10 @@ export default function InteractiveItemsReel() {
               <GoldLotusSvg />
 
               {/* Eyebrow */}
-              <div className="inline-flex items-center gap-2 my-1">
+              <div className="inline-flex items-center gap-2 my-0.5 sm:my-1">
                 <span
                   style={{ fontFamily: "'Lato', 'Manrope', 'Inter', sans-serif" }}
-                  className="text-[10px] min-[375px]:text-[11px] sm:text-[11.5px] font-bold uppercase tracking-[0.3em] min-[375px]:tracking-[0.35em] text-[#C9A45C]"
+                  className="text-[9.5px] min-[375px]:text-[10.5px] sm:text-[11.5px] font-bold uppercase tracking-[0.28em] min-[375px]:tracking-[0.35em] text-[#C9A45C]"
                 >
                   ✦ EXPLORE OUR BOUTIQUE ✦
                 </span>
@@ -327,7 +327,7 @@ export default function InteractiveItemsReel() {
               {/* Main Title with Fluid Typography */}
               <h2
                 style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
-                className="text-[1.65rem] min-[375px]:text-3xl sm:text-4xl md:text-[2.65rem] font-bold text-[#211D1E] tracking-tight leading-tight"
+                className="text-[1.5rem] min-[375px]:text-[1.75rem] sm:text-3xl md:text-[2.65rem] font-bold text-[#211D1E] tracking-tight leading-tight"
               >
                 Shop by{' '}
                 <span
@@ -341,7 +341,7 @@ export default function InteractiveItemsReel() {
               {/* Subtitle */}
               <p
                 style={{ fontFamily: "'Lato', 'Inter', sans-serif" }}
-                className="text-xs sm:text-[13px] text-[#211D1E]/70 mt-1 max-w-md mx-auto leading-relaxed px-2"
+                className="text-[11.5px] sm:text-[13px] text-[#211D1E]/70 mt-0.5 sm:mt-1 max-w-md mx-auto leading-relaxed px-2"
               >
                 Discover beautifully curated ethnic wear for every occasion.
               </p>
@@ -373,7 +373,7 @@ export default function InteractiveItemsReel() {
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Circular Left Arrow Button (Visible on sm+ screens, comfortable 44px touch target) */}
+          {/* Circular Left Arrow Button (Desktop / Tablet) */}
           <button
             onClick={() => scrollByAmount(-1)}
             disabled={!canScrollLeft}
@@ -387,7 +387,7 @@ export default function InteractiveItemsReel() {
             <ChevronLeft size={20} />
           </button>
 
-          {/* Circular Right Arrow Button (Visible on sm+ screens, comfortable 44px touch target) */}
+          {/* Circular Right Arrow Button (Desktop / Tablet) */}
           <button
             onClick={() => scrollByAmount(1)}
             disabled={!canScrollRight}
@@ -401,30 +401,10 @@ export default function InteractiveItemsReel() {
             <ChevronRight size={20} />
           </button>
 
-          {/* Mobile Quick Tap Arrow Controls (Comfortable 44px touch targets) */}
-          <div className="flex sm:hidden justify-end items-center gap-2 mb-2 px-1">
-            <button
-              onClick={() => scrollByAmount(-1)}
-              disabled={!canScrollLeft}
-              aria-label="Previous collection"
-              className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/95 border border-[#E6C687]/60 shadow-sm flex items-center justify-center text-[#5A1020] disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              onClick={() => scrollByAmount(1)}
-              disabled={!canScrollRight}
-              aria-label="Next collection"
-              className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/95 border border-[#E6C687]/60 shadow-sm flex items-center justify-center text-[#5A1020] disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-
-          {/* Scrolling Row: Fluid 1.2–2 cards visible on mobile with partial cue peek and scroll-snap */}
+          {/* Scrolling Row: Fluid, perfectly proportioned cards on mobile with swipe cue & scroll-snap */}
           <div
             ref={scrollerRef}
-            className="flex gap-3.5 sm:gap-4 md:gap-4.5 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth touch-pan-x"
+            className="flex gap-2.5 sm:gap-4 md:gap-4.5 overflow-x-auto pb-3 pt-1 px-1 snap-x snap-mandatory scroll-smooth touch-pan-x"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
@@ -445,20 +425,20 @@ export default function InteractiveItemsReel() {
                   onClick={(e) => {
                     if (hasMoved.current) e.preventDefault()
                   }}
-                  className="group block w-[60vw] min-w-[190px] max-w-[245px] sm:w-[185px] md:w-[195px] lg:w-[210px] xl:w-[220px] select-none"
+                  className="group block w-[148px] min-[360px]:w-[158px] min-[390px]:w-[172px] sm:w-[185px] md:w-[195px] lg:w-[210px] xl:w-[220px] select-none"
                 >
                   {/* Card Container with Arched Top */}
-                  <div className={`bg-white rounded-t-[84px] sm:rounded-t-[96px] md:rounded-t-[105px] rounded-b-2xl overflow-hidden transition-all duration-300 flex flex-col ${
+                  <div className={`bg-white rounded-t-[60px] min-[360px]:rounded-t-[68px] sm:rounded-t-[96px] md:rounded-t-[105px] rounded-b-xl sm:rounded-b-2xl overflow-hidden transition-all duration-300 flex flex-col ${
                     col.featured
-                      ? 'border-2 border-[#C9A45C] shadow-[0_16px_45px_rgba(201,164,92,0.28)] ring-4 ring-[#C9A45C]/20 -translate-y-1 group-hover:-translate-y-2'
-                      : 'border border-[#E6C687]/45 shadow-[0_8px_24px_rgba(90,16,32,0.08)] group-hover:shadow-[0_16px_38px_rgba(90,16,32,0.18)] group-hover:border-[#C9A45C] group-hover:-translate-y-1.5'
+                      ? 'border-2 border-[#C9A45C] shadow-[0_12px_36px_rgba(201,164,92,0.25)] ring-2 sm:ring-4 ring-[#C9A45C]/20 -translate-y-0.5 sm:-translate-y-1 group-hover:-translate-y-1.5'
+                      : 'border border-[#E6C687]/45 shadow-[0_4px_16px_rgba(90,16,32,0.06)] group-hover:shadow-[0_14px_32px_rgba(90,16,32,0.16)] group-hover:border-[#C9A45C] group-hover:-translate-y-1'
                   }`}>
                     {/* Arched Top Image */}
-                    <div className="relative aspect-[3/4.2] overflow-hidden rounded-t-[84px] sm:rounded-t-[96px] md:rounded-t-[105px] bg-[#EFE8DD]">
+                    <div className="relative aspect-[3/3.7] sm:aspect-[3/4.2] overflow-hidden rounded-t-[60px] min-[360px]:rounded-t-[68px] sm:rounded-t-[96px] md:rounded-t-[105px] bg-[#EFE8DD]">
                       <ReliableImage
                         src={col.image}
                         alt={col.name}
-                        sizes="(max-width: 640px) 245px, (max-width: 1024px) 210px, 220px"
+                        sizes="(max-width: 640px) 180px, (max-width: 1024px) 210px, 220px"
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
                       />
@@ -467,39 +447,40 @@ export default function InteractiveItemsReel() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-65 group-hover:opacity-40 transition-opacity duration-300" />
 
                       {/* Circular Center Artisanal Badge Icon sitting on the junction */}
-                      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-[#E6C687]/70 shadow-md flex items-center justify-center text-[#5A1020] group-hover:scale-110 group-hover:border-[#5A1020] transition-all duration-300">
+                      <div className="absolute -bottom-3.5 sm:-bottom-4 left-1/2 -translate-x-1/2 z-20 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white border border-[#E6C687]/70 shadow-md flex items-center justify-center text-[#5A1020] group-hover:scale-110 group-hover:border-[#5A1020] transition-all duration-300">
                         <CategoryIcon type={col.iconType} />
                       </div>
                     </div>
 
                     {/* Bottom Card Info: Title, Subtitle, Styles count & Circular Arrow Button */}
-                    <div className="pt-6 pb-3 px-3 sm:px-3.5 bg-white text-center flex flex-col justify-between flex-1">
+                    <div className="pt-4.5 sm:pt-6 pb-2.5 sm:pb-3 px-2.5 sm:px-3.5 bg-white text-center flex flex-col justify-between flex-1">
                       <div>
                         <h3
                           style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
-                          className="text-[14.5px] sm:text-[15.5px] font-bold text-[#211D1E] group-hover:text-[#5A1020] transition-colors leading-tight truncate"
+                          className="text-[13px] min-[360px]:text-[13.5px] sm:text-[15.5px] font-bold text-[#211D1E] group-hover:text-[#5A1020] transition-colors leading-tight line-clamp-1"
+                          title={col.name}
                         >
                           {col.name}
                         </h3>
                         <p
                           style={{ fontFamily: "'Lato', 'Inter', sans-serif" }}
-                          className="text-[10px] text-[#211D1E]/60 font-medium tracking-wide leading-tight mt-0.5 truncate"
+                          className="text-[9.5px] sm:text-[10px] text-[#211D1E]/60 font-medium tracking-wide leading-tight mt-0.5 truncate"
                         >
                           {col.subtitle}
                         </p>
                       </div>
 
                       {/* Bottom Row: Styles Count & Circular Arrow Button */}
-                      <div className="flex items-center justify-between gap-1.5 mt-2.5 pt-2 border-t border-[#E6C687]/25">
+                      <div className="flex items-center justify-between gap-1 mt-2 pt-1.5 sm:mt-2.5 sm:pt-2 border-t border-[#E6C687]/25">
                         <span
                           style={{ fontFamily: "'Lato', 'Inter', sans-serif" }}
-                          className="text-[10.5px] sm:text-[11px] font-bold text-[#211D1E]/75 tracking-tight"
+                          className="text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] font-bold text-[#211D1E]/75 tracking-tight"
                         >
                           {col.styles}
                         </span>
 
-                        <div className="w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-full bg-[#5A1020] text-white flex items-center justify-center group-hover:bg-[#8B0000] group-hover:scale-110 transition-all duration-300 shadow-sm shrink-0">
-                          <ArrowRight size={12} className="stroke-[2.2]" />
+                        <div className="w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 rounded-full bg-[#5A1020] text-white flex items-center justify-center group-hover:bg-[#8B0000] group-hover:scale-110 transition-all duration-300 shadow-sm shrink-0">
+                          <ArrowRight size={11} className="stroke-[2.2]" />
                         </div>
                       </div>
                     </div>
@@ -510,12 +491,32 @@ export default function InteractiveItemsReel() {
           </div>
         </div>
 
-        {/* ══ SLIM GOLD HORIZONTAL SCROLL PROGRESS BAR ═══════════════ */}
-        <div className="w-36 sm:w-48 h-1 bg-[#E6C687]/35 rounded-full mx-auto mt-4 mb-4 overflow-hidden">
-          <div
-            className="h-full bg-[#5A1020] rounded-full transition-all duration-300"
-            style={{ width: `${Math.max(15, scrollProgress)}%` }}
-          />
+        {/* ══ SLIM GOLD HORIZONTAL SCROLL PROGRESS BAR WITH INTEGRATED MOBILE CHEVRONS ═══════ */}
+        <div className="flex items-center justify-center gap-3 mt-2 sm:mt-4 mb-3 sm:mb-4">
+          <button
+            onClick={() => scrollByAmount(-1)}
+            disabled={!canScrollLeft}
+            aria-label="Previous collection"
+            className="flex sm:hidden w-7 h-7 rounded-full bg-white border border-[#E6C687]/50 shadow-sm items-center justify-center text-[#5A1020] disabled:opacity-25 disabled:pointer-events-none active:scale-90 transition-all"
+          >
+            <ChevronLeft size={14} />
+          </button>
+
+          <div className="w-28 sm:w-48 h-1 bg-[#E6C687]/35 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#5A1020] rounded-full transition-all duration-300"
+              style={{ width: `${Math.max(15, scrollProgress)}%` }}
+            />
+          </div>
+
+          <button
+            onClick={() => scrollByAmount(1)}
+            disabled={!canScrollRight}
+            aria-label="Next collection"
+            className="flex sm:hidden w-7 h-7 rounded-full bg-white border border-[#E6C687]/50 shadow-sm items-center justify-center text-[#5A1020] disabled:opacity-25 disabled:pointer-events-none active:scale-90 transition-all"
+          >
+            <ChevronRight size={14} />
+          </button>
         </div>
 
         {/* ══ ROYAL CRIMSON "VIEW FULL COLLECTION →" CTA BUTTON ═════ */}
@@ -528,10 +529,10 @@ export default function InteractiveItemsReel() {
           <Link
             to="/products"
             style={{ fontFamily: "'Lato', 'Manrope', 'Inter', sans-serif" }}
-            className="inline-flex items-center justify-center gap-2 bg-[#5A1020] hover:bg-[#78152B] text-white font-semibold text-[10.5px] sm:text-[11px] tracking-[0.18em] uppercase px-7 sm:px-9 py-3 rounded-full shadow-[0_6px_20px_rgba(90,16,32,0.22)] hover:shadow-[0_10px_26px_rgba(90,16,32,0.32)] hover:scale-105 active:scale-98 transition-all duration-200 min-h-[48px]"
+            className="inline-flex items-center justify-center gap-2 bg-[#5A1020] hover:bg-[#78152B] text-white font-semibold text-[10px] sm:text-[11px] tracking-[0.16em] sm:tracking-[0.18em] uppercase px-5 sm:px-9 py-2.5 sm:py-3 rounded-full shadow-[0_4px_16px_rgba(90,16,32,0.2)] hover:shadow-[0_10px_26px_rgba(90,16,32,0.32)] hover:scale-105 active:scale-98 transition-all duration-200 min-h-[40px] sm:min-h-[48px]"
           >
             <span>VIEW FULL COLLECTION</span>
-            <ArrowRight size={13} className="stroke-[2.2]" />
+            <ArrowRight size={12} className="stroke-[2.2]" />
           </Link>
 
           <div className="hidden sm:flex items-center gap-1.5 text-[#C9A45C]">

@@ -50,22 +50,22 @@ export default function BespokeTrousseauBanner() {
 
   return (
     <section className="container-luxury my-6 md:my-10 relative z-10 select-none font-body">
-      <div className="rounded-[28px] sm:rounded-3xl overflow-hidden relative shadow-2xl bg-gradient-to-r from-[#24040B] via-[#480A17] to-[#24040B] border border-[#C9A45C]/35 py-[clamp(24px,4vw,36px)] px-[clamp(16px,3.5vw,36px)] transition-all">
+      <div className="rounded-[24px] sm:rounded-3xl overflow-hidden relative shadow-2xl bg-gradient-to-r from-[#24040B] via-[#480A17] to-[#24040B] border border-[#C9A45C]/35 py-5 sm:py-7 md:py-9 px-4 sm:px-6 md:px-8 transition-all">
         
         {/* Subtle background radial glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(201,164,92,0.12),transparent_70%)] pointer-events-none" />
 
         {/* ── Top Row: 3-Column Luxury Banner Grid ── */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-center">
           
           {/* ── Left 4 Cols: Headings & Navigation Buttons ── */}
-          <div className="lg:col-span-4 text-left space-y-3.5">
-            <div className="inline-flex items-center gap-1.5 text-[#C9A45C] text-[9.5px] font-bold tracking-[0.24em] uppercase">
+          <div className="lg:col-span-4 text-left space-y-2.5 sm:space-y-3.5">
+            <div className="inline-flex items-center gap-1.5 text-[#C9A45C] text-[9px] sm:text-[9.5px] font-bold tracking-[0.24em] uppercase">
               <span>BESPOKE TROUSSEAU CURATION</span>
               <span>✦</span>
             </div>
 
-            <h2 className="font-serif text-[clamp(1.75rem,3.2vw,2.6rem)] text-white font-bold leading-tight tracking-tight">
+            <h2 className="font-serif text-[1.65rem] sm:text-3xl md:text-[2.2rem] lg:text-[2.5rem] text-white font-bold leading-[1.15] tracking-tight">
               Bridal Trousseau,<br />Elevated.
             </h2>
 
@@ -73,27 +73,37 @@ export default function BespokeTrousseauBanner() {
               Handpicked heirloom silks and embroidered ensembles delivered in a bespoke keepsake presentation.
             </p>
 
-            <div className="flex flex-wrap gap-2.5 pt-2">
+            <div className="flex flex-wrap gap-2 sm:gap-2.5 pt-1 sm:pt-2">
               <Link
                 to="/products?category=Lehengas"
-                className="inline-flex items-center justify-center gap-2 bg-[#C9A45C] hover:bg-white text-[#211D1E] font-bold text-xs tracking-widest uppercase px-5 sm:px-6 py-3 rounded-full shadow-lg transition-all active:scale-95 min-h-[44px] touch-target"
+                className="inline-flex items-center justify-center gap-1.5 bg-[#C9A45C] hover:bg-white text-[#211D1E] font-bold text-[10.5px] sm:text-xs tracking-wider sm:tracking-widest uppercase px-4 sm:px-6 py-2.5 sm:py-3 rounded-full shadow-lg transition-all active:scale-95 min-h-[40px] sm:min-h-[44px]"
               >
                 <span>EXPLORE TROUSSEAU</span>
-                <ArrowRight size={13} className="stroke-[2.5]" />
+                <ArrowRight size={12} className="stroke-[2.5]" />
               </Link>
 
               <Link
                 to="/products?category=Sarees"
-                className="inline-flex items-center justify-center gap-2 border border-white/40 hover:border-[#C9A45C] text-white hover:text-[#C9A45C] font-semibold text-xs tracking-widest uppercase px-4 sm:px-5 py-3 rounded-full transition-all min-h-[44px] touch-target"
+                className="inline-flex items-center justify-center gap-1.5 border border-white/40 hover:border-[#C9A45C] text-white hover:text-[#C9A45C] font-semibold text-[10.5px] sm:text-xs tracking-wider sm:tracking-widest uppercase px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-full transition-all min-h-[40px] sm:min-h-[44px]"
               >
                 <span>HEIRLOOM SAREES</span>
               </Link>
+
+              {/* Mobile-only Sleek Quick WhatsApp Connect (Compact luxury pill, NO bulky form) */}
+              <button
+                type="button"
+                onClick={handleWhatsAppChat}
+                className="flex lg:hidden items-center justify-center gap-1.5 border border-[#C9A45C]/60 bg-[#C9A45C]/15 text-[#C9A45C] hover:bg-[#C9A45C] hover:text-[#211D1E] font-semibold text-[10.5px] tracking-wider uppercase px-3.5 py-2.5 rounded-full transition-all min-h-[40px] active:scale-95"
+              >
+                <MessageSquare size={13} />
+                <span>CHAT WITH STYLIST</span>
+              </button>
             </div>
           </div>
 
           {/* ── Center 4 Cols: Royal Bride Portrait ── */}
           <div className="lg:col-span-4 flex justify-center">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-[#C9A45C]/40 max-w-[380px] lg:max-w-[340px] xl:max-w-[400px] w-full aspect-[16/11] group">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-[#C9A45C]/40 max-w-[340px] sm:max-w-[380px] lg:max-w-[340px] xl:max-w-[400px] w-full aspect-[16/11] group">
               <picture className="w-full h-full block">
                 <source
                   type="image/webp"
@@ -114,8 +124,8 @@ export default function BespokeTrousseauBanner() {
             </div>
           </div>
 
-          {/* ── Right 4 Cols: 3 Interactive Action Cards ── */}
-          <div className="lg:col-span-4 space-y-3 pt-1 lg:pt-0">
+          {/* ── Right 4 Cols: Desktop-Only Interactive Consultation Cards (Hidden on mobile to save vertical space) ── */}
+          <div className="hidden lg:block lg:col-span-4 space-y-3 pt-1 lg:pt-0">
             
             {/* Card 1: Book a Video Consultation */}
             <div
@@ -255,8 +265,8 @@ export default function BespokeTrousseauBanner() {
 
         </div>
 
-        {/* ── Seamless In-Place Interactive Drawer / Section ── */}
-        <div ref={panelRef}>
+        {/* ── Seamless In-Place Interactive Drawer / Section (Desktop Only - Hidden on Mobile) ── */}
+        <div ref={panelRef} className="hidden lg:block">
           <AnimatePresence mode="wait">
             {activePanel === 'video' && (
               <motion.div
