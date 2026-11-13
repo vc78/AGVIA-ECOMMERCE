@@ -12,6 +12,9 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
   const [loadingDetails, setLoadingDetails] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
 
+  // Safe fallback to order prop whenever fullOrder is null or belongs to a different order
+  const activeOrder = (fullOrder && fullOrder.id === order?.id) ? fullOrder : (order || {})
+
   useEffect(() => {
     if (!isOpen || !order) return
 
@@ -21,8 +24,8 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
     const siteUrl = typeof window !== 'undefined' && window.location?.origin 
       ? window.location.origin 
       : 'https://agvia.vercel.app'
-    const trackingRef = order.orderNumber || String(order.id)
-    const trackingToken = order.trackingToken || fullOrder?.trackingToken || null
+    const trackingRef = order.orderNumber || String(order.id || '')
+    const trackingToken = order?.trackingToken || fullOrder?.trackingToken || null
     const trackingUrl = trackingToken
       ? `${siteUrl}/track-order?token=${encodeURIComponent(trackingToken)}`
       : `${siteUrl}/track-order?order=${encodeURIComponent(trackingRef)}`
@@ -53,11 +56,11 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
 
   if (!isOpen || !order) return null
 
-  const isCOD = String(fullOrder.paymentMethod || fullOrder.payment || '').toUpperCase().includes('COD')
-  const trackingRef = fullOrder.orderNumber || `#${fullOrder.id}`
-  const subtotal = Number(fullOrder.subtotal || fullOrder.total || 0)
-  const discount = Number(fullOrder.discountAmount || 0)
-  const grandTotal = Number(fullOrder.total || 0)
+  const isCOD = String(activeOrder.paymentMethod || activeOrder.payment || '').toUpperCase().includes('COD')
+  const trackingRef = activeOrder.orderNumber || (activeOrder.id ? `#${activeOrder.id}` : '—')
+  const subtotal = Number(activeOrder.subtotal || activeOrder.total || 0)
+  const discount = Number(activeOrder.discountAmount || 0)
+  const grandTotal = Number(activeOrder.total || 0)
   const gstEstimated = Math.round(grandTotal * 0.05 / 1.05)
 
   const handlePrint = () => {
@@ -68,7 +71,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
     try {
       setIsDownloading(true)
       toast.loading(`Compiling parcel slip for #${trackingRef}...`, { id: 'modal-pdf' })
-      await exportOrderParcelReceiptPDF(fullOrder)
+      await exportOrderParcelReceiptPDF(activeOrder)
       toast.success(`Downloaded parcel receipt with unique QR!`, {
         id: 'modal-pdf',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
@@ -204,12 +207,12 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
               </div>
               <div>
                 <span className="text-[9px] uppercase tracking-wider text-[#211D1E]/60 font-semibold block">Placement Date</span>
-                <span className="font-semibold text-[#211D1E]">{fullOrder.date || '—'}</span>
+                <span className="font-semibold text-[#211D1E]">{activeOrder.date || '—'}</span>
               </div>
               <div>
                 <span className="text-[9px] uppercase tracking-wider text-[#211D1E]/60 font-semibold block">Fulfillment</span>
                 <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 text-[10px] inline-block mt-0.5">
-                  {String(fullOrder.status || 'READY').toUpperCase()}
+                  {String(activeOrder.status || 'READY').toUpperCase()}
                 </span>
               </div>
               <div>
@@ -227,13 +230,13 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                 <span className="text-[9px] font-bold uppercase tracking-wider bg-[#5A1020] text-[#FAF7F2] px-2 py-0.5 rounded-full absolute -top-2.5 left-3">
                   Ship To (Consignee)
                 </span>
-                <h4 className="font-bold text-sm text-[#5A1020] mt-1">{fullOrder.customer || 'Valued Patron'}</h4>
+                <h4 className="font-bold text-sm text-[#5A1020] mt-1">{activeOrder.customer || 'Valued Patron'}</h4>
                 <p className="text-xs text-[#211D1E]/80 mt-1 whitespace-pre-wrap leading-relaxed">
-                  {fullOrder.shippingAddress || 'Customer Delivery Address on Record'}
+                  {activeOrder.shippingAddress || 'Customer Delivery Address on Record'}
                 </p>
                 <div className="mt-2.5 pt-2 border-t border-gray-100 text-[11px] text-[#211D1E]/70 space-y-0.5 font-medium">
-                  <p><span className="text-gray-400">Phone:</span> {fullOrder.contactPhone || 'Contact verified on account'}</p>
-                  {fullOrder.userEmail && <p><span className="text-gray-400">Email:</span> {fullOrder.userEmail}</p>}
+                  <p><span className="text-gray-400">Phone:</span> {activeOrder.contactPhone || 'Contact verified on account'}</p>
+                  {activeOrder.userEmail && <p><span className="text-gray-400">Email:</span> {activeOrder.userEmail}</p>}
                 </div>
               </div>
 
@@ -295,8 +298,8 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#C9A45C]/15 bg-white">
-                  {Array.isArray(fullOrder.itemsList) && fullOrder.itemsList.length > 0 ? (
-                    fullOrder.itemsList.map((item, idx) => (
+                  {Array.isArray(activeOrder.itemsList) && activeOrder.itemsList.length > 0 ? (
+                    activeOrder.itemsList.map((item, idx) => (
                       <tr key={idx} className="hover:bg-[#FAF7F2]/50">
                         <td className="py-2 px-3 text-center text-[#211D1E]/50 font-mono text-[10px]">{idx + 1}</td>
                         <td className="py-2 px-3 font-semibold text-[#211D1E]">
@@ -315,9 +318,9 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                     <tr>
                       <td className="py-2.5 px-3 text-center font-mono text-[10px]">1</td>
                       <td className="py-2.5 px-3 font-semibold text-[#211D1E]">
-                        AGVIA Curated Luxury Women's Wear Ensemble ({fullOrder.items || 1} Piece/Set)
+                        AGVIA Curated Luxury Women's Wear Ensemble ({activeOrder.items || 1} Piece/Set)
                       </td>
-                      <td className="py-2.5 px-3 text-center font-mono font-bold">{fullOrder.items || 1}</td>
+                      <td className="py-2.5 px-3 text-center font-mono font-bold">{activeOrder.items || 1}</td>
                       <td className="py-2.5 px-3 text-right font-mono text-[#211D1E]/70">₹{subtotal.toLocaleString('en-IN')}</td>
                       <td className="py-2.5 px-3 text-right font-mono font-bold text-[#5A1020]">₹{subtotal.toLocaleString('en-IN')}</td>
                     </tr>
@@ -335,7 +338,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-emerald-700 font-semibold">
-                    <span>Discount ({fullOrder.couponCode || 'PROMO'}):</span>
+                    <span>Discount ({activeOrder.couponCode || 'PROMO'}):</span>
                     <span className="font-mono">-₹{discount.toLocaleString('en-IN')}</span>
                   </div>
                 )}
@@ -377,7 +380,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                   AGVIA Quality Checked & Sealed
                 </span>
                 <span className="font-mono text-[9px] text-[#5A1020] font-bold">
-                  SEAL: AGV-{String(fullOrder.id).padStart(4, '0')}-{fullOrder.date ? String(fullOrder.date).replace(/-/g, '') : '2026'}
+                  SEAL: AGV-{String(activeOrder.id || '0000').padStart(4, '0')}-{activeOrder.date ? String(activeOrder.date).replace(/-/g, '') : '2026'}
                 </span>
               </div>
             </div>

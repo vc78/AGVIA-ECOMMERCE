@@ -356,7 +356,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setTextColor(...THEME.goldLight)
   doc.text('AGVIA ATELIER DISPATCH SYSTEM • OFFICIAL PARCEL PACKING SLIP & TAX INVOICE', margin, 16)
 
-  const isCOD = String(order.paymentMethod || order.payment || '').toUpperCase().includes('COD')
+  const isCOD = String(order?.paymentMethod || order?.payment || '').toUpperCase().includes('COD')
   doc.text(isCOD ? 'PAYMENT: CASH ON DELIVERY (COD)' : 'PAYMENT: PREPAID (ONLINE/UPI)', pageWidth - margin, 16, { align: 'right' })
 
   // 4. Branding & QR Code Header Row
