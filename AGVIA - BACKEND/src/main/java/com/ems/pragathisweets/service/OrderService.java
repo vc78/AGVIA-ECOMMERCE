@@ -575,6 +575,7 @@ public class OrderService {
     public OrderResponse toResponse(Order order) {
         var items = order.getItems() != null ? order.getItems().stream()
                 .map(item -> OrderItemResponse.builder()
+                        .id(item.getId())
                         .productId(item.getProduct() != null ? item.getProduct().getId() : null)
                         .productName(item.getProductName())
                         .quantity(item.getQuantity())

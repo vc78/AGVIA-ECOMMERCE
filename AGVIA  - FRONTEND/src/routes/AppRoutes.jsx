@@ -77,6 +77,7 @@ const AddProduct = lazy(() => import('../pages/admin/AddProduct'))
 const EditProduct = lazy(() => import('../pages/admin/EditProduct'))
 const CategoriesManagement = lazy(() => import('../pages/admin/CategoriesManagement'))
 const OrdersManagement = lazy(() => import('../pages/admin/OrdersManagement'))
+const ReturnsManagement = lazy(() => import('../pages/admin/ReturnsManagement'))
 const Customers = lazy(() => import('../pages/admin/Customers'))
 const Inventory = lazy(() => import('../pages/admin/Inventory'))
 const OffersManagement = lazy(() => import('../pages/admin/Offers'))
@@ -169,6 +170,7 @@ export default function AppRoutes() {
           <Route path="/admin/products/edit/:id" element={<ProtectedRoute role="ADMIN"><PageTransition><EditProduct /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/categories" element={<ProtectedRoute role="ADMIN"><PageTransition><CategoriesManagement /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/orders" element={<ProtectedRoute role="ADMIN"><PageTransition><OrdersManagement /></PageTransition></ProtectedRoute>} />
+          <Route path="/admin/returns" element={<ProtectedRoute role="ADMIN"><PageTransition><ReturnsManagement /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/customers" element={<ProtectedRoute role="ADMIN"><PageTransition><Customers /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/subscriptions" element={<ProtectedRoute role="ADMIN"><PageTransition><SubscriptionsManagement /></PageTransition></ProtectedRoute>} />
           <Route path="/admin/inventory" element={<ProtectedRoute role="ADMIN"><PageTransition><Inventory /></PageTransition></ProtectedRoute>} />

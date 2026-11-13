@@ -1811,6 +1811,138 @@ export async function exportTableToPDF(columns = [], rows = [], title = 'Atelier
   doc.save(`${filename}_${formatDateStamp()}.pdf`)
 }
 
+export async function exportReverseShippingSlipPDF(returnReq) {
+  if (!returnReq) return
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a5'
+  })
+
+  const logoData = await loadLogoBase64()
+
+  // Background
+  doc.setFillColor(250, 247, 242)
+  doc.rect(0, 0, 148, 210, 'F')
+
+  // Top Maroon Banner
+  doc.setFillColor(90, 16, 32)
+  doc.rect(0, 0, 148, 28, 'F')
+
+  // Logo / Text Header
+  if (logoData) {
+    try {
+      doc.addImage(logoData, 'PNG', 12, 5, 24, 18)
+    } catch (_) {}
+  }
+  doc.setFont('times', 'bold')
+  doc.setFontSize(14)
+  doc.setTextColor(245, 230, 200)
+  doc.text('AGVIA ATELIER LOGISTICS', 42, 14)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8)
+  doc.setTextColor(201, 164, 92)
+  doc.text('REVERSE COURIER CONSIGNMENT & REPLACEMENT SLIP', 42, 20)
+
+  // Tracking & Reference Bar
+  doc.setFillColor(255, 255, 255)
+  doc.setDrawColor(201, 164, 92)
+  doc.setLineWidth(0.3)
+  doc.roundedRect(10, 33, 128, 22, 2, 2, 'FD')
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.setTextColor(120, 120, 120)
+  doc.text('REVERSE TRACKING AWB #', 14, 40)
+  doc.setFont('courier', 'bold')
+  doc.setFontSize(12)
+  doc.setTextColor(90, 16, 32)
+  doc.text(returnReq.reverseTrackingNumber || 'AGV-REV-PENDING', 14, 48)
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.setTextColor(120, 120, 120)
+  doc.text('RETURN DOSSIER #', 80, 40)
+  doc.setFont('courier', 'bold')
+  doc.setFontSize(10)
+  doc.setTextColor(50, 50, 50)
+  doc.text(returnReq.returnNumber || 'RET-REF', 80, 47)
+
+  // FROM (Patron Pickup Details)
+  doc.setFillColor(255, 255, 255)
+  doc.roundedRect(10, 60, 128, 42, 2, 2, 'FD')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(90, 16, 32)
+  doc.text('CONSIGNOR (PICKUP FROM):', 14, 67)
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(10)
+  doc.setTextColor(30, 30, 30)
+  doc.text(returnReq.userName || 'Valued Patron', 14, 74)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8.5)
+  doc.setTextColor(70, 70, 70)
+  const pickupAddrLines = doc.splitTextToSize(returnReq.pickupAddress || 'Customer shipping location', 120)
+  doc.text(pickupAddrLines, 14, 80)
+  doc.text(`Patron Contact: ${returnReq.userEmail || 'Via Atelier Support'}`, 14, 96)
+
+  // TO (Atelier Address)
+  doc.setFillColor(255, 255, 255)
+  doc.roundedRect(10, 107, 128, 38, 2, 2, 'FD')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(90, 16, 32)
+  doc.text('CONSIGNEE (SHIP TO ATELIER):', 14, 114)
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(10)
+  doc.setTextColor(30, 30, 30)
+  doc.text('AGVIA Haute Couture Atelier & Inward Returns', 14, 121)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8.5)
+  doc.setTextColor(70, 70, 70)
+  doc.text('Plot 42, Road No. 36, Near Jubilee Hills Check Post', 14, 127)
+  doc.text('Jubilee Hills, Hyderabad, Telangana - 500033', 14, 132)
+  doc.text('Concierge Desk: +91 91219 99244 | support@agvia.in', 14, 138)
+
+  // Item & Resolution Box
+  doc.setFillColor(245, 240, 230)
+  doc.roundedRect(10, 150, 128, 32, 2, 2, 'FD')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.setTextColor(90, 16, 32)
+  doc.text('GARMENT DETAILS & SERVICE ACTION:', 14, 156)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8.5)
+  doc.setTextColor(40, 40, 40)
+  doc.text(`Silhouette: ${returnReq.orderItemName || 'Couture Garment'}`, 14, 163)
+  doc.text(`Service: ${returnReq.type || 'RETURN'} | Choice: ${returnReq.resolution?.replace('_', ' ') || 'EXCHANGE'}`, 14, 169)
+  if (returnReq.targetSize) {
+    doc.text(`Exchange Target Size: ${returnReq.targetSize}`, 14, 175)
+  }
+
+  // QR Code for internal scanning
+  try {
+    const qrDataUri = await QRCode.toDataURL(`https://agvia.onrender.com/track?ref=${encodeURIComponent(returnReq.returnNumber || '')}`, {
+      margin: 1,
+      width: 75
+    })
+    doc.addImage(qrDataUri, 'PNG', 112, 152, 22, 22)
+  } catch (_) {}
+
+  // Footer note
+  doc.setFont('helvetica', 'italic')
+  doc.setFontSize(7.5)
+  doc.setTextColor(140, 140, 140)
+  doc.text('White-Glove Insured Reverse Shipment • Handle with pristine care • AGVIA Official Consignment', 14, 195)
+
+  doc.save(`AGVIA_Reverse_Slip_${returnReq.returnNumber || 'RET'}.pdf`)
+}
+
 function formatDateStamp() {
   const now = new Date()
   const yyyy = now.getFullYear()

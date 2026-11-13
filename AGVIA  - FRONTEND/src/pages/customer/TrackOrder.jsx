@@ -6,7 +6,7 @@ import {
   Search, Compass, ShieldCheck, Clock, MapPin, Package,
   CheckCircle2, AlertCircle, RefreshCw, MessageSquare, ExternalLink,
   ChevronRight, Truck, Sparkles, ChefHat, Box, ArrowRight, Printer,
-  Lock, EyeOff, FileText, ArrowLeft
+  Lock, EyeOff, FileText, ArrowLeft, RotateCcw
 } from 'lucide-react'
 import QRCode from 'qrcode'
 import Navbar from '../../components/customer/Navbar'
@@ -196,6 +196,9 @@ export default function TrackOrder() {
     } else if (actionName === 'download invoice') {
       toast('Redirecting to your orders to download authentic invoice...', { icon: '📄' })
       navigate('/orders')
+    } else if (actionName === 'initiate return or exchange') {
+      const orderNum = trackingOrder?.orderNumber || trackingOrder?.id || ''
+      navigate(`/orders?openReturn=${encodeURIComponent(orderNum)}`)
     } else {
       navigate('/orders')
     }
@@ -487,6 +490,17 @@ export default function TrackOrder() {
                     >
                       <FileText size={12} /> Invoice PDF
                     </button>
+
+                    {trackingOrder?.status?.toUpperCase() === 'DELIVERED' && (
+                      <button
+                        type="button"
+                        onClick={() => handleProtectedAction('initiate return or exchange')}
+                        className="py-2.5 px-4 bg-[#FAF6EE] hover:bg-[#F5E6C8] text-[#5A1020] border border-[#C9A45C]/40 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
+                        title="Request Size Exchange or Return within 7 days"
+                      >
+                        <RotateCcw size={12} /> Return / Exchange
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

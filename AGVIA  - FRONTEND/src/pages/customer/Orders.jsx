@@ -32,6 +32,7 @@ import { BUSINESS } from '../../constants/business'
 import { safeOpenWindow } from '../../utils/windowManager'
 import { exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
 import SEOHead from '../../components/common/SEOHead'
+import ReturnRequestModal from '../../components/customer/ReturnRequestModal'
 
 const getStatusBadge = (status = '') => {
   switch (status.toUpperCase()) {
@@ -65,6 +66,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [expandedOrderId, setExpandedOrderId] = useState(null)
+  const [returnModalOrder, setReturnModalOrder] = useState(null)
   const { user } = useSelector((state) => state.auth)
   const location = useLocation()
 
@@ -83,6 +85,16 @@ export default function Orders() {
 
       if (location.state?.newOrderId) {
         setExpandedOrderId((prev) => prev || location.state.newOrderId)
+      }
+
+      const params = new URLSearchParams(location.search)
+      const returnTarget = location.state?.openReturn || params.get('openReturn')
+      if (returnTarget) {
+        const found = sorted.find(x => String(x.id) === String(returnTarget) || String(x.orderNumber) === String(returnTarget) || String(x.backendId) === String(returnTarget))
+        if (found) {
+          setExpandedOrderId(found.id)
+          setReturnModalOrder(found)
+        }
       }
     } catch (err) {
       console.error('[Orders] Failed to load orders:', err)
@@ -598,6 +610,17 @@ export default function Orders() {
                                     <Download size={12} /> Receipt & QR
                                   </button>
 
+                                  {o.status?.toUpperCase() === 'DELIVERED' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setReturnModalOrder(o)}
+                                      className="btn-outline !py-2 !px-3.5 text-[10px] flex items-center gap-1.5 font-bold text-[#5A1020] border-[#5A1020]/30 hover:bg-[#5A1020]/5 shadow-2xs"
+                                      title="Request Return or Size Exchange within 7 days of delivery"
+                                    >
+                                      <RotateCcw size={12} className="text-[#5A1020]" /> Return / Exchange
+                                    </button>
+                                  )}
+
                                   <button
                                     onClick={() => {
                                       const text = encodeURIComponent(`Hello AGVIA Concierge, I would like assistance regarding my atelier order #${o.orderNumber || o.id}.`)
@@ -624,6 +647,16 @@ export default function Orders() {
 
         </div>
       </div>
+
+      <ReturnRequestModal
+        isOpen={Boolean(returnModalOrder)}
+        onClose={() => setReturnModalOrder(null)}
+        order={returnModalOrder}
+        onSuccess={() => {
+          fetchOrders()
+          setReturnModalOrder(null)
+        }}
+      />
 
       <Footer />
     </div>

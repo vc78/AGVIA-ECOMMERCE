@@ -122,6 +122,43 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         try {
+            jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS return_requests (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    return_number VARCHAR(32) NOT NULL UNIQUE,
+                    order_id BIGINT NOT NULL,
+                    user_id BIGINT NOT NULL,
+                    order_item_id BIGINT NULL,
+                    type VARCHAR(20) NOT NULL,
+                    reason VARCHAR(30) NOT NULL,
+                    resolution VARCHAR(30) NOT NULL,
+                    status VARCHAR(30) NOT NULL,
+                    target_size VARCHAR(50) NULL,
+                    target_color VARCHAR(100) NULL,
+                    target_variant_id BIGINT NULL,
+                    customer_notes VARCHAR(1000) NULL,
+                    images_json TEXT NULL,
+                    bank_details TEXT NULL,
+                    pickup_address VARCHAR(500) NULL,
+                    reverse_courier_partner VARCHAR(100) NULL,
+                    reverse_tracking_number VARCHAR(100) NULL,
+                    credit_coupon_code VARCHAR(50) NULL,
+                    refund_amount DECIMAL(10, 2) NULL,
+                    admin_notes VARCHAR(1000) NULL,
+                    created_at DATETIME NULL,
+                    updated_at DATETIME NULL,
+                    INDEX idx_return_order_id (order_id),
+                    INDEX idx_return_user_id (user_id),
+                    INDEX idx_return_status (status),
+                    INDEX idx_return_number (return_number)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """);
+            log.info("Verified return_requests table in database");
+        } catch (Exception ex) {
+            log.warn("Notice checking return_requests table: {}", ex.getMessage());
+        }
+
+        try {
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN phone VARCHAR(20)");
         } catch (Exception ignored) {}
         try {

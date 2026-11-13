@@ -63,3 +63,4 @@ assert.strictEqual(r4.trackingRef, '#10')
 console.log('✅ Scenario 4 Passed: Order with undefined paymentMethod handles defaults safely.')
 
 console.log('🎉 ALL PARCEL RECEIPT MODAL SAFETY TESTS PASSED!')
+
