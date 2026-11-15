@@ -147,11 +147,11 @@ export default function Login() {
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
 
           <Link to="/" className="flex flex-col items-center mb-6 sm:mb-8 select-none group">
-            <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#800020] leading-none group-hover:text-[#F5B900] transition-colors duration-300">
-              NOOLU
+            <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#8B0000] leading-none group-hover:text-[#B8860B] transition-colors duration-300">
+              AGVIA
             </span>
-            <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#F5B900] font-semibold mt-1.5 pl-[1px]">
-              A RHYTHM OF LOOM • నూలు
+            <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#B8860B] font-semibold mt-1.5 pl-[1px]">
+              HAUTE COUTURE BOUTIQUE
             </span>
           </Link>
 
@@ -173,7 +173,7 @@ export default function Login() {
                 required
                 value={form.identifier}
                 onChange={handleChange}
-                placeholder="e.g. client@noolu.in or 9032306961"
+                placeholder="e.g. client@agvia.com or 9032306961"
                 className="input-field"
               />
             </div>

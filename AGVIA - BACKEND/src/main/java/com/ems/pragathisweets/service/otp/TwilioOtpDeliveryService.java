@@ -57,7 +57,7 @@ public class TwilioOtpDeliveryService implements OtpDeliveryService {
             headers.set(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder()
                     .encodeToString((sid + ":" + token).getBytes(StandardCharsets.UTF_8)));
 
-            String messageText = "NOOLU Verification Code: " + otp + ". Valid for 5 minutes. Do not share this OTP.";
+            String messageText = "AGVIA Boutique Verification Code: " + otp + ". Valid for 5 minutes. Do not share this OTP.";
 
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("From", fromNumber);

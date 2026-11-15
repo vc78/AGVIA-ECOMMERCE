@@ -59,13 +59,13 @@ export default function Footer() {
     try {
       const { data } = await api.post('/newsletter/subscribe', { email })
       if (data?.data) localStorage.setItem('ps_circle_member', JSON.stringify(data.data))
-      toast.success(data?.message || 'Welcome to NOOLU! Stay in the weave. Code NOOLU15 unlocked.', {
-        icon: '👑', style: { background: '#800020', color: '#FFF8EB', borderRadius: '12px' }
+      toast.success(data?.message || 'Welcome to AGVIA Haute Circle! Code CIRCLE15 unlocked.', {
+        icon: '👑', style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
       })
       setEmail('')
     } catch {
-      toast.success('Welcome to NOOLU! Stay in the weave.', {
-        icon: '👑', style: { background: '#800020', color: '#FFF8EB', borderRadius: '12px' }
+      toast.success('Welcome to AGVIA Haute Circle! Your VIP perks are active.', {
+        icon: '👑', style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
       })
       setEmail('')
     } finally {
@@ -243,8 +243,8 @@ export default function Footer() {
               <Link to="/" className="mb-3 group inline-block">
                 <img
                   src="/images/agvia-logo.webp"
-                  alt="NOOLU — A Rhythm of Loom"
-                  width={120}
+                  alt="AGVIA Women's Wear Boutique"
+                  width={180}
                   height={60}
                   loading="lazy"
                   decoding="async"
@@ -252,7 +252,7 @@ export default function Footer() {
                 />
               </Link>
               <p className="font-sans text-[11.5px] sm:text-[12px] text-white/70 leading-relaxed mb-4 max-w-sm">
-                At NOOLU, we celebrate the artistry of Indian textiles and the timeless beauty of weaving. Inspired by heritage and crafted for contemporary living, every collection brings together tradition, detail and elegance.
+                Curating bespoke ethnic and contemporary wear for the modern woman. Tradition, quality and elegance — all in one place.
               </p>
               
               {/* Circular Gold Outline Social Icons */}
@@ -410,10 +410,10 @@ export default function Footer() {
               </div>
               <div>
                 <h5 className="font-serif text-[13.5px] sm:text-[14px] font-semibold text-white tracking-wide">
-                  Stay in the Weave.
+                  Subscribe to Our World
                 </h5>
                 <p className="font-sans text-[10.5px] sm:text-[11px] text-white/60">
-                  Get exclusive updates on new collections, heritage weaves, and private invitations.
+                  Get exclusive updates, new arrivals and special offers.
                 </p>
               </div>
             </div>
@@ -480,7 +480,7 @@ export default function Footer() {
             
             {/* Copyright */}
             <p className="font-sans text-[10.5px] text-white/50 tracking-wider">
-              © {new Date().getFullYear()} NOOLU — A Rhythm of Loom. All rights reserved.
+              © {new Date().getFullYear()} AGVIA Women's Wear Boutique. All rights reserved.
             </p>
 
             {/* Middle Nav Links */}

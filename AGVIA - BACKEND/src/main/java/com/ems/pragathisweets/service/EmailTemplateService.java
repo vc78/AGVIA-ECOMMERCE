@@ -343,9 +343,9 @@ public class EmailTemplateService {
         }
         sb.append("Delivery: Rs. ").append(formatMoney(data.getDeliveryCharge())).append("\n");
         sb.append("Grand Total: Rs. ").append(formatMoney(data.getGrandTotal())).append("\n\n");
-        sb.append("Support: Email ").append(data.getSupportEmail() != null ? data.getSupportEmail() : "care@noolu.in")
+        sb.append("Support: Email ").append(data.getSupportEmail() != null ? data.getSupportEmail() : "support@agvia.in")
                 .append(" or Phone ").append(data.getSupportPhone() != null ? data.getSupportPhone() : "+91 90323 06961").append("\n");
-        sb.append("Thank you for choosing NOOLU — A Rhythm of Loom!\n");
+        sb.append("Thank you for choosing AGVIA Women's Wear Boutique!\n");
         return sb.toString();
     }
 

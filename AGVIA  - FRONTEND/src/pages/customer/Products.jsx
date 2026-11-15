@@ -106,13 +106,13 @@ export default function Products() {
     : 'All Silhouettes'
 
   const pageDescription = activeCategory !== 'All'
-    ? `Explore NOOLU's exclusive ${activeCategory} collection. Handcrafted pure silk garments, intricate zardozi embroidery, and timeless bespoke fits.`
-    : "Explore the complete NOOLU catalog. Handloom sarees, designer bridal lehengas, bespoke kurtis, and contemporary royal festive wear."
+    ? `Explore AGVIA's exclusive ${activeCategory} collection. Handcrafted pure silk garments, intricate zardozi embroidery, and timeless bespoke fits.`
+    : "Explore the complete AGVIA catalog. Handloom sarees, designer bridal lehengas, bespoke kurtis, and contemporary royal festive wear."
 
   const itemListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: activeCategory === 'All' ? 'NOOLU Atelier Collections' : `NOOLU ${activeCategory} Collection`,
+    name: activeCategory === 'All' ? 'AGVIA Atelier Collections' : `AGVIA ${activeCategory} Collection`,
     itemListElement: products.slice(0, 10).map((p, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,

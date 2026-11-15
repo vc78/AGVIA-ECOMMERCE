@@ -16,8 +16,8 @@
 	<groupId>com.ems</groupId>
 	<artifactId>pragathi-sweets-backend</artifactId>
 	<version>1.0.0</version>
-	<name>NOOLU Boutique Backend</name>
-	<description>NOOLU - A Rhythm of Loom E-Commerce Backend &amp; Analytics System</description>
+	<name>AGVIA Boutique Backend</name>
+	<description>AGVIA Women's Wear Boutique E-Commerce Backend &amp; Analytics System</description>
 
 	<properties>
 		<java.version>21</java.version>

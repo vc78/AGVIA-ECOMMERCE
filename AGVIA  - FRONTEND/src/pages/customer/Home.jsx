@@ -29,11 +29,50 @@ import BestsellerCurvedCarousel from '../../components/customer/BestsellerCurved
 import RangoliDivider from '../../components/customer/RangoliDivider'
 import TestimonialsCarousel from '../../components/customer/TestimonialsCarousel'
 import BespokeTrousseauBanner from '../../components/customer/BespokeTrousseauBanner'
-import HeroCarousel from '../../components/customer/HeroCarousel'
 import { productService } from '../../services/productService'
 import { useCart } from '../../hooks/useCart'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import SEOHead from '../../components/common/SEOHead'
+
+// ── Hero Slides ────────────────────────────────────────────
+const HERO_SLIDES = [
+  {
+    image: '/images/hero_dupatta_couture.jpg',
+    tag: 'WEAR YOUR STORY •',
+    titleMain: 'Timeless\nTradition',
+    titleScript: 'Modern You',
+    subtitle: 'Explore our curated ethnic and contemporary collections crafted for every occasion.',
+    cta: '/products',
+    accent: '#C9A45C',
+  },
+  {
+    image: '/images/classic_silk_saree.jpg',
+    tag: 'THE SIGNATURE SILK EDIT •',
+    titleMain: 'Heirloom\nSilks',
+    titleScript: 'Pure Grace',
+    subtitle: 'Pure Kanjeevaram and Banarasi handlooms woven with fine gold zari borders.',
+    cta: '/products?category=Sarees',
+    accent: '#C9A45C',
+  },
+  {
+    image: '/images/wedding_lehenga.jpg',
+    tag: 'ROYAL BRIDAL ATELIER •',
+    titleMain: 'Wedding\nCouture',
+    titleScript: 'Regal Charm',
+    subtitle: 'Hand-embroidered zardozi bridal sets with double dupattas and bespoke fit.',
+    cta: '/products?category=Lehengas',
+    accent: '#5A1020',
+  },
+  {
+    image: '/images/anarkali_set.jpg',
+    tag: 'FESTIVE OCCASION WEAR •',
+    titleMain: 'Embroidered\nAnarkalis',
+    titleScript: 'Flowing Kalis',
+    subtitle: 'Intricate kalis adorned with fine mirror-work and delicate thread embroidery.',
+    cta: '/products?category=Anarkalis+%26+Kurtas',
+    accent: '#7A1F32',
+  },
+]
 
 export default function Home() {
   const [bestsellers, setBestsellers] = useState([])
@@ -47,6 +86,15 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [showStoryModal, setShowStoryModal] = useState(false)
   const { addToCart } = useCart()
+
+  // Hero state
+  const [heroIdx, setHeroIdx] = useState(0)
+  const [heroDir, setHeroDir] = useState(1)
+  const heroTimer = useRef(null)
+
+  // Scroll parallax
+  const { scrollY } = useScroll()
+  const yBg = useTransform(scrollY, [0, 400], [0, 60])
 
   useEffect(() => {
     setLoading(true)
@@ -69,7 +117,7 @@ export default function Home() {
         console.warn('Could not load dynamic homepage data, falling back:', err)
       })
       .finally(() => {
-        // 2. Fetch full product catalog as fallback
+        // 2. Fetch full product catalog as fallback and for AGVIA Edit
         productService.getAll()
           .then((list) => {
             const safeList = Array.isArray(list) ? list : []
@@ -85,17 +133,41 @@ export default function Home() {
       })
   }, [])
 
+  const startHeroTimer = () => {
+    clearInterval(heroTimer.current)
+    heroTimer.current = setInterval(() => {
+      setHeroDir(1)
+      setHeroIdx(i => (i + 1) % HERO_SLIDES.length)
+    }, 6500)
+  }
+
+  useEffect(() => {
+    startHeroTimer()
+    return () => clearInterval(heroTimer.current)
+  }, [])
+
+  const gotoSlide = (idx) => {
+    setHeroDir(idx > heroIdx ? 1 : -1)
+    setHeroIdx(idx)
+    startHeroTimer()
+  }
+
+  const prevSlide = () => { setHeroDir(-1); setHeroIdx(i => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length); startHeroTimer() }
+  const nextSlide = () => { setHeroDir(1); setHeroIdx(i => (i + 1) % HERO_SLIDES.length); startHeroTimer() }
+
   const handleAdd = (product) => {
     addToCart(product)
-    toast.success(`${product.name} added to cart!`, { style: { background: '#800020', color: '#FFF8EB', borderRadius: '12px' } })
+    toast.success(`${product.name} added to cart!`, { style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' } })
   }
+
+  const slide = HERO_SLIDES[heroIdx]
 
   // Default sections order if not customized by admin in database
   const defaultSectionConfig = [
-    { sectionKey: 'HERO_BANNER', title: 'Woven with Heritage. Styled for Today.' },
-    { sectionKey: 'SHOP_BY_COLLECTION', title: 'Explore Our Collections' },
-    { sectionKey: 'BRAND_STORY', title: 'Every Thread Has a Story.' },
-    { sectionKey: 'BEST_SELLERS', title: 'The Signature Weaves' },
+    { sectionKey: 'HERO_BANNER', title: 'Timeless Tradition • Modern You' },
+    { sectionKey: 'SHOP_BY_COLLECTION', title: 'The Royal Curations' },
+    { sectionKey: 'BRAND_STORY', title: 'Bridal Trousseau Atelier' },
+    { sectionKey: 'BEST_SELLERS', title: 'The Signature Edit' },
     { sectionKey: 'TRENDING_NOW', title: 'Trending This Season' },
     { sectionKey: 'NEW_ARRIVALS', title: 'Fresh From The Atelier' },
     { sectionKey: 'SHOP_BY_COLOR', title: 'Palette Royale' },
@@ -111,50 +183,166 @@ export default function Home() {
     switch (key) {
       case 'HERO_BANNER':
         return (
-          <div key="hero-section" className="relative flex flex-col bg-[#1A050B]">
-            <HeroCarousel onOpenStoryModal={() => setShowStoryModal(true)} />
-            {/* Luxury Brand Trust Pillars */}
-            <div className="relative z-20 w-full container-luxury -mt-6 sm:-mt-8 mb-6">
-              <div className="bg-black/75 backdrop-blur-2xl border border-white/20 rounded-2xl py-3.5 px-4 sm:px-6 md:px-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:divide-x divide-white/10 text-white">
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#800020]/60 border border-[#F5B900]/50 flex items-center justify-center text-[#F5B900] shrink-0">
-                    <Layers size={15} />
+          <section key="hero" className="relative min-h-[560px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[820px] xl:min-h-[880px] flex flex-col justify-between overflow-hidden bg-[#240810] pt-3 sm:pt-4 pb-4 sm:pb-6">
+            <AnimatePresence mode="sync">
+              <motion.div
+                key={heroIdx}
+                className="absolute inset-0 z-0"
+                initial={{ opacity: 0, scale: 1.04, x: heroDir * 50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.98, x: -heroDir * 40 }}
+                transition={{ duration: 0.9, ease: [0.25, 1, 0.5, 1] }}
+              >
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet={`${slide.image.replace(/\.(jpg|jpeg|png)$/i, '')}-600.webp 600w, ${slide.image.replace(/\.(jpg|jpeg|png)$/i, '')}-900.webp 900w, ${slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')} 1280w`}
+                    sizes="100vw"
+                  />
+                  <motion.img
+                    src={slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')}
+                    alt={slide.titleMain || 'AGVIA Boutique'}
+                    loading={heroIdx === 0 ? 'eager' : 'lazy'}
+                    fetchpriority={heroIdx === 0 ? 'high' : 'auto'}
+                    decoding={heroIdx === 0 ? 'sync' : 'async'}
+                    width={1280}
+                    height={714}
+                    className="absolute -top-8 -bottom-8 w-full h-[calc(100%+64px)] object-cover object-[center_28%] lg:object-center filter contrast-[1.03] brightness-[0.96]"
+                    style={{ y: yBg }}
+                  />
+                </picture>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1A040C]/90 via-[#1A040C]/55 to-transparent sm:w-4/5 lg:w-3/5" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#150309] via-transparent to-black/35" />
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/50 to-transparent pointer-events-none z-10" />
+
+            <div className="relative z-10 w-full container-luxury flex-1 flex items-center py-4 sm:py-8 md:py-10">
+              <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8">
+                <div className="flex items-start gap-3 sm:gap-6 max-w-2xl">
+                  <div className="hidden sm:flex flex-col items-center gap-3 text-white/45 text-[11px] font-mono select-none pt-2">
+                    <span className={`transition-all font-bold ${heroIdx === 0 ? 'text-white text-xs' : 'text-white/40'}`}>01</span>
+                    <span className="w-[1.5px] h-6 bg-white/70 rounded-full" />
+                    <button onClick={() => gotoSlide(1)} className={`hover:text-white transition-colors ${heroIdx === 1 ? 'text-white font-bold' : ''}`}>02</button>
+                    <button onClick={() => gotoSlide(2)} className={`hover:text-white transition-colors ${heroIdx === 2 ? 'text-white font-bold' : ''}`}>03</button>
+                    <button onClick={() => gotoSlide(3)} className={`hover:text-white transition-colors ${heroIdx === 3 ? 'text-white font-bold' : ''}`}>04</button>
                   </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Pure Handloom Silks</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#F5B900]/90 tracking-wider truncate">Certified Pure Weaves</p>
+
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="inline-flex items-center gap-1.5 text-[#E6C894] tracking-[0.26em] text-[9px] sm:text-[10px] font-bold uppercase">
+                      <span>{slide.tag || 'WEAR YOUR STORY •'}</span>
+                    </div>
+
+                    <h1 className="font-display text-[clamp(2.2rem,5.5vw,4.5rem)] font-bold text-white leading-[1.03] tracking-tight">
+                      Timeless<br />
+                      Tradition<br />
+                      <span
+                        style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
+                        className="italic font-normal text-[clamp(2.8rem,7vw,5.5rem)] text-[#FFFDF8] block -mt-1 sm:-mt-2 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
+                      >
+                        Modern You
+                      </span>
+                    </h1>
+
+                    <p className="font-sans text-xs sm:text-[13.5px] text-white/85 max-w-md leading-relaxed tracking-wide">
+                      {slide.subtitle || 'Explore our curated ethnic and contemporary collections crafted for every occasion.'}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      <Link
+                        to={slide.cta || '/products'}
+                        className="inline-flex items-center justify-center gap-2 bg-[#6B1426] hover:bg-[#8B1A32] text-white font-bold text-[11px] sm:text-xs tracking-[0.16em] uppercase px-7 sm:px-8 py-3.5 rounded-full shadow-[0_8px_25px_rgba(107,20,38,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 min-h-[48px]"
+                      >
+                        <span>EXPLORE COLLECTIONS</span>
+                        <ArrowRight size={13} className="stroke-[2.5]" />
+                      </Link>
+
+                      <button
+                        onClick={() => setShowStoryModal(true)}
+                        className="inline-flex items-center justify-center gap-2 bg-black/35 hover:bg-black/55 border border-white/30 text-white font-semibold text-[11px] sm:text-xs tracking-[0.12em] uppercase px-6 py-3.5 rounded-full backdrop-blur-md transition-all duration-200 hover:border-white/60 active:scale-95 min-h-[48px]"
+                      >
+                        <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-white text-[9px] pl-0.5">▶</span>
+                        <span>WATCH OUR STORY</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <div className="flex -space-x-2">
+                        <img src="/images/classic_silk_saree-400.webp" alt="Client 1" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
+                        <img src="/images/wedding_lehenga-400.webp" alt="Client 2" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
+                        <img src="/images/anarkali_set-400.webp" alt="Client 3" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
+                      </div>
+                      <div className="text-[11px] sm:text-xs text-white/90">
+                        <span className="font-bold tracking-wide">10,000+ Happy Customers</span>
+                        <div className="flex text-[#FFD700] text-[10px] gap-0.5 mt-0.5">
+                          {'★★★★★'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#800020]/60 border border-[#F5B900]/50 flex items-center justify-center text-[#F5B900] shrink-0">
-                    <Gem size={15} />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Artisanal Zari Work</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#F5B900]/90 tracking-wider truncate">Heirloom Craftsmanship</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#800020]/60 border border-[#F5B900]/50 flex items-center justify-center text-[#F5B900] shrink-0">
-                    <ShieldCheck size={15} />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Secure Payments</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#F5B900]/90 tracking-wider truncate">Razorpay & Insured COD</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#800020]/60 border border-[#F5B900]/50 flex items-center justify-center text-[#F5B900] shrink-0">
-                    <Globe size={15} />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Insured Logistics</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#F5B900]/90 tracking-wider truncate">Tamper-Evident Delivery</p>
+
+                <div className="hidden lg:flex flex-col items-end justify-center h-[420px] text-right self-stretch pr-2">
+                  <div className="pt-4">
+                    <p
+                      style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
+                      className="text-4xl xl:text-5xl text-white transform -rotate-3 select-none leading-tight filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                    >
+                      Elegance
+                    </p>
+                    <p
+                      style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
+                      className="text-3xl xl:text-4xl text-[#E6C894] transform -rotate-3 select-none leading-none -mt-1 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                    >
+                      in Every Detail ♡
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+
+            <div className="relative z-20 w-full container-luxury pt-3">
+              <div className="bg-black/40 backdrop-blur-xl border border-white/18 rounded-2xl py-3 px-3.5 sm:px-6 md:px-8 shadow-[0_20px_50px_rgba(0,0,0,0.4)] grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 md:divide-x divide-white/10 text-white">
+                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                    <Layers size={15} />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Premium Fabrics</p>
+                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Handpicked Quality</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                    <Gem size={15} />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Bespoke Designs</p>
+                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Made for You</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                    <ShieldCheck size={15} />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Secure Payments</p>
+                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Safe & Trusted</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
+                    <Globe size={15} />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Worldwide Shipping</p>
+                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Delivering Happiness</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         )
 
       case 'SHOP_BY_COLLECTION':
@@ -332,7 +520,7 @@ export default function Home() {
             <div className="container-luxury">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-2 border-b border-[#C9A45C]/20">
                 <div>
-                  <span className="section-eyebrow text-[#C9A45C]">✦ THE NOOLU EDIT ✦</span>
+                  <span className="section-eyebrow text-[#C9A45C]">✦ THE AGVIA EDIT ✦</span>
                   <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'Every Drape, Perfected'}</h2>
                   {sec.subtitle && <p className="section-description">{sec.subtitle}</p>}
                 </div>
@@ -374,8 +562,8 @@ export default function Home() {
   return (
     <div className="relative min-h-full bg-[#FFFDF8] overflow-x-hidden pb-14 sm:pb-0">
       <SEOHead
-        title="Woven with Heritage. Styled for Today."
-        description="Discover NOOLU — a contemporary expression of Indian textile heritage, timeless style and beautiful collections."
+        title="Luxury Women's Fashion, Handcrafted Sarees & Designer Wear"
+        description="Experience timeless elegance with AGVIA. Shop luxury handcrafted silk sarees, bridal lehengas, designer kurtis, and contemporary ethnic wear."
         canonicalUrl="/"
         type="website"
       />
@@ -416,11 +604,11 @@ export default function Home() {
               <X size={18} />
             </button>
             <div className="inline-flex items-center gap-1.5 text-[#C9A45C] text-xs font-bold tracking-widest uppercase mb-3">
-              <span>✦ NOOLU ATELIER HERITAGE ✦</span>
+              <span>✦ AGVIA ATELIER HERITAGE ✦</span>
             </div>
-            <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3">Every Thread Has a Story.</h3>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3">Crafted for Royal Moments</h3>
             <p className="font-sans text-xs sm:text-sm text-white/80 max-w-lg mx-auto leading-relaxed mb-6">
-              At NOOLU, we celebrate the artistry of Indian textiles and the timeless beauty of weaving. Inspired by heritage and crafted for contemporary living, every collection brings together tradition, detail and elegance.
+              Step inside our Hyderabad atelier where master artisans hand-embroider zardozi motifs and handloom pure silk heirlooms for brides and discerning connoisseurs across the globe.
             </p>
             <div className="rounded-2xl overflow-hidden aspect-video relative border border-[#C9A45C]/30 mb-6 bg-black">
               <img src="/images/hero_dupatta_couture-600.webp" alt="Atelier Preview" width={600} height={335} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-85" />

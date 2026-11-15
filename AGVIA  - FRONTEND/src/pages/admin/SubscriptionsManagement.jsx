@@ -179,7 +179,7 @@ export default function SubscriptionsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-[10px] tracking-[0.25em] font-bold text-[#B8860B] uppercase">Memberships</span>
               <span className="text-xs bg-[#B8860B]/15 text-[#8B0000] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Crown size={11} /> NOOLU Atelier Circle
+                <Crown size={11} /> AGVIA Atelier Circle
               </span>
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl text-[#5A1020] font-bold mt-1">

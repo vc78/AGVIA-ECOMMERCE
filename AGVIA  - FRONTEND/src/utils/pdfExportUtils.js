@@ -1,5 +1,5 @@
 /**
- * NOOLU — A Rhythm of Loom - Interactive Company-Oriented Luxury PDF Generator
+ * AGVIA Haute Couture - Interactive Company-Oriented Luxury PDF Generator
  * Generates branded, high-fidelity PDF documents with company logo, gold crest accents,
  * KPI summary tiles, structured data tables, and official verification seals.
  */
@@ -46,7 +46,7 @@ async function loadLogoBase64() {
 }
 
 /**
- * Creates and formats the official NOOLU luxury branded document header
+ * Creates and formats the official AGVIA luxury branded document header
  */
 function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRange }) {
   const pageWidth = doc.internal.pageSize.getWidth()
@@ -62,7 +62,7 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...THEME.goldLight)
-  doc.text('NOOLU ATELIER ENTERPRISE SYSTEM • OFFICIAL CONFIDENTIAL REPORT', 14, 8)
+  doc.text('AGVIA ATELIER ENTERPRISE SYSTEM • OFFICIAL CONFIDENTIAL REPORT', 14, 8)
   
   const nowStr = new Date().toLocaleString('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric',
@@ -75,8 +75,8 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
 
   if (logoData) {
     try {
-      // Draw logo (width 28, height 14 - 2:1 aspect ratio)
-      doc.addImage(logoData, 'PNG', 14, y, 28, 14)
+      // Draw logo (width 32, height 12)
+      doc.addImage(logoData, 'PNG', 14, y, 32, 12)
     } catch (_) {
       drawTextCrest(doc, 14, y)
     }
@@ -138,11 +138,11 @@ function drawTextCrest(doc, x, y) {
   doc.setFont('times', 'bold')
   doc.setFontSize(14)
   doc.setTextColor(...THEME.maroon)
-  doc.text('NOOLU', x, y + 6)
+  doc.text('AGVIA', x, y + 6)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(6.5)
   doc.setTextColor(...THEME.goldDark)
-  doc.text('A RHYTHM OF LOOM', x, y + 10)
+  doc.text('HAUTE COUTURE ATELIER', x, y + 10)
 }
 
 /**
@@ -208,7 +208,7 @@ function setupPageDecorations(doc, logoData, headerConfig) {
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7)
     doc.setTextColor(...THEME.charcoalMuted)
-    doc.text('NOOLU — A RHYTHM OF LOOM • CERTIFIED ATELIER AUDIT DOCUMENT', 14, footerY + 1)
+    doc.text('AGVIA WOMEN\'S WEAR BOUTIQUE • CERTIFIED ATELIER AUDIT DOCUMENT', 14, footerY + 1)
     doc.text(`PAGE ${i} OF ${pageCount}`, pageWidth - 14, footerY + 1, { align: 'right' })
   }
 }
@@ -295,7 +295,7 @@ export async function exportOrdersPDF(orders = [], filterName = 'All Orders') {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_orders_dispatch_${formatDateStamp()}.pdf`)
+  doc.save(`agvia_orders_dispatch_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -354,7 +354,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...THEME.goldLight)
-  doc.text('NOOLU ATELIER DISPATCH SYSTEM • OFFICIAL PARCEL PACKING SLIP & TAX INVOICE', margin, 16)
+  doc.text('AGVIA ATELIER DISPATCH SYSTEM • OFFICIAL PARCEL PACKING SLIP & TAX INVOICE', margin, 16)
 
   const isCOD = String(order?.paymentMethod || order?.payment || '').toUpperCase().includes('COD')
   doc.text(isCOD ? 'PAYMENT: CASH ON DELIVERY (COD)' : 'PAYMENT: PREPAID (ONLINE/UPI)', pageWidth - margin, 16, { align: 'right' })
@@ -363,7 +363,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   let y = 28
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', margin, y, 30, 15)
+      doc.addImage(logoData, 'PNG', margin, y, 36, 13)
     } catch (_) {
       drawTextCrest(doc, margin, y)
     }
@@ -374,12 +374,12 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(13)
   doc.setTextColor(...THEME.maroon)
-  doc.text('NOOLU ATELIER', margin + 40, y + 5.5)
+  doc.text('AGVIA ATELIER', margin + 40, y + 5.5)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
   doc.setTextColor(...THEME.charcoalMuted)
-  doc.text('A Rhythm of Loom • Handcrafted Silks & Luxury Women\'s Wear Boutique', margin + 40, y + 10)
+  doc.text('Heritage Haute Couture & Luxury Women\'s Wear Boutique', margin + 40, y + 10)
   doc.text('GSTIN: 36AAHCA1234F1Z5  |  CIN: U18101TG2026PTC099882  |  HSN/SAC: 6204', margin + 40, y + 14)
 
   // QR Code Box (Right Side)
@@ -513,7 +513,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(8.5)
   doc.setTextColor(...THEME.maroon)
-  doc.text('NOOLU ATELIER DISPATCH CENTER', fromX + 4, y + 12)
+  doc.text('AGVIA ATELIER DISPATCH CENTER', fromX + 4, y + 12)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
@@ -575,7 +575,7 @@ export async function exportOrderParcelReceiptPDF(order) {
     itemsRows = [
       [
         '1',
-        'NOOLU Luxury Women\'s Wear Ensemble (Curated Dispatch)',
+        'AGVIA Luxury Women\'s Wear Ensemble (Curated Dispatch)',
         String(order.items || 1),
         `Rs. ${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`,
         `Rs. ${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`
@@ -654,7 +654,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.text('• Handle with Care: Artisan silk, embroidery, and embellishments.', margin + 3, finalY + 9)
   doc.text('• Scannable QR: Delivery agent / patron can scan to inspect status.', margin + 3, finalY + 13.5)
   doc.text('• Returns & Exchanges: Within 7 days of delivery with original seal.', margin + 3, finalY + 18)
-  doc.text('• Concierge WhatsApp: +91 90323 06961 | Email: care@noolu.in', margin + 3, finalY + 22.5)
+  doc.text('• Concierge WhatsApp: +91 90323 06961 | Email: support@agvia.com', margin + 3, finalY + 22.5)
 
   // Right Side Box: Financial Calculation Totals
   doc.setFillColor(254, 252, 247)
@@ -722,7 +722,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(6.5)
   doc.setTextColor(...THEME.maroon)
-  doc.text('NOOLU QUALITY INSPECTED', badgeX + 25, footerBoxY + 4.5, { align: 'center' })
+  doc.text('AGVIA QUALITY INSPECTED', badgeX + 25, footerBoxY + 4.5, { align: 'center' })
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(5.5)
@@ -735,7 +735,7 @@ export async function exportOrderParcelReceiptPDF(order) {
 
   // Save the PDF
   const cleanId = String(order.orderNumber || order.id).replace(/[^a-zA-Z0-9_-]/g, '_')
-  doc.save(`noolu_parcel_receipt_${cleanId}.pdf`)
+  doc.save(`agvia_parcel_receipt_${cleanId}.pdf`)
 }
 
 /**
@@ -747,7 +747,7 @@ export async function exportCustomersPDF(customers = []) {
 
   const startY = drawDocumentHeader(doc, logoData, {
     title: 'Patron & Loyal Client Registry',
-    subtitle: 'Confidential Registry of Registered NOOLU Patrons',
+    subtitle: 'Confidential Registry of Registered AGVIA Clientele',
     documentId: `PAT-${Date.now().toString().slice(-6)}`
   })
 
@@ -796,7 +796,7 @@ export async function exportCustomersPDF(customers = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_patrons_directory_${formatDateStamp()}.pdf`)
+  doc.save(`agvia_patrons_directory_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -866,7 +866,7 @@ export async function exportProductsPDF(products = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_textile_collection_${formatDateStamp()}.pdf`)
+  doc.save(`agvia_couture_collection_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -935,7 +935,7 @@ export async function exportInventoryPDF(inventory = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_fabric_inventory_${formatDateStamp()}.pdf`)
+  doc.save(`agvia_fabric_inventory_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -986,7 +986,7 @@ export async function exportCouponsPDF(coupons = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_privilege_codes_${formatDateStamp()}.pdf`)
+  doc.save(`agvia_privilege_codes_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1008,7 +1008,7 @@ export async function exportSubscriptionsPDF(subscriptions = []) {
     s.customerName || 'VIP Member',
     s.email,
     s.customerPhone || '—',
-    s.planName || 'NOOLU VIP',
+    s.planName || 'AGVIA VIP',
     s.planTier || 'VIP',
     `₹${s.amount || 299}`,
     s.status || 'ACTIVE',
@@ -1040,7 +1040,7 @@ export async function exportSubscriptionsPDF(subscriptions = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_vip_subscriptions_${formatDateStamp()}.pdf`)
+  doc.save(`agvia_vip_subscriptions_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1457,7 +1457,7 @@ export async function exportMasterAdminPDF({
         s.customerName || 'VIP Member',
         s.email || '—',
         s.customerPhone || '—',
-        s.planName || 'NOOLU VIP',
+        s.planName || 'AGVIA VIP',
         s.planTier || 'VIP',
         `₹${s.amount || 299}`,
         s.status || 'ACTIVE',
@@ -1501,7 +1501,7 @@ export async function exportMasterAdminPDF({
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_master_atelier_dossier_${formatDateStamp()}.pdf`)
+  doc.save(`agvia_master_atelier_dossier_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1752,13 +1752,13 @@ export async function exportAnalyticsPDF({
   }
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`noolu_website_analytics_${startDate}_to_${endDate}.pdf`)
+  doc.save(`agvia_website_analytics_${startDate}_to_${endDate}.pdf`)
 }
 
 /**
  * Generic Table to Luxury PDF Exporter
  */
-export async function exportTableToPDF(columns = [], rows = [], title = 'Atelier Report', filename = 'noolu_report') {
+export async function exportTableToPDF(columns = [], rows = [], title = 'Atelier Report', filename = 'agvia_report') {
   const doc = new jsPDF({ orientation: columns.length > 6 ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' })
   const logoData = await loadLogoBase64()
 
@@ -1832,13 +1832,13 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   // Logo / Text Header
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', 12, 6, 26, 13)
+      doc.addImage(logoData, 'PNG', 12, 5, 24, 18)
     } catch (_) {}
   }
   doc.setFont('times', 'bold')
   doc.setFontSize(14)
   doc.setTextColor(245, 230, 200)
-  doc.text('NOOLU ATELIER LOGISTICS', 42, 14)
+  doc.text('AGVIA ATELIER LOGISTICS', 42, 14)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8)
   doc.setTextColor(201, 164, 92)
@@ -1899,14 +1899,14 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(10)
   doc.setTextColor(30, 30, 30)
-  doc.text('NOOLU Haute Textile Atelier & Inward Returns', 14, 121)
+  doc.text('AGVIA Haute Couture Atelier & Inward Returns', 14, 121)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(70, 70, 70)
   doc.text('Plot 42, Road No. 36, Near Jubilee Hills Check Post', 14, 127)
   doc.text('Jubilee Hills, Hyderabad, Telangana - 500033', 14, 132)
-  doc.text('Concierge Desk: +91 91219 99244 | care@noolu.in', 14, 138)
+  doc.text('Concierge Desk: +91 91219 99244 | support@agvia.in', 14, 138)
 
   // Item & Resolution Box
   doc.setFillColor(245, 240, 230)
@@ -1938,9 +1938,9 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('helvetica', 'italic')
   doc.setFontSize(7.5)
   doc.setTextColor(140, 140, 140)
-  doc.text('White-Glove Insured Reverse Shipment • Handle with pristine care • NOOLU Official Consignment', 14, 195)
+  doc.text('White-Glove Insured Reverse Shipment • Handle with pristine care • AGVIA Official Consignment', 14, 195)
 
-  doc.save(`NOOLU_Reverse_Slip_${returnReq.returnNumber || 'RET'}.pdf`)
+  doc.save(`AGVIA_Reverse_Slip_${returnReq.returnNumber || 'RET'}.pdf`)
 }
 
 function formatDateStamp() {

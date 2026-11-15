@@ -193,7 +193,7 @@ export default function AdminNavbar({ onMenuToggle }) {
         ])
         const backupData = {
           exportDate: new Date().toISOString(),
-          system: 'NOOLU Textile & Haute Couture Atelier ERP & Analytics Master Backup',
+          system: 'AGVIA Haute Couture Atelier ERP & Analytics Master Backup',
           analytics: telemetry.status === 'fulfilled' ? telemetry.value : {},
           orders: orders.status === 'fulfilled' ? orders.value : [],
           customers: customers.status === 'fulfilled' ? customers.value : [],
@@ -204,7 +204,7 @@ export default function AdminNavbar({ onMenuToggle }) {
           subscriptions: subscriptions.status === 'fulfilled' ? (subscriptions.value?.content || subscriptions.value || []) : [],
           reviews: reviews.status === 'fulfilled' ? reviews.value : [],
         }
-        exportToJSON(backupData, 'noolu_complete_atelier_backup')
+        exportToJSON(backupData, 'agvia_complete_atelier_backup')
         toast.success('Complete atelier JSON archive downloaded!', { id: 'pdf-dl' })
       }
       setExportOpen(false)
@@ -217,23 +217,23 @@ export default function AdminNavbar({ onMenuToggle }) {
   }
 
   return (
-    <header className="h-16 sm:h-20 bg-white/95 backdrop-blur-md border-b border-[#F5B900]/25 flex items-center justify-between px-3 sm:px-6 md:px-8 sticky top-0 z-30 select-none shadow-2xs">
+    <header className="h-16 sm:h-20 bg-white/95 backdrop-blur-md border-b border-[#C9A45C]/20 flex items-center justify-between px-3 sm:px-6 md:px-8 sticky top-0 z-30 select-none">
       {/* Left: Mobile Toggle & Brand / Welcome */}
       <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
         <button 
           onClick={onMenuToggle}
-          className="lg:hidden touch-target min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center rounded-xl text-[#211B1B]/80 hover:text-[#800020] hover:bg-[#800020]/10 transition-colors"
+          className="lg:hidden touch-target min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center rounded-xl text-[#211D1E]/80 hover:text-[#5A1020] hover:bg-[#5A1020]/10 transition-colors"
           aria-label="Open Sidebar"
         >
           <Menu size={22} />
         </button>
 
         <div className="min-w-0">
-          <h1 className="font-serif text-sm sm:text-lg md:text-xl text-[#800020] font-bold leading-tight truncate">
-            Welcome, <span className="text-[#A87900]">{user?.name || 'Atelier Director'}</span>
+          <h1 className="font-serif text-sm sm:text-lg md:text-xl text-[#5A1020] font-bold leading-tight truncate">
+            Welcome, <span className="text-[#C9A45C]">{user?.name || 'Atelier Director'}</span>
           </h1>
-          <p className="text-[8.5px] sm:text-[9.5px] text-[#211B1B]/55 tracking-[0.2em] uppercase font-bold mt-0.5 truncate hidden xs:block">
-            NOOLU Atelier Workspace Active • A Rhythm of Loom
+          <p className="text-[8.5px] sm:text-[9.5px] text-[#211D1E]/50 tracking-wider uppercase font-bold mt-0.5 truncate hidden xs:block">
+            AGVIA Boutique Workspace Active
           </p>
         </div>
       </div>
@@ -245,7 +245,7 @@ export default function AdminNavbar({ onMenuToggle }) {
           <button
             onClick={() => setExportOpen(prev => !prev)}
             disabled={exporting}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl border border-[#F5B900]/40 bg-[#FFF8EB] hover:bg-[#800020] text-[#800020] hover:text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl border border-[#C9A45C]/35 bg-[#FFFDF8] hover:bg-[#5A1020] text-[#5A1020] hover:text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
             title="Download Atelier Documents in PDF"
           >
             <Download size={13} className={exporting ? 'animate-bounce' : ''} />
@@ -256,13 +256,13 @@ export default function AdminNavbar({ onMenuToggle }) {
 
           {/* Export Dropdown Menu */}
           {exportOpen && (
-            <div className="absolute right-0 mt-2 w-[min(288px,calc(100vw-24px))] bg-white rounded-2xl shadow-2xl border border-[#F5B900]/30 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-              <div className="px-3.5 py-2 border-b border-[#F5B900]/20 flex items-center justify-between bg-gradient-to-r from-[#FFF8EB] to-white rounded-t-2xl">
+            <div className="absolute right-0 mt-2 w-[min(288px,calc(100vw-24px))] bg-white rounded-2xl shadow-xl border border-[#C9A45C]/30 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-3.5 py-2 border-b border-[#C9A45C]/15 flex items-center justify-between">
                 <div>
-                  <p className="font-serif text-xs font-bold text-[#800020] uppercase tracking-wider">Download Luxury PDF</p>
-                  <p className="text-[9.5px] text-[#211B1B]/55">Company-themed certified documents</p>
+                  <p className="font-serif text-xs font-bold text-[#5A1020] uppercase tracking-wider">Download Luxury PDF</p>
+                  <p className="text-[9.5px] text-[#211D1E]/50">Company-themed certified documents</p>
                 </div>
-                <button onClick={() => setExportOpen(false)} className="text-[#211B1B]/40 hover:text-[#800020] p-1">
+                <button onClick={() => setExportOpen(false)} className="text-[#211D1E]/40 hover:text-[#5A1020] p-1">
                   <X size={14} />
                 </button>
               </div>
@@ -271,12 +271,12 @@ export default function AdminNavbar({ onMenuToggle }) {
                 {/* Master All Lists Option */}
                 <button
                   onClick={() => handleDownloadDataset('master_all')}
-                  className="w-full text-left px-3.5 py-2.5 bg-[#800020]/5 hover:bg-[#800020]/15 flex items-center gap-2.5 transition-colors group border-b border-[#F5B900]/20"
+                  className="w-full text-left px-3.5 py-2.5 bg-[#5A1020]/5 hover:bg-[#5A1020]/15 flex items-center gap-2.5 transition-colors group border-b border-[#C9A45C]/20"
                 >
-                  <Download size={15} className="text-[#800020] shrink-0" />
+                  <Download size={15} className="text-[#5A1020] shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#800020] truncate">Master Atelier Dossier (PDF)</p>
-                    <p className="text-[9px] text-[#211B1B]/60 truncate">All lists & web analytics: Orders, Patrons, Stock, Telemetry...</p>
+                    <p className="text-xs font-bold text-[#5A1020] truncate">Master Atelier Dossier (PDF)</p>
+                    <p className="text-[9px] text-[#211D1E]/60 truncate">All lists & web analytics: Orders, Patrons, Stock, Telemetry...</p>
                   </div>
                 </button>
 
@@ -292,26 +292,26 @@ export default function AdminNavbar({ onMenuToggle }) {
                   <button
                     key={item.id}
                     onClick={() => handleDownloadDataset(item.id)}
-                    className="w-full text-left px-3.5 py-2 hover:bg-[#FFF8EB] flex items-center gap-2.5 transition-colors group"
+                    className="w-full text-left px-3.5 py-2 hover:bg-[#FAF7F2] flex items-center gap-2.5 transition-colors group"
                   >
-                    <FileText size={15} className="text-[#A87900] group-hover:text-[#800020] shrink-0" />
+                    <FileText size={15} className="text-[#C9A45C] group-hover:text-[#5A1020] shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-[#211B1B] group-hover:text-[#800020] truncate">{item.label}</p>
-                      <p className="text-[9px] text-[#211B1B]/50 truncate">{item.desc}</p>
+                      <p className="text-xs font-semibold text-[#211D1E] group-hover:text-[#5A1020] truncate">{item.label}</p>
+                      <p className="text-[9px] text-[#211D1E]/45 truncate">{item.desc}</p>
                     </div>
                   </button>
                 ))}
 
-                <div className="my-1 border-t border-[#F5B900]/20" />
+                <div className="my-1 border-t border-[#C9A45C]/15" />
 
                 <button
                   onClick={() => handleDownloadDataset('all_json')}
-                  className="w-full text-left px-3.5 py-2 hover:bg-[#800020]/10 flex items-center gap-2.5 transition-colors group"
+                  className="w-full text-left px-3.5 py-2 hover:bg-[#5A1020]/10 flex items-center gap-2.5 transition-colors group"
                 >
-                  <Database size={15} className="text-[#800020] shrink-0" />
+                  <Database size={15} className="text-[#5A1020] shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#800020] truncate">Full Database Archive (.JSON)</p>
-                    <p className="text-[9px] text-[#211B1B]/50 truncate">Unified raw JSON backup</p>
+                    <p className="text-xs font-bold text-[#5A1020] truncate">Full Database Archive (.JSON)</p>
+                    <p className="text-[9px] text-[#211D1E]/45 truncate">Unified raw JSON backup</p>
                   </div>
                 </button>
               </div>
@@ -323,13 +323,13 @@ export default function AdminNavbar({ onMenuToggle }) {
         <div className="relative" ref={notifRef}>
           <button 
             onClick={() => setNotificationsOpen((prev) => !prev)}
-            className="touch-target w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl hover:bg-[#800020]/10 text-[#800020] hover:text-[#A87900] transition-colors relative"
+            className="touch-target w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl hover:bg-[#5A1020]/10 text-[#5A1020] hover:text-[#C9A45C] transition-colors relative"
             aria-label="Notifications"
             title={`Atelier Notifications (${unreadCount} unread) - ${connectionStatus}`}
           >
             <Bell size={17} />
             {unreadCount > 0 ? (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#800020] text-[#FFF8EB] border border-[#F5B900] rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs animate-pulse">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#5A1020] text-[#C9A45C] border border-[#C9A45C] rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs animate-pulse">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             ) : connectionStatus === 'CONNECTED' ? (
@@ -347,7 +347,7 @@ export default function AdminNavbar({ onMenuToggle }) {
         {/* Logout */}
         <button 
           onClick={handleLogout} 
-          className="touch-target px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 border border-[#800020]/30 hover:bg-[#800020] text-[#800020] hover:text-white transition-all shadow-2xs"
+          className="touch-target px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 border border-[#5A1020]/30 hover:bg-[#5A1020] text-[#5A1020] hover:text-white transition-all shadow-2xs"
           title="Sign out of atelier admin"
         >
           <LogOut size={13} /> 

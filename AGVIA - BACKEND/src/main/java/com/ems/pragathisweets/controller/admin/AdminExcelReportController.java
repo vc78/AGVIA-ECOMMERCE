@@ -41,7 +41,7 @@ public class AdminExcelReportController {
         if (startDate != null || endDate != null || status != null) {
             byte[] excelData = excelReportingService.generateFilteredExcelReport(startDate, endDate, status);
             String timestamp = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
-            String filename = "NOOLU_ORDERS_filtered_" + timestamp + ".xlsx";
+            String filename = "AGVIA_ORDERS_filtered_" + timestamp + ".xlsx";
 
             ByteArrayResource resource = new ByteArrayResource(excelData);
 

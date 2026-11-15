@@ -28,4 +28,3 @@ public interface ReturnRequestRepository extends JpaRepository<ReturnRequest, Lo
 
     long countByStatus(ReturnStatus status);
 }
-

@@ -29,7 +29,7 @@ export default function GoogleSignInButton({ from = '/' }) {
       const { user, token } = await authService.googleLogin(response.credential)
       dispatch(credentialsReceived({ user, token }))
       broadcastAuthEvent('LOGIN', { user, token })
-      toast.success(`Welcome to NOOLU, ${user.name || 'Patron'}!`, {
+      toast.success(`Welcome to AGVIA, ${user.name || 'Patron'}!`, {
         icon: '👑',
         style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
       })

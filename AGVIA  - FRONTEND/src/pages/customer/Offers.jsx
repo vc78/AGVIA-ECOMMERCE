@@ -7,7 +7,7 @@ import SEOHead from '../../components/common/SEOHead'
 const OFFERS = [
   { code: 'AZADI15', title: 'Independence Celebration', desc: '15% Off storewide for new and returning patrons.', validity: 'Valid till August 15, 2026' },
   { code: 'SILK200', title: 'Silk Heritage Delight', desc: '₹200 Off premium handcrafted pure Kanjeevaram & Banarasi silk sarees.', validity: 'Valid till August 30, 2026' },
-  { code: 'NOOLU25', title: 'Bridal Grandeur', desc: '25% Off bespoke bridal trousseau, lehengas, and couture festive edits.', validity: 'Valid till November 5, 2026' }
+  { code: 'AGVIA25', title: 'Bridal Grandeur', desc: '25% Off bespoke bridal trousseau, lehengas, and couture festive edits.', validity: 'Valid till November 5, 2026' }
 ]
 
 export default function Offers() {
@@ -27,7 +27,7 @@ export default function Offers() {
     <div className="min-h-screen bg-[#FFFDF8] text-[#3A2D23] font-body">
       <SEOHead
         title="Exclusive Boutique Offers & Festive Privileges"
-        description="Unlock exclusive luxury shopping privileges, festive couture offers, and promotional benefits on NOOLU handcrafted fashion collections."
+        description="Unlock exclusive luxury shopping privileges, festive couture offers, and promotional benefits on AGVIA handcrafted fashion collections."
         canonicalUrl="/offers"
         type="website"
         breadcrumbs={breadcrumbs}

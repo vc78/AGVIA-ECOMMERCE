@@ -29,8 +29,8 @@ export default function ForgotPassword() {
           <div className="w-14 h-14 rounded-2xl bg-[#8B0000]/10 text-[#8B0000] border border-[#8B0000]/10 flex items-center justify-center mb-3">
             <KeyRound size={24} />
           </div>
-          <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#800020] leading-none">
-            NOOLU
+          <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#8B0000] leading-none">
+            AGVIA
           </span>
           <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#B8860B] font-semibold mt-1.5 pl-[1px]">
             RESET REQUEST

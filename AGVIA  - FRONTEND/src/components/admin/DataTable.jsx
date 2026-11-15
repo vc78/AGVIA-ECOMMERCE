@@ -9,7 +9,7 @@ export default function DataTable({
   emptyMessage = 'No records found.',
   title = null,
   enableExport = true,
-  exportFilename = 'noolu_table_export',
+  exportFilename = 'agvia_table_export',
   searchable = true,
   searchPlaceholder = 'Search records...',
   searchKeys = null

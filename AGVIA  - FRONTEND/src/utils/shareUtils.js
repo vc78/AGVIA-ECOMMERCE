@@ -47,7 +47,7 @@ export async function copyProductLink(product) {
  */
 export function getProductWhatsAppShareUrl(product) {
   const url = getProductShareUrl(product.id)
-  const text = `Discover this exquisite piece on NOOLU — A Rhythm of Loom ✨\n👗 *${product.name}*\n💰 ₹${Number(product.price || 0).toLocaleString('en-IN')}\n🔗 ${url}`
+  const text = `Discover this exquisite piece on AGVIA Luxury Atelier ✨\n👗 *${product.name}*\n💰 ₹${Number(product.price || 0).toLocaleString('en-IN')}\n🔗 ${url}`
   return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
 }
 
@@ -58,8 +58,8 @@ export async function shareProduct(product) {
   if (!product?.id) return { success: false }
 
   const url = getProductShareUrl(product.id)
-  const title = `NOOLU — ${product.name}`
-  const text = `Discover ${product.name} on NOOLU — A Rhythm of Loom`
+  const title = `AGVIA — ${product.name}`
+  const text = `Discover ${product.name} on AGVIA Luxury Atelier`
 
   if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
     try {

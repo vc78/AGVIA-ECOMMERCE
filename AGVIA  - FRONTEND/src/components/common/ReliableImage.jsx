@@ -3,7 +3,7 @@ import { FALLBACK_PRODUCT_IMAGE } from '../../utils/media'
 
 export default function ReliableImage({
   src,
-  alt = 'NOOLU Luxury Textiles',
+  alt = 'AGVIA Luxury Fashion',
   className = '',
   aspectRatio = '3/4',
   loading = 'lazy',

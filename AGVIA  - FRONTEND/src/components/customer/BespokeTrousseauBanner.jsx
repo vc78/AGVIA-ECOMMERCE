@@ -28,11 +28,11 @@ export default function BespokeTrousseauBanner() {
   // Direct WhatsApp connection handler
   const handleWhatsAppChat = () => {
     const message = encodeURIComponent(
-      `Hello NOOLU Atelier! I would like to consult with a bridal stylist regarding bespoke trousseau curation and heirloom silks.`
+      `Hello AGVIA Atelier! I would like to consult with a bridal stylist regarding bespoke trousseau curation and heirloom silks.`
     )
     const url = `https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${message}`
-    safeOpenWindow(url, 'noolu_whatsapp_consult', 'noopener,noreferrer')
-    toast.success('Connecting with NOOLU Atelier stylist on WhatsApp...')
+    safeOpenWindow(url, 'agvia_whatsapp_consult', 'noopener,noreferrer')
+    toast.success('Connecting with AGVIA Atelier stylist on WhatsApp...')
   }
 
   const togglePanel = (panelName) => {
@@ -150,7 +150,7 @@ export default function BespokeTrousseauBanner() {
                       Book a Video Consultation
                     </h4>
                     <p className="text-[11px] text-white/70 leading-snug line-clamp-2 mt-0.5">
-                      Meet a NOOLU stylist privately from anywhere.
+                      Meet an AGVIA stylist privately from anywhere.
                     </p>
                     <div className="flex items-center gap-1 text-[10.5px] text-[#C9A45C] font-medium mt-1">
                       <Clock size={11} className="shrink-0" />
@@ -430,21 +430,21 @@ function InlineVideoScheduler({ onClose }) {
 
   const handleAddGoogleCalendar = () => {
     if (!meetingDetails) return
-    const title = encodeURIComponent(`NOOLU Bridal Video Consultation: ${meetingDetails.service}`)
+    const title = encodeURIComponent(`AGVIA Bridal Video Consultation: ${meetingDetails.service}`)
     const details = encodeURIComponent(
-      `Video styling session with NOOLU Senior Stylist.\n\nJoin Google Meet: ${meetingDetails.meetUrl}\nAtelier Concierge: ${BUSINESS.contact.phone}`
+      `Video styling session with AGVIA Senior Stylist.\n\nJoin Google Meet: ${meetingDetails.meetUrl}\nBoutique Concierge: ${BUSINESS.contact.phone}`
     )
     const location = encodeURIComponent(meetingDetails.meetUrl)
     const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`
-    safeOpenWindow(calUrl, 'noolu_calendar_sync', 'noopener,noreferrer')
+    safeOpenWindow(calUrl, 'agvia_calendar_sync', 'noopener,noreferrer')
   }
 
   const handleSendToWhatsApp = () => {
     if (!meetingDetails) return
     const text = encodeURIComponent(
-      `Hello NOOLU Atelier! I have scheduled a Video Consultation for ${meetingDetails.service}.\nDate: ${meetingDetails.date} at ${meetingDetails.timeSlot}\nGoogle Meet Link: ${meetingDetails.meetUrl}\nName: ${meetingDetails.name}`
+      `Hello AGVIA Atelier! I have scheduled a Video Consultation for ${meetingDetails.service}.\nDate: ${meetingDetails.date} at ${meetingDetails.timeSlot}\nGoogle Meet Link: ${meetingDetails.meetUrl}\nName: ${meetingDetails.name}`
     )
-    safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'noolu_whatsapp_consult', 'noopener,noreferrer')
+    safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_whatsapp_consult', 'noopener,noreferrer')
   }
 
   if (step === 'confirmed' && meetingDetails) {
@@ -462,7 +462,7 @@ function InlineVideoScheduler({ onClose }) {
             Your Google Meet Session is Ready!
           </h4>
           <p className="text-xs text-white/70 mt-1 max-w-md mx-auto">
-            A NOOLU bridal fashion stylist will join you live on Google Meet at your selected time.
+            An AGVIA bridal fashion stylist will join you live on Google Meet at your selected time.
           </p>
         </div>
 
@@ -738,9 +738,9 @@ function InlineAtelierScheduler({ onClose }) {
 
   const handleConfirmWhatsApp = () => {
     const text = encodeURIComponent(
-      `Hello NOOLU Atelier! I have scheduled an in-store appointment at the Jubilee Hills salon.\nBooking Ref: ${bookingRef}\nDate: ${formData.date}\nSlot: ${formData.timeSlot}\nName: ${formData.name}\nParty Size: ${formData.guests}\nOccasion: ${formData.occasion}`
+      `Hello AGVIA Atelier! I have scheduled an in-store appointment at the Jubilee Hills salon.\nBooking Ref: ${bookingRef}\nDate: ${formData.date}\nSlot: ${formData.timeSlot}\nName: ${formData.name}\nParty Size: ${formData.guests}\nOccasion: ${formData.occasion}`
     )
-    safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'noolu_whatsapp_appointment', 'noopener,noreferrer')
+    safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_whatsapp_appointment', 'noopener,noreferrer')
   }
 
   if (step === 'confirmed') {
@@ -831,7 +831,7 @@ function InlineAtelierScheduler({ onClose }) {
       <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-[#25050C] border border-[#C9A45C]/30 text-xs text-white/80">
         <MapPin size={18} className="text-[#C9A45C] shrink-0 mt-0.5" />
         <div>
-          <span className="font-bold text-white block font-serif">NOOLU Flagship Atelier</span>
+          <span className="font-bold text-white block font-serif">AGVIA Flagship Atelier</span>
           <span className="text-[11px] leading-tight block text-white/70 mt-0.5">
             {BUSINESS.location.fullAddress} • Private Trial Suite & High Tea Service
           </span>

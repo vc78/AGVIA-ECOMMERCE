@@ -46,7 +46,7 @@ class ExcelReportingServiceTest {
     private ExcelReportingService excelReportingService;
 
     private final String testDir = "./target/test-reports";
-    private final String testFileName = "TEST_NOOLU_ORDERS.xlsx";
+    private final String testFileName = "TEST_AGVIA_ORDERS.xlsx";
 
     @BeforeEach
     void setUp() {

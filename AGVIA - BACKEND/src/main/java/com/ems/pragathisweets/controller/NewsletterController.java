@@ -32,7 +32,7 @@ public class NewsletterController {
     );
 
     @PostMapping("/subscribe")
-    @Operation(summary = "Subscribe to NOOLU Privilege Circle", description = "Subscribes email, activates VIP perks, and returns an exclusive coupon code with validity")
+    @Operation(summary = "Subscribe to AGVIA Haute Circle", description = "Subscribes email, activates VIP perks, and returns an exclusive coupon code with validity")
     public ResponseEntity<ApiResponse<Map<String, Object>>> subscribe(@RequestBody Map<String, String> request) {
         String rawEmail = request.get("email");
         if (rawEmail == null || rawEmail.trim().isEmpty() || !rawEmail.contains("@")) {
@@ -48,7 +48,7 @@ public class NewsletterController {
         if (existingOpt.isPresent()) {
             subscriber = existingOpt.get();
             alreadySubscribed = true;
-            log.info("Existing NOOLU Privilege Circle subscriber requested perks: {}", email);
+            log.info("Existing AGVIA Haute Circle subscriber requested perks: {}", email);
         } else {
             subscriber = Subscriber.builder()
                     .email(email)
@@ -59,7 +59,7 @@ public class NewsletterController {
                     .active(true)
                     .build();
             subscriber = subscriberRepository.save(subscriber);
-            log.info("New NOOLU Privilege Circle subscriber enrolled: {}", email);
+            log.info("New AGVIA Haute Circle subscriber enrolled: {}", email);
         }
 
         // Ensure CIRCLE15 exists in coupons repository
@@ -67,7 +67,7 @@ public class NewsletterController {
             try {
                 couponRepository.save(com.ems.pragathisweets.entity.Coupon.builder()
                         .code("CIRCLE15")
-                        .description("NOOLU Privilege Circle VIP 15% Boutique Credit")
+                        .description("AGVIA Haute Circle VIP 15% Boutique Credit")
                         .discountType(com.ems.pragathisweets.entity.DiscountType.PERCENTAGE)
                         .discountValue(new java.math.BigDecimal("15.00"))
                         .minOrderAmount(java.math.BigDecimal.ZERO)
@@ -96,8 +96,8 @@ public class NewsletterController {
         data.put("alreadySubscribed", alreadySubscribed);
 
         String message = alreadySubscribed
-                ? "Welcome back, NOOLU Privilege Circle VIP! Your privileges and coupon are active."
-                : "Welcome to the NOOLU Privilege Circle! Your VIP perks & 15% code are now unlocked.";
+                ? "Welcome back, AGVIA Haute Circle VIP! Your privileges and coupon are active."
+                : "Welcome to the AGVIA Haute Circle! Your VIP perks & 15% code are now unlocked.";
 
         return ResponseEntity.ok(ApiResponse.success(message, data));
     }

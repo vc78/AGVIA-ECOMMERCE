@@ -1,5 +1,5 @@
 /**
- * NOOLU Atelier - Data Export Utilities
+ * AGVIA Atelier - Data Export Utilities
  * Handles CSV, JSON and Bulk downloads for admin datasets (Orders, Patrons, Products, Inventory, Analytics).
  */
 
@@ -23,7 +23,7 @@ function formatCSVCell(val) {
  * @param {Array<{ key: string, label: string }>} columns - Column definitions
  * @param {string} filename - Target file name without extension
  */
-export function exportToCSV(rows = [], columns = [], filename = 'noolu_export') {
+export function exportToCSV(rows = [], columns = [], filename = 'agvia_export') {
   if (!rows || rows.length === 0) {
     throw new Error('No data available to export.')
   }
@@ -52,7 +52,7 @@ export function exportToCSV(rows = [], columns = [], filename = 'noolu_export') 
 /**
  * Generic JSON Exporter
  */
-export function exportToJSON(data, filename = 'noolu_data') {
+export function exportToJSON(data, filename = 'agvia_data') {
   const jsonContent = JSON.stringify(data, null, 2)
   downloadBlob(jsonContent, `${filename}_${getTimestamp()}.json`, 'application/json;charset=utf-8;')
 }
@@ -101,7 +101,7 @@ export function exportOrders(orders = []) {
     { key: 'discountAmount', label: 'Discount (INR)', getter: (r) => r.discountAmount || 0 },
     { key: 'notificationStatus', label: 'Patron Notification' }
   ]
-  exportToCSV(orders, columns, 'noolu_atelier_orders')
+  exportToCSV(orders, columns, 'agvia_atelier_orders')
 }
 
 /** Export Patrons / Customers */
@@ -116,7 +116,7 @@ export function exportCustomers(customers = []) {
     { key: 'joined', label: 'Member Since' },
     { key: 'status', label: 'Client Tier', getter: (r) => r.orders > 0 ? 'Active Patron' : 'New Client' }
   ]
-  exportToCSV(customers, columns, 'noolu_patrons_directory')
+  exportToCSV(customers, columns, 'agvia_patrons_directory')
 }
 
 /** Export Silhouettes / Products */
@@ -133,7 +133,7 @@ export function exportProducts(products = []) {
     { key: 'rating', label: 'Average Rating', getter: (r) => r.rating || r.avgRating || '5.0' },
     { key: 'active', label: 'Catalog Status', getter: (r) => r.active !== false ? 'Active' : 'Inactive' }
   ]
-  exportToCSV(products, columns, 'noolu_textile_collection')
+  exportToCSV(products, columns, 'agvia_couture_collection')
 }
 
 /** Export Stock & Inventory */
@@ -147,7 +147,7 @@ export function exportInventory(inventory = []) {
     { key: 'unit', label: 'Unit' },
     { key: 'health', label: 'Stock Health', getter: (r) => (Number(r.stock) <= 10 ? 'LOW STOCK ALERT' : 'OPTIMAL') }
   ]
-  exportToCSV(inventory, columns, 'noolu_fabric_inventory')
+  exportToCSV(inventory, columns, 'agvia_fabric_inventory')
 }
 
 /** Export Privilege Codes / Coupons */
@@ -162,7 +162,7 @@ export function exportCoupons(coupons = []) {
     { key: 'expires', label: 'Expiry Date' },
     { key: 'active', label: 'Status', getter: (r) => r.active ? 'ACTIVE' : 'PAUSED' }
   ]
-  exportToCSV(coupons, columns, 'noolu_privilege_codes')
+  exportToCSV(coupons, columns, 'agvia_privilege_codes')
 }
 
 /** Export Atelier Subscriptions */
@@ -179,7 +179,7 @@ export function exportSubscriptions(subscriptions = []) {
     { key: 'endDate', label: 'Expiry Date' },
     { key: 'amount', label: 'Annual Fee (INR)' }
   ]
-  exportToCSV(subscriptions, columns, 'noolu_atelier_circle_subscribers')
+  exportToCSV(subscriptions, columns, 'agvia_atelier_circle_subscribers')
 }
 
 /** Export Categories */
@@ -191,7 +191,7 @@ export function exportCategories(categories = []) {
     { key: 'count', label: 'Total Silhouettes' },
     { key: 'active', label: 'Status' }
   ]
-  exportToCSV(categories, columns, 'noolu_categories')
+  exportToCSV(categories, columns, 'agvia_categories')
 }
 
 /** Export Reviews */
@@ -204,13 +204,13 @@ export function exportReviews(reviews = []) {
     { key: 'comment', label: 'Review Details' },
     { key: 'status', label: 'Moderation Status', getter: (r) => r.approved ? 'Approved' : 'Pending' }
   ]
-  exportToCSV(reviews, columns, 'noolu_patron_reviews')
+  exportToCSV(reviews, columns, 'agvia_patron_reviews')
 }
 
 /** Export Date-Range Analytics Summary */
 export function exportAnalyticsReport({ startDate, endDate, summary = {}, dailyTrend = [], orders = [] }) {
   const metaRows = [
-    { Metric: 'Report Type', Value: 'NOOLU Atelier Analytics Date-Wise Summary' },
+    { Metric: 'Report Type', Value: 'AGVIA Atelier Analytics Date-Wise Summary' },
     { Metric: 'Filter Start Date', Value: startDate },
     { Metric: 'Filter End Date', Value: endDate },
     { Metric: 'Generated At', Value: new Date().toLocaleString('en-IN') },
@@ -234,7 +234,7 @@ export function exportAnalyticsReport({ startDate, endDate, summary = {}, dailyT
   ).join('\r\n')
 
   const fullContent = '\uFEFF' + summaryCSV + dailyHeader + dailyRows
-  downloadBlob(fullContent, `noolu_analytics_${startDate}_to_${endDate}.csv`, 'text/csv;charset=utf-8;')
+  downloadBlob(fullContent, `agvia_analytics_${startDate}_to_${endDate}.csv`, 'text/csv;charset=utf-8;')
 }
 
 /**
@@ -264,7 +264,7 @@ export function exportMasterAdminCSV({
 }) {
   const totalRevenue = overview.revenue || orders.reduce((sum, o) => sum + Number(o.total || o.finalAmount || 0), 0)
   const metaRows = [
-    ['REPORT', 'NOOLU Master Atelier Enterprise Dossier (Web Analytics & All Admin Registries)'],
+    ['REPORT', 'AGVIA Master Atelier Enterprise Dossier (Web Analytics & All Admin Registries)'],
     ['GENERATED AT', new Date().toLocaleString('en-IN')],
     ['WINDOW', (startDate && endDate) ? `${startDate} to ${endDate}` : 'Complete Atelier Lifetime Records'],
     ['TOTAL REVENUE (INR)', totalRevenue],
@@ -501,7 +501,7 @@ export function exportMasterAdminCSV({
       s.customerName || 'VIP Member',
       s.email || '—',
       s.customerPhone || '—',
-      s.planName || 'NOOLU VIP',
+      s.planName || 'AGVIA VIP',
       s.planTier || 'VIP',
       s.amount || 299,
       s.status || 'ACTIVE',
@@ -526,7 +526,7 @@ export function exportMasterAdminCSV({
 
   const csvRows = sections.map(row => row.map(formatCSVCell).join(','))
   const fullContent = '\uFEFF' + csvRows.join('\r\n')
-  downloadBlob(fullContent, `noolu_master_atelier_lists_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
+  downloadBlob(fullContent, `agvia_master_atelier_lists_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
 }
 
 /**
@@ -548,7 +548,7 @@ export function exportAnalyticsCSV({
   const sections = []
 
   // Metadata
-  sections.push(['=== NOOLU ATELIER - WEBSITE ANALYTICS & TELEMETRY REPORT ==='])
+  sections.push(['=== AGVIA ATELIER - WEBSITE ANALYTICS & TELEMETRY REPORT ==='])
   sections.push(['GENERATED AT', new Date().toLocaleString('en-IN')])
   sections.push(['REPORTING WINDOW', (startDate && endDate) ? `${startDate} to ${endDate}` : 'All Time'])
   sections.push(['UNIQUE VISITORS', overview.visitors || 0])
@@ -647,6 +647,6 @@ export function exportAnalyticsCSV({
 
   const csvRows = sections.map(row => row.map(formatCSVCell).join(','))
   const fullContent = '\uFEFF' + csvRows.join('\r\n')
-  downloadBlob(fullContent, `noolu_website_analytics_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
+  downloadBlob(fullContent, `agvia_website_analytics_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
 }
 

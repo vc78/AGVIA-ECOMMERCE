@@ -124,7 +124,7 @@ export default function Customers() {
         <div>
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#5A1020]">Patron & Client Directory</h2>
           <p className="text-xs text-[#211D1E]/60 mt-1">
-            Register of NOOLU atelier patrons, lifetime wardrobe purchases, and account details.
+            Register of AGVIA atelier patrons, lifetime wardrobe purchases, and account details.
           </p>
         </div>
 

@@ -198,19 +198,19 @@ public class DataInitializer implements CommandLineRunner {
                     .phoneVerified(true)
                     .build();
             userRepository.save(admin);
-            log.info("NOOLU Admin account initialized successfully: {}", defaultAdminEmail);
+            log.info("AGVIA Admin account initialized successfully: {}", defaultAdminEmail);
         } else {
             User admin = adminOpt.get();
             admin.setRole(Role.ROLE_ADMIN);
             admin.setEnabled(true);
             admin.setPassword(passwordEncoder.encode(defaultAdminPassword));
             userRepository.save(admin);
-            log.info("NOOLU Admin account verified and credentials synchronized: {}", defaultAdminEmail);
+            log.info("AGVIA Admin account verified and credentials synchronized: {}", defaultAdminEmail);
         }
     }
 
     private void seedAgviaCategoriesAndProducts() {
-        log.info("Seeding NOOLU official categories and 10 catalog products...");
+        log.info("Seeding AGVIA official categories and 10 catalog products...");
 
         Category sarees = getOrCreateCategory("Sarees", "Elegant silk, organza, and festive sarees crafted for special occasions.", "/images/classic_silk_saree.jpg");
         Category lehengas = getOrCreateCategory("Lehengas", "Bridal and festive lehengas with regal silhouettes and intricate embroidery.", "/images/wedding_lehenga.jpg");
@@ -220,35 +220,35 @@ public class DataInitializer implements CommandLineRunner {
         Category kurtis = getOrCreateCategory("Kurtis", "Everyday and festive kurtis designed with timeless Indian charm.", "/images/festive_kurti.jpg");
         Category dupattas = getOrCreateCategory("Dupattas", "Embellished and sheer bridal dupattas to complete festive looks.", "/images/bridal_dupatta.jpg");
 
-        // Exactly 26 NOOLU Catalog Products — every product has a unique image
-        seedProductIfAbsent("NOOLU Classic Silk Saree", "Elegant silk saree for festive occasions, family functions and traditional celebrations.", "AGV-SAR-001", "4999.00", 25, "piece", "/images/classic_silk_saree.jpg", sarees, true);
-        seedProductIfAbsent("NOOLU Floral Organza Saree", "Lightweight organza saree with a soft floral look, ideal for festivals and evening occasions.", "AGV-SAR-002", "3999.00", 20, "piece", "/images/floral_organza_saree.jpg", sarees, false);
-        seedProductIfAbsent("NOOLU Embroidered Anarkali Set", "Comfortable flowing Anarkali with delicate embroidery for festive and family occasions.", "AGV-ANK-003", "3499.00", 30, "set", "/images/anarkali_set.jpg", anarkalis, true);
-        seedProductIfAbsent("NOOLU Everyday Kurta Set", "Simple and comfortable kurta set designed for everyday wear, college, office and casual occasions.", "AGV-ANK-004", "1999.00", 40, "set", "/images/everyday_kurta_set.jpg", anarkalis, false);
-        seedProductIfAbsent("NOOLU Festive Lehenga Set", "Beautiful festive lehenga set with elegant detailing for weddings and celebrations.", "AGV-LEH-005", "5999.00", 15, "set", "/images/festive_lehenga_set.jpg", lehengas, true);
-        seedProductIfAbsent("NOOLU Embroidered Wedding Lehenga", "Premium embroidered lehenga designed for weddings, receptions and special celebrations.", "AGV-LEH-006", "8999.00", 12, "set", "/images/wedding_lehenga.jpg", lehengas, true);
-        seedProductIfAbsent("NOOLU Evening Gown", "Elegant evening gown with a graceful silhouette for parties, dinners and celebrations.", "AGV-DRS-007", "3499.00", 18, "piece", "/images/evening_gown.jpg", dresses, false);
-        seedProductIfAbsent("NOOLU Co-ord Set", "Modern matching outfit designed for a clean, comfortable and stylish everyday look.", "AGV-WST-008", "1799.00", 35, "set", "/images/coord_set.jpg", western, false);
-        seedProductIfAbsent("NOOLU Festive Kurti", "Easy-to-wear festive kurti with a simple ethnic design for everyday Indian occasions.", "AGV-KRT-009", "1499.00", 45, "piece", "/images/festive_kurti.jpg", kurtis, false);
-        seedProductIfAbsent("NOOLU Bridal Dupatta", "Elegant embellished dupatta designed to complement festive and bridal outfits.", "AGV-DUP-010", "1299.00", 30, "piece", "/images/bridal_dupatta.jpg", dupattas, false);
+        // Exactly 26 AGVIA Catalog Products — every product has a unique image
+        seedProductIfAbsent("AGVIA Classic Silk Saree", "Elegant silk saree for festive occasions, family functions and traditional celebrations.", "AGV-SAR-001", "4999.00", 25, "piece", "/images/classic_silk_saree.jpg", sarees, true);
+        seedProductIfAbsent("AGVIA Floral Organza Saree", "Lightweight organza saree with a soft floral look, ideal for festivals and evening occasions.", "AGV-SAR-002", "3999.00", 20, "piece", "/images/floral_organza_saree.jpg", sarees, false);
+        seedProductIfAbsent("AGVIA Embroidered Anarkali Set", "Comfortable flowing Anarkali with delicate embroidery for festive and family occasions.", "AGV-ANK-003", "3499.00", 30, "set", "/images/anarkali_set.jpg", anarkalis, true);
+        seedProductIfAbsent("AGVIA Everyday Kurta Set", "Simple and comfortable kurta set designed for everyday wear, college, office and casual occasions.", "AGV-ANK-004", "1999.00", 40, "set", "/images/everyday_kurta_set.jpg", anarkalis, false);
+        seedProductIfAbsent("AGVIA Festive Lehenga Set", "Beautiful festive lehenga set with elegant detailing for weddings and celebrations.", "AGV-LEH-005", "5999.00", 15, "set", "/images/festive_lehenga_set.jpg", lehengas, true);
+        seedProductIfAbsent("AGVIA Embroidered Wedding Lehenga", "Premium embroidered lehenga designed for weddings, receptions and special celebrations.", "AGV-LEH-006", "8999.00", 12, "set", "/images/wedding_lehenga.jpg", lehengas, true);
+        seedProductIfAbsent("AGVIA Evening Gown", "Elegant evening gown with a graceful silhouette for parties, dinners and celebrations.", "AGV-DRS-007", "3499.00", 18, "piece", "/images/evening_gown.jpg", dresses, false);
+        seedProductIfAbsent("AGVIA Co-ord Set", "Modern matching outfit designed for a clean, comfortable and stylish everyday look.", "AGV-WST-008", "1799.00", 35, "set", "/images/coord_set.jpg", western, false);
+        seedProductIfAbsent("AGVIA Festive Kurti", "Easy-to-wear festive kurti with a simple ethnic design for everyday Indian occasions.", "AGV-KRT-009", "1499.00", 45, "piece", "/images/festive_kurti.jpg", kurtis, false);
+        seedProductIfAbsent("AGVIA Bridal Dupatta", "Elegant embellished dupatta designed to complement festive and bridal outfits.", "AGV-DUP-010", "1299.00", 30, "piece", "/images/bridal_dupatta.jpg", dupattas, false);
 
-        seedProductIfAbsent("NOOLU Kanjeevaram Temple Border Silk Saree", "Heirloom pure Kanjeevaram silk saree with rich gold zari temple border and pallu.", "AGV-SAR-011", "6499.00", 15, "piece", "/images/kanjeevaram_gold_silk_saree.jpg", sarees, true);
-        seedProductIfAbsent("NOOLU Pastel Banarasi Georgette Saree", "Soft drape pastel saree with hand-woven zari buttas for day festivities.", "AGV-SAR-012", "4599.00", 18, "piece", "/images/pastel_banarasi_georgette_saree.jpg", sarees, false);
-        seedProductIfAbsent("NOOLU Crimson Velvet Bridal Lehenga", "Exquisite bridal crimson velvet lehenga with handcrafted zardozi embroidery.", "AGV-LEH-013", "9999.00", 10, "set", "/images/royal_crimson_velvet_lehenga.jpg", lehengas, true);
-        seedProductIfAbsent("NOOLU Champagne Mirror-Work Lehenga", "Light-catching festive lehenga with intricate mirror and threadwork detailing.", "AGV-LEH-014", "6999.00", 14, "set", "/images/champagne_mirror_work_lehenga.jpg", lehengas, false);
-        seedProductIfAbsent("NOOLU Chikankari Angrakha Anarkali", "Graceful Lucknowi Chikankari angrakha style set with matching churidar.", "AGV-ANK-015", "3899.00", 22, "set", "/images/chikankari_angrakha_anarkali.jpg", anarkalis, false);
-        seedProductIfAbsent("NOOLU Chanderi Silk Festive Kurta", "Breathable Chanderi silk kurta with foil print and delicate gotta patti work.", "AGV-ANK-016", "2499.00", 28, "set", "/images/chanderi_festive_kurta.jpg", anarkalis, false);
-        seedProductIfAbsent("NOOLU Emerald Pleated Cocktail Gown", "Floor-sweeping pleated gown with an asymmetric neckline for gala receptions.", "AGV-DRS-017", "4299.00", 16, "piece", "/images/pexels-arina-krasnikova-5418894.jpg", dresses, false);
-        seedProductIfAbsent("NOOLU Satin Wrap Resort Dress", "Sleek flowing satin wrap dress designed for modern evening soirées.", "AGV-DRS-018", "2799.00", 20, "piece", "/images/pexels-arina-krasnikova-5418928.jpg", dresses, false);
-        seedProductIfAbsent("NOOLU Linen Blazer & Trousers Set", "Sophisticated contemporary co-ord set with clean lines and tailored fit.", "AGV-WST-019", "3199.00", 24, "set", "/images/pexels-ron-lach-8306359.jpg", western, false);
-        seedProductIfAbsent("NOOLU Mulberry Tissue Silk Saree", "Ultra-luminous gold tissue saree woven with fine metallic threads for a magnificent festive radiance.", "AGV-SAR-005", "5499.00", 12, "piece", "/images/mulberry_tissue_silk_saree.jpg", sarees, false);
-        seedProductIfAbsent("NOOLU Rose Gold Zardozi Lehenga", "Romantic pastel lehenga featuring subtle rose gold metallic threadwork and a sweetheart neckline blouse.", "AGV-LEH-010", "7999.00", 11, "set", "/images/rose_gold_zardozi_lehenga.jpg", lehengas, false);
-        seedProductIfAbsent("NOOLU Emerald Velvet Festive Anarkali", "Opulent jewel-toned velvet suit set adorned with gold thread dori work and scalloped organza borders.", "AGV-ANK-021", "4499.00", 18, "set", "/images/pexels-monurblc-36786626.jpg", anarkalis, true);
-        seedProductIfAbsent("NOOLU One-Shoulder Fluted Gown", "Dramatic single-shoulder gown tailored from stretch crepe with sculptural bodice pleats.", "AGV-DRS-022", "4799.00", 14, "piece", "/images/pexels-ron-lach-8386651.jpg", dresses, false);
-        seedProductIfAbsent("NOOLU Crepe Cape & Pant Set", "Flowing asymmetrical cape overlay paired with high-waisted cigarette pants for evening events.", "AGV-WST-023", "2899.00", 22, "set", "/images/pexels-alyssa-degarde-149576050-10689371.jpg", western, false);
-        seedProductIfAbsent("NOOLU Hand-Block Printed Silk Kurti", "Pure Chanderi silk kurti adorned with artisanal hand-block floral motifs and subtle metallic accents.", "AGV-KRT-024", "1899.00", 32, "piece", "/images/pexels-umudicreative-16440831.jpg", kurtis, false);
+        seedProductIfAbsent("AGVIA Kanjeevaram Temple Border Silk Saree", "Heirloom pure Kanjeevaram silk saree with rich gold zari temple border and pallu.", "AGV-SAR-011", "6499.00", 15, "piece", "/images/kanjeevaram_gold_silk_saree.jpg", sarees, true);
+        seedProductIfAbsent("AGVIA Pastel Banarasi Georgette Saree", "Soft drape pastel saree with hand-woven zari buttas for day festivities.", "AGV-SAR-012", "4599.00", 18, "piece", "/images/pastel_banarasi_georgette_saree.jpg", sarees, false);
+        seedProductIfAbsent("AGVIA Crimson Velvet Bridal Lehenga", "Exquisite bridal crimson velvet lehenga with handcrafted zardozi embroidery.", "AGV-LEH-013", "9999.00", 10, "set", "/images/royal_crimson_velvet_lehenga.jpg", lehengas, true);
+        seedProductIfAbsent("AGVIA Champagne Mirror-Work Lehenga", "Light-catching festive lehenga with intricate mirror and threadwork detailing.", "AGV-LEH-014", "6999.00", 14, "set", "/images/champagne_mirror_work_lehenga.jpg", lehengas, false);
+        seedProductIfAbsent("AGVIA Chikankari Angrakha Anarkali", "Graceful Lucknowi Chikankari angrakha style set with matching churidar.", "AGV-ANK-015", "3899.00", 22, "set", "/images/chikankari_angrakha_anarkali.jpg", anarkalis, false);
+        seedProductIfAbsent("AGVIA Chanderi Silk Festive Kurta", "Breathable Chanderi silk kurta with foil print and delicate gotta patti work.", "AGV-ANK-016", "2499.00", 28, "set", "/images/chanderi_festive_kurta.jpg", anarkalis, false);
+        seedProductIfAbsent("AGVIA Emerald Pleated Cocktail Gown", "Floor-sweeping pleated gown with an asymmetric neckline for gala receptions.", "AGV-DRS-017", "4299.00", 16, "piece", "/images/pexels-arina-krasnikova-5418894.jpg", dresses, false);
+        seedProductIfAbsent("AGVIA Satin Wrap Resort Dress", "Sleek flowing satin wrap dress designed for modern evening soirées.", "AGV-DRS-018", "2799.00", 20, "piece", "/images/pexels-arina-krasnikova-5418928.jpg", dresses, false);
+        seedProductIfAbsent("AGVIA Linen Blazer & Trousers Set", "Sophisticated contemporary co-ord set with clean lines and tailored fit.", "AGV-WST-019", "3199.00", 24, "set", "/images/pexels-ron-lach-8306359.jpg", western, false);
+        seedProductIfAbsent("AGVIA Mulberry Tissue Silk Saree", "Ultra-luminous gold tissue saree woven with fine metallic threads for a magnificent festive radiance.", "AGV-SAR-005", "5499.00", 12, "piece", "/images/mulberry_tissue_silk_saree.jpg", sarees, false);
+        seedProductIfAbsent("AGVIA Rose Gold Zardozi Lehenga", "Romantic pastel lehenga featuring subtle rose gold metallic threadwork and a sweetheart neckline blouse.", "AGV-LEH-010", "7999.00", 11, "set", "/images/rose_gold_zardozi_lehenga.jpg", lehengas, false);
+        seedProductIfAbsent("AGVIA Emerald Velvet Festive Anarkali", "Opulent jewel-toned velvet suit set adorned with gold thread dori work and scalloped organza borders.", "AGV-ANK-021", "4499.00", 18, "set", "/images/pexels-monurblc-36786626.jpg", anarkalis, true);
+        seedProductIfAbsent("AGVIA One-Shoulder Fluted Gown", "Dramatic single-shoulder gown tailored from stretch crepe with sculptural bodice pleats.", "AGV-DRS-022", "4799.00", 14, "piece", "/images/pexels-ron-lach-8386651.jpg", dresses, false);
+        seedProductIfAbsent("AGVIA Crepe Cape & Pant Set", "Flowing asymmetrical cape overlay paired with high-waisted cigarette pants for evening events.", "AGV-WST-023", "2899.00", 22, "set", "/images/pexels-alyssa-degarde-149576050-10689371.jpg", western, false);
+        seedProductIfAbsent("AGVIA Hand-Block Printed Silk Kurti", "Pure Chanderi silk kurti adorned with artisanal hand-block floral motifs and subtle metallic accents.", "AGV-KRT-024", "1899.00", 32, "piece", "/images/pexels-umudicreative-16440831.jpg", kurtis, false);
 
-        log.info("NOOLU categories and 26 products initialization verified.");
+        log.info("AGVIA categories and 26 products initialization verified.");
     }
 
     private Category getOrCreateCategory(String name, String description, String imageUrl) {
@@ -316,7 +316,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedOfficialCoupons() {
         log.info("Seeding AGVIA official coupons and subscription codes...");
-        seedCouponIfAbsent("CIRCLE15", "NOOLU Haute Circle VIP 15% Boutique Credit", com.ems.pragathisweets.entity.DiscountType.PERCENTAGE, new BigDecimal("15.00"), BigDecimal.ZERO, new BigDecimal("2000.00"));
+        seedCouponIfAbsent("CIRCLE15", "AGVIA Haute Circle VIP 15% Boutique Credit", com.ems.pragathisweets.entity.DiscountType.PERCENTAGE, new BigDecimal("15.00"), BigDecimal.ZERO, new BigDecimal("2000.00"));
         seedCouponIfAbsent("AGVIAVIP10", "Exclusive VIP 10% Boutique Discount", com.ems.pragathisweets.entity.DiscountType.PERCENTAGE, new BigDecimal("10.00"), BigDecimal.ZERO, new BigDecimal("2000.00"));
         seedCouponIfAbsent("AGVIA15", "VIP Welcome Voucher 15% Boutique Credit", com.ems.pragathisweets.entity.DiscountType.PERCENTAGE, new BigDecimal("15.00"), BigDecimal.ZERO, new BigDecimal("2000.00"));
         seedCouponIfAbsent("AGVIA10", "Special 10% Storewide Boutique Discount", com.ems.pragathisweets.entity.DiscountType.PERCENTAGE, new BigDecimal("10.00"), BigDecimal.ZERO, new BigDecimal("1500.00"));
@@ -325,7 +325,7 @@ public class DataInitializer implements CommandLineRunner {
         seedCouponIfAbsent("AZADI15", "15% Off Independence Celebration Offer", com.ems.pragathisweets.entity.DiscountType.PERCENTAGE, new BigDecimal("15.00"), new BigDecimal("499.00"), new BigDecimal("2000.00"));
         seedCouponIfAbsent("RAKHI200", "₹200 Off Raksha Bandhan Delight", com.ems.pragathisweets.entity.DiscountType.FLAT, new BigDecimal("200.00"), new BigDecimal("999.00"), new BigDecimal("200.00"));
         seedCouponIfAbsent("DIWALI2025", "25% Off Corporate Grandeur Bulk Order", com.ems.pragathisweets.entity.DiscountType.PERCENTAGE, new BigDecimal("25.00"), new BigDecimal("1499.00"), new BigDecimal("3000.00"));
-        log.info("NOOLU official coupons verification completed.");
+        log.info("AGVIA official coupons verification completed.");
     }
 
     private void seedCouponIfAbsent(String code, String description, com.ems.pragathisweets.entity.DiscountType discountType, BigDecimal value, BigDecimal minOrder, BigDecimal maxDiscount) {
