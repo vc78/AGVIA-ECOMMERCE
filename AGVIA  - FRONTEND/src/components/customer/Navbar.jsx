@@ -3,8 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Menu, X, User, Search, Heart, ShoppingBag, LogOut,
-  ArrowRight, ChevronDown, Sparkles, Truck, Gift,
-  Crown, Flower2, Gem, Scissors, Feather, Layers, Home, ShieldCheck
+  ChevronDown, ShieldCheck, Sparkles, ArrowRight, Home
 } from 'lucide-react'
 import { loggedOut } from '../../store/authSlice'
 import { authService } from '../../services/authService'
@@ -14,10 +13,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import ReliableImage from '../common/ReliableImage'
 import toast from 'react-hot-toast'
 
-// ── Luxury Boutique Categories ──────────────────────────────────────
+// ── Luxury Boutique Categories & Navigation Structure ─────────────────
 const NAV_CATEGORIES = {
   COLLECTIONS: {
-    label: 'COLLECTIONS',
+    label: 'Collections',
     path: '/products',
     items: [
       { name: 'Bridal Couture', path: '/products?category=Lehengas', desc: 'Regal bridal sets & trousseau edits', img: '/images/wedding_lehenga.jpg' },
@@ -27,16 +26,16 @@ const NAV_CATEGORIES = {
     ]
   },
   SAREES: {
-    label: 'SAREES',
+    label: 'Sarees',
     path: '/products?category=Sarees',
     items: [
       { name: 'Classic Silk Sarees', path: '/products?category=Sarees', desc: 'Traditional heirloom weaves with zari', img: '/images/classic_silk_saree.jpg' },
       { name: 'Floral Organza Sarees', path: '/products?category=Sarees', desc: 'Sheer lightweight pastels & motifs', img: '/images/floral_organza_saree.jpg' },
-      { name: 'Kanjeevaram & Banarasi', path: '/products?category=Sarees', desc: 'Pure temple border silks', img: '/images/classic_silk_saree.jpg' },
+      { name: 'Banarasi & Kanjeevaram', path: '/products?category=Sarees', desc: 'Pure temple border silks', img: '/images/classic_silk_saree.jpg' },
     ]
   },
   LEHENGAS: {
-    label: 'LEHENGAS',
+    label: 'Lehengas',
     path: '/products?category=Lehengas',
     items: [
       { name: 'Royal Wedding Lehengas', path: '/products?category=Lehengas', desc: 'Heavy hand-embroidered bridal sets', img: '/images/wedding_lehenga.jpg' },
@@ -44,7 +43,7 @@ const NAV_CATEGORIES = {
     ]
   },
   KURTAS: {
-    label: 'KURTAS',
+    label: 'Kurtas',
     path: '/products?category=Anarkalis+%26+Kurtas',
     items: [
       { name: 'Embroidered Anarkalis', path: '/products?category=Anarkalis+%26+Kurtas', desc: 'Grand floor-length festive kalis', img: '/images/anarkali_set.jpg' },
@@ -53,7 +52,7 @@ const NAV_CATEGORIES = {
     ]
   },
   WESTERN_WEAR: {
-    label: 'WESTERN WEAR',
+    label: 'Western Wear',
     path: '/products?category=Western+Wear',
     items: [
       { name: 'Tailored Co-ord Sets', path: '/products?category=Western+Wear', desc: 'Chic modern co-ordinated outfits', img: '/images/coord_set.jpg' },
@@ -61,56 +60,16 @@ const NAV_CATEGORIES = {
     ]
   },
   MORE: {
-    label: 'MORE',
-    path: '/products',
+    label: 'More',
+    path: '/about',
     items: [
-      { name: 'Bridal Dupattas', path: '/products?category=Dupattas', desc: 'Embellished bridal veil drapes', img: '/images/bridal_dupatta.jpg' },
-      { name: 'Custom Stitching', path: '/wedding-orders', desc: 'Made-to-measure bespoke blouse & tailoring', img: '/images/anarkali_set.jpg' },
-      { name: 'VIP Membership', path: '/subscription', desc: 'NOOLU Privilege Circle & styling perks', img: '/images/hero_banner.jpg' },
+      { name: 'Our Weaving Story', path: '/about', desc: 'The heritage and philosophy of NOOLU' },
+      { name: 'VIP Privilege Circle', path: '/subscription', desc: 'Boutique perks, preview access & styling' },
+      { name: 'Bespoke Tailoring', path: '/wedding-orders', desc: 'Custom made-to-measure bridal & couture' },
+      { name: 'Exclusive Offers', path: '/offers', desc: 'Seasonal privileges & celebratory codes' },
+      { name: 'Corporate & Bulk Gifting', path: '/corporate-orders', desc: 'Artisanal gift hampers & bespoke sets' },
     ]
   }
-}
-
-// ── Watermark Botanical Illustration (SVG) ───────────────────────────
-function BotanicalCornerDecor({ className = '' }) {
-  return (
-    <svg viewBox="0 0 160 110" fill="none" className={`pointer-events-none select-none opacity-30 ${className}`}>
-      <path d="M150 100 C130 80, 100 60, 60 70 C40 75, 20 90, 5 105" stroke="#C9A45C" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M120 70 C135 60, 145 40, 140 25 C125 35, 115 55, 120 70 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <path d="M95 62 C110 50, 115 30, 105 18 C92 28, 90 48, 95 62 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <path d="M70 68 C80 50, 75 32, 60 25 C55 40, 60 58, 70 68 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <path d="M45 78 C48 60, 40 45, 28 40 C28 55, 36 70, 45 78 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <circle cx="140" cy="22" r="1.5" fill="#C9A45C" />
-      <circle cx="103" cy="15" r="1.5" fill="#C9A45C" />
-      <circle cx="58" cy="22" r="1.5" fill="#C9A45C" />
-    </svg>
-  )
-}
-
-// ── AGVIA Lady Emblem Logo Icon ─────────────────────────────────────
-function AgviaLogoEmblem() {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10 md:w-11 md:h-11 shrink-0">
-      {/* Sparkles around lady */}
-      <path d="M14 18 L16 11 L18 18 L25 20 L18 22 L16 29 L14 22 L7 20 Z" fill="#C9A45C" />
-      <path d="M50 14 L51 9 L52 14 L57 15 L52 16 L51 21 L50 16 L45 15 Z" fill="#C9A45C" />
-      <path d="M12 44 L13 40 L14 44 L18 45 L14 46 L13 50 L12 46 L8 45 Z" fill="#C9A45C" opacity="0.85" />
-      <path d="M52 46 L53 42 L54 46 L58 47 L54 48 L53 52 L52 48 L48 47 Z" fill="#C9A45C" opacity="0.85" />
-      
-      {/* Crown / Hair */}
-      <circle cx="32" cy="18" r="4.5" stroke="#C9A45C" strokeWidth="1.5" fill="#FAF6F0" />
-      <path d="M30 13 L32 10 L34 13 L36 11 L35 15 L29 15 L28 11 Z" fill="#C9A45C" />
-      
-      {/* Elegant Silhouette Gown */}
-      <path d="M30 23 L28 29 L23 35 L16 53 L32 52 L48 53 L41 35 L36 29 L34 23 Z" stroke="#C9A45C" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Gown inner drapery lines */}
-      <path d="M28 29 L32 44 L36 29" stroke="#C9A45C" strokeWidth="1" strokeLinecap="round" opacity="0.75" />
-      <path d="M25 38 L32 52 L39 38" stroke="#C9A45C" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-      <path d="M19 48 L32 52 L45 48" stroke="#C9A45C" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
-      {/* Base flourish pedestal */}
-      <path d="M22 55 L32 53.5 L42 55" stroke="#C9A45C" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  )
 }
 
 export default function Navbar() {
@@ -118,22 +77,16 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAnnouncement, setShowAnnouncement] = useState(() => {
+    try {
+      return sessionStorage.getItem('noolu_announcement_dismissed') !== 'true'
+    } catch {
+      return true
+    }
+  })
+
   const dropdownTimeoutRef = useRef(null)
-
-  const MOBILE_HEADLINES = [
-    { text: 'FREE SHIPPING ON ORDERS ₹999+', icon: Truck },
-    { text: '✦ ELEGANT STYLES FOR EVERY OCCASION ✦', icon: Sparkles },
-    { text: 'USE CODE: NOOLU15 FOR 15% OFF', icon: Gift },
-    { text: 'EASY 7-DAY HASSLE-FREE RETURNS', icon: Truck },
-  ]
-  const [headlineIndex, setHeadlineIndex] = useState(0)
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHeadlineIndex((prev) => (prev + 1) % MOBILE_HEADLINES.length)
-    }, 3500)
-    return () => clearInterval(timer)
-  }, [])
+  const searchInputRef = useRef(null)
 
   const { isAuthenticated, user } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
@@ -141,12 +94,14 @@ export default function Navbar() {
   const location = useLocation()
   const { count } = useCart()
 
+  // Track scroll position for subtle elevation change
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20)
+    const handleScroll = () => setScrolled(window.scrollY > 15)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Close mobile drawer and dropdown on route change
   useEffect(() => {
     setMobileMenuOpen(false)
     setActiveDropdown(null)
@@ -164,6 +119,27 @@ export default function Navbar() {
     }
   }, [mobileMenuOpen])
 
+  // Close dropdown on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setActiveDropdown(null)
+        setMobileMenuOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  const handleDismissAnnouncement = () => {
+    setShowAnnouncement(false)
+    try {
+      sessionStorage.setItem('noolu_announcement_dismissed', 'true')
+    } catch {
+      // ignore
+    }
+  }
+
   const handleLogout = async () => {
     try {
       await authService.logout()
@@ -180,6 +156,7 @@ export default function Navbar() {
     e.preventDefault()
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+      setActiveDropdown(null)
     }
   }
 
@@ -198,229 +175,196 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Spacer for sticky dual header (top bar ~30px + main nav ~64px = ~94px) */}
-      <div className="h-[88px] md:h-[94px]" />
+      {/* ── Dynamic Spacer for Fixed Header ─────────────────────────── */}
+      {/* Ensures hero carousel and page content sit flush with zero gap */}
+      <div
+        className={`transition-all duration-300 ${
+          showAnnouncement
+            ? 'h-[104px] sm:h-[108px] md:h-[112px]'
+            : 'h-[74px] sm:h-[78px] md:h-[82px]'
+        }`}
+      />
 
-      <header className="fixed top-0 left-0 right-0 z-50 select-none shadow-[0_4px_25px_rgba(0,0,0,0.06)]">
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 select-none transition-shadow duration-300 ${
+          scrolled
+            ? 'shadow-[0_4px_20px_rgba(50,29,28,0.06)]'
+            : 'shadow-[0_2px_12px_rgba(50,29,28,0.03)]'
+        }`}
+      >
+        {/* ══════════════════════════════════════════════════════════════
+            1. OPTIONAL SLIM ANNOUNCEMENT STRIP (DISMISSIBLE)
+        ══════════════════════════════════════════════════════════════ */}
+        <AnimatePresence>
+          {showAnnouncement && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-[#800020] text-[#FFF9F0] border-b border-[#6B001B] overflow-hidden"
+            >
+              <div className="w-full max-w-[1360px] mx-auto px-4 sm:px-6 h-7 sm:h-8 flex items-center justify-between text-[11px] sm:text-xs font-medium tracking-wide">
+                <div className="w-6 shrink-0" /> {/* Spacer for optical center balance */}
+                
+                <div className="flex items-center gap-2 text-center truncate">
+                  <span className="text-[#FFF9F0]/90">
+                    Complimentary Shipping on Eligible Orders
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleDismissAnnouncement}
+                  className="w-6 h-6 flex items-center justify-center text-[#FFF9F0]/70 hover:text-white rounded-full transition-colors shrink-0"
+                  aria-label="Dismiss announcement"
+                  title="Dismiss announcement"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ══════════════════════════════════════════════════════════════
-            1. TOP ANNOUNCEMENT BAR (DEEP BURGUNDY / WINE)
+            2. PRIMARY NAVIGATION ROW (WARM IVORY #FFF9F0)
+               Height: 76–84px on Desktop
         ══════════════════════════════════════════════════════════════ */}
-        {/* ══════════════════════════════════════════════════════════════
-            1. TOP ANNOUNCEMENT BAR (DEEP BURGUNDY / WINE)
-        ══════════════════════════════════════════════════════════════ */}
-        <div className="relative bg-[#480814] text-[#E6C894] border-b border-[#5E1220] overflow-hidden select-none">
-          {/* Subtle background damask floral flourishes at edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black/25 to-transparent pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black/25 to-transparent pointer-events-none" />
+        <div className="bg-[#FFF9F0] border-b border-[#321D1C]/10 h-[74px] sm:h-[78px] md:h-[82px] flex items-center">
+          <div className="w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
 
-          {/* Desktop Spread (md and up) */}
-          <div className="hidden md:flex w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] h-7 sm:h-8 items-center justify-between text-[10px] sm:text-[10.5px] tracking-[0.16em] uppercase font-medium">
-            
-            {/* Left: Free Shipping & Easy Returns */}
-            <div className="flex items-center gap-1.5 text-[#E6C894]">
-              <Truck size={12} className="text-[#E6C894] shrink-0" />
-              <span className="font-semibold tracking-[0.18em]">FREE SHIPPING</span>
-              <span className="opacity-40">|</span>
-              <span className="tracking-[0.18em]">EASY RETURNS</span>
-            </div>
-
-            {/* Center: Elegant Styles Symmetrical Flourish */}
-            <div className="flex items-center gap-2 text-[#E6C894] tracking-[0.22em] text-[10.5px] font-serif">
-              <span className="w-6 lg:w-12 h-[1px] bg-gradient-to-r from-transparent to-[#E6C894]/70" />
-              <span className="text-[#E6C894] text-[9px]">✦</span>
-              <span className="tracking-[0.24em] font-medium text-white/95">
-                ELEGANT STYLES FOR EVERY OCCASION
-              </span>
-              <span className="text-[#E6C894] text-[9px]">✦</span>
-              <span className="w-6 lg:w-12 h-[1px] bg-gradient-to-l from-transparent to-[#E6C894]/70" />
-            </div>
-
-            {/* Right: Exclusive Collections & Secure Payments */}
-            <div className="flex items-center gap-1.5 text-[#E6C894]">
-              <Gift size={11} className="text-[#E6C894] shrink-0" />
-              <span className="tracking-[0.18em]">EXCLUSIVE COLLECTIONS</span>
-              <span className="opacity-40">|</span>
-              <span className="tracking-[0.18em]">SECURE PAYMENTS</span>
-            </div>
-
-          </div>
-
-          {/* Mobile Centered Dynamic Headline (< md) */}
-          <div className="flex md:hidden w-full h-7 items-center justify-center px-3 relative overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={headlineIndex}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ duration: 0.3 }}
-                className="flex items-center gap-1.5 text-[9px] xs:text-[10px] tracking-[0.18em] uppercase font-semibold text-[#E6C894] whitespace-nowrap"
-              >
-                {(() => {
-                  const item = MOBILE_HEADLINES[headlineIndex]
-                  const Icon = item.icon
-                  return <Icon size={11} className="text-[#E6C894] shrink-0" />
-                })()}
-                <span>{MOBILE_HEADLINES[headlineIndex].text}</span>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════
-            2. MAIN LUXURY NAVBAR (WARM IVORY / SILK CREAM)
-        ══════════════════════════════════════════════════════════════ */}
-        <div className={`relative bg-[#FAF6F0] border-b border-[#EAE0D2] transition-all duration-300 ${scrolled ? 'py-1.5' : 'py-2 md:py-2.5'}`}>
-          
-          {/* Subtle Botanical Leaf Watermark in Corners */}
-          <BotanicalCornerDecor className="absolute -left-4 -bottom-2 w-32 h-20 transform -scale-x-100 hidden lg:block" />
-          <BotanicalCornerDecor className="absolute -right-2 -bottom-2 w-36 h-22 hidden lg:block" />
-
-          <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] flex items-center justify-between gap-3">
-
-            {/* ── Left: NOOLU Official Brand Logo ── */}
-            <Link to="/" className="flex items-center shrink-0 group py-0.5">
+            {/* ── Left: Official NOOLU Logo ── */}
+            <Link
+              to="/"
+              className="flex items-center shrink-0 group py-1"
+              title="NOOLU — A Rhythm of Loom"
+            >
               <img
                 src="/images/agvia-logo.webp"
                 alt="NOOLU — A Rhythm of Loom"
-                width={88}
-                height={44}
+                width={120}
+                height={56}
                 fetchpriority="high"
                 decoding="async"
-                className="h-9 sm:h-10 lg:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                className="h-10 sm:h-11 md:h-12 w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
               />
             </Link>
 
-            {/* ── Center: Tablet Compact Nav (md to xl) ── */}
-            <nav className="hidden md:flex xl:hidden items-center gap-2 lg:gap-3">
+            {/* ── Centre: Primary Navigation Links (Desktop) ── */}
+            <nav
+              aria-label="Main Navigation"
+              className="hidden lg:flex items-center gap-5 xl:gap-8 text-[13.5px] font-sans font-medium text-[#321D1C]"
+            >
+              {/* HOME LINK */}
               <Link
                 to="/"
-                className={`text-[11px] tracking-[0.14em] uppercase px-2.5 py-1 rounded-full transition-all ${
-                  isHomeActive ? 'bg-[#5A1020] text-white font-bold' : 'text-[#382820] hover:text-[#5A1020]'
+                className={`relative py-2 px-1 transition-colors duration-200 ${
+                  isHomeActive
+                    ? 'text-[#800020] font-semibold'
+                    : 'hover:text-[#800020]'
                 }`}
               >
-                Home
-              </Link>
-              <Link
-                to="/products?category=Sarees"
-                className="text-[11px] tracking-[0.14em] uppercase px-2 py-1 text-[#382820] hover:text-[#5A1020] transition-colors"
-              >
-                Sarees
-              </Link>
-              <Link
-                to="/products?category=Lehengas"
-                className="text-[11px] tracking-[0.14em] uppercase px-2 py-1 text-[#382820] hover:text-[#5A1020] transition-colors"
-              >
-                Lehengas
-              </Link>
-              <Link
-                to="/products"
-                className="text-[11px] tracking-[0.14em] uppercase px-2 py-1 text-[#382820] hover:text-[#5A1020] transition-colors"
-              >
-                Collections
-              </Link>
-            </nav>
-
-            {/* ── Center: Desktop Full Navigation Links ── */}
-            <nav className="hidden xl:flex items-center gap-4 lg:gap-5 xl:gap-6">
-              
-              {/* HOME LINK WITH ORNAMENTAL FLOURISH */}
-              <Link
-                to="/"
-                className="relative py-1 flex flex-col items-center group cursor-pointer"
-              >
-                <span className={`text-[12px] tracking-[0.18em] uppercase font-semibold transition-colors duration-200 ${
-                  isHomeActive ? 'text-[#4A0A16]' : 'text-[#382820] hover:text-[#4A0A16]'
-                }`}>
-                  HOME
-                </span>
-                {/* Reference Image Underline Flourish: ──◆── */}
-                {isHomeActive ? (
-                  <div className="flex items-center justify-center gap-1 mt-1 text-[#B68C48]">
-                    <span className="w-3.5 h-[1.5px] bg-[#B68C48]" />
-                    <span className="w-1.5 h-1.5 rotate-45 bg-[#B68C48]" />
-                    <span className="w-3.5 h-[1.5px] bg-[#B68C48]" />
-                  </div>
-                ) : (
-                  <div className="h-[2.5px] mt-1" />
+                <span>Home</span>
+                {isHomeActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#800020] rounded-full" />
                 )}
               </Link>
 
-              {/* DROPDOWN CATEGORIES */}
+              {/* CATEGORIES WITH DROPDOWNS */}
               {Object.entries(NAV_CATEGORIES).map(([key, cat]) => {
                 const isOpen = activeDropdown === key
-                const isActive = location.search.toLowerCase().includes(cat.label.toLowerCase()) || 
-                  (key === 'COLLECTIONS' && location.pathname === '/products' && !location.search)
+                const isActive =
+                  (key === 'COLLECTIONS' && location.pathname === '/products' && !location.search) ||
+                  (key === 'SAREES' && location.search.includes('category=Sarees')) ||
+                  (key === 'LEHENGAS' && location.search.includes('category=Lehengas')) ||
+                  (key === 'KURTAS' && (location.search.includes('category=Anarkalis') || location.search.includes('category=Kurtis'))) ||
+                  (key === 'WESTERN_WEAR' && (location.search.includes('category=Western+Wear') || location.search.includes('category=Dresses')))
 
                 return (
                   <div
                     key={key}
-                    className="relative py-1"
+                    className="relative py-2"
                     onMouseEnter={() => handleMouseEnter(key)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <Link
                       to={cat.path}
-                      className={`flex items-center gap-1 text-[12px] tracking-[0.16em] uppercase font-medium transition-colors duration-200 ${
-                        isActive || isOpen ? 'text-[#4A0A16] font-semibold' : 'text-[#382820] hover:text-[#4A0A16]'
+                      className={`flex items-center gap-1 px-1 py-1 transition-colors duration-200 ${
+                        isActive || isOpen
+                          ? 'text-[#800020] font-semibold'
+                          : 'hover:text-[#800020]'
                       }`}
+                      aria-expanded={isOpen}
                     >
                       <span>{cat.label}</span>
                       <ChevronDown
-                        size={12}
-                        className={`transition-transform duration-200 ${isOpen ? 'rotate-180 text-[#B68C48]' : 'text-[#382820]/60'}`}
+                        size={13}
+                        className={`transition-transform duration-200 ${
+                          isOpen ? 'rotate-180 text-[#800020]' : 'text-[#321D1C]/60'
+                        }`}
                       />
                     </Link>
 
-                    {/* Dropdown Menu Card */}
+                    {/* Active Underline */}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-[#800020] rounded-full" />
+                    )}
+
+                    {/* Minimal Premium Dropdown Card */}
                     <AnimatePresence>
                       {isOpen && (
                         <motion.div
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 6 }}
-                          transition={{ duration: 0.18 }}
-                          className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-72 sm:w-80"
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.16 }}
+                          className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50 ${
+                            cat.items?.[0]?.img ? 'w-80' : 'w-64'
+                          }`}
                         >
-                          <div className="bg-[#FFFDF9] rounded-2xl shadow-[0_16px_45px_rgba(74,10,22,0.12)] border border-[#EBE1D4] overflow-hidden p-3.5">
-                            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#EFE7DC]">
-                              <span className="font-serif text-[11px] uppercase tracking-[0.2em] font-bold text-[#4A0A16]">
+                          <div className="bg-[#FFF9F0] rounded-2xl shadow-[0_16px_40px_rgba(50,29,28,0.1)] border border-[#321D1C]/10 overflow-hidden p-3">
+                            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#321D1C]/10">
+                              <span className="text-xs uppercase tracking-wider font-semibold text-[#800020]">
                                 {cat.label}
                               </span>
                               <Link
                                 to={cat.path}
                                 onClick={() => setActiveDropdown(null)}
-                                className="text-[10px] text-[#B68C48] hover:text-[#4A0A16] tracking-wider uppercase font-semibold flex items-center gap-1"
+                                className="text-[11px] text-[#800020] hover:underline font-medium flex items-center gap-1"
                               >
-                                View All <ArrowRight size={10} />
+                                View All <ArrowRight size={11} />
                               </Link>
                             </div>
 
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                               {cat.items.map((item) => (
                                 <Link
                                   key={item.name}
                                   to={item.path}
                                   onClick={() => setActiveDropdown(null)}
-                                  className="group/item flex items-center gap-3 p-2 rounded-xl hover:bg-[#FAF5ED] transition-colors"
+                                  className="group/item flex items-center gap-3 p-2 rounded-xl hover:bg-[#800020]/5 transition-colors"
                                 >
-                                  <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-[#E8DEC0]">
-                                    <ReliableImage
-                                      src={item.img}
-                                      alt={item.name}
-                                      sizes="48px"
-                                      loading="lazy"
-                                      className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500"
-                                    />
-                                  </div>
+                                  {item.img && (
+                                    <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-[#321D1C]/10 bg-[#FAF6F0]">
+                                      <ReliableImage
+                                        src={item.img}
+                                        alt={item.name}
+                                        sizes="44px"
+                                        loading="lazy"
+                                        className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                                      />
+                                    </div>
+                                  )}
                                   <div className="flex-1 min-w-0">
-                                    <p className="font-serif text-[13px] font-bold text-[#4A0A16] group-hover/item:text-[#B68C48] transition-colors truncate">
+                                    <p className="text-xs font-medium text-[#321D1C] group-hover/item:text-[#800020] transition-colors truncate">
                                       {item.name}
                                     </p>
-                                    <p className="font-sans text-[10px] text-[#6A5A50] line-clamp-1">
-                                      {item.desc}
-                                    </p>
+                                    {item.desc && (
+                                      <p className="text-[10px] text-[#321D1C]/60 line-clamp-1">
+                                        {item.desc}
+                                      </p>
+                                    )}
                                   </div>
                                 </Link>
                               ))}
@@ -432,108 +376,128 @@ export default function Navbar() {
                   </div>
                 )
               })}
-
             </nav>
 
-            {/* ── Right: Pill Search Bar & Interactive Icons ── */}
-            <div className="flex items-center gap-2 sm:gap-3 md:gap-3.5 shrink-0">
-              
-              {/* Pill-shaped Search Bar */}
-              <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center">
-                <div className="flex items-center gap-2 rounded-full border border-[#DFD3C5] bg-[#FAF6F0] px-3 py-1 transition-all duration-300 focus-within:border-[#B68C48] focus-within:bg-white focus-within:shadow-[0_2px_12px_rgba(182,140,72,0.12)] w-40 lg:w-52 xl:w-60">
-                  <Search size={13} className="text-[#8C7A6B] shrink-0" />
+            {/* ── Right: Compact Search, Account, Wishlist, Cart ── */}
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
+
+              {/* Compact Search Bar */}
+              <form
+                onSubmit={handleSearchSubmit}
+                className="hidden sm:flex items-center"
+              >
+                <div className="flex items-center gap-2 rounded-full border border-[#321D1C]/15 bg-white/70 px-3.5 py-1.5 transition-all duration-300 focus-within:border-[#800020] focus-within:bg-white focus-within:shadow-[0_2px_10px_rgba(128,0,32,0.06)] w-36 md:w-48 xl:w-56 focus-within:w-48 md:focus-within:w-60">
+                  <Search size={14} className="text-[#321D1C]/50 shrink-0" />
                   <input
+                    ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search styles, collections..."
-                    className="w-full bg-transparent text-[11px] text-[#2C1F18] placeholder-[#9E8E81] focus:outline-none"
+                    className="w-full bg-transparent text-xs text-[#321D1C] placeholder-[#321D1C]/40 focus:outline-none"
                   />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="text-[#321D1C]/40 hover:text-[#321D1C] text-xs"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               </form>
 
-              {/* Atelier Admin Direct Header Badge */}
+              {/* Atelier Admin Badge (If logged in as Admin) */}
               {isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
                 <Link
                   to="/admin/dashboard"
-                  className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-[#5A1020] text-[#FAF7F2] border border-[#C9A45C]/60 rounded-full text-[10px] font-bold tracking-widest uppercase hover:bg-[#72152b] transition-all shadow-xs shrink-0"
+                  className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-[#800020] text-white rounded-full text-[11px] font-semibold tracking-wide hover:bg-[#660019] transition-all shadow-xs shrink-0"
                   title="Open Atelier Admin Console"
                 >
-                  <ShieldCheck size={13} className="text-[#C9A45C]" />
-                  <span>Admin Panel</span>
+                  <ShieldCheck size={13} className="text-[#FFF9F0]" />
+                  <span>Admin</span>
                 </Link>
               )}
 
-              {/* User Profile & Sign In / Out */}
+              {/* Account / User Menu */}
               {isAuthenticated ? (
-                <div className="flex relative group/user items-center gap-1 sm:gap-1.5">
+                <div className="relative group/user flex items-center">
                   <Link
                     to="/profile"
-                    className="touch-target p-1.5 sm:p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5 flex items-center gap-1.5"
+                    className="p-1.5 text-[#321D1C] hover:text-[#800020] transition-colors rounded-full flex items-center gap-2"
                     title={`Signed in as ${user?.name || 'Account'}`}
                   >
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#5A1020] text-white flex items-center justify-center font-serif text-xs font-bold shadow-2xs">
+                    <div className="w-8 h-8 rounded-full bg-[#800020] text-white flex items-center justify-center text-xs font-semibold shadow-xs">
                       {user?.name?.[0]?.toUpperCase() || <User size={15} />}
                     </div>
-                    <span className="hidden md:inline text-[11px] font-medium text-[#382820] max-w-[80px] truncate">
+                    <span className="hidden xl:inline text-xs font-medium text-[#321D1C] max-w-[80px] truncate">
                       {user?.name?.split(' ')[0]}
                     </span>
                   </Link>
 
-                  {/* Desktop hover menu */}
-                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
-                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[145px] text-xs">
+                  {/* Dropdown Menu on Desktop */}
+                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1 z-50">
+                    <div className="bg-[#FFF9F0] rounded-xl shadow-lg border border-[#321D1C]/10 p-1.5 min-w-[150px] text-xs">
                       {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
-                        <Link to="/admin/dashboard" className="px-2.5 py-1.5 hover:bg-[#5A1020]/10 rounded-lg text-[#5A1020] font-bold flex items-center gap-1.5 border-b border-[#E8DEC0]/60 mb-1">
-                          <ShieldCheck size={13} className="text-[#C9A45C]" /> Atelier Admin
+                        <Link
+                          to="/admin/dashboard"
+                          className="px-2.5 py-1.5 hover:bg-[#800020]/10 rounded-lg text-[#800020] font-semibold flex items-center gap-1.5 border-b border-[#321D1C]/10 mb-1"
+                        >
+                          <ShieldCheck size={13} /> Admin Panel
                         </Link>
                       )}
-                      <Link to="/profile" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                      <Link
+                        to="/profile"
+                        className="px-2.5 py-1.5 hover:bg-[#800020]/5 rounded-lg text-[#321D1C] font-medium block"
+                      >
                         My Profile
                       </Link>
-                      <Link to="/orders" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                      <Link
+                        to="/orders"
+                        className="px-2.5 py-1.5 hover:bg-[#800020]/5 rounded-lg text-[#321D1C] font-medium block"
+                      >
                         My Orders
                       </Link>
-                      <Link to="/wishlist" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                      <Link
+                        to="/wishlist"
+                        className="px-2.5 py-1.5 hover:bg-[#800020]/5 rounded-lg text-[#321D1C] font-medium block"
+                      >
                         My Wishlist
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-2.5 py-1.5 hover:bg-rose-50 text-rose-700 rounded-lg font-medium flex items-center gap-1.5 mt-0.5 border-t border-gray-100"
+                        className="w-full text-left px-2.5 py-1.5 hover:bg-rose-50 text-rose-700 rounded-lg font-medium flex items-center gap-1.5 mt-0.5 border-t border-[#321D1C]/10"
                       >
                         <LogOut size={12} /> Sign Out
                       </button>
                     </div>
                   </div>
-
-                  {/* Mobile Direct Sign Out button */}
-                  <button
-                    onClick={handleLogout}
-                    className="sm:hidden p-1.5 text-rose-700 hover:text-white hover:bg-rose-700 border border-rose-200/60 rounded-full transition-all flex items-center justify-center"
-                    title="Sign Out"
-                    aria-label="Sign Out"
-                  >
-                    <LogOut size={14} />
-                  </button>
                 </div>
               ) : (
-                <div className="flex relative group/user items-center gap-1.5">
+                <div className="relative group/user flex items-center">
                   <Link
                     to="/login"
-                    className="flex items-center gap-1 py-1 px-2.5 sm:px-3 rounded-full bg-[#5A1020]/10 hover:bg-[#5A1020] text-[#5A1020] hover:text-white transition-all text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider border border-[#5A1020]/30 shadow-2xs"
-                    title="Sign In / Login"
+                    className="p-1.5 text-[#321D1C] hover:text-[#800020] transition-colors rounded-full flex items-center gap-1.5"
+                    title="Account / Sign In"
                   >
-                    <User size={14} strokeWidth={2} />
-                    <span>Sign In</span>
+                    <User size={20} strokeWidth={1.75} />
+                    <span className="hidden xl:inline text-xs font-medium">Sign In</span>
                   </Link>
 
-                  {/* Desktop hover menu for unauthenticated */}
-                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
-                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[135px] text-xs">
-                      <Link to="/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                  {/* Dropdown for Guest */}
+                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1 z-50">
+                    <div className="bg-[#FFF9F0] rounded-xl shadow-lg border border-[#321D1C]/10 p-1.5 min-w-[140px] text-xs">
+                      <Link
+                        to="/login"
+                        className="px-2.5 py-1.5 hover:bg-[#800020]/5 rounded-lg text-[#321D1C] font-medium block"
+                      >
                         Patron Sign In
                       </Link>
-                      <Link to="/register" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#5A1020] font-medium block border-t border-gray-100 mt-0.5">
+                      <Link
+                        to="/register"
+                        className="px-2.5 py-1.5 hover:bg-[#800020]/5 rounded-lg text-[#800020] font-semibold block border-t border-[#321D1C]/10 mt-0.5"
+                      >
                         Create Account
                       </Link>
                     </div>
@@ -544,21 +508,21 @@ export default function Navbar() {
               {/* Wishlist Icon */}
               <Link
                 to="/wishlist"
-                className="hidden sm:flex touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                className="p-1.5 text-[#321D1C] hover:text-[#800020] transition-colors rounded-full"
                 title="Wishlist"
               >
-                <Heart size={19} strokeWidth={1.75} />
+                <Heart size={20} strokeWidth={1.75} />
               </Link>
 
-              {/* Shopping Bag Icon with Cart Count Badge */}
+              {/* Shopping Bag Icon with Cart Count */}
               <Link
                 to="/cart"
-                className="touch-target relative p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                className="relative p-1.5 text-[#321D1C] hover:text-[#800020] transition-colors rounded-full"
                 title="Shopping Bag"
               >
-                <ShoppingBag size={19} strokeWidth={1.75} />
+                <ShoppingBag size={20} strokeWidth={1.75} />
                 {count > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#5A1020] text-white text-[9.5px] font-bold flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-[#800020] text-white text-[9.5px] font-bold flex items-center justify-center shadow-xs">
                     {count > 99 ? '99+' : count}
                   </span>
                 )}
@@ -566,9 +530,9 @@ export default function Navbar() {
 
               {/* Mobile Menu Hamburger */}
               <button
-                className="xl:hidden touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                className="lg:hidden p-1.5 text-[#321D1C] hover:text-[#800020] transition-colors rounded-full"
                 onClick={() => setMobileMenuOpen(true)}
-                aria-label="Open Mobile Menu"
+                aria-label="Open Navigation Menu"
               >
                 <Menu size={22} />
               </button>
@@ -577,98 +541,95 @@ export default function Navbar() {
 
           </div>
         </div>
-
       </header>
 
       {/* ══════════════════════════════════════════════════════════════
-          3. MOBILE NAVIGATION DRAWER
+          3. CLEAN SLIDE-OUT DRAWER FOR MOBILE & TABLET
       ══════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.6 }}
+              animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-xs"
+              className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-xs"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              className="fixed inset-y-0 right-0 z-[60] w-full max-w-[min(340px,calc(100vw-32px))] bg-[#FFFDF9] flex flex-col shadow-2xl"
+              className="fixed inset-y-0 right-0 z-[60] w-full max-w-[min(340px,calc(100vw-32px))] bg-[#FFF9F0] flex flex-col shadow-2xl"
             >
-              {/* Drawer Header */}
-              <div className="flex justify-between items-center px-4 py-3 border-b border-[#EAE0D2] bg-[#FAF6F0]">
-                <div className="flex items-center">
-                  <img
-                    src="/images/agvia-logo.webp"
-                    alt="NOOLU — A Rhythm of Loom"
-                    width={64}
-                    height={32}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-8 w-auto object-contain"
-                  />
-                </div>
+              {/* Drawer Top Header */}
+              <div className="flex justify-between items-center px-4 py-3.5 border-b border-[#321D1C]/10 bg-[#FFF9F0]">
+                <img
+                  src="/images/agvia-logo.webp"
+                  alt="NOOLU — A Rhythm of Loom"
+                  width={96}
+                  height={44}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-9 w-auto object-contain"
+                />
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="touch-target p-2 text-[#4A0A16] hover:bg-white rounded-full transition-colors"
+                  className="p-1.5 text-[#321D1C] hover:text-[#800020] rounded-full transition-colors"
                   aria-label="Close menu"
                 >
                   <X size={20} />
                 </button>
               </div>
 
-              {/* Mobile Drawer User Profile / Sign In Banner */}
-              <div className="p-3 mx-3 mt-3 bg-[#FAF6F0] border border-[#C9A45C]/30 rounded-2xl flex items-center justify-between gap-2.5 shadow-2xs">
+              {/* User Account Strip */}
+              <div className="p-3 mx-3 mt-3 bg-white/70 border border-[#321D1C]/10 rounded-2xl flex items-center justify-between gap-2.5">
                 {isAuthenticated ? (
                   <>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-[#5A1020] text-white flex items-center justify-center font-serif text-xs font-bold shrink-0 shadow-xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-[#800020] text-white flex items-center justify-center text-xs font-semibold shrink-0">
                         {user?.name?.[0]?.toUpperCase() || 'U'}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-serif text-xs font-bold text-[#5A1020] truncate">
+                        <p className="text-xs font-medium text-[#321D1C] truncate">
                           {user?.name || 'Account'}
                         </p>
-                        <p className="text-[9px] text-[#211D1E]/60 truncate font-sans">
+                        <p className="text-[10px] text-[#321D1C]/50 truncate font-sans">
                           {user?.email || 'Logged in'}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <Link
                         to="/profile"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="px-2.5 py-1 bg-white border border-[#C9A45C]/40 rounded-lg text-[10px] font-bold text-[#5A1020] hover:bg-[#5A1020] hover:text-white transition-colors"
+                        className="px-2.5 py-1 bg-white border border-[#321D1C]/15 rounded-lg text-[10px] font-medium text-[#321D1C] hover:text-[#800020]"
                       >
                         Profile
                       </Link>
                       <button
                         onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                        className="px-2 py-1 bg-rose-50 border border-rose-200 rounded-lg text-[10px] font-bold text-rose-700 hover:bg-rose-700 hover:text-white transition-colors flex items-center gap-1"
+                        className="px-2 py-1 bg-rose-50 border border-rose-200 rounded-lg text-[10px] font-medium text-rose-700"
                       >
-                        <LogOut size={11} /> Out
+                        Sign Out
                       </button>
                     </div>
                   </>
                 ) : (
                   <>
                     <div className="min-w-0">
-                      <p className="font-serif text-xs font-bold text-[#5A1020]">
-                        Namaste, Guest
+                      <p className="text-xs font-semibold text-[#800020]">
+                        Welcome to NOOLU
                       </p>
-                      <p className="text-[9px] text-[#211D1E]/60 font-sans">
-                        Sign in for boutique couture privileges
+                      <p className="text-[10px] text-[#321D1C]/60">
+                        Sign in for a personalized experience
                       </p>
                     </div>
                     <Link
                       to="/login"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="px-3.5 py-1.5 bg-[#5A1020] text-white rounded-xl text-[10.5px] font-bold uppercase tracking-wider hover:bg-[#8B0000] transition-colors shrink-0 shadow-xs"
+                      className="px-3.5 py-1.5 bg-[#800020] text-white rounded-xl text-xs font-medium hover:bg-[#660019] transition-colors shrink-0"
                     >
                       Sign In
                     </Link>
@@ -676,118 +637,120 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Mobile Search */}
-              <div className="p-3 border-b border-[#EAE0D2]">
+              {/* Mobile Search Input */}
+              <div className="p-3 border-b border-[#321D1C]/10">
                 <form onSubmit={(e) => { handleSearchSubmit(e); setMobileMenuOpen(false); }}>
-                  <div className="flex items-center gap-2 rounded-full border border-[#DFD3C5] bg-[#FAF6F0] px-3.5 py-2">
-                    <Search size={14} className="text-[#8C7A6B]" />
+                  <div className="flex items-center gap-2 rounded-full border border-[#321D1C]/15 bg-white/70 px-3.5 py-2">
+                    <Search size={14} className="text-[#321D1C]/50" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search styles, sarees, lehengas..."
-                      className="w-full bg-transparent text-xs text-[#2C1F18] focus:outline-none"
+                      placeholder="Search sarees, lehengas, styles..."
+                      className="w-full bg-transparent text-xs text-[#321D1C] focus:outline-none"
                     />
                   </div>
                 </form>
               </div>
 
-              {/* Drawer Links */}
-              <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1">
+              {/* Navigation Links List */}
+              <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
                 <Link
                   to="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[15px] font-semibold text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
+                  className="flex items-center justify-between text-sm font-medium text-[#321D1C] hover:text-[#800020] hover:bg-black/5 px-3 py-2.5 rounded-xl transition-all"
                 >
                   <span>Home</span>
-                  <ArrowRight size={14} className="text-[#B68C48]" />
+                  <ArrowRight size={13} className="text-[#321D1C]/40" />
                 </Link>
 
-                <div className="pt-3 pb-1 px-4">
-                  <span className="text-[10px] uppercase tracking-[0.25em] font-sans font-bold text-[#B68C48]">
-                    Boutique Collections
+                <div className="pt-2 pb-1 px-3">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-[#800020]">
+                    Collections
                   </span>
                 </div>
 
                 {Object.entries(NAV_CATEGORIES).map(([key, cat]) => (
-                  <div key={key} className="space-y-0.5">
-                    <Link
-                      to={cat.path}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-between font-serif text-[14px] font-medium text-[#382820] hover:text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
-                    >
-                      <span>{cat.label}</span>
-                      <ArrowRight size={13} className="text-[#B68C48]/60" />
-                    </Link>
-                  </div>
+                  <Link
+                    key={key}
+                    to={cat.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between text-sm text-[#321D1C] hover:text-[#800020] hover:bg-black/5 px-3 py-2.5 rounded-xl transition-all"
+                  >
+                    <span>{cat.label}</span>
+                    <ArrowRight size={13} className="text-[#321D1C]/40" />
+                  </Link>
                 ))}
 
-                <div className="pt-3 pb-1 px-4">
-                  <span className="text-[10px] uppercase tracking-[0.25em] font-sans font-bold text-[#B68C48]">
-                    Account & Privileges
+                <div className="pt-2 pb-1 px-3">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-[#800020]">
+                    Account
                   </span>
                 </div>
 
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
+                  className="flex items-center justify-between text-sm text-[#321D1C] hover:text-[#800020] hover:bg-black/5 px-3 py-2.5 rounded-xl transition-all"
                 >
-                  <span className="flex items-center gap-2"><Heart size={15} className="text-[#4A0A16]" /> Wishlist</span>
-                  <ArrowRight size={13} className="text-[#B68C48]/60" />
+                  <span className="flex items-center gap-2.5">
+                    <Heart size={16} className="text-[#800020]" /> Wishlist
+                  </span>
+                  <ArrowRight size={13} className="text-[#321D1C]/40" />
                 </Link>
 
                 <Link
                   to="/cart"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
+                  className="flex items-center justify-between text-sm text-[#321D1C] hover:text-[#800020] hover:bg-black/5 px-3 py-2.5 rounded-xl transition-all"
                 >
-                  <span className="flex items-center gap-2"><ShoppingBag size={15} className="text-[#4A0A16]" /> Shopping Bag</span>
-                  <ArrowRight size={13} className="text-[#B68C48]/60" />
+                  <span className="flex items-center gap-2.5">
+                    <ShoppingBag size={16} className="text-[#800020]" /> Shopping Bag
+                    {count > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-full bg-[#800020] text-white text-[10px] font-bold">
+                        {count}
+                      </span>
+                    )}
+                  </span>
+                  <ArrowRight size={13} className="text-[#321D1C]/40" />
                 </Link>
 
                 <Link
                   to="/orders"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
+                  className="flex items-center justify-between text-sm text-[#321D1C] hover:text-[#800020] hover:bg-black/5 px-3 py-2.5 rounded-xl transition-all"
                 >
                   <span>My Orders</span>
-                  <ArrowRight size={13} className="text-[#B68C48]/60" />
+                  <ArrowRight size={13} className="text-[#321D1C]/40" />
                 </Link>
 
                 {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
                   <Link
                     to="/admin/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between font-serif text-[14px] font-semibold text-[#5A1020] hover:bg-[#5A1020]/10 px-4 py-3 rounded-xl transition-all min-h-[44px] border border-[#C9A45C]/30 bg-[#FFFDF8] mt-1"
+                    className="flex items-center justify-between text-sm font-semibold text-[#800020] bg-[#800020]/10 px-3 py-2.5 rounded-xl transition-all mt-1"
                   >
-                    <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#C9A45C]" /> Atelier Admin</span>
-                    <ArrowRight size={13} className="text-[#C9A45C]" />
+                    <span className="flex items-center gap-2">
+                      <ShieldCheck size={16} /> Admin Panel
+                    </span>
+                    <ArrowRight size={13} />
                   </Link>
                 )}
               </div>
 
-              {/* Drawer Footer */}
-              <div className="p-4 border-t border-[#EAE0D2] bg-[#FAF6F0] flex items-center justify-between">
-                {isAuthenticated ? (
+              {/* Drawer Bottom Footer */}
+              <div className="p-3.5 border-t border-[#321D1C]/10 bg-[#FFF9F0] flex items-center justify-between">
+                <span className="text-[10px] text-[#321D1C]/60 tracking-wider uppercase font-medium">
+                  NOOLU — A Rhythm of Loom
+                </span>
+                {isAuthenticated && (
                   <button
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    className="text-xs text-rose-700 font-medium flex items-center gap-1.5"
+                    className="text-xs text-rose-700 font-medium flex items-center gap-1"
                   >
-                    <LogOut size={14} /> Sign Out ({user?.name?.split(' ')[0]})
+                    <LogOut size={13} /> Sign Out
                   </button>
-                ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-xs text-[#4A0A16] font-semibold tracking-wider uppercase underline"
-                  >
-                    Sign In to Boutique
-                  </Link>
                 )}
-                <span className="text-[10px] text-[#B68C48] tracking-widest uppercase">
-                  NOOLU — A RHYTHM OF LOOM
-                </span>
               </div>
             </motion.div>
           </>
@@ -795,15 +758,11 @@ export default function Navbar() {
       </AnimatePresence>
 
       {/* ══════════════════════════════════════════════════════════════
-          4. DEDICATED MOBILE BOTTOM NAVIGATION BAR (< sm screens)
-      ══════════════════════════════════════════════════════════════ */}
-      {/* ══════════════════════════════════════════════════════════════
-          4. DEDICATED MOBILE BOTTOM NAVIGATION BAR (< sm screens)
-          Locked static with respect to screen viewport (fixed bottom)
+          4. MOBILE BOTTOM NAVIGATION BAR (< sm screens)
       ══════════════════════════════════════════════════════════════ */}
       <nav
         aria-label="Mobile bottom navigation"
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FFFDF9]/98 backdrop-blur-lg border-t border-[#E6C687]/40 shadow-[0_-4px_25px_rgba(90,16,32,0.08)] px-1 py-1 select-none"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FFF9F0]/98 backdrop-blur-md border-t border-[#321D1C]/10 shadow-[0_-2px_12px_rgba(50,29,28,0.06)] px-1 py-1 select-none"
         style={{
           position: 'fixed',
           bottom: 0,
@@ -820,99 +779,70 @@ export default function Navbar() {
           <Link
             to="/"
             className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-              location.pathname === '/' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
+              location.pathname === '/' ? 'text-[#800020] font-bold' : 'text-[#321D1C]/70 hover:text-[#800020]'
             }`}
           >
             <Home size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Home</span>
-            {location.pathname === '/' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
+            <span className="text-[9.5px] tracking-wide mt-0.5 truncate">Home</span>
+            {location.pathname === '/' && <span className="w-1.5 h-1.5 rounded-full bg-[#800020] mt-0.5" />}
           </Link>
 
           {/* Shop */}
           <Link
             to="/products"
             className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-              location.pathname.startsWith('/products') ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
+              location.pathname.startsWith('/products') ? 'text-[#800020] font-bold' : 'text-[#321D1C]/70 hover:text-[#800020]'
             }`}
           >
             <Sparkles size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Shop</span>
-            {location.pathname.startsWith('/products') && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
+            <span className="text-[9.5px] tracking-wide mt-0.5 truncate">Shop</span>
+            {location.pathname.startsWith('/products') && <span className="w-1.5 h-1.5 rounded-full bg-[#800020] mt-0.5" />}
           </Link>
 
           {/* Bag */}
           <Link
             to="/cart"
             className={`flex-1 min-w-0 relative flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-              location.pathname === '/cart' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
+              location.pathname === '/cart' ? 'text-[#800020] font-bold' : 'text-[#321D1C]/70 hover:text-[#800020]'
             }`}
           >
             <div className="relative">
               <ShoppingBag size={18} strokeWidth={1.8} />
               {count > 0 && (
-                <span className="absolute -top-1 -right-2 min-w-[15px] h-[15px] px-0.5 rounded-full bg-[#5A1020] text-white text-[8.5px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-2 min-w-[15px] h-[15px] px-0.5 rounded-full bg-[#800020] text-white text-[8.5px] font-bold flex items-center justify-center">
                   {count > 99 ? '99+' : count}
                 </span>
               )}
             </div>
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Bag</span>
-            {location.pathname === '/cart' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
+            <span className="text-[9.5px] tracking-wide mt-0.5 truncate">Bag</span>
+            {location.pathname === '/cart' && <span className="w-1.5 h-1.5 rounded-full bg-[#800020] mt-0.5" />}
           </Link>
 
-          {/* Conditional Profile & Sign Out OR Sign In */}
-          {isAuthenticated ? (
-            <>
-              {/* Profile */}
-              <Link
-                to="/profile"
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-                  location.pathname === '/profile' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-                }`}
-              >
-                <User size={18} strokeWidth={1.8} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Profile</span>
-                {location.pathname === '/profile' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-              </Link>
+          {/* Wishlist */}
+          <Link
+            to="/wishlist"
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
+              location.pathname === '/wishlist' ? 'text-[#800020] font-bold' : 'text-[#321D1C]/70 hover:text-[#800020]'
+            }`}
+          >
+            <Heart size={18} strokeWidth={1.8} />
+            <span className="text-[9.5px] tracking-wide mt-0.5 truncate">Saved</span>
+            {location.pathname === '/wishlist' && <span className="w-1.5 h-1.5 rounded-full bg-[#800020] mt-0.5" />}
+          </Link>
 
-              {/* Sign Out */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg text-rose-700 hover:text-rose-900 transition-colors"
-                title="Sign Out"
-                aria-label="Sign Out"
-              >
-                <LogOut size={18} strokeWidth={1.8} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate font-semibold">Sign Out</span>
-              </button>
-            </>
-          ) : (
-            <>
-              {/* Wishlist */}
-              <Link
-                to="/wishlist"
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-                  location.pathname === '/wishlist' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-                }`}
-              >
-                <Heart size={18} strokeWidth={1.8} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Saved</span>
-                {location.pathname === '/wishlist' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-              </Link>
-
-              {/* Sign In */}
-              <Link
-                to="/login"
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-                  location.pathname === '/login' ? 'text-[#5A1020] font-bold' : 'text-[#5A1020] hover:text-[#8B0000]'
-                }`}
-              >
-                <User size={18} strokeWidth={2} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate font-bold text-[#5A1020]">Sign In</span>
-                {location.pathname === '/login' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-              </Link>
-            </>
-          )}
+          {/* Account */}
+          <Link
+            to={isAuthenticated ? "/profile" : "/login"}
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
+              location.pathname === '/profile' || location.pathname === '/login' ? 'text-[#800020] font-bold' : 'text-[#321D1C]/70 hover:text-[#800020]'
+            }`}
+          >
+            <User size={18} strokeWidth={1.8} />
+            <span className="text-[9.5px] tracking-wide mt-0.5 truncate">
+              {isAuthenticated ? (user?.name?.split(' ')[0] || 'Account') : 'Sign In'}
+            </span>
+            {(location.pathname === '/profile' || location.pathname === '/login') && <span className="w-1.5 h-1.5 rounded-full bg-[#800020] mt-0.5" />}
+          </Link>
         </div>
       </nav>
     </>
