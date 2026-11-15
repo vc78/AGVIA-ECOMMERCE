@@ -38,39 +38,39 @@ import SEOHead from '../../components/common/SEOHead'
 const HERO_SLIDES = [
   {
     image: '/images/hero_dupatta_couture.jpg',
-    tag: 'WEAR YOUR STORY •',
-    titleMain: 'Timeless\nTradition',
-    titleScript: 'Modern You',
-    subtitle: 'Explore our curated ethnic and contemporary collections crafted for every occasion.',
+    tag: 'A RHYTHM OF LOOM • నూలు',
+    titleMain: 'Woven with\nHeritage.',
+    titleScript: 'Styled for Today.',
+    subtitle: 'Discover the beauty of Indian textiles, where every thread carries a story and every weave celebrates timeless craftsmanship.',
     cta: '/products',
-    accent: '#C9A45C',
+    accent: '#F5B900',
   },
   {
     image: '/images/classic_silk_saree.jpg',
-    tag: 'THE SIGNATURE SILK EDIT •',
-    titleMain: 'Heirloom\nSilks',
-    titleScript: 'Pure Grace',
-    subtitle: 'Pure Kanjeevaram and Banarasi handlooms woven with fine gold zari borders.',
+    tag: 'THE HERITAGE WEAVES •',
+    titleMain: 'Heirloom\nSilks.',
+    titleScript: 'Pure Grace.',
+    subtitle: 'Pure Kanjeevaram and Banarasi handlooms woven with fine gold zari borders and timeless rhythm.',
     cta: '/products?category=Sarees',
-    accent: '#C9A45C',
+    accent: '#F5B900',
   },
   {
     image: '/images/wedding_lehenga.jpg',
     tag: 'ROYAL BRIDAL ATELIER •',
-    titleMain: 'Wedding\nCouture',
-    titleScript: 'Regal Charm',
+    titleMain: 'Wedding\nCouture.',
+    titleScript: 'Regal Charm.',
     subtitle: 'Hand-embroidered zardozi bridal sets with double dupattas and bespoke fit.',
     cta: '/products?category=Lehengas',
-    accent: '#5A1020',
+    accent: '#800020',
   },
   {
     image: '/images/anarkali_set.jpg',
     tag: 'FESTIVE OCCASION WEAR •',
-    titleMain: 'Embroidered\nAnarkalis',
-    titleScript: 'Flowing Kalis',
+    titleMain: 'Embroidered\nAnarkalis.',
+    titleScript: 'Flowing Kalis.',
     subtitle: 'Intricate kalis adorned with fine mirror-work and delicate thread embroidery.',
     cta: '/products?category=Anarkalis+%26+Kurtas',
-    accent: '#7A1F32',
+    accent: '#9B1135',
   },
 ]
 
@@ -164,10 +164,10 @@ export default function Home() {
 
   // Default sections order if not customized by admin in database
   const defaultSectionConfig = [
-    { sectionKey: 'HERO_BANNER', title: 'Timeless Tradition • Modern You' },
-    { sectionKey: 'SHOP_BY_COLLECTION', title: 'The Royal Curations' },
-    { sectionKey: 'BRAND_STORY', title: 'Bridal Trousseau Atelier' },
-    { sectionKey: 'BEST_SELLERS', title: 'The Signature Edit' },
+    { sectionKey: 'HERO_BANNER', title: 'Woven with Heritage. Styled for Today.' },
+    { sectionKey: 'SHOP_BY_COLLECTION', title: 'Explore Our Collections' },
+    { sectionKey: 'BRAND_STORY', title: 'Every Thread Has a Story.' },
+    { sectionKey: 'BEST_SELLERS', title: 'The Signature Weaves' },
     { sectionKey: 'TRENDING_NOW', title: 'Trending This Season' },
     { sectionKey: 'NEW_ARRIVALS', title: 'Fresh From The Atelier' },
     { sectionKey: 'SHOP_BY_COLOR', title: 'Palette Royale' },
@@ -235,24 +235,25 @@ export default function Home() {
                     </div>
 
                     <h1 className="font-display text-[clamp(2.2rem,5.5vw,4.5rem)] font-bold text-white leading-[1.03] tracking-tight">
-                      Timeless<br />
-                      Tradition<br />
+                      {slide.titleMain.split('\n').map((line, i) => (
+                        <span key={i} className="block">{line}</span>
+                      ))}
                       <span
                         style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
-                        className="italic font-normal text-[clamp(2.8rem,7vw,5.5rem)] text-[#FFFDF8] block -mt-1 sm:-mt-2 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
+                        className="italic font-normal text-[clamp(2.8rem,7vw,5.5rem)] text-[#FFF8EB] block -mt-1 sm:-mt-2 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
                       >
-                        Modern You
+                        {slide.titleScript}
                       </span>
                     </h1>
 
                     <p className="font-sans text-xs sm:text-[13.5px] text-white/85 max-w-md leading-relaxed tracking-wide">
-                      {slide.subtitle || 'Explore our curated ethnic and contemporary collections crafted for every occasion.'}
+                      {slide.subtitle || 'Discover the beauty of Indian textiles, where every thread carries a story and every weave celebrates timeless craftsmanship.'}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-3 pt-1">
                       <Link
                         to={slide.cta || '/products'}
-                        className="inline-flex items-center justify-center gap-2 bg-[#6B1426] hover:bg-[#8B1A32] text-white font-bold text-[11px] sm:text-xs tracking-[0.16em] uppercase px-7 sm:px-8 py-3.5 rounded-full shadow-[0_8px_25px_rgba(107,20,38,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 min-h-[48px]"
+                        className="inline-flex items-center justify-center gap-2 bg-[#800020] hover:bg-[#9B1135] text-white font-bold text-[11px] sm:text-xs tracking-[0.16em] uppercase px-7 sm:px-8 py-3.5 rounded-full shadow-[0_8px_25px_rgba(128,0,32,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 min-h-[48px]"
                       >
                         <span>EXPLORE COLLECTIONS</span>
                         <ArrowRight size={13} className="stroke-[2.5]" />
@@ -263,7 +264,7 @@ export default function Home() {
                         className="inline-flex items-center justify-center gap-2 bg-black/35 hover:bg-black/55 border border-white/30 text-white font-semibold text-[11px] sm:text-xs tracking-[0.12em] uppercase px-6 py-3.5 rounded-full backdrop-blur-md transition-all duration-200 hover:border-white/60 active:scale-95 min-h-[48px]"
                       >
                         <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-white text-[9px] pl-0.5">▶</span>
-                        <span>WATCH OUR STORY</span>
+                        <span>DISCOVER OUR STORY</span>
                       </button>
                     </div>
 
@@ -520,7 +521,7 @@ export default function Home() {
             <div className="container-luxury">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-2 border-b border-[#C9A45C]/20">
                 <div>
-                  <span className="section-eyebrow text-[#C9A45C]">✦ THE AGVIA EDIT ✦</span>
+                  <span className="section-eyebrow text-[#C9A45C]">✦ THE NOOLU EDIT ✦</span>
                   <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'Every Drape, Perfected'}</h2>
                   {sec.subtitle && <p className="section-description">{sec.subtitle}</p>}
                 </div>
@@ -562,8 +563,8 @@ export default function Home() {
   return (
     <div className="relative min-h-full bg-[#FFFDF8] overflow-x-hidden pb-14 sm:pb-0">
       <SEOHead
-        title="Luxury Women's Fashion, Handcrafted Sarees & Designer Wear"
-        description="Experience timeless elegance with AGVIA. Shop luxury handcrafted silk sarees, bridal lehengas, designer kurtis, and contemporary ethnic wear."
+        title="Woven with Heritage. Styled for Today."
+        description="Discover NOOLU — a contemporary expression of Indian textile heritage, timeless style and beautiful collections."
         canonicalUrl="/"
         type="website"
       />
@@ -604,11 +605,11 @@ export default function Home() {
               <X size={18} />
             </button>
             <div className="inline-flex items-center gap-1.5 text-[#C9A45C] text-xs font-bold tracking-widest uppercase mb-3">
-              <span>✦ AGVIA ATELIER HERITAGE ✦</span>
+              <span>✦ NOOLU ATELIER HERITAGE ✦</span>
             </div>
-            <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3">Crafted for Royal Moments</h3>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3">Every Thread Has a Story.</h3>
             <p className="font-sans text-xs sm:text-sm text-white/80 max-w-lg mx-auto leading-relaxed mb-6">
-              Step inside our Hyderabad atelier where master artisans hand-embroider zardozi motifs and handloom pure silk heirlooms for brides and discerning connoisseurs across the globe.
+              At NOOLU, we celebrate the artistry of Indian textiles and the timeless beauty of weaving. Inspired by heritage and crafted for contemporary living, every collection brings together tradition, detail and elegance.
             </p>
             <div className="rounded-2xl overflow-hidden aspect-video relative border border-[#C9A45C]/30 mb-6 bg-black">
               <img src="/images/hero_dupatta_couture-600.webp" alt="Atelier Preview" width={600} height={335} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-85" />

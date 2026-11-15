@@ -510,15 +510,15 @@ export default function OrdersManagement() {
             <span>Orders (PDF)</span>
           </button>
 
-          {/* Download AGVIA_ORDERS.xlsx */}
+          {/* Download NOOLU_ORDERS.xlsx */}
           <button
             onClick={handleDownloadExcel}
             disabled={excelLoading}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-600/40 bg-emerald-50/70 hover:bg-emerald-700 text-emerald-800 hover:text-white text-xs font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
-            title="Download Official AGVIA_ORDERS.xlsx (Primary Source: MySQL)"
+            title="Download Official NOOLU_ORDERS.xlsx (Primary Source: MySQL)"
           >
             <FileSpreadsheet size={13} className={excelLoading ? 'animate-bounce' : 'text-emerald-700'} />
-            <span>AGVIA_ORDERS.xlsx</span>
+            <span>NOOLU_ORDERS.xlsx</span>
           </button>
 
           {/* Regenerate Excel from MySQL */}
@@ -526,7 +526,7 @@ export default function OrdersManagement() {
             onClick={handleRegenerateExcel}
             disabled={regeneratingExcel}
             className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl border border-[#C9A45C]/35 bg-[#FFFDF8] hover:border-[#5A1020] text-[#5A1020] text-xs font-bold uppercase tracking-wider transition-all shadow-2xs touch-target"
-            title="Force Regenerate AGVIA_ORDERS.xlsx from MySQL Database"
+            title="Force Regenerate NOOLU_ORDERS.xlsx from MySQL Database"
           >
             <Database size={13} className={regeneratingExcel ? 'animate-spin text-[#C9A45C]' : 'text-[#C9A45C]'} />
             <span className="hidden md:inline">Regen Excel</span>

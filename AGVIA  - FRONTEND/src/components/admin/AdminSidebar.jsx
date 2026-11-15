@@ -28,10 +28,10 @@ export default function AdminSidebar({ isOpen, onClose }) {
       {/* Brand Header */}
       <div className="h-14 sm:h-16 flex items-center justify-between px-4 border-b border-[#C9A45C]/20 bg-[#1A0B10]/95 select-none">
         <Link to="/" className="flex items-center gap-2.5" onClick={onClose}>
-          <img src="/images/agvia-logo.webp" alt="AGVIA" width={56} height={28} decoding="async" className="h-7 w-auto object-contain brightness-110" />
+          <img src="/images/agvia-logo.webp" alt="NOOLU" width={56} height={28} decoding="async" className="h-7 w-auto object-contain brightness-110" />
           <div className="flex flex-col">
             <span className="font-serif text-base tracking-[0.18em] font-bold uppercase text-[#FAF7F2] leading-none">
-              AGVIA
+              NOOLU
             </span>
             <span className="font-sans text-[7.5px] tracking-[0.28em] uppercase text-[#C9A45C] font-semibold mt-0.5">
               ATELIER ADMIN
@@ -71,7 +71,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
       {/* Footer Info */}
       <div className="p-3 border-t border-white/10 text-center select-none bg-[#14060B]">
         <span className="font-sans text-[8px] tracking-widest text-white/40 uppercase block">
-          AGVIA ATELIER ERP v2.0
+          NOOLU ATELIER ERP v2.0
         </span>
       </div>
     </div>

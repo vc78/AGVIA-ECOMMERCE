@@ -55,7 +55,7 @@ function setJsonLdSchema(schemaId, schemaData) {
 }
 
 /**
- * High-Performance SEO Component for AGVIA
+ * High-Performance SEO Component for NOOLU
  * Dynamically synchronizes title, meta descriptions, canonical URLs,
  * OpenGraph, Twitter Cards, robots directives, and Schema.org JSON-LD structured data.
  */
@@ -70,8 +70,8 @@ export default function SEOHead({
   breadcrumbs = null
 }) {
   const fullTitle = title
-    ? `${title} | AGVIA Women's Wear Boutique`
-    : "AGVIA | Women's Wear Boutique — Luxury Handcrafted Fashion"
+    ? `${title} | NOOLU — A Rhythm of Loom`
+    : "NOOLU | A Rhythm of Loom"
 
   const metaDesc = description || BUSINESS.seo.defaultDescription
   const shareImage = image ? (image.startsWith('http') ? image : `${BASE_URL}${image}`) : DEFAULT_IMAGE
@@ -97,7 +97,7 @@ export default function SEOHead({
     setMetaTag("meta[property='og:url']", 'content', activeUrl)
     setMetaTag("meta[property='og:type']", 'content', type)
     setMetaTag("meta[property='og:image']", 'content', shareImage)
-    setMetaTag("meta[property='og:site_name']", 'content', "AGVIA Women's Wear Boutique")
+    setMetaTag("meta[property='og:site_name']", 'content', "NOOLU — A Rhythm of Loom")
 
     // 6. Twitter Card tags
     setMetaTag("meta[name='twitter:card']", 'content', 'summary_large_image')

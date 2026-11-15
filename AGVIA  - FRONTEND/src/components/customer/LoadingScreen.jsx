@@ -50,7 +50,7 @@ export default function LoadingScreen({ onComplete }) {
             >
               <img 
                 src="/images/agvia-logo.webp" 
-                alt="AGVIA" 
+                alt="NOOLU — A Rhythm of Loom" 
                 width={384}
                 height={192}
                 decoding="async"

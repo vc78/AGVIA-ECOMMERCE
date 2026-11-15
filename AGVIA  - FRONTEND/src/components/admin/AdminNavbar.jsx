@@ -193,7 +193,7 @@ export default function AdminNavbar({ onMenuToggle }) {
         ])
         const backupData = {
           exportDate: new Date().toISOString(),
-          system: 'AGVIA Haute Couture Atelier ERP & Analytics Master Backup',
+          system: 'NOOLU Textile & Haute Couture Atelier ERP & Analytics Master Backup',
           analytics: telemetry.status === 'fulfilled' ? telemetry.value : {},
           orders: orders.status === 'fulfilled' ? orders.value : [],
           customers: customers.status === 'fulfilled' ? customers.value : [],
@@ -204,7 +204,7 @@ export default function AdminNavbar({ onMenuToggle }) {
           subscriptions: subscriptions.status === 'fulfilled' ? (subscriptions.value?.content || subscriptions.value || []) : [],
           reviews: reviews.status === 'fulfilled' ? reviews.value : [],
         }
-        exportToJSON(backupData, 'agvia_complete_atelier_backup')
+        exportToJSON(backupData, 'noolu_complete_atelier_backup')
         toast.success('Complete atelier JSON archive downloaded!', { id: 'pdf-dl' })
       }
       setExportOpen(false)
@@ -233,7 +233,7 @@ export default function AdminNavbar({ onMenuToggle }) {
             Welcome, <span className="text-[#C9A45C]">{user?.name || 'Atelier Director'}</span>
           </h1>
           <p className="text-[8.5px] sm:text-[9.5px] text-[#211D1E]/50 tracking-wider uppercase font-bold mt-0.5 truncate hidden xs:block">
-            AGVIA Boutique Workspace Active
+            NOOLU Atelier Workspace Active
           </p>
         </div>
       </div>

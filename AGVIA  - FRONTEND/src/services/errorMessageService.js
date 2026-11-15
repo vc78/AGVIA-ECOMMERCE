@@ -1,5 +1,5 @@
 /**
- * AGVIA Centralized User-Friendly Error Messaging Service
+ * NOOLU Centralized User-Friendly Error Messaging Service
  *
  * Strict architectural rule:
  * - Customers NEVER see technical jargon, stack traces, HTTP codes, or database errors.
@@ -22,7 +22,7 @@ export function logDeveloperError(context, error) {
       stack: error?.stack,
       timestamp: new Date().toISOString()
     }
-    console.error(`[AGVIA Tech Log: ${context}]`, technicalDetails)
+    console.error(`[NOOLU Tech Log: ${context}]`, technicalDetails)
   }
 }
 
@@ -45,7 +45,7 @@ export function getFriendlyErrorMessage(error, defaultFallback = 'Something went
       return 'We could not find what you were looking for. It may have been moved or updated.'
     }
     if (rawLower.includes('401') || rawLower.includes('unauthorized') || rawLower.includes('session')) {
-      return 'Please sign in to your AGVIA account to continue.'
+      return 'Please sign in to your NOOLU account to continue.'
     }
     if (rawLower.includes('403') || rawLower.includes('forbidden')) {
       return 'You do not have permission to perform this action.'
@@ -123,7 +123,7 @@ export function getFriendlyErrorMessage(error, defaultFallback = 'Something went
     case 400:
       return 'Some of the details provided need attention. Please verify and try again.'
     case 401:
-      return 'Please sign in to your AGVIA account to continue.'
+      return 'Please sign in to your NOOLU account to continue.'
     case 403:
       return 'You do not have permission to perform this action.'
     case 404:

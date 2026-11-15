@@ -58,26 +58,26 @@ public class EmailService {
      */
     @Async
     public void sendOtpEmail(String to, String recipientName, String code, String purpose) {
-        String subject = "🔐 " + code + " is your AGVIA verification code";
+        String subject = "🔐 " + code + " is your NOOLU verification code";
         String htmlBody = "<!DOCTYPE html><html><body style=\"margin:0;padding:24px;background-color:#FFFDF8;font-family:sans-serif;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:480px;background-color:#FFFFFF;border-radius:20px;border:1px solid #EADDC9;padding:32px;box-shadow:0 4px 16px rgba(139,0,0,0.06);\">" +
+                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:480px;background-color:#FFFFFF;border-radius:20px;border:1px solid #EADDC9;padding:32px;box-shadow:0 4px 16px rgba(128,0,32,0.06);\">" +
                 "  <tr><td style=\"text-align:center;padding-bottom:16px;\">" +
-                "    <h2 style=\"margin:0;color:#8B0000;letter-spacing:3px;font-size:24px;\">AGVIA</h2>" +
-                "    <p style=\"margin:4px 0 0;font-size:11px;color:#B8860B;text-transform:uppercase;letter-spacing:2px;font-weight:600;\">Haute Couture Boutique</p>" +
+                "    <h2 style=\"margin:0;color:#800020;letter-spacing:3px;font-size:24px;\">NOOLU</h2>" +
+                "    <p style=\"margin:4px 0 0;font-size:11px;color:#F5B900;text-transform:uppercase;letter-spacing:2px;font-weight:600;\">A Rhythm of Loom • నూలు</p>" +
                 "  </td></tr>" +
                 "  <tr><td style=\"padding:16px 0;text-align:center;\">" +
-                "    <h3 style=\"margin:0 0 10px;color:#3A2D23;font-size:18px;\">Verification Code</h3>" +
-                "    <p style=\"margin:0 0 20px;font-size:13px;color:#666;line-height:1.5;\">Hello " + (recipientName != null && !recipientName.isBlank() ? recipientName : "Client") + ", use the code below to complete your " + (purpose != null ? purpose.toLowerCase() : "verification") + ":</p>" +
-                "    <div style=\"display:inline-block;padding:16px 32px;background-color:#FFFDF8;border:2px dashed #8B0000;border-radius:14px;font-size:32px;font-weight:bold;letter-spacing:8px;color:#8B0000;font-family:monospace;\">" +
+                "    <h3 style=\"margin:0 0 10px;color:#211B1B;font-size:18px;\">Verification Code</h3>" +
+                "    <p style=\"margin:0 0 20px;font-size:13px;color:#666;line-height:1.5;\">Hello " + (recipientName != null && !recipientName.isBlank() ? recipientName : "Patron") + ", use the code below to complete your " + (purpose != null ? purpose.toLowerCase() : "verification") + ":</p>" +
+                "    <div style=\"display:inline-block;padding:16px 32px;background-color:#FFF8EB;border:2px dashed #800020;border-radius:14px;font-size:32px;font-weight:bold;letter-spacing:8px;color:#800020;font-family:monospace;\">" +
                 code +
                 "    </div>" +
                 "    <p style=\"margin:20px 0 0;font-size:12px;color:#888;\">This code is valid for <strong>5 minutes</strong>. Do not share this OTP with anyone.</p>" +
                 "  </td></tr>" +
                 "  <tr><td style=\"padding-top:20px;border-top:1px solid #EEE;text-align:center;font-size:11px;color:#AAA;\">" +
-                "    © AGVIA • Luxury Women's Wear Boutique • All rights reserved." +
+                "    © NOOLU • A Rhythm of Loom • All rights reserved." +
                 "  </td></tr>" +
                 "</table></body></html>";
-        String plainText = "AGVIA Boutique Verification Code: " + code + "\nValid for 5 minutes. Never share this code.";
+        String plainText = "NOOLU Verification Code: " + code + "\nValid for 5 minutes. Never share this code.";
         sendHtml(to, subject, htmlBody, plainText);
     }
 
@@ -308,7 +308,7 @@ public class EmailService {
                 "  </tr>" +
                 "  <tr>" +
                 "    <td style=\"background-color: #F8F3EA; padding: 16px; text-align: center; font-size: 12px; color: #8A7A6D;\">" +
-                "      © AGVIA Women's Wear Boutique • Heritage & Couture • All rights reserved." +
+                "      © NOOLU • A Rhythm of Loom • All rights reserved." +
                 "    </td>" +
                 "  </tr>" +
                 "</table></body></html>";
@@ -316,10 +316,10 @@ public class EmailService {
 
     private String buildOrderConfirmationText(OrderResponse order, String customerName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("AGVIA WOMEN'S WEAR BOUTIQUE - ORDER CONFIRMED\n");
+        sb.append("NOOLU - A RHYTHM OF LOOM - ORDER CONFIRMED\n");
         sb.append("=====================================\n\n");
         sb.append("Dear ").append(customerName).append(",\n\n");
-        sb.append("Thank you for choosing AGVIA! Your order has been placed and confirmed.\n\n");
+        sb.append("Thank you for choosing NOOLU! Your order has been placed and confirmed.\n\n");
         sb.append("Order Number: #").append(order.getOrderNumber()).append("\n");
         sb.append("Total Amount: Rs. ").append(formatMoney(order.getFinalAmount())).append("\n");
         sb.append("Payment Mode: ").append(order.getPaymentMethod()).append("\n");
@@ -334,7 +334,7 @@ public class EmailService {
         }
         sb.append("\nEstimated Delivery: 2-4 business days.\n");
         sb.append("For queries or quick dispatch status, reach us on WhatsApp: +91 90323 06961\n\n");
-        sb.append("Warm regards,\nAGVIA Boutique Team");
+        sb.append("Warm regards,\nNOOLU Team");
         return sb.toString();
     }
 

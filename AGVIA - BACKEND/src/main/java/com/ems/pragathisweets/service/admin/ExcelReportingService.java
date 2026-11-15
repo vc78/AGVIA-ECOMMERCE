@@ -61,7 +61,7 @@ public class ExcelReportingService {
     private final PaymentRepository paymentRepository;
     private final OrderExcelSyncLogRepository syncLogRepository;
 
-    @Value("${app.reports.excel.filename:AGVIA_ORDERS.xlsx}")
+    @Value("${app.reports.excel.filename:NOOLU_ORDERS.xlsx}")
     private String excelFileName;
 
     @Value("${app.reports.excel.dir:./reports}")

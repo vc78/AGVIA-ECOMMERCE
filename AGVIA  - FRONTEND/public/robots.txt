@@ -1,4 +1,4 @@
-# AGVIA Women's Wear Boutique — Production Robots Configuration
+# NOOLU — A Rhythm of Loom — Production Robots Configuration
 User-agent: *
 Allow: /
 Allow: /images/

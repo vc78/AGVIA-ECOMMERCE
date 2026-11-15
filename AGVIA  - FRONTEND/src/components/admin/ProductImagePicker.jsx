@@ -3,16 +3,16 @@ import { Upload, Image as ImageIcon, Link as LinkIcon, Sparkles, Trash2, Loader2
 import toast from 'react-hot-toast'
 
 export const DEFAULT_IMAGE_PRESETS = [
-  { label: 'AGVIA Classic Silk Saree', url: '/images/classic_silk_saree.jpg' },
-  { label: 'AGVIA Floral Organza Saree', url: '/images/floral_organza_saree.jpg' },
-  { label: 'AGVIA Embroidered Anarkali Set', url: '/images/anarkali_set.jpg' },
-  { label: 'AGVIA Everyday Kurta Set', url: '/images/everyday_kurta_set.jpg' },
-  { label: 'AGVIA Festive Lehenga Set', url: '/images/festive_lehenga_set.jpg' },
-  { label: 'AGVIA Embroidered Wedding Lehenga', url: '/images/wedding_lehenga.jpg' },
-  { label: 'AGVIA Evening Gown', url: '/images/evening_gown.jpg' },
-  { label: 'AGVIA Co-ord Set', url: '/images/coord_set.jpg' },
-  { label: 'AGVIA Festive Kurti', url: '/images/festive_kurti.jpg' },
-  { label: 'AGVIA Bridal Dupatta', url: '/images/bridal_dupatta.jpg' },
+  { label: 'NOOLU Classic Silk Saree', url: '/images/classic_silk_saree.jpg' },
+  { label: 'NOOLU Floral Organza Saree', url: '/images/floral_organza_saree.jpg' },
+  { label: 'NOOLU Embroidered Anarkali Set', url: '/images/anarkali_set.jpg' },
+  { label: 'NOOLU Everyday Kurta Set', url: '/images/everyday_kurta_set.jpg' },
+  { label: 'NOOLU Festive Lehenga Set', url: '/images/festive_lehenga_set.jpg' },
+  { label: 'NOOLU Embroidered Wedding Lehenga', url: '/images/wedding_lehenga.jpg' },
+  { label: 'NOOLU Evening Gown', url: '/images/evening_gown.jpg' },
+  { label: 'NOOLU Co-ord Set', url: '/images/coord_set.jpg' },
+  { label: 'NOOLU Festive Kurti', url: '/images/festive_kurti.jpg' },
+  { label: 'NOOLU Bridal Dupatta', url: '/images/bridal_dupatta.jpg' },
 ]
 
 // Client-side image optimizer: downscales large photos and compresses into high-quality JPEG

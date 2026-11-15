@@ -92,11 +92,11 @@ export default function OtpVerificationCard({
         <div className="w-12 h-12 rounded-full bg-[#8B0000]/5 border border-[#B8860B]/25 flex items-center justify-center mb-3">
           <ShieldCheck className="text-[#8B0000]" size={24} />
         </div>
-        <span className="font-display text-xl tracking-[0.2em] font-bold uppercase text-[#8B0000] leading-none">
-          AGVIA
+        <span className="font-display text-xl tracking-[0.2em] font-bold uppercase text-[#800020] leading-none">
+          NOOLU
         </span>
-        <span className="font-body text-[8px] tracking-[0.35em] uppercase text-[#B8860B] font-semibold mt-1">
-          HAUTE COUTURE BOUTIQUE
+        <span className="font-body text-[8px] tracking-[0.35em] uppercase text-[#F5B900] font-semibold mt-1">
+          A RHYTHM OF LOOM • నూలు
         </span>
       </div>
 

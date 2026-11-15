@@ -24,11 +24,11 @@ const ANNOUNCEMENTS = [
     icon: Tag,
     category: 'BOUTIQUE PRIVILEGE',
     badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
-    title: 'Enjoy 15% Off Your First AGVIA Boutique Wardrobe Order',
+    title: 'Enjoy 15% Off Your First NOOLU Order',
     details: 'Valid across our entire festive edit, bridal collection, and artisanal silk creations.',
     link: '/products',
     linkText: 'Shop Collection',
-    code: 'AGVIA15',
+    code: 'NOOLU15',
   },
   {
     id: 3,

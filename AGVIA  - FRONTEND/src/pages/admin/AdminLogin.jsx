@@ -59,7 +59,7 @@ export default function AdminLogin() {
       setActiveTabContext('ADMIN')
       dispatch(credentialsReceived({ user: userData, token, role: 'ADMIN' }))
       broadcastAuthEvent('LOGIN', { user: userData, token, role: 'ADMIN' })
-      toast.success('Welcome to AGVIA Atelier Workspace', {
+      toast.success('Welcome to NOOLU Atelier Workspace', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
       navigate('/admin/dashboard', { replace: true })
@@ -93,9 +93,9 @@ export default function AdminLogin() {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#5A1020] via-[#C9A45C] to-[#5A1020]" />
         
         <div className="flex flex-col items-center mb-6 select-none">
-          <img src="/images/agvia-logo.webp" alt="AGVIA" width={128} height={64} decoding="async" className="h-16 w-auto object-contain mb-3" />
+          <img src="/images/agvia-logo.webp" alt="NOOLU" width={128} height={64} decoding="async" className="h-16 w-auto object-contain mb-3" />
           <span className="font-serif text-2xl tracking-[0.2em] font-bold uppercase text-[#5A1020] leading-none">
-            AGVIA
+            NOOLU
           </span>
           <span className="font-sans text-[8px] tracking-[0.35em] uppercase text-[#C9A45C] font-semibold mt-1.5 pl-[1px]">
             ATELIER ADMIN CONSOLE

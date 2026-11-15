@@ -1,8 +1,8 @@
 {
-  "name": "agvia-boutique-frontend",
+  "name": "noolu-ecommerce-frontend",
   "private": true,
   "version": "1.0.0",
-  "description": "AGVIA — Women's Wear Boutique Frontend & Analytics Dashboard",
+  "description": "NOOLU — A Rhythm of Loom Frontend & Analytics Dashboard",
   "type": "module",
   "scripts": {
     "dev": "vite",

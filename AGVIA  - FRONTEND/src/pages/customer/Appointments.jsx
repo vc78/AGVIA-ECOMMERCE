@@ -87,7 +87,7 @@ export default function Appointments() {
         <div className="mt-10 bg-[#FAF7F2] border border-[#C9A45C]/35 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
           <div className="space-y-1 text-center md:text-left">
             <h4 className="font-serif text-xl font-bold text-[#5A1020]">
-              AGVIA Flagship Atelier
+              NOOLU Flagship Atelier
             </h4>
             <p className="text-xs text-[#3A2D23]/80 flex items-center justify-center md:justify-start gap-1.5">
               <MapPin size={13} className="text-[#C9A45C] shrink-0" />
