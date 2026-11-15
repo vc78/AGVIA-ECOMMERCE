@@ -6,7 +6,7 @@ export default function AdminLayout({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-[#FFFDF8] font-body text-[#211D1E] antialiased">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#FFFDF9] via-[#FAF6F0] to-[#F5EFE6] font-body text-[#211B1B] antialiased">
       {/* Sidebar (Desktop sticky + Mobile slide-out drawer) */}
       <AdminSidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
       

@@ -24,28 +24,28 @@ const links = [
 
 export default function AdminSidebar({ isOpen, onClose }) {
   const content = (
-    <div className="flex flex-col h-full bg-[#1A0B10] text-[#FAF7F2]">
+    <div className="flex flex-col h-full bg-gradient-to-b from-[#140409] via-[#1B060E] to-[#120308] text-[#FFF8EB]">
       {/* Brand Header */}
-      <div className="h-14 sm:h-16 flex items-center justify-between px-4 border-b border-[#C9A45C]/20 bg-[#1A0B10]/95 select-none">
-        <Link to="/" className="flex items-center gap-2.5" onClick={onClose}>
-          <img src="/images/agvia-logo.webp" alt="NOOLU" width={56} height={28} decoding="async" className="h-7 w-auto object-contain brightness-110" />
+      <div className="h-14 sm:h-16 flex items-center justify-between px-4 border-b border-[#F5B900]/25 bg-[#140409]/95 backdrop-blur-md select-none">
+        <Link to="/" className="flex items-center gap-2.5 group" onClick={onClose}>
+          <img src="/images/agvia-logo.webp" alt="NOOLU" width={56} height={28} decoding="async" className="h-7 w-auto object-contain brightness-110 drop-shadow-sm group-hover:scale-105 transition-transform" />
           <div className="flex flex-col">
-            <span className="font-serif text-base tracking-[0.18em] font-bold uppercase text-[#FAF7F2] leading-none">
+            <span className="font-serif text-base tracking-[0.2em] font-bold uppercase text-[#FFF8EB] leading-none">
               NOOLU
             </span>
-            <span className="font-sans text-[7.5px] tracking-[0.28em] uppercase text-[#C9A45C] font-semibold mt-0.5">
-              ATELIER ADMIN
+            <span className="font-sans text-[7.5px] tracking-[0.28em] uppercase text-[#F5B900] font-semibold mt-0.5">
+              ATELIER ADMIN • నూలు
             </span>
           </div>
         </Link>
-        <button className="lg:hidden text-white/60 hover:text-white touch-target w-10 h-10 flex items-center justify-center rounded-lg" onClick={onClose}>
+        <button className="lg:hidden text-white/60 hover:text-white touch-target w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10" onClick={onClose}>
           <X size={18} />
         </button>
       </div>
 
       {/* Navigation Links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <span className="block font-sans text-[8.5px] font-bold text-[#C9A45C] tracking-[0.22em] uppercase px-2 mb-2 select-none">
+        <span className="block font-sans text-[8.5px] font-bold text-[#F5B900] tracking-[0.24em] uppercase px-2 mb-2 select-none">
           Atelier Management
         </span>
         
@@ -55,23 +55,23 @@ export default function AdminSidebar({ isOpen, onClose }) {
             to={to}
             onClick={onClose}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-sans tracking-wide uppercase transition-all duration-200 min-h-[44px] touch-target ${
+              `flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-sans tracking-wide uppercase transition-all duration-200 min-h-[44px] touch-target group ${
                 isActive 
-                  ? 'bg-[#5A1020] text-[#FAF7F2] border-r-3 border-[#C9A45C] shadow-xs font-semibold' 
-                  : 'hover:bg-white/5 text-white/70 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#800020] to-[#9E0028] text-white font-semibold shadow-[0_4px_16px_rgba(128,0,32,0.4)] border border-[#F5B900]/30' 
+                  : 'hover:bg-white/8 text-white/75 hover:text-white hover:translate-x-0.5'
               }`
             }
           >
-            <Icon size={16} className="text-[#C9A45C] shrink-0" />
-            <span>{label}</span>
+            <Icon size={16} className="text-[#F5B900] shrink-0 group-hover:scale-110 transition-transform" />
+            <span className="truncate">{label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Footer Info */}
-      <div className="p-3 border-t border-white/10 text-center select-none bg-[#14060B]">
-        <span className="font-sans text-[8px] tracking-widest text-white/40 uppercase block">
-          NOOLU ATELIER ERP v2.0
+      <div className="p-3 border-t border-white/10 text-center select-none bg-[#0E0206]">
+        <span className="font-sans text-[8px] tracking-[0.25em] text-[#F5B900]/80 uppercase block font-semibold">
+          NOOLU ATELIER ERP • A RHYTHM OF LOOM
         </span>
       </div>
     </div>
@@ -80,7 +80,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
   return (
     <>
       {/* Desktop Sidebar (Permanent on lg screens) */}
-      <aside className="hidden lg:flex flex-col w-56 xl:w-60 shrink-0 border-r border-[#C9A45C]/20 sticky top-0 h-screen overflow-hidden">
+      <aside className="hidden lg:flex flex-col w-56 xl:w-60 shrink-0 border-r border-[#F5B900]/20 sticky top-0 h-screen overflow-hidden shadow-xl">
         {content}
       </aside>
 
