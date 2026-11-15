@@ -34,3 +34,4 @@ public class CreateReturnRequest {
     private String bankDetails; // UPI ID or Account Details for COD
     private String pickupAddress;
 }
+

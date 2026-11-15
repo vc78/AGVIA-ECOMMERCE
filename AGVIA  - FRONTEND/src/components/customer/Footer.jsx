@@ -244,7 +244,7 @@ export default function Footer() {
                 <img
                   src="/images/agvia-logo.webp"
                   alt="AGVIA Women's Wear Boutique"
-                  width={180}
+                  width={120}
                   height={60}
                   loading="lazy"
                   decoding="async"

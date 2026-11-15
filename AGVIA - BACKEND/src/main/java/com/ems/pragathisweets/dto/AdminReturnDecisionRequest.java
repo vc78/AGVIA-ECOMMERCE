@@ -21,3 +21,4 @@ public class AdminReturnDecisionRequest {
     private BigDecimal refundAmount;
     private Boolean issueStoreCreditCoupon;
 }
+

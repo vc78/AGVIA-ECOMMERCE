@@ -75,8 +75,8 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
 
   if (logoData) {
     try {
-      // Draw logo (width 32, height 12)
-      doc.addImage(logoData, 'PNG', 14, y, 32, 12)
+      // Draw logo (width 28, height 14 - 2:1 aspect ratio)
+      doc.addImage(logoData, 'PNG', 14, y, 28, 14)
     } catch (_) {
       drawTextCrest(doc, 14, y)
     }
@@ -363,7 +363,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   let y = 28
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', margin, y, 36, 13)
+      doc.addImage(logoData, 'PNG', margin, y, 30, 15)
     } catch (_) {
       drawTextCrest(doc, margin, y)
     }
@@ -1832,7 +1832,7 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   // Logo / Text Header
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', 12, 5, 24, 18)
+      doc.addImage(logoData, 'PNG', 12, 6, 26, 13)
     } catch (_) {}
   }
   doc.setFont('times', 'bold')

@@ -284,7 +284,7 @@ export default function Navbar() {
               <img
                 src="/images/agvia-logo.webp"
                 alt="AGVIA Women's Wear Boutique"
-                width={140}
+                width={88}
                 height={44}
                 fetchpriority="high"
                 decoding="async"
@@ -606,7 +606,7 @@ export default function Navbar() {
                   <img
                     src="/images/agvia-logo.webp"
                     alt="AGVIA Women's Wear Boutique"
-                    width={112}
+                    width={64}
                     height={32}
                     loading="lazy"
                     decoding="async"

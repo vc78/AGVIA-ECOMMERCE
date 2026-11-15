@@ -5,3 +5,4 @@ public enum ReturnResolution {
     STORE_CREDIT,
     ORIGINAL_PAYMENT
 }
+
