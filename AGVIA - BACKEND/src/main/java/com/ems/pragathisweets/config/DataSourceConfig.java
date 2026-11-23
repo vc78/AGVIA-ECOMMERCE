@@ -39,11 +39,14 @@ public class DataSourceConfig {
         config.setUsername(username != null ? username.trim() : "avnadmin");
         config.setPassword(password != null ? password.trim() : "");
         config.setDriverClassName(driverClassName);
+        config.setPoolName("ChitrikaHikariPool");
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(2);
         config.setIdleTimeout(30000);
         config.setConnectionTimeout(20000);
         config.setMaxLifetime(1800000);
+        config.setKeepaliveTime(30000); // 30s keepalive ping prevents cloud NAT routers from dropping idle TCP connections
+        config.setLeakDetectionThreshold(60000); // 60s leak detection alerts if a connection is retained excessively
 
         return new HikariDataSource(config);
     }

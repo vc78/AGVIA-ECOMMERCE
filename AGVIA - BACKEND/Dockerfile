@@ -32,6 +32,6 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.securit
 
 # Healthcheck targeting the dedicated /api/health endpoint
 HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:8080/api/health || exit 1
+  CMD wget --quiet --tries=1 --spider http://127.0.0.1:${PORT:-8080}/api/health || exit 1
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

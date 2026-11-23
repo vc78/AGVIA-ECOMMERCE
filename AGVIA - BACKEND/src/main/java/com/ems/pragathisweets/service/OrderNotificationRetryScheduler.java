@@ -35,16 +35,22 @@ public class OrderNotificationRetryScheduler {
 
     /**
      * Executes every 5 minutes with a 1-minute initial delay.
+     * Note: Non-overlapping fixedDelay execution. Intentionally non-transactional at method level
+     * to avoid holding a database connection across external email network calls or batch iterations.
      */
     @Scheduled(initialDelay = 60000, fixedDelayString = "${app.mail.retry.fixed-delay-ms:300000}")
-    @org.springframework.transaction.annotation.Transactional
     public void retryFailedNotifications() {
         if (!retryEnabled) {
             return;
         }
 
-        List<OrderNotificationLog> failedLogs = notificationLogRepository
-                .findByStatusAndAttemptCountLessThan("FAILED", maxAttempts);
+        List<OrderNotificationLog> failedLogs;
+        try {
+            failedLogs = notificationLogRepository.findByStatusAndAttemptCountLessThan("FAILED", maxAttempts);
+        } catch (Exception ex) {
+            log.error("[OrderNotificationRetry] Failed to query notification logs: {}", ex.getMessage());
+            return;
+        }
 
         if (failedLogs.isEmpty()) {
             return;
@@ -54,6 +60,13 @@ public class OrderNotificationRetryScheduler {
 
         for (OrderNotificationLog logEntry : failedLogs) {
             try {
+                // Minimum backoff: skip entries that failed less than 2 minutes ago
+                if (logEntry.getUpdatedAt() != null && logEntry.getUpdatedAt().isAfter(java.time.LocalDateTime.now().minusMinutes(2))) {
+                    log.debug("[OrderNotificationRetry] Skipping log id {} – cooldown in effect (last attempted at {})",
+                            logEntry.getId(), logEntry.getUpdatedAt());
+                    continue;
+                }
+
                 Order order = orderRepository.findById(logEntry.getOrderId()).orElse(null);
                 if (order == null) {
                     log.warn("[OrderNotificationRetry] Order {} no longer exists – abandoning retry for log id {}",
