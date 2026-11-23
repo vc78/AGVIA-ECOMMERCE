@@ -29,7 +29,7 @@ import BestsellerCurvedCarousel from '../../components/customer/BestsellerCurved
 import RangoliDivider from '../../components/customer/RangoliDivider'
 import TestimonialsCarousel from '../../components/customer/TestimonialsCarousel'
 import BespokeTrousseauBanner from '../../components/customer/BespokeTrousseauBanner'
-import { productService } from '../../services/productService'
+import { productService, BOUTIQUE_CATALOG_26, normalizeProduct } from '../../services/productService'
 import { useCart } from '../../hooks/useCart'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import SEOHead from '../../components/common/SEOHead'
@@ -74,16 +74,51 @@ const HERO_SLIDES = [
   },
 ]
 
+// ── Precomputed Initial Catalog & Merchandising Collections (Instant 0ms Hydration) ──
+const INITIAL_CATALOG = BOUTIQUE_CATALOG_26.map(normalizeProduct)
+const INITIAL_BESTSELLERS = INITIAL_CATALOG.filter(p => p.bestseller).slice(0, 10)
+const INITIAL_TRENDING = INITIAL_CATALOG.slice(2, 10)
+const INITIAL_NEW_ARRIVALS = INITIAL_CATALOG.slice(0, 8)
+const INITIAL_LIMITED = INITIAL_CATALOG.filter(p => p.stockStatus === 'LOW_STOCK' || (typeof p.stock === 'number' && p.stock < 20)).slice(0, 8)
+const INITIAL_COLORS = [
+  { colorName: 'Royal Maroon', colorCode: '#800020', count: 12, productCount: 12 },
+  { colorName: 'Emerald Green', colorCode: '#1B4D3E', count: 10, productCount: 10 },
+  { colorName: 'Royal Blue', colorCode: '#2A52BE', count: 8, productCount: 8 },
+  { colorName: 'Rani Pink', colorCode: '#E75480', count: 9, productCount: 9 },
+  { colorName: 'Regal Purple', colorCode: '#4B0082', count: 6, productCount: 6 },
+  { colorName: 'Mustard Gold', colorCode: '#D4AF37', count: 7, productCount: 7 },
+]
+const INITIAL_COLLECTIONS = [
+  { id: 1, name: 'Bridal & Wedding Edit', slug: 'bridal-wedding', coverImage: '/images/wedding_lehenga.jpg', description: 'Heirloom weaves and hand-embroidered silks.' },
+  { id: 2, name: 'Pure Mulberry Kanjeevaram', slug: 'pure-kanjeevaram', coverImage: '/images/classic_silk_saree.jpg', description: 'Pure silk certified with real zari work.' },
+  { id: 3, name: 'Festive Organza & Georgette', slug: 'festive-organza', coverImage: '/images/floral_organza_saree.jpg', description: 'Featherlight drapes in luminous pastels.' },
+  { id: 4, name: 'Royal Anarkali Sets', slug: 'royal-anarkali', coverImage: '/images/anarkali_set.jpg', description: 'Flowing regal silhouettes tailored for festivities.' },
+]
+
+function getCachedOrFallback(key, fallback) {
+  if (typeof window === 'undefined') return fallback
+  try {
+    const raw = localStorage.getItem('chitrika_home_cache')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed?.[key]) && parsed[key].length > 0) {
+        return parsed[key]
+      }
+    }
+  } catch {}
+  return fallback
+}
+
 export default function Home() {
-  const [bestsellers, setBestsellers] = useState([])
-  const [trending, setTrending] = useState([])
-  const [newArrivals, setNewArrivals] = useState([])
-  const [limitedStock, setLimitedStock] = useState([])
-  const [colorSwatches, setColorSwatches] = useState([])
-  const [collections, setCollections] = useState([])
-  const [sections, setSections] = useState([])
-  const [allProducts, setAllProducts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [bestsellers, setBestsellers] = useState(() => getCachedOrFallback('bestSellers', INITIAL_BESTSELLERS))
+  const [trending, setTrending] = useState(() => getCachedOrFallback('trending', INITIAL_TRENDING))
+  const [newArrivals, setNewArrivals] = useState(() => getCachedOrFallback('newArrivals', INITIAL_NEW_ARRIVALS))
+  const [limitedStock, setLimitedStock] = useState(() => getCachedOrFallback('limitedStock', INITIAL_LIMITED))
+  const [colorSwatches, setColorSwatches] = useState(() => getCachedOrFallback('colors', INITIAL_COLORS))
+  const [collections, setCollections] = useState(() => getCachedOrFallback('collections', INITIAL_COLLECTIONS))
+  const [sections, setSections] = useState(() => getCachedOrFallback('sections', []))
+  const [allProducts, setAllProducts] = useState(() => getCachedOrFallback('allProducts', INITIAL_CATALOG))
+  const [loading, setLoading] = useState(false)
   const [showStoryModal, setShowStoryModal] = useState(false)
   const { addToCart } = useCart()
 
@@ -97,40 +132,115 @@ export default function Home() {
   const yBg = useTransform(scrollY, [0, 400], [0, 60])
 
   useEffect(() => {
-    setLoading(true)
-    // 1. Fetch dynamic aggregated merchandising data
-    productService.getHomepageData()
-      .then((data) => {
-        if (data) {
-          if (Array.isArray(data.sections) && data.sections.length > 0) {
-            setSections(data.sections.filter(s => s.active !== false).sort((a, b) => a.displayOrder - b.displayOrder))
-          }
-          if (Array.isArray(data.bestSellers)) setBestsellers(data.bestSellers)
-          if (Array.isArray(data.trending)) setTrending(data.trending)
-          if (Array.isArray(data.newArrivals)) setNewArrivals(data.newArrivals)
-          if (Array.isArray(data.limitedStock)) setLimitedStock(data.limitedStock)
-          if (Array.isArray(data.colors)) setColorSwatches(data.colors)
-          if (Array.isArray(data.collections)) setCollections(data.collections)
+    let isMounted = true
+
+    // Parallel background synchronization: zero delay on initial render, seamlessly refresh with live data
+    Promise.allSettled([
+      productService.getHomepageData(),
+      productService.getAll()
+    ]).then(([homepageRes, allRes]) => {
+      if (!isMounted) return
+
+      let updatedBestSellers = null
+      let updatedTrending = null
+      let updatedNewArrivals = null
+      let updatedLimited = null
+      let updatedColors = null
+      let updatedCollections = null
+      let updatedSections = null
+      let updatedAllProducts = null
+
+      if (homepageRes.status === 'fulfilled' && homepageRes.value) {
+        const data = homepageRes.value
+        if (Array.isArray(data.sections) && data.sections.length > 0) {
+          const activeSecs = data.sections.filter(s => s.active !== false).sort((a, b) => a.displayOrder - b.displayOrder)
+          setSections(activeSecs)
+          updatedSections = activeSecs
         }
-      })
-      .catch((err) => {
-        console.warn('Could not load dynamic homepage data, falling back:', err)
-      })
-      .finally(() => {
-        // 2. Fetch full product catalog as fallback and for CHITRIKA Edit
-        productService.getAll()
-          .then((list) => {
-            const safeList = Array.isArray(list) ? list : []
-            setAllProducts(safeList)
-            setBestsellers(prev => (prev.length > 0 ? prev : safeList.filter(p => p.bestseller).slice(0, 10)))
-            setTrending(prev => (prev.length > 0 ? prev : safeList.slice(0, 8)))
-            setNewArrivals(prev => (prev.length > 0 ? prev : safeList.slice(0, 8)))
-          })
-          .catch((err) => {
-            console.warn('Could not load products:', err)
-          })
-          .finally(() => setLoading(false))
-      })
+        if (Array.isArray(data.bestSellers) && data.bestSellers.length > 0) {
+          setBestsellers(data.bestSellers)
+          updatedBestSellers = data.bestSellers
+        }
+        if (Array.isArray(data.trending) && data.trending.length > 0) {
+          setTrending(data.trending)
+          updatedTrending = data.trending
+        }
+        if (Array.isArray(data.newArrivals) && data.newArrivals.length > 0) {
+          setNewArrivals(data.newArrivals)
+          updatedNewArrivals = data.newArrivals
+        }
+        if (Array.isArray(data.limitedStock) && data.limitedStock.length > 0) {
+          setLimitedStock(data.limitedStock)
+          updatedLimited = data.limitedStock
+        }
+        if (Array.isArray(data.colors) && data.colors.length > 0) {
+          setColorSwatches(data.colors)
+          updatedColors = data.colors
+        }
+        if (Array.isArray(data.collections) && data.collections.length > 0) {
+          setCollections(data.collections)
+          updatedCollections = data.collections
+        }
+      }
+
+      if (allRes.status === 'fulfilled' && Array.isArray(allRes.value) && allRes.value.length > 0) {
+        const safeList = allRes.value
+        setAllProducts(safeList)
+        updatedAllProducts = safeList
+
+        if (!updatedBestSellers) {
+          const bs = safeList.filter(p => p.bestseller).slice(0, 10)
+          if (bs.length > 0) {
+            setBestsellers(bs)
+            updatedBestSellers = bs
+          }
+        }
+        if (!updatedTrending) {
+          const tr = safeList.slice(2, 10)
+          if (tr.length > 0) {
+            setTrending(tr)
+            updatedTrending = tr
+          }
+        }
+        if (!updatedNewArrivals) {
+          const na = safeList.slice(0, 8)
+          if (na.length > 0) {
+            setNewArrivals(na)
+            updatedNewArrivals = na
+          }
+        }
+      }
+
+      // Update local storage cache for instant 0ms loads on future visits
+      try {
+        const existing = (() => {
+          try {
+            return JSON.parse(localStorage.getItem('chitrika_home_cache') || '{}')
+          } catch {
+            return {}
+          }
+        })()
+        const newCache = {
+          ...existing,
+          ...(updatedSections ? { sections: updatedSections } : {}),
+          ...(updatedBestSellers ? { bestSellers: updatedBestSellers } : {}),
+          ...(updatedTrending ? { trending: updatedTrending } : {}),
+          ...(updatedNewArrivals ? { newArrivals: updatedNewArrivals } : {}),
+          ...(updatedLimited ? { limitedStock: updatedLimited } : {}),
+          ...(updatedColors ? { colors: updatedColors } : {}),
+          ...(updatedCollections ? { collections: updatedCollections } : {}),
+          ...(updatedAllProducts ? { allProducts: updatedAllProducts } : {}),
+          timestamp: Date.now()
+        }
+        localStorage.setItem('chitrika_home_cache', JSON.stringify(newCache))
+      } catch (e) {}
+    }).catch(err => {
+      console.warn('Background homepage data sync notice:', err)
+    })
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const startHeroTimer = () => {
@@ -349,7 +459,7 @@ export default function Home() {
         return (
           <div key="shop-by-collection">
             <RangoliDivider />
-            <InteractiveItemsReel items={allProducts} />
+            <InteractiveItemsReel items={(allProducts && allProducts.length > 0) ? allProducts : INITIAL_CATALOG} />
           </div>
         )
 
@@ -361,17 +471,18 @@ export default function Home() {
           </div>
         )
 
-      case 'BEST_SELLERS':
-        if (bestsellers.length === 0) return null
+      case 'BEST_SELLERS': {
+        const bsList = (bestsellers && bestsellers.length > 0) ? bestsellers : INITIAL_BESTSELLERS
         return (
           <div key="bestsellers">
             <RangoliDivider />
-            <BestsellerCurvedCarousel bestsellers={bestsellers} onAdd={handleAdd} />
+            <BestsellerCurvedCarousel bestsellers={bsList} onAdd={handleAdd} />
           </div>
         )
+      }
 
-      case 'TRENDING_NOW':
-        if (trending.length === 0) return null
+      case 'TRENDING_NOW': {
+        const trList = (trending && trending.length > 0) ? trending : INITIAL_TRENDING
         return (
           <section key="trending" className="section relative z-10 pt-6">
             <div className="container-luxury">
@@ -389,7 +500,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {trending.slice(0, 8).map((p, i) => (
+                {trList.slice(0, 8).map((p, i) => (
                   <motion.div
                     key={p.id}
                     initial={{ opacity: 0, y: 16 }}
@@ -404,9 +515,10 @@ export default function Home() {
             </div>
           </section>
         )
+      }
 
-      case 'NEW_ARRIVALS':
-        if (newArrivals.length === 0) return null
+      case 'NEW_ARRIVALS': {
+        const naList = (newArrivals && newArrivals.length > 0) ? newArrivals : INITIAL_NEW_ARRIVALS
         return (
           <section key="new-arrivals" className="section relative z-10 pt-6">
             <div className="container-luxury">
@@ -423,7 +535,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {newArrivals.slice(0, 8).map((p, i) => (
+                {naList.slice(0, 8).map((p, i) => (
                   <motion.div
                     key={p.id}
                     initial={{ opacity: 0, y: 16 }}
@@ -438,9 +550,10 @@ export default function Home() {
             </div>
           </section>
         )
+      }
 
-      case 'SHOP_BY_COLOR':
-        if (colorSwatches.length === 0) return null
+      case 'SHOP_BY_COLOR': {
+        const colorsList = (colorSwatches && colorSwatches.length > 0) ? colorSwatches : INITIAL_COLORS
         return (
           <section key="shop-by-color" className="section relative z-10 py-8 bg-gradient-to-b from-transparent via-[#FAF7F2] to-transparent">
             <div className="container-luxury">
@@ -453,7 +566,7 @@ export default function Home() {
               </div>
 
               <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap max-w-4xl mx-auto">
-                {colorSwatches.map((c) => (
+                {colorsList.map((c) => (
                   <Link
                     key={c.colorName}
                     to={`/products?color=${encodeURIComponent(c.colorName)}`}
@@ -466,9 +579,9 @@ export default function Home() {
                     <span className="font-serif font-bold text-xs sm:text-sm text-[#211D1E] group-hover:text-[#5A1020] transition-colors">
                       {c.colorName}
                     </span>
-                    {c.count > 0 && (
+                    {(c.count > 0 || c.productCount > 0) && (
                       <span className="text-[10px] font-sans font-semibold text-[#C9A45C] bg-[#FAF7F2] px-1.5 py-0.5 rounded-full">
-                        {c.count}
+                        {c.count || c.productCount}
                       </span>
                     )}
                   </Link>
@@ -477,9 +590,10 @@ export default function Home() {
             </div>
           </section>
         )
+      }
 
-      case 'LIMITED_STOCK':
-        if (limitedStock.length === 0) return null
+      case 'LIMITED_STOCK': {
+        const limList = (limitedStock && limitedStock.length > 0) ? limitedStock : INITIAL_LIMITED
         return (
           <section key="limited-stock" className="section relative z-10 pt-6">
             <div className="container-luxury">
@@ -496,7 +610,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {limitedStock.slice(0, 8).map((p, i) => (
+                {limList.slice(0, 8).map((p, i) => (
                   <motion.div
                     key={p.id}
                     initial={{ opacity: 0, y: 16 }}
@@ -511,10 +625,11 @@ export default function Home() {
             </div>
           </section>
         )
+      }
 
       case 'FEATURED_PRODUCTS':
-      default:
-        if (allProducts.length === 0) return null
+      default: {
+        const featList = (allProducts && allProducts.length > 0) ? allProducts : INITIAL_CATALOG
         return (
           <section key="featured-edit" className="section relative z-10 pt-6">
             <div className="container-luxury">
@@ -535,7 +650,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {allProducts.slice(0, 8).map((p, i) => (
+                {featList.slice(0, 8).map((p, i) => (
                   <motion.div
                     key={p.id}
                     initial={{ opacity: 0, y: 16 }}
@@ -556,6 +671,7 @@ export default function Home() {
             </div>
           </section>
         )
+      }
     }
   }
 
