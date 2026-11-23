@@ -9,7 +9,24 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error }
+    const errMsg = String(error?.message || error || '')
+    const isChunkError =
+      errMsg.includes('Failed to fetch dynamically imported module') ||
+      errMsg.includes('error loading dynamically imported module') ||
+      errMsg.includes('Importing a module script failed') ||
+      errMsg.includes('Unexpected token')
+
+    if (isChunkError && typeof window !== 'undefined') {
+      const reloadKey = 'app_chunk_auto_reload_ts'
+      const lastReload = parseInt(sessionStorage.getItem(reloadKey) || '0', 10)
+      const now = Date.now()
+      if (now - lastReload > 8000) {
+        sessionStorage.setItem(reloadKey, String(now))
+        window.location.reload()
+      }
+    }
+
+    return { hasError: true, error, isChunkError }
   }
 
   componentDidCatch(error, errorInfo) {
@@ -31,10 +48,12 @@ class ErrorBoundary extends React.Component {
             </div>
 
             <h2 className="text-2xl font-bold text-neutral-800 mb-2 font-serif">
-              Something went wrong
+              {this.state.isChunkError ? 'New Boutique Version Available' : 'Something went wrong'}
             </h2>
             <p className="text-neutral-500 text-sm mb-4 leading-relaxed">
-              Please refresh the page and try again. If the issue persists, our support team is here to help.
+              {this.state.isChunkError 
+                ? 'A new update has been deployed to the boutique. Please reload to load the latest collection and features.'
+                : 'Please refresh the page and try again. If the issue persists, our support team is here to help.'}
             </p>
 
             {this.state.error && (

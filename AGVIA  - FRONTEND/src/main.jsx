@@ -8,6 +8,20 @@ import App from './App.jsx'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import './index.css'
 
+// Vite global chunk load error recovery across deployments
+if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', (event) => {
+    console.warn('Vite preload error (new deployment detected). Reloading...', event)
+    const reloadKey = 'app_chunk_auto_reload_ts'
+    const lastReload = parseInt(sessionStorage.getItem(reloadKey) || '0', 10)
+    const now = Date.now()
+    if (now - lastReload > 8000) {
+      sessionStorage.setItem(reloadKey, String(now))
+      window.location.reload()
+    }
+  })
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
