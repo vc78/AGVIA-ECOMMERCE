@@ -99,7 +99,14 @@ export default function AdminLogin() {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#5A1020] via-[#C9A45C] to-[#5A1020]" />
         
         <div className="flex flex-col items-center mb-6 select-none">
-          <img src="/images/chitrika-logo.webp" alt="CHITRIKA" width={80} height={90} decoding="async" className="h-20 w-auto object-contain mb-3 drop-shadow-[0_4px_16px_rgba(90,16,32,0.18)]" />
+          <img 
+            src="/images/chitrika-logo.webp" 
+            alt="CHITRIKA" 
+            width={64} 
+            height={72} 
+            decoding="async" 
+            className="h-14 sm:h-16 w-auto max-h-16 shrink-0 object-contain mb-3 drop-shadow-[0_4px_12px_rgba(90,16,32,0.15)]" 
+          />
           <span className="font-serif text-2xl tracking-[0.2em] font-bold uppercase text-[#5A1020] leading-none">
             CHITRIKA
           </span>

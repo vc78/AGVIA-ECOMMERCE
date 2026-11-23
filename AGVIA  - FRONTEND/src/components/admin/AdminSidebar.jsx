@@ -27,13 +27,20 @@ export default function AdminSidebar({ isOpen, onClose }) {
     <div className="flex flex-col h-full bg-[#1A0B10] text-[#FAF7F2]">
       {/* Brand Header */}
       <div className="h-14 sm:h-16 flex items-center justify-between px-4 border-b border-[#C9A45C]/20 bg-[#1A0B10]/95 select-none">
-        <Link to="/" className="flex items-center gap-2.5" onClick={onClose}>
-          <img src="/images/chitrika-logo.webp" alt="CHITRIKA" width={40} height={45} decoding="async" className="h-8.5 w-auto object-contain brightness-110 drop-shadow-[0_2px_8px_rgba(201,164,92,0.25)]" />
-          <div className="flex flex-col">
-            <span className="font-serif text-base tracking-[0.18em] font-bold uppercase text-[#FAF7F2] leading-none">
+        <Link to="/" className="flex items-center gap-2.5 min-w-0" onClick={onClose}>
+          <img 
+            src="/images/chitrika-logo.webp" 
+            alt="CHITRIKA" 
+            width={32} 
+            height={36} 
+            decoding="async" 
+            className="h-8 w-auto max-h-8 shrink-0 object-contain brightness-110 drop-shadow-[0_2px_6px_rgba(201,164,92,0.25)]" 
+          />
+          <div className="flex flex-col min-w-0">
+            <span className="font-serif text-sm tracking-[0.18em] font-bold uppercase text-[#FAF7F2] leading-none truncate">
               CHITRIKA
             </span>
-            <span className="font-sans text-[7.5px] tracking-[0.28em] uppercase text-[#C9A45C] font-semibold mt-0.5">
+            <span className="font-sans text-[7px] tracking-[0.26em] uppercase text-[#C9A45C] font-semibold mt-0.5 truncate">
               ATELIER ADMIN
             </span>
           </div>

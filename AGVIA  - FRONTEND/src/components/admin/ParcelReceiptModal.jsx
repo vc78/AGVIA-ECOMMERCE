@@ -171,7 +171,13 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
             {/* Header: Brand & QR Code */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-[#C9A45C]/20">
               <div className="flex items-center gap-3">
-                <img src="/images/chitrika-logo.webp" alt="CHITRIKA" width={48} height={54} className="h-12 w-auto object-contain" />
+                <img 
+                  src="/images/chitrika-logo.webp" 
+                  alt="CHITRIKA" 
+                  width={40} 
+                  height={45} 
+                  className="h-10 sm:h-11 w-auto max-h-11 shrink-0 object-contain" 
+                />
                 <div>
                   <h1 className="font-serif text-2xl font-bold text-[#5A1020] tracking-wide">CHITRIKA</h1>
                   <p className="text-[11px] text-[#211D1E]/70 font-medium">Boutique Luxury Women's Wear & Atelier Dispatches</p>
