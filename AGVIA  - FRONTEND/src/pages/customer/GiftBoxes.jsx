@@ -14,7 +14,7 @@ const GIFT_OPTIONS = [
   {
     name: 'Keepsake Silk Wrap',
     price: '₹ 149',
-    desc: 'Pure ivory cotton muslin wrap with hand-stamped AGVIA wax seal — breathable, archival and reusable.',
+    desc: 'Pure ivory cotton muslin wrap with hand-stamped CHITRIKA wax seal — breathable, archival and reusable.',
     badge: null,
     color: '#C9A45C',
   },
@@ -43,7 +43,7 @@ export default function GiftBoxes() {
           <span className="text-[9px] tracking-[0.35em] font-bold text-[#C9A45C] uppercase block mb-3">✦ Bespoke Keepsake Packaging ✦</span>
           <h1 className="font-serif text-3xl sm:text-5xl text-white font-bold mb-3">Heirloom Gift Boxes</h1>
           <p className="font-sans text-xs text-white/60 max-w-lg mx-auto leading-relaxed">
-            Every AGVIA ensemble is a celebration. Dress it accordingly — in packaging worthy of the occasion.
+            Every CHITRIKA ensemble is a celebration. Dress it accordingly — in packaging worthy of the occasion.
           </p>
         </div>
       </div>

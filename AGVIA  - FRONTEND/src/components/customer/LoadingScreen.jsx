@@ -49,8 +49,8 @@ export default function LoadingScreen({ onComplete }) {
               className="relative flex items-center justify-center"
             >
               <img 
-                src="/images/agvia-logo.webp" 
-                alt="AGVIA" 
+                src="/images/chitrika-logo.webp" 
+                alt="CHITRIKA" 
                 width={384}
                 height={289}
                 decoding="async"

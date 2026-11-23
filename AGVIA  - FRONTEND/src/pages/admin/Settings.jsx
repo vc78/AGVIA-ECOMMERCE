@@ -55,7 +55,7 @@ export default function Settings() {
     // Store Identity & Concierge
     storeName: BUSINESS.name,
     storeTagline: BUSINESS.tagline,
-    supportEmail: BUSINESS.contact.supportEmail || 'care@agvia.in',
+    supportEmail: BUSINESS.contact.supportEmail || 'care@chitrika.in',
     supportPhone: BUSINESS.contact.phone,
     whatsappNumber: BUSINESS.contact.whatsapp,
     storeAddress: BUSINESS.location.fullAddress,
@@ -324,7 +324,7 @@ export default function Settings() {
                       value={form.storeName || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="e.g. AGVIA Women's Wear Boutique"
+                      placeholder="e.g. CHITRIKA Women's Wear Boutique"
                     />
                   </div>
 
@@ -352,7 +352,7 @@ export default function Settings() {
                       value={form.supportEmail || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="care@agvia.in"
+                      placeholder="care@chitrika.in"
                     />
                   </div>
 

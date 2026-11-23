@@ -122,9 +122,9 @@ public class StoreSettingService {
     public StoreSettingDto resetToDefaults(String updatedBy) {
         StoreSetting setting = getOrCreateSetting();
 
-        setting.setStoreName("AGVIA Women's Wear Boutique");
+        setting.setStoreName("CHITRIKA Women's Wear Boutique");
         setting.setStoreTagline("Haute Couture & Heritage Silks");
-        setting.setSupportEmail("care@agvia.in");
+        setting.setSupportEmail("care@chitrika.in");
         setting.setSupportPhone("+91 90323 06961");
         setting.setWhatsappNumber("+91 90323 06961");
         setting.setStoreAddress("Road No. 36, Jubilee Hills, Hyderabad, Telangana 500033, India");

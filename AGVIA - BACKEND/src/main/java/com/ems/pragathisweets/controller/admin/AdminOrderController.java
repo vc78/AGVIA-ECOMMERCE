@@ -73,7 +73,7 @@ public class AdminOrderController {
             @Valid @RequestBody com.ems.pragathisweets.dto.admin.CreatePosBillRequest request,
             @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
 
-        String adminEmail = userDetails != null ? userDetails.getUsername() : "admin@agvia.com";
+        String adminEmail = userDetails != null ? userDetails.getUsername() : "admin@chitrika.com";
         OrderResponse response = adminOrderService.createPosBill(request, adminEmail);
         return ResponseEntity.ok(ApiResponse.success("In-store bill generated successfully", response));
     }

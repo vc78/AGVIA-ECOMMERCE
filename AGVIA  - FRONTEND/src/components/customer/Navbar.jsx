@@ -66,7 +66,7 @@ const NAV_CATEGORIES = {
     items: [
       { name: 'Bridal Dupattas', path: '/products?category=Dupattas', desc: 'Embellished bridal veil drapes', img: '/images/bridal_dupatta.jpg' },
       { name: 'Custom Stitching', path: '/wedding-orders', desc: 'Made-to-measure bespoke blouse & tailoring', img: '/images/anarkali_set.jpg' },
-      { name: 'VIP Membership', path: '/subscription', desc: 'AGVIA Haute Privilege Circle & styling perks', img: '/images/hero_banner.jpg' },
+      { name: 'VIP Membership', path: '/subscription', desc: 'CHITRIKA Haute Privilege Circle & styling perks', img: '/images/hero_banner.jpg' },
     ]
   }
 }
@@ -87,7 +87,7 @@ function BotanicalCornerDecor({ className = '' }) {
   )
 }
 
-// ── AGVIA Lady Emblem Logo Icon ─────────────────────────────────────
+// ── CHITRIKA Lady Emblem Logo Icon ─────────────────────────────────────
 function AgviaLogoEmblem() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10 md:w-11 md:h-11 shrink-0">
@@ -123,7 +123,7 @@ export default function Navbar() {
   const MOBILE_HEADLINES = [
     { text: 'FREE SHIPPING ON ORDERS ₹999+', icon: Truck },
     { text: '✦ ELEGANT STYLES FOR EVERY OCCASION ✦', icon: Sparkles },
-    { text: 'USE CODE: AGVIA15 FOR 15% OFF', icon: Gift },
+    { text: 'USE CODE: CHITRIKA15 FOR 15% OFF', icon: Gift },
     { text: 'EASY 7-DAY HASSLE-FREE RETURNS', icon: Truck },
   ]
   const [headlineIndex, setHeadlineIndex] = useState(0)
@@ -279,11 +279,11 @@ export default function Navbar() {
 
           <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] flex items-center justify-between gap-3">
 
-            {/* ── Left: AGVIA Official Brand Logo ── */}
+            {/* ── Left: CHITRIKA Official Brand Logo ── */}
             <Link to="/" className="flex items-center shrink-0 group py-0.5">
               <img
-                src="/images/agvia-logo.webp"
-                alt="AGVIA Women's Wear Boutique"
+                src="/images/chitrika-logo.webp"
+                alt="CHITRIKA Women's Wear Boutique"
                 width={140}
                 height={44}
                 fetchpriority="high"
@@ -604,8 +604,8 @@ export default function Navbar() {
               <div className="flex justify-between items-center px-4 py-3 border-b border-[#EAE0D2] bg-[#FAF6F0]">
                 <div className="flex items-center">
                   <img
-                    src="/images/agvia-logo.webp"
-                    alt="AGVIA Women's Wear Boutique"
+                    src="/images/chitrika-logo.webp"
+                    alt="CHITRIKA Women's Wear Boutique"
                     width={112}
                     height={32}
                     loading="lazy"
@@ -786,7 +786,7 @@ export default function Navbar() {
                   </Link>
                 )}
                 <span className="text-[10px] text-[#B68C48] tracking-widest uppercase">
-                  AGVIA COUTURE
+                  CHITRIKA COUTURE
                 </span>
               </div>
             </motion.div>

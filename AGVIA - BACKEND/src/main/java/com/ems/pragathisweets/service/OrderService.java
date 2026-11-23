@@ -633,7 +633,7 @@ public class OrderService {
         Order order = orderOpt.orElseThrow(() -> new ResourceNotFoundException("No active tracking record found for the provided reference."));
 
         if (Boolean.TRUE.equals(order.getTrackingTokenRevoked())) {
-            throw new ResourceNotFoundException("This tracking link has been revoked or expired. Please contact AGVIA concierge.");
+            throw new ResourceNotFoundException("This tracking link has been revoked or expired. Please contact CHITRIKA concierge.");
         }
 
         // Ensure token exists on order
@@ -661,7 +661,7 @@ public class OrderService {
                 .totalItems(totalItems)
                 .destinationCity(city)
                 .destinationState(state)
-                .carrier("AGVIA Insured Express Logistics")
+                .carrier("CHITRIKA Insured Express Logistics")
                 .requiresAuthForFullDetails(true)
                 .timeline(timeline)
                 .build();

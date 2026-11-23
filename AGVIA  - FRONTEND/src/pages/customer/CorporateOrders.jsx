@@ -22,7 +22,7 @@ export default function CorporateOrders() {
         <span className="text-[9px] tracking-[0.3em] font-bold text-[#C9A45C] uppercase block mb-3">✦ Executive & Celebratory Gifting ✦</span>
         <h1 className="font-serif text-4xl md:text-5xl text-[#5A1020] font-bold mb-6">Corporate & Festive Gifting</h1>
         <p className="text-xs text-[#211D1E]/70 max-w-lg mx-auto leading-relaxed mb-12">
-          Delight executive partners, leadership teams, and VIP clients with bespoke silk stoles, handloom saree collections, and custom-branded AGVIA gift sets.
+          Delight executive partners, leadership teams, and VIP clients with bespoke silk stoles, handloom saree collections, and custom-branded CHITRIKA gift sets.
         </p>
 
         <form onSubmit={handleSubmit} className="bg-white border border-[#C9A45C]/20 rounded-3xl p-6 md:p-8 max-w-lg mx-auto shadow-sm text-left space-y-4">

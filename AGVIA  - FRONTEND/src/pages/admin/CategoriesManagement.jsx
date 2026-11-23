@@ -81,7 +81,7 @@ export default function CategoriesManagement() {
         { key: 'description', label: 'Description' },
         { key: 'count', label: 'Pieces Count' }
       ]
-      await exportTableToPDF('AGVIA Couture Lines & Categories', exportCols, cats, 'agvia_categories')
+      await exportTableToPDF('CHITRIKA Couture Lines & Categories', exportCols, cats, 'chitrika_categories')
       toast.success(`Exported ${cats.length} categories to branded PDF!`, {
         id: 'cats-pdf',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
@@ -166,7 +166,7 @@ export default function CategoriesManagement() {
               rows={cats} 
               title="Atelier Categories"
               emptyMessage="No categories created yet." 
-              exportFilename="agvia_categories"
+              exportFilename="chitrika_categories"
             />
           )}
         </div>

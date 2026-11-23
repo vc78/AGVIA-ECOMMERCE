@@ -1,5 +1,5 @@
 /**
- * AGVIA Haute Couture - Interactive Company-Oriented Luxury PDF Generator
+ * CHITRIKA Haute Couture - Interactive Company-Oriented Luxury PDF Generator
  * Generates branded, high-fidelity PDF documents with company logo, gold crest accents,
  * KPI summary tiles, structured data tables, and official verification seals.
  */
@@ -30,7 +30,7 @@ const THEME = {
  */
 async function loadLogoBase64() {
   try {
-    const res = await fetch('/images/agvia-logo.png')
+    const res = await fetch('/images/chitrika-logo.png')
     if (!res.ok) return null
     const blob = await res.blob()
     return new Promise((resolve) => {
@@ -46,7 +46,7 @@ async function loadLogoBase64() {
 }
 
 /**
- * Creates and formats the official AGVIA luxury branded document header
+ * Creates and formats the official CHITRIKA luxury branded document header
  */
 function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRange }) {
   const pageWidth = doc.internal.pageSize.getWidth()
@@ -62,7 +62,7 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...THEME.goldLight)
-  doc.text('AGVIA ATELIER ENTERPRISE SYSTEM • OFFICIAL CONFIDENTIAL REPORT', 14, 8)
+  doc.text('CHITRIKA ATELIER ENTERPRISE SYSTEM • OFFICIAL CONFIDENTIAL REPORT', 14, 8)
   
   const nowStr = new Date().toLocaleString('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric',
@@ -138,7 +138,7 @@ function drawTextCrest(doc, x, y) {
   doc.setFont('times', 'bold')
   doc.setFontSize(14)
   doc.setTextColor(...THEME.maroon)
-  doc.text('AGVIA', x, y + 6)
+  doc.text('CHITRIKA', x, y + 6)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(6.5)
   doc.setTextColor(...THEME.goldDark)
@@ -208,7 +208,7 @@ function setupPageDecorations(doc, logoData, headerConfig) {
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7)
     doc.setTextColor(...THEME.charcoalMuted)
-    doc.text('AGVIA WOMEN\'S WEAR BOUTIQUE • CERTIFIED ATELIER AUDIT DOCUMENT', 14, footerY + 1)
+    doc.text('CHITRIKA WOMEN\'S WEAR BOUTIQUE • CERTIFIED ATELIER AUDIT DOCUMENT', 14, footerY + 1)
     doc.text(`PAGE ${i} OF ${pageCount}`, pageWidth - 14, footerY + 1, { align: 'right' })
   }
 }
@@ -295,7 +295,7 @@ export async function exportOrdersPDF(orders = [], filterName = 'All Orders') {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_orders_dispatch_${formatDateStamp()}.pdf`)
+  doc.save(`chitrika_orders_dispatch_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -314,7 +314,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   // 1. Generate Unique QR Code (clean URL without # for instant phone camera scanning)
   const siteUrl = typeof window !== 'undefined' && window.location?.origin 
     ? window.location.origin 
-    : 'https://agvia.vercel.app'
+    : 'https://chitrika.vercel.app'
   const trackingRef = order.orderNumber || String(order.id)
   const trackingToken = order.trackingToken || null
   const qrTrackingUrl = trackingToken
@@ -354,7 +354,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...THEME.goldLight)
-  doc.text('AGVIA ATELIER DISPATCH SYSTEM • OFFICIAL PARCEL PACKING SLIP & TAX INVOICE', margin, 16)
+  doc.text('CHITRIKA ATELIER DISPATCH SYSTEM • OFFICIAL PARCEL PACKING SLIP & TAX INVOICE', margin, 16)
 
   const isCOD = String(order?.paymentMethod || order?.payment || '').toUpperCase().includes('COD')
   doc.text(isCOD ? 'PAYMENT: CASH ON DELIVERY (COD)' : 'PAYMENT: PREPAID (ONLINE/UPI)', pageWidth - margin, 16, { align: 'right' })
@@ -374,7 +374,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(13)
   doc.setTextColor(...THEME.maroon)
-  doc.text('AGVIA ATELIER', margin + 40, y + 5.5)
+  doc.text('CHITRIKA ATELIER', margin + 40, y + 5.5)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
@@ -513,7 +513,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(8.5)
   doc.setTextColor(...THEME.maroon)
-  doc.text('AGVIA ATELIER DISPATCH CENTER', fromX + 4, y + 12)
+  doc.text('CHITRIKA ATELIER DISPATCH CENTER', fromX + 4, y + 12)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
@@ -575,7 +575,7 @@ export async function exportOrderParcelReceiptPDF(order) {
     itemsRows = [
       [
         '1',
-        'AGVIA Luxury Women\'s Wear Ensemble (Curated Dispatch)',
+        'CHITRIKA Luxury Women\'s Wear Ensemble (Curated Dispatch)',
         String(order.items || 1),
         `Rs. ${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`,
         `Rs. ${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`
@@ -654,7 +654,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.text('• Handle with Care: Artisan silk, embroidery, and embellishments.', margin + 3, finalY + 9)
   doc.text('• Scannable QR: Delivery agent / patron can scan to inspect status.', margin + 3, finalY + 13.5)
   doc.text('• Returns & Exchanges: Within 7 days of delivery with original seal.', margin + 3, finalY + 18)
-  doc.text('• Concierge WhatsApp: +91 90323 06961 | Email: support@agvia.com', margin + 3, finalY + 22.5)
+  doc.text('• Concierge WhatsApp: +91 90323 06961 | Email: support@chitrika.in', margin + 3, finalY + 22.5)
 
   // Right Side Box: Financial Calculation Totals
   doc.setFillColor(254, 252, 247)
@@ -722,7 +722,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(6.5)
   doc.setTextColor(...THEME.maroon)
-  doc.text('AGVIA QUALITY INSPECTED', badgeX + 25, footerBoxY + 4.5, { align: 'center' })
+  doc.text('CHITRIKA QUALITY INSPECTED', badgeX + 25, footerBoxY + 4.5, { align: 'center' })
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(5.5)
@@ -735,7 +735,7 @@ export async function exportOrderParcelReceiptPDF(order) {
 
   // Save the PDF
   const cleanId = String(order.orderNumber || order.id).replace(/[^a-zA-Z0-9_-]/g, '_')
-  doc.save(`agvia_parcel_receipt_${cleanId}.pdf`)
+  doc.save(`chitrika_parcel_receipt_${cleanId}.pdf`)
 }
 
 /**
@@ -747,7 +747,7 @@ export async function exportCustomersPDF(customers = []) {
 
   const startY = drawDocumentHeader(doc, logoData, {
     title: 'Patron & Loyal Client Registry',
-    subtitle: 'Confidential Registry of Registered AGVIA Clientele',
+    subtitle: 'Confidential Registry of Registered CHITRIKA Clientele',
     documentId: `PAT-${Date.now().toString().slice(-6)}`
   })
 
@@ -796,7 +796,7 @@ export async function exportCustomersPDF(customers = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_patrons_directory_${formatDateStamp()}.pdf`)
+  doc.save(`chitrika_patrons_directory_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -866,7 +866,7 @@ export async function exportProductsPDF(products = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_couture_collection_${formatDateStamp()}.pdf`)
+  doc.save(`chitrika_couture_collection_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -935,7 +935,7 @@ export async function exportInventoryPDF(inventory = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_fabric_inventory_${formatDateStamp()}.pdf`)
+  doc.save(`chitrika_fabric_inventory_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -986,7 +986,7 @@ export async function exportCouponsPDF(coupons = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_privilege_codes_${formatDateStamp()}.pdf`)
+  doc.save(`chitrika_privilege_codes_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1008,7 +1008,7 @@ export async function exportSubscriptionsPDF(subscriptions = []) {
     s.customerName || 'VIP Member',
     s.email,
     s.customerPhone || '—',
-    s.planName || 'AGVIA VIP',
+    s.planName || 'CHITRIKA VIP',
     s.planTier || 'VIP',
     `₹${s.amount || 299}`,
     s.status || 'ACTIVE',
@@ -1040,7 +1040,7 @@ export async function exportSubscriptionsPDF(subscriptions = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_vip_subscriptions_${formatDateStamp()}.pdf`)
+  doc.save(`chitrika_vip_subscriptions_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1457,7 +1457,7 @@ export async function exportMasterAdminPDF({
         s.customerName || 'VIP Member',
         s.email || '—',
         s.customerPhone || '—',
-        s.planName || 'AGVIA VIP',
+        s.planName || 'CHITRIKA VIP',
         s.planTier || 'VIP',
         `₹${s.amount || 299}`,
         s.status || 'ACTIVE',
@@ -1501,7 +1501,7 @@ export async function exportMasterAdminPDF({
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_master_atelier_dossier_${formatDateStamp()}.pdf`)
+  doc.save(`chitrika_master_atelier_dossier_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1752,7 +1752,7 @@ export async function exportAnalyticsPDF({
   }
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`agvia_website_analytics_${startDate}_to_${endDate}.pdf`)
+  doc.save(`chitrika_website_analytics_${startDate}_to_${endDate}.pdf`)
 }
 
 /**
@@ -1838,7 +1838,7 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('times', 'bold')
   doc.setFontSize(14)
   doc.setTextColor(245, 230, 200)
-  doc.text('AGVIA ATELIER LOGISTICS', 42, 14)
+  doc.text('CHITRIKA ATELIER LOGISTICS', 42, 14)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8)
   doc.setTextColor(201, 164, 92)
@@ -1899,14 +1899,14 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(10)
   doc.setTextColor(30, 30, 30)
-  doc.text('AGVIA Haute Couture Atelier & Inward Returns', 14, 121)
+  doc.text('CHITRIKA Haute Couture Atelier & Inward Returns', 14, 121)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(70, 70, 70)
   doc.text('Plot 42, Road No. 36, Near Jubilee Hills Check Post', 14, 127)
   doc.text('Jubilee Hills, Hyderabad, Telangana - 500033', 14, 132)
-  doc.text('Concierge Desk: +91 91219 99244 | support@agvia.in', 14, 138)
+  doc.text('Concierge Desk: +91 91219 99244 | support@chitrika.in', 14, 138)
 
   // Item & Resolution Box
   doc.setFillColor(245, 240, 230)
@@ -1927,7 +1927,7 @@ export async function exportReverseShippingSlipPDF(returnReq) {
 
   // QR Code for internal scanning
   try {
-    const qrDataUri = await QRCode.toDataURL(`https://agvia.onrender.com/track?ref=${encodeURIComponent(returnReq.returnNumber || '')}`, {
+    const qrDataUri = await QRCode.toDataURL(`https://chitrika.onrender.com/track?ref=${encodeURIComponent(returnReq.returnNumber || '')}`, {
       margin: 1,
       width: 75
     })
@@ -1938,9 +1938,9 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('helvetica', 'italic')
   doc.setFontSize(7.5)
   doc.setTextColor(140, 140, 140)
-  doc.text('White-Glove Insured Reverse Shipment • Handle with pristine care • AGVIA Official Consignment', 14, 195)
+  doc.text('White-Glove Insured Reverse Shipment • Handle with pristine care • CHITRIKA Official Consignment', 14, 195)
 
-  doc.save(`AGVIA_Reverse_Slip_${returnReq.returnNumber || 'RET'}.pdf`)
+  doc.save(`CHITRIKA_Reverse_Slip_${returnReq.returnNumber || 'RET'}.pdf`)
 }
 
 function formatDateStamp() {

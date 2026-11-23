@@ -37,7 +37,7 @@ public class GeminiService {
         try {
             java.nio.file.Path envPath = java.nio.file.Paths.get(".env");
             if (!java.nio.file.Files.exists(envPath)) {
-                envPath = java.nio.file.Paths.get("AGVIA - BACKEND", ".env");
+                envPath = java.nio.file.Paths.get("CHITRIKA - BACKEND", ".env");
             }
             if (java.nio.file.Files.exists(envPath)) {
                 for (String line : java.nio.file.Files.readAllLines(envPath)) {
@@ -66,7 +66,7 @@ public class GeminiService {
         String endpoint = apiUrl + "?key=" + key;
 
         String prompt = String.format(
-                "You are an acclaimed haute couture stylist, master textile curator, and editorial copywriter for AGVIA Luxury Indian Women's Wear Atelier.\n" +
+                "You are an acclaimed haute couture stylist, master textile curator, and editorial copywriter for CHITRIKA Luxury Indian Women's Wear Atelier.\n" +
                 "Write an authentic, opulent, and detailed couture description script for the following luxury garment:\n" +
                 "Silhouette Name: %s\n" +
                 "Couture Line / Category: %s\n" +
@@ -144,7 +144,7 @@ public class GeminiService {
         String cat = request.getCategory() != null && !request.getCategory().isBlank() ? request.getCategory() : "Heirloom Sarees";
         
         String desc = String.format(
-                "Handcrafted with royal finesse, the %s exemplifies AGVIA's devotion to timeless Indian couture.\n\n" +
+                "Handcrafted with royal finesse, the %s exemplifies CHITRIKA's devotion to timeless Indian couture.\n\n" +
                 "✦ Fabric & Heritage Weave: Woven on traditional pit looms using certified pure mulberry silk threads, boasting an exquisite natural sheen and supple texture that drapes with majestic fluidity.\n\n" +
                 "✦ Artistry & Borders: Features hand-interlocked temple Korvai borders, framed with rich metallic zari and intricate floral vines inspired by royal Mughal and Dravidian architectural motifs.\n\n" +
                 "✦ Styling & Occasion: Designed for grand wedding trousseaus, reception galas, and festive rituals. Pair with an embroidered raw silk blouse, antique temple jewelry, and a sleek jasmine-adorned bridal coiffure.\n\n" +
@@ -152,8 +152,8 @@ public class GeminiService {
                 name
         );
 
-        String shortDesc = String.format("Handwoven %s featuring pure mulberry silk and authentic zari artistry from the AGVIA Atelier.", name);
-        String seo = String.format("Shop authentic handloom %s online at AGVIA Luxury Boutique. Certified pure silk with royal metallic zari and bespoke craftsmanship.", name);
+        String shortDesc = String.format("Handwoven %s featuring pure mulberry silk and authentic zari artistry from the CHITRIKA Atelier.", name);
+        String seo = String.format("Shop authentic handloom %s online at CHITRIKA Luxury Boutique. Certified pure silk with royal metallic zari and bespoke craftsmanship.", name);
 
         return AiProductGenerateResponse.builder()
                 .name(name)

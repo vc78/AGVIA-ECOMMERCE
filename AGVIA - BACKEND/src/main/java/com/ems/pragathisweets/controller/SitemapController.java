@@ -30,7 +30,7 @@ public class SitemapController {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    private static final String DOMAIN = "https://agviaboutique.com";
+    private static final String DOMAIN = "https://chitrikaboutique.com";
     private static final String DATE_TODAY = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
 
     @GetMapping(value = "/api/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)

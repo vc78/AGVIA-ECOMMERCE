@@ -1,5 +1,5 @@
 /**
- * AGVIA Privacy-Conscious Client-Side Analytics Tracker
+ * CHITRIKA Privacy-Conscious Client-Side Analytics Tracker
  *
  * Designed to be 100% non-blocking: analytics failures will NEVER interrupt
  * or break customer navigation, viewing, cart operations, or checkout.
@@ -146,7 +146,7 @@ export async function track(eventType, data = {}) {
     }
 
     if (import.meta.env.DEV) {
-      console.log(`[AGVIA Analytics] 📡 ${eventType}`, payload)
+      console.log(`[CHITRIKA Analytics] 📡 ${eventType}`, payload)
     }
 
     const payloadStr = JSON.stringify(payload)

@@ -23,7 +23,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
     // Generate unique QR Code for this order (Clean URL without # symbol to ensure instant phone camera scanning)
     const siteUrl = typeof window !== 'undefined' && window.location?.origin 
       ? window.location.origin 
-      : 'https://agvia.vercel.app'
+      : 'https://chitrika.vercel.app'
     const trackingRef = order.orderNumber || String(order.id || '')
     const trackingToken = order?.trackingToken || fullOrder?.trackingToken || null
     const trackingUrl = trackingToken
@@ -158,7 +158,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
             {/* Top Luxury Banner */}
             <div className="bg-[#5A1020] -m-5 sm:-m-6 mb-4 p-3.5 px-5 flex items-center justify-between text-[#FAF7F2] border-b-2 border-[#C9A45C]">
               <div>
-                <span className="font-serif font-bold text-sm tracking-wider uppercase text-[#C9A45C]">AGVIA</span>
+                <span className="font-serif font-bold text-sm tracking-wider uppercase text-[#C9A45C]">CHITRIKA</span>
                 <span className="text-[10px] text-white/70 ml-2 hidden sm:inline">• HAUTE COUTURE ATELIER DISPATCH</span>
               </div>
               <div className="text-right">
@@ -171,7 +171,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
             {/* Header: Brand & QR Code */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-[#C9A45C]/20">
               <div>
-                <h1 className="font-serif text-2xl font-bold text-[#5A1020] tracking-wide">AGVIA</h1>
+                <h1 className="font-serif text-2xl font-bold text-[#5A1020] tracking-wide">CHITRIKA</h1>
                 <p className="text-[11px] text-[#211D1E]/70 font-medium">Boutique Luxury Women's Wear & Atelier Dispatches</p>
                 <p className="text-[10px] text-[#211D1E]/50 mt-1 font-mono">
                   GSTIN: 36AAHCA1234F1Z5 | CIN: U18101TG2026PTC099882
@@ -245,7 +245,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                 <span className="text-[9px] font-bold uppercase tracking-wider bg-[#C9A45C] text-[#5A1020] px-2 py-0.5 rounded-full absolute -top-2.5 left-3">
                   Return & Dispatch (Consignor)
                 </span>
-                <h4 className="font-bold text-sm text-[#5A1020] mt-1">AGVIA ATELIER DISPATCH CENTER</h4>
+                <h4 className="font-bold text-sm text-[#5A1020] mt-1">CHITRIKA ATELIER DISPATCH CENTER</h4>
                 <p className="text-xs text-[#211D1E]/80 mt-1 leading-relaxed">
                   {BUSINESS.location.street}, {BUSINESS.location.city}, {BUSINESS.location.state} - {BUSINESS.location.pincode}
                 </p>
@@ -318,7 +318,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                     <tr>
                       <td className="py-2.5 px-3 text-center font-mono text-[10px]">1</td>
                       <td className="py-2.5 px-3 font-semibold text-[#211D1E]">
-                        AGVIA Curated Luxury Women's Wear Ensemble ({activeOrder.items || 1} Piece/Set)
+                        CHITRIKA Curated Luxury Women's Wear Ensemble ({activeOrder.items || 1} Piece/Set)
                       </td>
                       <td className="py-2.5 px-3 text-center font-mono font-bold">{activeOrder.items || 1}</td>
                       <td className="py-2.5 px-3 text-right font-mono text-[#211D1E]/70">₹{subtotal.toLocaleString('en-IN')}</td>
@@ -372,12 +372,12 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                   <ShieldCheck size={12} className="text-[#C9A45C]" /> Tamper-Evident Luxury Seal
                 </p>
                 <p>Do not accept shipment if outer security ribbon is breached.</p>
-                <p>For return assistance or styling inquiries: concierge@agvia.com | +91 90323 06961</p>
+                <p>For return assistance or styling inquiries: concierge@chitrika.in | +91 90323 06961</p>
               </div>
 
               <div className="border border-[#C9A45C]/40 rounded-xl p-2.5 bg-white text-center sm:text-right shrink-0">
                 <span className="text-[9px] uppercase tracking-wider text-[#A67D28] font-bold block">
-                  AGVIA Quality Checked & Sealed
+                  CHITRIKA Quality Checked & Sealed
                 </span>
                 <span className="font-mono text-[9px] text-[#5A1020] font-bold">
                   SEAL: AGV-{String(activeOrder.id || '0000').padStart(4, '0')}-{activeOrder.date ? String(activeOrder.date).replace(/-/g, '') : '2026'}

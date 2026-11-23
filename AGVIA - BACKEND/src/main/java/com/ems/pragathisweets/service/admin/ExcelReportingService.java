@@ -37,7 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
- * Excel Reporting Service (AGVIA_ORDERS.xlsx)
+ * Excel Reporting Service (CHITRIKA_ORDERS.xlsx)
  * 
  * STRICT ARCHITECTURAL CONSTRAINTS:
  * 1. MySQL is the SOLE primary source of truth.
@@ -61,7 +61,7 @@ public class ExcelReportingService {
     private final PaymentRepository paymentRepository;
     private final OrderExcelSyncLogRepository syncLogRepository;
 
-    @Value("${app.reports.excel.filename:AGVIA_ORDERS.xlsx}")
+    @Value("${app.reports.excel.filename:CHITRIKA_ORDERS.xlsx}")
     private String excelFileName;
 
     @Value("${app.reports.excel.dir:./reports}")
@@ -81,7 +81,7 @@ public class ExcelReportingService {
     }
 
     /**
-     * Synchronizes a single order into AGVIA_ORDERS.xlsx.
+     * Synchronizes a single order into CHITRIKA_ORDERS.xlsx.
      * Wrapped in absolute failure isolation.
      */
     public void syncOrder(Long orderId) {
@@ -107,7 +107,7 @@ public class ExcelReportingService {
     }
 
     /**
-     * Fully regenerates AGVIA_ORDERS.xlsx from the authoritative MySQL database.
+     * Fully regenerates CHITRIKA_ORDERS.xlsx from the authoritative MySQL database.
      */
     public void regenerateExcelReport() {
         fileLock.lock();

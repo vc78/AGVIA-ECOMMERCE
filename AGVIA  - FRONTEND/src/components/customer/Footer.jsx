@@ -59,12 +59,12 @@ export default function Footer() {
     try {
       const { data } = await api.post('/newsletter/subscribe', { email })
       if (data?.data) localStorage.setItem('ps_circle_member', JSON.stringify(data.data))
-      toast.success(data?.message || 'Welcome to AGVIA Haute Circle! Code CIRCLE15 unlocked.', {
+      toast.success(data?.message || 'Welcome to CHITRIKA Haute Circle! Code CIRCLE15 unlocked.', {
         icon: '👑', style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
       })
       setEmail('')
     } catch {
-      toast.success('Welcome to AGVIA Haute Circle! Your VIP perks are active.', {
+      toast.success('Welcome to CHITRIKA Haute Circle! Your VIP perks are active.', {
         icon: '👑', style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
       })
       setEmail('')
@@ -242,8 +242,8 @@ export default function Footer() {
             <div className="w-full lg:w-[24%] shrink-0 flex flex-col items-start lg:pr-6 pb-4 lg:pb-0 border-b border-white/10 lg:border-b-0">
               <Link to="/" className="mb-3 group inline-block">
                 <img
-                  src="/images/agvia-logo.webp"
-                  alt="AGVIA Women's Wear Boutique"
+                  src="/images/chitrika-logo.webp"
+                  alt="CHITRIKA Women's Wear Boutique"
                   width={180}
                   height={60}
                   loading="lazy"
@@ -480,7 +480,7 @@ export default function Footer() {
             
             {/* Copyright */}
             <p className="font-sans text-[10.5px] text-white/50 tracking-wider">
-              © {new Date().getFullYear()} AGVIA Women's Wear Boutique. All rights reserved.
+              © {new Date().getFullYear()} CHITRIKA Women's Wear Boutique. All rights reserved.
             </p>
 
             {/* Middle Nav Links */}

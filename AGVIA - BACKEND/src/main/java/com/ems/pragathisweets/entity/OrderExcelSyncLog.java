@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 /**
  * Lightweight audit & synchronization entity tracking the export status of orders
- * to the AGVIA_ORDERS.xlsx reporting layer.
+ * to the CHITRIKA_ORDERS.xlsx reporting layer.
  * 
- * Follows AGVIA MySQL / JPA naming conventions.
+ * Follows CHITRIKA MySQL / JPA naming conventions.
  * MySQL remains the primary source of truth.
  */
 @Entity

@@ -26,13 +26,13 @@ import java.util.Map;
 @RequestMapping({"/api/admin/reports/orders-excel", "/api/admin/reports/orders/excel"})
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Admin - Excel Reporting Layer", description = "AGVIA_ORDERS.xlsx export and on-demand regeneration from MySQL")
+@Tag(name = "Admin - Excel Reporting Layer", description = "CHITRIKA_ORDERS.xlsx export and on-demand regeneration from MySQL")
 public class AdminExcelReportController {
 
     private final ExcelReportingService excelReportingService;
 
     @GetMapping({"", "/", "/download"})
-    @Operation(summary = "Download authoritative AGVIA_ORDERS.xlsx report or filtered orders export generated from MySQL")
+    @Operation(summary = "Download authoritative CHITRIKA_ORDERS.xlsx report or filtered orders export generated from MySQL")
     public ResponseEntity<Resource> downloadOrdersExcel(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -41,7 +41,7 @@ public class AdminExcelReportController {
         if (startDate != null || endDate != null || status != null) {
             byte[] excelData = excelReportingService.generateFilteredExcelReport(startDate, endDate, status);
             String timestamp = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
-            String filename = "AGVIA_ORDERS_filtered_" + timestamp + ".xlsx";
+            String filename = "CHITRIKA_ORDERS_filtered_" + timestamp + ".xlsx";
 
             ByteArrayResource resource = new ByteArrayResource(excelData);
 
@@ -71,7 +71,7 @@ public class AdminExcelReportController {
     }
 
     @PostMapping("/regenerate")
-    @Operation(summary = "Regenerate AGVIA_ORDERS.xlsx fresh from MySQL database records")
+    @Operation(summary = "Regenerate CHITRIKA_ORDERS.xlsx fresh from MySQL database records")
     public ResponseEntity<ApiResponse<Map<String, Object>>> regenerateOrdersExcel() {
         excelReportingService.regenerateExcelReport();
         Map<String, Object> status = excelReportingService.getExcelSyncStatus();
@@ -79,7 +79,7 @@ public class AdminExcelReportController {
     }
 
     @GetMapping("/status")
-    @Operation(summary = "Get AGVIA_ORDERS.xlsx synchronization and health status")
+    @Operation(summary = "Get CHITRIKA_ORDERS.xlsx synchronization and health status")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getSyncStatus() {
         return ResponseEntity.ok(ApiResponse.success(excelReportingService.getExcelSyncStatus()));
     }

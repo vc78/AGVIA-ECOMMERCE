@@ -254,7 +254,7 @@ public class ReturnService {
 
                 Coupon coupon = Coupon.builder()
                         .code(couponCode)
-                        .description("AGVIA Store Privilege Credit (+5% VIP Bonus) for Return #" + returnRequest.getReturnNumber())
+                        .description("CHITRIKA Store Privilege Credit (+5% VIP Bonus) for Return #" + returnRequest.getReturnNumber())
                         .discountType(DiscountType.FLAT)
                         .discountValue(totalCredit)
                         .minOrderAmount(BigDecimal.ZERO)

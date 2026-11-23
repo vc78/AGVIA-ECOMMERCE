@@ -33,7 +33,7 @@ import { trackCheckoutStarted } from '../../services/analytics'
 const RECOMMENDED_STYLES = [
   {
     id: 1,
-    name: 'AGVIA Classic Silk Saree',
+    name: 'CHITRIKA Classic Silk Saree',
     price: 4999,
     image: '/images/classic_silk_saree.jpg',
     category: 'Sarees',
@@ -42,7 +42,7 @@ const RECOMMENDED_STYLES = [
   },
   {
     id: 10,
-    name: 'AGVIA Bridal Dupatta',
+    name: 'CHITRIKA Bridal Dupatta',
     price: 1299,
     image: '/images/bridal_dupatta.jpg',
     category: 'Dupattas',
@@ -51,7 +51,7 @@ const RECOMMENDED_STYLES = [
   },
   {
     id: 4,
-    name: 'AGVIA Everyday Kurta Set',
+    name: 'CHITRIKA Everyday Kurta Set',
     price: 1999,
     image: '/images/everyday_kurta_set.jpg',
     category: 'Kurtas',
@@ -60,7 +60,7 @@ const RECOMMENDED_STYLES = [
   },
   {
     id: 2,
-    name: 'AGVIA Floral Organza Saree',
+    name: 'CHITRIKA Floral Organza Saree',
     price: 3999,
     image: '/images/floral_organza_saree.jpg',
     category: 'Sarees',
@@ -69,7 +69,7 @@ const RECOMMENDED_STYLES = [
   },
   {
     id: 7,
-    name: 'AGVIA Evening Gown',
+    name: 'CHITRIKA Evening Gown',
     price: 3499,
     image: '/images/evening_gown.jpg',
     category: 'Dresses & Gowns',
@@ -229,8 +229,8 @@ export default function Cart() {
       }
     } catch {
       // Fallback demo / offline coupon support
-      if (code === 'CIRCLE15' || code === 'AGVIA15' || code === 'AGVIAVIP10' || code === 'AGVIA10' || code === 'WELCOME10') {
-        const pct = (code === 'CIRCLE15' || code === 'AGVIA15') ? 0.15 : 0.10
+      if (code === 'CIRCLE15' || code === 'CHITRIKA15' || code === 'CHITRIKA_VIP10' || code === 'CHITRIKA10' || code === 'WELCOME10') {
+        const pct = (code === 'CIRCLE15' || code === 'CHITRIKA15') ? 0.15 : 0.10
         const disc = Math.round(selectedSubtotal * pct)
         setDiscountAmount(disc)
         setAppliedCoupon(`${code} (-₹${disc.toLocaleString('en-IN')})`)
@@ -240,7 +240,7 @@ export default function Cart() {
         })
         setCouponCode('')
       } else {
-        toast.error('Invalid or expired coupon code. Try CIRCLE15 or AGVIAVIP10')
+        toast.error('Invalid or expired coupon code. Try CIRCLE15 or CHITRIKA_VIP10')
       }
     } finally {
       setValidating(false)
@@ -302,7 +302,7 @@ export default function Cart() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans antialiased selection:bg-[#5A1020] selection:text-white">
       <SEOHead
         title="Shopping Cart"
-        description="Review your curated fashion selections and proceed to checkout at AGVIA."
+        description="Review your curated fashion selections and proceed to checkout at CHITRIKA."
         noindex={true}
       />
       <Navbar />

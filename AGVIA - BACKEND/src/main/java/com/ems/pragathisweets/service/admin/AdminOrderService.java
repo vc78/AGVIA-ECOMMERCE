@@ -281,7 +281,7 @@ public class AdminOrderService {
             notesBuilder.append(" | Note: ").append(request.getNotes().trim());
         }
 
-        String storeAddress = "AGVIA Atelier Storefront — Walk-in Patron";
+        String storeAddress = "CHITRIKA Atelier Storefront — Walk-in Patron";
         if (request.getCustomerAddress() != null && !request.getCustomerAddress().isBlank()) {
             storeAddress += " (" + request.getCustomerAddress().trim() + ")";
         }

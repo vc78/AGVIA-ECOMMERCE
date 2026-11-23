@@ -232,7 +232,7 @@ export default function CouponsManagement() {
               rows={coupons} 
               title="Active Privilege Codes"
               emptyMessage="No coupons registered yet." 
-              exportFilename="agvia_privilege_codes"
+              exportFilename="chitrika_privilege_codes"
             />
           )}
         </div>

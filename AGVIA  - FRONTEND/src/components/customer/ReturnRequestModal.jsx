@@ -273,7 +273,7 @@ export default function ReturnRequestModal({ isOpen, onClose, order, onSuccess }
                             <RotateCcw size={16} className="text-gray-400" />
                           </div>
                           <p className="text-[11px] text-gray-600 leading-relaxed">
-                            Return the ensemble for instant AGVIA Store Privilege Credit or refund to original payment.
+                            Return the ensemble for instant CHITRIKA Store Privilege Credit or refund to original payment.
                           </p>
                         </div>
                       </div>
@@ -385,7 +385,7 @@ export default function ReturnRequestModal({ isOpen, onClose, order, onSuccess }
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="font-serif font-bold text-sm text-[#5A1020]">
-                                  AGVIA Store Privilege Credit
+                                  CHITRIKA Store Privilege Credit
                                 </span>
                                 <span className="bg-[#5A1020] text-[#C9A45C] text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                                   +5% Bonus

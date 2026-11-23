@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwt = authHeader.substring(7);
         } else if (request.getCookies() != null) {
             for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("agvia_token".equals(cookie.getName()) || "token".equals(cookie.getName())) {
+                if ("chitrika_token".equals(cookie.getName()) || "agvia_token".equals(cookie.getName()) || "token".equals(cookie.getName())) {
                     jwt = cookie.getValue();
                     break;
                 }

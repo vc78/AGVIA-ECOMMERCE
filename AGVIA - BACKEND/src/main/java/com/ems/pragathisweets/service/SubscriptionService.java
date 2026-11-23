@@ -243,7 +243,7 @@ public class SubscriptionService {
             if (!couponRepository.existsByCodeIgnoreCase(code)) {
                 couponRepository.save(com.ems.pragathisweets.entity.Coupon.builder()
                         .code(code)
-                        .description("Exclusive AGVIA Haute Circle VIP Member Voucher")
+                        .description("Exclusive CHITRIKA Haute Circle VIP Member Voucher")
                         .discountType(com.ems.pragathisweets.entity.DiscountType.PERCENTAGE)
                         .discountValue(sub.getDiscountPercent() != null ? BigDecimal.valueOf(sub.getDiscountPercent()) : new BigDecimal("15.00"))
                         .minOrderAmount(BigDecimal.ZERO)

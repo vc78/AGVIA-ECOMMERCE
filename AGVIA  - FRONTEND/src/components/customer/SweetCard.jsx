@@ -31,7 +31,7 @@ export default function SweetCard({ product, onAdd, onAddToCart, priority = fals
     ? `${window.location.origin}/products/${product.id}${activeVariant ? `?color=${activeVariant.colorName.toLowerCase().replace(/\s+/g, '-')}` : ''}`
     : `https://agvia.in/products/${product.id}`
   const whatsappMsg = encodeURIComponent(
-    `Namaste AGVIA Atelier Concierge ✨\n\nI would like to enquire about this silhouette:\n👗 *${product.name}*\n🏷️ Category: ${categoryName || 'Luxury Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n🔗 View Piece: ${productUrl}\n\nPlease share availability, size options, and bespoke styling assistance.`
+    `Namaste CHITRIKA Atelier Concierge ✨\n\nI would like to enquire about this silhouette:\n👗 *${product.name}*\n🏷️ Category: ${categoryName || 'Luxury Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n🔗 View Piece: ${productUrl}\n\nPlease share availability, size options, and bespoke styling assistance.`
   )
   const whatsappUrl = `https://wa.me/919032306961?text=${whatsappMsg}`
 

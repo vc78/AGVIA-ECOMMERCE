@@ -308,11 +308,11 @@ export const adminService = {
       console.warn('Backend AI generate returned error or was unavailable, using direct Gemini 2.5 Flash:', err)
     }
 
-    // 2. Direct Gemini 2.5 Flash Query for AGVIA Haute Couture
+    // 2. Direct Gemini 2.5 Flash Query for CHITRIKA Haute Couture
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY
       if (apiKey) {
-        const prompt = `You are the master fashion curator and haute couture copywriter for AGVIA Luxury Indian Women's Wear Atelier.
+        const prompt = `You are the master fashion curator and haute couture copywriter for CHITRIKA Luxury Indian Women's Wear Atelier.
 Write an authentic, opulent, and detailed couture description script for:
 Silhouette Name: ${name}
 Category: ${category || 'Sarees'}
@@ -341,7 +341,7 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
           return {
             name,
             description: text.trim(),
-            shortDescription: `Handcrafted ${name} with pure mulberry silk and authentic zari artistry from the AGVIA Atelier.`,
+            shortDescription: `Handcrafted ${name} with pure mulberry silk and authentic zari artistry from the CHITRIKA Atelier.`,
             suggestedCategory: category || 'Sarees',
             tags: ['Pure Mulberry Silk', 'Handloom Weave', 'Metallic Zari', 'Bridal Trousseau', 'Artisanal Couture', 'Silk Mark Certified'],
             highlights: ['100% Certified Pure Silk', 'Authentic Korvai Borders', 'Bespoke Keepsake Presentation']
@@ -356,7 +356,7 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     // 3. Fallback Haute Couture script
     return {
       name,
-      description: `Handcrafted with royal finesse, the ${name} exemplifies AGVIA's devotion to timeless Indian couture.\n\n✦ Fabric & Heritage Weave: Woven on traditional pit looms using certified pure mulberry silk threads, boasting an exquisite natural sheen and supple texture that drapes with majestic fluidity.\n\n✦ Artistry & Borders: Features hand-interlocked temple Korvai borders, framed with rich metallic zari and intricate floral vines inspired by royal Dravidian and Mughal architectural motifs.\n\n✦ Styling & Occasion: Designed for grand wedding trousseaus, reception galas, and festive rituals. Pair with an embroidered raw silk blouse, antique temple jewelry, and a sleek jasmine-adorned bridal coiffure.\n\n✦ Heirloom Care: Dry clean exclusively. Preserve wrapped in pure cotton muslin in a cool, dark wardrobe to safeguard the luminous metallic zari for generations.`,
+      description: `Handcrafted with royal finesse, the ${name} exemplifies CHITRIKA's devotion to timeless Indian couture.\n\n✦ Fabric & Heritage Weave: Woven on traditional pit looms using certified pure mulberry silk threads, boasting an exquisite natural sheen and supple texture that drapes with majestic fluidity.\n\n✦ Artistry & Borders: Features hand-interlocked temple Korvai borders, framed with rich metallic zari and intricate floral vines inspired by royal Dravidian and Mughal architectural motifs.\n\n✦ Styling & Occasion: Designed for grand wedding trousseaus, reception galas, and festive rituals. Pair with an embroidered raw silk blouse, antique temple jewelry, and a sleek jasmine-adorned bridal coiffure.\n\n✦ Heirloom Care: Dry clean exclusively. Preserve wrapped in pure cotton muslin in a cool, dark wardrobe to safeguard the luminous metallic zari for generations.`,
       shortDescription: `Handcrafted ${name} with authentic handloom silk and regal zari borders.`,
       suggestedCategory: category || 'Sarees'
     }
@@ -503,7 +503,7 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
     }
   },
 
-  // ── Excel Reporting Layer (AGVIA_ORDERS.xlsx) ──
+  // ── Excel Reporting Layer (CHITRIKA_ORDERS.xlsx) ──
   async downloadOrdersExcel(params = {}) {
     try {
       const response = await api.get('/admin/reports/orders/excel', {
@@ -516,13 +516,13 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       })
 
       // Extract filename from Content-Disposition header if available
-      let filename = 'AGVIA_ORDERS.xlsx'
+      let filename = 'CHITRIKA_ORDERS.xlsx'
       const disposition = response.headers?.['content-disposition'] || response.headers?.['Content-Disposition']
       if (disposition && disposition.includes('filename=')) {
         const match = disposition.match(/filename=["']?([^"';]+)["']?/)
         if (match && match[1]) filename = match[1]
       } else if (params.startDate || params.endDate || params.status) {
-        filename = `AGVIA_ORDERS_filtered_${new Date().toISOString().slice(0, 10)}.xlsx`
+        filename = `CHITRIKA_ORDERS_filtered_${new Date().toISOString().slice(0, 10)}.xlsx`
       }
 
       const url = window.URL.createObjectURL(blob)
@@ -535,7 +535,7 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       window.URL.revokeObjectURL(url)
       return true
     } catch (err) {
-      console.error('Failed to download AGVIA_ORDERS.xlsx:', err)
+      console.error('Failed to download CHITRIKA_ORDERS.xlsx:', err)
       throw err
     }
   },
@@ -545,7 +545,7 @@ Write 3 to 4 detailed, evocative paragraphs with clean sub-headings (✦). Tone 
       const { data } = await api.post('/admin/reports/orders-excel/regenerate')
       return data?.data
     } catch (err) {
-      console.error('Failed to regenerate AGVIA_ORDERS.xlsx:', err)
+      console.error('Failed to regenerate CHITRIKA_ORDERS.xlsx:', err)
       throw err
     }
   },

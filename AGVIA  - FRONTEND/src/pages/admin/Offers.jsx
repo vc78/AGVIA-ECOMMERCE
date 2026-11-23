@@ -76,7 +76,7 @@ export default function Offers() {
         ...o,
         statusText: o.active ? 'Active' : 'Inactive'
       }))
-      await exportTableToPDF('AGVIA Seasonal & Festival Offers', cols, sanitizedOffers, 'agvia_festival_offers')
+      await exportTableToPDF('CHITRIKA Seasonal & Festival Offers', cols, sanitizedOffers, 'agvia_festival_offers')
       toast.success(`Exported ${offers.length} offers to branded PDF!`, {
         id: 'offers-pdf',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }

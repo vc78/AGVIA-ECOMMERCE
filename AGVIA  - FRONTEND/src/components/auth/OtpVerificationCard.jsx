@@ -3,8 +3,8 @@ import { ArrowLeft, RefreshCw, ShieldCheck } from 'lucide-react'
 import OtpInput from './OtpInput'
 
 /**
- * Reusable AGVIA Luxury OTP Verification Screen
- * - Clean AGVIA design tokens: Deep wine (#8B0000), Champagne gold (#B8860B), Warm ivory (#FFFDF8), Charcoal (#3A2D23)
+ * Reusable CHITRIKA Luxury OTP Verification Screen
+ * - Clean CHITRIKA design tokens: Deep wine (#8B0000), Champagne gold (#B8860B), Warm ivory (#FFFDF8), Charcoal (#3A2D23)
  * - Independent client-side countdown timer for Resend button
  * - Communicates with backend for authoritative validation
  */
@@ -84,7 +84,7 @@ export default function OtpVerificationCard({
 
   return (
     <div className="w-full max-w-md p-4 min-[360px]:p-6 sm:p-8 bg-white border border-[#B8860B]/20 rounded-3xl shadow-lg relative overflow-hidden">
-      {/* Top AGVIA signature gold gradient accent bar */}
+      {/* Top CHITRIKA signature gold gradient accent bar */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
 
       {/* Brand Monogram */}
@@ -93,7 +93,7 @@ export default function OtpVerificationCard({
           <ShieldCheck className="text-[#8B0000]" size={24} />
         </div>
         <span className="font-display text-xl tracking-[0.2em] font-bold uppercase text-[#8B0000] leading-none">
-          AGVIA
+          CHITRIKA
         </span>
         <span className="font-body text-[8px] tracking-[0.35em] uppercase text-[#B8860B] font-semibold mt-1">
           HAUTE COUTURE BOUTIQUE

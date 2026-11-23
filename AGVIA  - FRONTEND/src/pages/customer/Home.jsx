@@ -117,7 +117,7 @@ export default function Home() {
         console.warn('Could not load dynamic homepage data, falling back:', err)
       })
       .finally(() => {
-        // 2. Fetch full product catalog as fallback and for AGVIA Edit
+        // 2. Fetch full product catalog as fallback and for CHITRIKA Edit
         productService.getAll()
           .then((list) => {
             const safeList = Array.isArray(list) ? list : []
@@ -201,7 +201,7 @@ export default function Home() {
                   />
                   <motion.img
                     src={slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')}
-                    alt={slide.titleMain || 'AGVIA Boutique'}
+                    alt={slide.titleMain || 'CHITRIKA Boutique'}
                     loading={heroIdx === 0 ? 'eager' : 'lazy'}
                     fetchpriority={heroIdx === 0 ? 'high' : 'auto'}
                     decoding={heroIdx === 0 ? 'sync' : 'async'}
@@ -520,7 +520,7 @@ export default function Home() {
             <div className="container-luxury">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-2 border-b border-[#C9A45C]/20">
                 <div>
-                  <span className="section-eyebrow text-[#C9A45C]">✦ THE AGVIA EDIT ✦</span>
+                  <span className="section-eyebrow text-[#C9A45C]">✦ THE CHITRIKA EDIT ✦</span>
                   <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'Every Drape, Perfected'}</h2>
                   {sec.subtitle && <p className="section-description">{sec.subtitle}</p>}
                 </div>
@@ -563,7 +563,7 @@ export default function Home() {
     <div className="relative min-h-full bg-[#FFFDF8] overflow-x-hidden pb-14 sm:pb-0">
       <SEOHead
         title="Luxury Women's Fashion, Handcrafted Sarees & Designer Wear"
-        description="Experience timeless elegance with AGVIA. Shop luxury handcrafted silk sarees, bridal lehengas, designer kurtis, and contemporary ethnic wear."
+        description="Experience timeless elegance with CHITRIKA. Shop luxury handcrafted silk sarees, bridal lehengas, designer kurtis, and contemporary ethnic wear."
         canonicalUrl="/"
         type="website"
       />
@@ -604,7 +604,7 @@ export default function Home() {
               <X size={18} />
             </button>
             <div className="inline-flex items-center gap-1.5 text-[#C9A45C] text-xs font-bold tracking-widest uppercase mb-3">
-              <span>✦ AGVIA ATELIER HERITAGE ✦</span>
+              <span>✦ CHITRIKA ATELIER HERITAGE ✦</span>
             </div>
             <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3">Crafted for Royal Moments</h3>
             <p className="font-sans text-xs sm:text-sm text-white/80 max-w-lg mx-auto leading-relaxed mb-6">
