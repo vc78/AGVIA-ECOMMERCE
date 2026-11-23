@@ -279,17 +279,25 @@ export default function Navbar() {
 
           <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] flex items-center justify-between gap-3">
 
-            {/* ── Left: CHITRIKA Official Brand Logo ── */}
-            <Link to="/" className="flex items-center shrink-0 group py-0.5">
+            {/* ── Left: CHITRIKA Official Brand Logo & Wordmark ── */}
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 shrink-0 group py-0.5 select-none" aria-label="CHITRIKA Home">
               <img
                 src="/images/chitrika-logo.webp"
-                alt="CHITRIKA Women's Wear Boutique"
-                width={140}
-                height={44}
+                alt="CHITRIKA Emblem"
+                width={48}
+                height={54}
                 fetchpriority="high"
                 decoding="async"
-                className="h-9 sm:h-10 lg:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                className="h-10 sm:h-11 lg:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_2px_6px_rgba(90,16,32,0.12)]"
               />
+              <div className="flex flex-col justify-center">
+                <span className="font-serif text-lg sm:text-xl lg:text-2xl font-bold tracking-[0.16em] uppercase text-[#5A1020] leading-none transition-colors group-hover:text-[#7A1F32]">
+                  CHITRIKA
+                </span>
+                <span className="font-sans text-[7px] sm:text-[8px] lg:text-[8.5px] tracking-[0.28em] uppercase text-[#B68C48] font-bold mt-1">
+                  WOMEN'S WEAR BOUTIQUE
+                </span>
+              </div>
             </Link>
 
             {/* ── Center: Tablet Compact Nav (md to xl) ── */}
@@ -602,17 +610,25 @@ export default function Navbar() {
             >
               {/* Drawer Header */}
               <div className="flex justify-between items-center px-4 py-3 border-b border-[#EAE0D2] bg-[#FAF6F0]">
-                <div className="flex items-center">
+                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
                   <img
                     src="/images/chitrika-logo.webp"
-                    alt="CHITRIKA Women's Wear Boutique"
-                    width={112}
-                    height={32}
+                    alt="CHITRIKA"
+                    width={40}
+                    height={45}
                     loading="lazy"
                     decoding="async"
-                    className="h-8 w-auto object-contain"
+                    className="h-9 w-auto object-contain"
                   />
-                </div>
+                  <div className="flex flex-col">
+                    <span className="font-serif text-base font-bold tracking-[0.18em] uppercase text-[#5A1020] leading-none">
+                      CHITRIKA
+                    </span>
+                    <span className="font-sans text-[7px] tracking-[0.26em] uppercase text-[#B68C48] font-bold mt-0.5">
+                      BOUTIQUE
+                    </span>
+                  </div>
+                </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="touch-target p-2 text-[#4A0A16] hover:bg-white rounded-full transition-colors"

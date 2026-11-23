@@ -46,16 +46,22 @@ export default function LoadingScreen({ onComplete }) {
                 duration: 0.4,
                 ease: [0.16, 1, 0.3, 1]
               }}
-              className="relative flex items-center justify-center"
+              className="relative flex flex-col items-center justify-center"
             >
               <img 
                 src="/images/chitrika-logo.webp" 
                 alt="CHITRIKA" 
-                width={384}
-                height={289}
+                width={260}
+                height={290}
                 decoding="async"
-                className="w-64 sm:w-80 md:w-96 max-w-[85vw] h-auto object-contain drop-shadow-[0_15px_40px_rgba(201,164,92,0.35)] select-none pointer-events-none brightness-105" 
+                className="w-40 sm:w-48 md:w-56 h-auto object-contain drop-shadow-[0_15px_40px_rgba(201,164,92,0.4)] select-none pointer-events-none brightness-110 mb-3" 
               />
+              <span className="font-serif text-2xl sm:text-3xl tracking-[0.24em] font-bold uppercase text-[#FAF7F2] leading-none">
+                CHITRIKA
+              </span>
+              <span className="font-sans text-[8.5px] sm:text-[9.5px] tracking-[0.35em] uppercase text-[#C9A45C] font-semibold mt-2">
+                WOMEN'S WEAR BOUTIQUE
+              </span>
             </motion.div>
           </div>
         </motion.div>

@@ -240,16 +240,24 @@ export default function Footer() {
 
             {/* Column 1: Brand Showcase */}
             <div className="w-full lg:w-[24%] shrink-0 flex flex-col items-start lg:pr-6 pb-4 lg:pb-0 border-b border-white/10 lg:border-b-0">
-              <Link to="/" className="mb-3 group inline-block">
+              <Link to="/" className="mb-4 group flex items-center gap-3 select-none">
                 <img
                   src="/images/chitrika-logo.webp"
-                  alt="CHITRIKA Women's Wear Boutique"
-                  width={180}
-                  height={60}
+                  alt="CHITRIKA"
+                  width={56}
+                  height={62}
                   loading="lazy"
                   decoding="async"
                   className="h-14 sm:h-16 w-auto object-contain brightness-110 drop-shadow-[0_2px_12px_rgba(201,164,92,0.35)] group-hover:scale-105 transition-transform duration-300"
                 />
+                <div className="flex flex-col">
+                  <span className="font-serif text-2xl font-bold tracking-[0.18em] uppercase text-[#FAF7F2] leading-none group-hover:text-[#C9A45C] transition-colors">
+                    CHITRIKA
+                  </span>
+                  <span className="font-sans text-[8px] sm:text-[8.5px] tracking-[0.28em] uppercase text-[#C9A45C] font-semibold mt-1">
+                    WOMEN'S WEAR BOUTIQUE
+                  </span>
+                </div>
               </Link>
               <p className="font-sans text-[11.5px] sm:text-[12px] text-white/70 leading-relaxed mb-4 max-w-sm">
                 Curating bespoke ethnic and contemporary wear for the modern woman. Tradition, quality and elegance — all in one place.
