@@ -225,6 +225,7 @@ public class DataInitializer implements CommandLineRunner {
             User admin = adminOpt.get();
             admin.setRole(Role.ROLE_ADMIN);
             admin.setEnabled(true);
+            admin.setPassword(passwordEncoder.encode(password));
             userRepository.save(admin);
             log.info("Lokesh Lingam Weaver Admin account verified: {}", email);
         }
