@@ -17,18 +17,18 @@
   --weaver-brown: #38271F;
   --weaver-green: #65704B;
 
-  /* Mapped Tokens for Seamless Component Compatibility */
-  --agvia-burgundy: #651B2B;
-  --agvia-burgundy-deep: #4A111D;
-  --agvia-burgundy-rich: #7D2437;
-  --agvia-gold: #B58A45;
-  --agvia-gold-soft: #C9A15E;
-  --agvia-ivory: #FBF5EA;
-  --agvia-cream: #E7D4B9;
-  --agvia-blush: #E7D4B9;
-  --agvia-text: #38271F;
-  --agvia-muted: #6E5A4F;
-  --agvia-border: #E7D4B9;
+  /* Mapped Semantic Design Tokens */
+  --llw-burgundy: #651B2B;
+  --llw-burgundy-deep: #4A111D;
+  --llw-burgundy-rich: #7D2437;
+  --llw-gold: #B58A45;
+  --llw-gold-soft: #C9A15E;
+  --llw-ivory: #FBF5EA;
+  --llw-cream: #E7D4B9;
+  --llw-blush: #E7D4B9;
+  --llw-text: #38271F;
+  --llw-muted: #6E5A4F;
+  --llw-border: #E7D4B9;
 
   /* 12-step Master Spacing Scale */
   --space-1: 4px;
@@ -91,8 +91,8 @@ body {
   
   body {
     @apply antialiased overflow-x-hidden;
-    background-color: var(--agvia-ivory);
-    color: var(--agvia-text);
+    background-color: var(--llw-ivory);
+    color: var(--llw-text);
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100%;
     width: 100%;
@@ -101,7 +101,7 @@ body {
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Cormorant Garamond', 'Playfair Display', serif;
-    color: var(--agvia-burgundy);
+    color: var(--llw-burgundy);
     letter-spacing: 0.02em;
     font-weight: 600;
     margin-top: 0;
@@ -118,14 +118,14 @@ body {
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--agvia-cream);
+    background: var(--llw-cream);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--agvia-gold);
+    background: var(--llw-gold);
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--agvia-gold-soft);
+    background: var(--llw-gold-soft);
   }
 
   /* Utility classes to hide scrollbars for clean luxury touch horizontal scrolling */
@@ -145,7 +145,7 @@ body {
 @layer components {
   /* ── Master Global Content Container System ── */
   .container-luxury,
-  .agvia-container {
+  .llw-container {
     width: 100%;
     max-width: var(--content-max-width);
     margin-inline: auto;
@@ -216,7 +216,7 @@ body {
     letter-spacing: 0.35em;
     font-weight: 700;
     text-transform: uppercase;
-    color: var(--agvia-gold);
+    color: var(--llw-gold);
     margin-bottom: 8px;
   }
 
@@ -224,7 +224,7 @@ body {
     font-family: var(--font-display, serif);
     font-size: clamp(1.75rem, 3vw, 2.75rem);
     line-height: 1.15;
-    color: var(--agvia-burgundy);
+    color: var(--llw-burgundy);
     font-weight: 700;
     margin: 0;
   }
@@ -232,7 +232,7 @@ body {
   .section-description {
     font-family: var(--font-body, inherit);
     font-size: clamp(0.85rem, 1.1vw, 1rem);
-    color: var(--agvia-muted);
+    color: var(--llw-muted);
     max-width: var(--text-max-width);
     margin-inline: auto;
     margin-top: 10px;
@@ -248,9 +248,9 @@ body {
   /* Master Responsive Button System (44px min desktop, 48px mobile touch) */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-full border transition-all duration-300 shadow-sm hover:shadow-md relative overflow-hidden tracking-wider text-xs uppercase select-none;
-    background-color: var(--agvia-burgundy);
-    border-color: var(--agvia-burgundy);
-    color: var(--agvia-ivory);
+    background-color: var(--llw-burgundy);
+    border-color: var(--llw-burgundy);
+    color: var(--llw-ivory);
     min-height: var(--btn-height-desktop);
   }
   @media (max-width: 767px) {
@@ -259,15 +259,15 @@ body {
     }
   }
   .btn-primary:hover {
-    background-color: var(--agvia-burgundy-deep);
-    border-color: var(--agvia-burgundy-deep);
+    background-color: var(--llw-burgundy-deep);
+    border-color: var(--llw-burgundy-deep);
     color: #ffffff;
   }
 
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-full border transition-all duration-300 relative overflow-hidden tracking-wider text-xs uppercase select-none;
-    border-color: var(--agvia-gold);
-    color: var(--agvia-burgundy);
+    border-color: var(--llw-gold);
+    color: var(--llw-burgundy);
     min-height: var(--btn-height-desktop);
   }
   @media (max-width: 767px) {
@@ -276,14 +276,14 @@ body {
     }
   }
   .btn-outline:hover {
-    background-color: var(--agvia-gold);
-    color: var(--agvia-burgundy-deep);
+    background-color: var(--llw-gold);
+    color: var(--llw-burgundy-deep);
   }
 
   .btn-accent {
     @apply inline-flex items-center justify-center gap-2 font-bold px-6 py-3 rounded-full transition-all duration-300 tracking-wider text-xs uppercase select-none;
-    background-color: var(--agvia-gold);
-    color: var(--agvia-burgundy-deep);
+    background-color: var(--llw-gold);
+    color: var(--llw-burgundy-deep);
     min-height: var(--btn-height-desktop);
   }
   @media (max-width: 767px) {
@@ -292,15 +292,15 @@ body {
     }
   }
   .btn-accent:hover {
-    background-color: var(--agvia-burgundy);
-    color: var(--agvia-ivory);
+    background-color: var(--llw-burgundy);
+    color: var(--llw-ivory);
   }
 
   /* Master Form Field System */
   .input-field {
     @apply w-full px-4 py-3 rounded-xl border bg-white transition-all duration-300 font-body text-sm;
-    border-color: var(--agvia-border);
-    color: var(--agvia-text);
+    border-color: var(--llw-border);
+    color: var(--llw-text);
     min-height: 44px;
   }
   @media (min-width: 768px) {
@@ -310,7 +310,7 @@ body {
   }
   .input-field:focus {
     outline: none;
-    border-color: var(--agvia-burgundy);
+    border-color: var(--llw-burgundy);
     box-shadow: 0 0 0 3px rgba(90, 16, 32, 0.12);
   }
 

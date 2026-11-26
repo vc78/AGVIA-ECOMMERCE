@@ -12,8 +12,6 @@ Allow: /contact
 Disallow: /admin/
 Disallow: /login
 Disallow: /register
-Disallow: /verify-otp
-Disallow: /verify-login-otp
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /cart
