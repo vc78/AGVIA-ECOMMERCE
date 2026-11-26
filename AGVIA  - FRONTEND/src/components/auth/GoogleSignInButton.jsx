@@ -22,7 +22,11 @@ export default function GoogleSignInButton({ from = '/', mode = 'login', onLinke
   const [loading, setLoading] = useState(false)
   const [gisLoaded, setGisLoaded] = useState(false)
 
-  const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim()
+  const clientId = (
+    import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+    (typeof window !== 'undefined' ? window.__GOOGLE_CLIENT_ID__ : '') ||
+    '792586036173-3cgg5j9qnb5j9i939u7k5ke1qa6dsn8o.apps.googleusercontent.com'
+  ).trim()
 
   const handleCredentialResponse = async (response) => {
     if (!response || !response.credential) {

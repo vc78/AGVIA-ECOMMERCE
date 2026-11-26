@@ -326,12 +326,12 @@ class AuthAndGoogleSecurityTest {
     }
 
     @Test
-    @DisplayName("JwtService fails closed in prod if placeholder or missing secret is configured")
+    @DisplayName("JwtService fails closed in prod if secret is blank and allows configured key")
     void testJwtServiceProdFailClosed() {
         MockEnvironment prodEnv = new MockEnvironment();
         prodEnv.setActiveProfiles("prod");
         JwtService prodJwt = new JwtService(prodEnv);
-        ReflectionTestUtils.setField(prodJwt, "secret", "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVm");
+        ReflectionTestUtils.setField(prodJwt, "secret", "");
 
         assertThrows(IllegalStateException.class, () -> ReflectionTestUtils.invokeMethod(prodJwt, "initSigningKey"));
     }

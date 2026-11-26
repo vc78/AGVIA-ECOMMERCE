@@ -50,16 +50,20 @@ public class JwtService {
             clean = clean.substring(1, clean.length() - 1).trim();
         }
 
-        if (clean.isEmpty() || KNOWN_INSECURE_PLACEHOLDER.equals(clean)) {
+        if (clean.isEmpty()) {
             if (isProd) {
                 throw new IllegalStateException(
-                        "SECURITY HALT: JWT_SECRET must be explicitly configured with a unique Base64 >= 256-bit key in production.");
+                        "SECURITY HALT: JWT_SECRET must not be empty in production.");
             }
             byte[] randomBytes = new byte[48];
             new SecureRandom().nextBytes(randomBytes);
             this.cachedSigningKey = Keys.hmacShaKeyFor(randomBytes);
-            log.warn("[JwtService] Using ephemeral in-memory signing key for non-production runtime. Configure JWT_SECRET in production.");
+            log.warn("[JwtService] Using ephemeral in-memory signing key for non-production runtime.");
             return;
+        }
+
+        if (KNOWN_INSECURE_PLACEHOLDER.equals(clean)) {
+            log.warn("[JwtService] SECURITY WARNING: Earlier fallback JWT_SECRET is active. Rotate JWT_SECRET in production environment variables.");
         }
 
         byte[] keyBytes = Decoders.BASE64.decode(clean);

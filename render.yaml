@@ -62,7 +62,7 @@ services:
         sync: false
 
       - key: GOOGLE_CLIENT_ID
-        sync: false
+        value: "792586036173-3cgg5j9qnb5j9i939u7k5ke1qa6dsn8o.apps.googleusercontent.com"
 
       - key: CORS_ALLOWED_ORIGINS
         value: "https://agvia-ecommerce.vercel.app,https://agvia.vercel.app,https://agvia.onrender.com,http://localhost:5173,http://localhost:3000"
@@ -71,7 +71,7 @@ services:
         value: "https://agvia-ecommerce.vercel.app"
 
       - key: DEFAULT_ADMIN_EMAIL
-        sync: false
+        value: "admin@agvia.com"
 
       - key: DEFAULT_ADMIN_PASSWORD
         sync: false
