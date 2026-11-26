@@ -3,7 +3,7 @@ import { FALLBACK_PRODUCT_IMAGE } from '../../utils/media'
 
 export default function ReliableImage({
   src,
-  alt = 'CHITRIKA Luxury Fashion',
+  alt = 'Lokesh Lingam Weaver Handloom Saree',
   className = '',
   aspectRatio = '3/4',
   loading = 'lazy',

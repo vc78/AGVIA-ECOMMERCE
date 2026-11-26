@@ -30,10 +30,10 @@ public class OrderNotificationService {
     private final EmailTemplateService templateService;
     private final OrderNotificationLogRepository notificationLogRepository;
 
-    @Value("${app.mail.admin-email:${PRAGATHI_ADMIN_EMAIL:${app.mail.store-notification-email:${STORE_NOTIFICATION_EMAIL:orders@pragathisweets.com}}}}")
+    @Value("${app.mail.admin-email:${PRAGATHI_ADMIN_EMAIL:${app.mail.store-notification-email:${STORE_NOTIFICATION_EMAIL:}}}}")
     private String adminEmail;
 
-    @Value("${app.mail.support-email:${PRAGATHI_SUPPORT_EMAIL:support@pragathisweets.com}}")
+    @Value("${app.mail.support-email:${PRAGATHI_SUPPORT_EMAIL:}}")
     private String supportEmail;
 
     @Value("${app.frontend.url:http://localhost:5173}")
@@ -270,12 +270,12 @@ public class OrderNotificationService {
                 .paymentMethod(order.getPaymentMethod())
                 .paymentStatus(order.getPaymentStatus())
                 .deliveryAddress(order.getShippingAddress())
-                .deliveryMethod("Handcrafted Express Delivery (2–4 Business Days)")
-                .expectedDelivery("2–4 Business Days")
+                .deliveryMethod("Direct Dispatch Updates (WhatsApp & Order Tracking)")
+                .expectedDelivery("Confirmed upon dispatch")
                 .trackingUrl(tracking)
                 .notes(order.getNotes())
                 .supportEmail(supportEmail)
-                .supportPhone("+91 90323 06961")
+                .supportPhone("+91 7799349294")
                 .build();
     }
 }

@@ -25,13 +25,6 @@ public class CorsConfig {
             "https://*.vercel.app",
             "https://vercel.app",
             "https://*.onrender.com",
-            "https://chitrika.in",
-            "https://www.chitrika.in",
-            "https://chitrikaboutique.com",
-            "https://www.chitrikaboutique.com",
-            "https://chitrika-ecommerce.vercel.app",
-            "https://agvia.in",
-            "https://www.agvia.in",
             "https://agvia-ecommerce.vercel.app"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

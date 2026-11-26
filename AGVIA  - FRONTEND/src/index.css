@@ -3,21 +3,32 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════════
-   CHITRIKA WOMEN'S WEAR BOUTIQUE — LUXURY DESIGN TOKENS & SYSTEM
+   LOKESH LINGAM WEAVER — DHARMAVARAM HANDLOOM DESIGN TOKENS & SYSTEM
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  /* CHITRIKA Brand Colors */
-  --agvia-burgundy: #5A1020;
-  --agvia-burgundy-deep: #420B16;
-  --agvia-burgundy-rich: #7A1F32;
-  --agvia-gold: #C9A45C;
-  --agvia-gold-soft: #D8B978;
-  --agvia-ivory: #FAF7F2;
-  --agvia-cream: #F2ECE4;
-  --agvia-blush: #E8C7C3;
-  --agvia-text: #211D1E;
-  --agvia-muted: #756B6C;
-  --agvia-border: #E4D8D2;
+  /* Official Lokesh Lingam Weaver Palette */
+  --weaver-maroon: #651B2B;
+  --weaver-maroon-deep: #4A111D;
+  --weaver-maroon-rich: #7D2437;
+  --weaver-gold: #B58A45;
+  --weaver-gold-soft: #C9A15E;
+  --weaver-ivory: #FBF5EA;
+  --weaver-beige: #E7D4B9;
+  --weaver-brown: #38271F;
+  --weaver-green: #65704B;
+
+  /* Mapped Tokens for Seamless Component Compatibility */
+  --agvia-burgundy: #651B2B;
+  --agvia-burgundy-deep: #4A111D;
+  --agvia-burgundy-rich: #7D2437;
+  --agvia-gold: #B58A45;
+  --agvia-gold-soft: #C9A15E;
+  --agvia-ivory: #FBF5EA;
+  --agvia-cream: #E7D4B9;
+  --agvia-blush: #E7D4B9;
+  --agvia-text: #38271F;
+  --agvia-muted: #6E5A4F;
+  --agvia-border: #E7D4B9;
 
   /* 12-step Master Spacing Scale */
   --space-1: 4px;
@@ -101,7 +112,7 @@ body {
     overflow-wrap: break-word;
   }
 
-  /* Custom CHITRIKA Gold Scrollbar */
+  /* Custom Antique Gold Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

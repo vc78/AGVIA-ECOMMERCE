@@ -293,7 +293,7 @@ export default function StoreBilling() {
       setCompletedOrder(order)
 
       // Generate instant QR Code for invoice verification (clean URL without # for instant phone camera scanning)
-      const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://chitrika.vercel.app'
+      const siteOrigin = typeof window !== 'undefined' ? window.location.origin : BUSINESS.seo.siteUrl
       const invoiceRef = order.orderNumber || String(order.id)
       const verifyUrl = `${siteOrigin}/track-order?order=${encodeURIComponent(invoiceRef)}`
       try {
@@ -371,11 +371,11 @@ export default function StoreBilling() {
     const phone = order.contactPhone || customer.phone
     const trackingRef = order.orderNumber || `#${order.id}`
     const amount = Number(order.finalAmount || 0).toLocaleString('en-IN')
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://chitrika.vercel.app'
+    const origin = typeof window !== 'undefined' ? window.location.origin : BUSINESS.seo.siteUrl
     const link = `${origin}/track-order?order=${encodeURIComponent(trackingRef)}`
     
     const message = encodeURIComponent(
-      `Namaste from CHITRIKA Haute Couture Atelier!\n\nThank you for visiting our boutique. Your in-store purchase bill #${trackingRef} for ₹${amount} is confirmed.\n\nView and download your digital tax invoice:\n${link}\n\nWe look forward to styling you again.`
+      `Namaste from ${BUSINESS.name} (${BUSINESS.location.shortAddress})!\n\nThank you for your order. Your bill #${trackingRef} for ₹${amount} is confirmed.\n\nTrack your order and view your receipt:\n${link}`
     )
 
     const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : ''
@@ -383,7 +383,7 @@ export default function StoreBilling() {
       ? `https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${message}`
       : `https://wa.me/?text=${message}`
     
-    safeOpenWindow(waUrl, 'agvia_pos_whatsapp', 'noopener,noreferrer')
+    safeOpenWindow(waUrl, 'llw_pos_whatsapp', 'noopener,noreferrer')
   }
 
   return (
@@ -1065,11 +1065,8 @@ export default function StoreBilling() {
                 {/* Store Branding & QR */}
                 <div className="flex items-start justify-between border-b border-neutral-200 pb-3">
                   <div>
-                    <h4 className="font-serif text-base font-bold text-[#5A1020]">CHITRIKA ATELIER</h4>
-                    <p className="text-[10px] text-neutral-500">Luxury Women's Wear Boutique</p>
-                    <p className="text-[9px] text-neutral-400 font-mono mt-0.5">
-                      GSTIN: 36AAHCA1234F1Z5 • CIN: U18101TG2026PTC099882
-                    </p>
+                    <h4 className="font-serif text-base font-bold text-[#651B2B]">{BUSINESS.name}</h4>
+                    <p className="text-[10px] text-neutral-600">{BUSINESS.category} · {BUSINESS.location.shortAddress}</p>
                   </div>
 
                   {qrCodeDataUrl && (

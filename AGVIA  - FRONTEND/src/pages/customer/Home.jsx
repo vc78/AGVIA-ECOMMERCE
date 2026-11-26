@@ -1,750 +1,557 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import {
   ArrowRight,
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  Crown,
-  Play,
-  Scissors,
-  Sparkles,
-  Package,
-  Ruler,
-  ShieldCheck,
-  Globe,
-  Gem,
+  MessageCircle,
+  MapPin,
+  Award,
   Layers,
-  X,
-  Flame,
-  Clock,
-  Palette
+  Calendar,
+  Sparkles,
+  CheckCircle2,
+  Instagram,
+  Phone,
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import SweetCard from '../../components/customer/SweetCard'
-import InteractiveItemsReel from '../../components/customer/InteractiveItemsReel'
-import BestsellerCurvedCarousel from '../../components/customer/BestsellerCurvedCarousel'
-import RangoliDivider from '../../components/customer/RangoliDivider'
 import TestimonialsCarousel from '../../components/customer/TestimonialsCarousel'
-import BespokeTrousseauBanner from '../../components/customer/BespokeTrousseauBanner'
-import { productService, BOUTIQUE_CATALOG_26, normalizeProduct } from '../../services/productService'
-import { useCart } from '../../hooks/useCart'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import ReliableImage from '../../components/common/ReliableImage'
 import SEOHead from '../../components/common/SEOHead'
+import { productService } from '../../services/productService'
+import { useCart } from '../../hooks/useCart'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 
-// ── Hero Slides ────────────────────────────────────────────
-const HERO_SLIDES = [
+const CORE_COLLECTIONS = [
   {
-    image: '/images/hero_dupatta_couture.jpg',
-    tag: 'WEAR YOUR STORY •',
-    titleMain: 'Timeless\nTradition',
-    titleScript: 'Modern You',
-    subtitle: 'Explore our curated ethnic and contemporary collections crafted for every occasion.',
-    cta: '/products',
-    accent: '#C9A45C',
+    key: 'dharmavaram',
+    title: 'Dharmavaram Silk Sarees',
+    description:
+      'Traditional Dharmavaram silk sarees crafted with rich border detailing and classic handloom silk textures.',
+    path: '/products?category=Dharmavaram+Silk+Sarees',
+    image: '/images/dharmavaram_hero_campaign.jpg',
+    tag: 'Signature Handloom',
   },
   {
-    image: '/images/classic_silk_saree.jpg',
-    tag: 'THE SIGNATURE SILK EDIT •',
-    titleMain: 'Heirloom\nSilks',
-    titleScript: 'Pure Grace',
-    subtitle: 'Pure Kanjeevaram and Banarasi handlooms woven with fine gold zari borders.',
-    cta: '/products?category=Sarees',
-    accent: '#C9A45C',
+    key: 'kanchi',
+    title: 'Kanchi-Style Silk Sarees',
+    description:
+      'Kanchi-style silk sarees featuring traditional korvai-inspired borders, temple motifs, and festive richness.',
+    path: '/products?category=Kanchi-Style+Silk+Sarees',
+    image: '/images/dharmavaram_collections_showcase.jpg',
+    tag: 'Traditional Zari',
   },
   {
-    image: '/images/wedding_lehenga.jpg',
-    tag: 'ROYAL BRIDAL ATELIER •',
-    titleMain: 'Wedding\nCouture',
-    titleScript: 'Regal Charm',
-    subtitle: 'Hand-embroidered zardozi bridal sets with double dupattas and bespoke fit.',
-    cta: '/products?category=Lehengas',
-    accent: '#5A1020',
-  },
-  {
-    image: '/images/anarkali_set.jpg',
-    tag: 'FESTIVE OCCASION WEAR •',
-    titleMain: 'Embroidered\nAnarkalis',
-    titleScript: 'Flowing Kalis',
-    subtitle: 'Intricate kalis adorned with fine mirror-work and delicate thread embroidery.',
-    cta: '/products?category=Anarkalis+%26+Kurtas',
-    accent: '#7A1F32',
+    key: 'traditional',
+    title: 'Traditional Handloom Weaves',
+    description:
+      'Handloom sarees woven directly on traditional looms with intricate motifs and timeless Indian heritage aesthetics.',
+    path: '/products?category=Traditional+Handloom+Weaves',
+    image: '/images/dharmavaram_loom_heritage.jpg',
+    tag: 'Direct From Looms',
   },
 ]
 
-// ── Precomputed Initial Catalog & Merchandising Collections (Instant 0ms Hydration) ──
-const INITIAL_CATALOG = BOUTIQUE_CATALOG_26.map(normalizeProduct)
-const INITIAL_BESTSELLERS = INITIAL_CATALOG.filter(p => p.bestseller).slice(0, 10)
-const INITIAL_TRENDING = INITIAL_CATALOG.slice(2, 10)
-const INITIAL_NEW_ARRIVALS = INITIAL_CATALOG.slice(0, 8)
-const INITIAL_LIMITED = INITIAL_CATALOG.filter(p => p.stockStatus === 'LOW_STOCK' || (typeof p.stock === 'number' && p.stock < 20)).slice(0, 8)
-const INITIAL_COLORS = [
-  { colorName: 'Royal Maroon', colorCode: '#800020', count: 12, productCount: 12 },
-  { colorName: 'Emerald Green', colorCode: '#1B4D3E', count: 10, productCount: 10 },
-  { colorName: 'Royal Blue', colorCode: '#2A52BE', count: 8, productCount: 8 },
-  { colorName: 'Rani Pink', colorCode: '#E75480', count: 9, productCount: 9 },
-  { colorName: 'Regal Purple', colorCode: '#4B0082', count: 6, productCount: 6 },
-  { colorName: 'Mustard Gold', colorCode: '#D4AF37', count: 7, productCount: 7 },
+const WHY_CHOOSE_POINTS = [
+  {
+    icon: Layers,
+    title: 'Direct Weaver Connection',
+    desc: 'Bringing handloom collections directly from our looms in Dharmavaram to your hands.',
+  },
+  {
+    icon: Award,
+    title: '15 Years of Weaving Experience',
+    desc: 'Crafted with dedication, heritage, and fifteen years of hands-on weaving expertise.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Dharmavaram Silk Heritage',
+    desc: 'Rooted in the traditional silk weaving culture of Dharmavaram, Andhra Pradesh.',
+  },
+  {
+    icon: CheckCircle2,
+    title: 'Traditional Weaving Collections',
+    desc: 'Focused on Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves.',
+  },
 ]
-const INITIAL_COLLECTIONS = [
-  { id: 1, name: 'Bridal & Wedding Edit', slug: 'bridal-wedding', coverImage: '/images/wedding_lehenga.jpg', description: 'Heirloom weaves and hand-embroidered silks.' },
-  { id: 2, name: 'Pure Mulberry Kanjeevaram', slug: 'pure-kanjeevaram', coverImage: '/images/classic_silk_saree.jpg', description: 'Pure silk certified with real zari work.' },
-  { id: 3, name: 'Festive Organza & Georgette', slug: 'festive-organza', coverImage: '/images/floral_organza_saree.jpg', description: 'Featherlight drapes in luminous pastels.' },
-  { id: 4, name: 'Royal Anarkali Sets', slug: 'royal-anarkali', coverImage: '/images/anarkali_set.jpg', description: 'Flowing regal silhouettes tailored for festivities.' },
-]
-
-function getCachedOrFallback(key, fallback) {
-  if (typeof window === 'undefined') return fallback
-  try {
-    const raw = localStorage.getItem('chitrika_home_cache')
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed?.[key]) && parsed[key].length > 0) {
-        return parsed[key]
-      }
-    }
-  } catch {}
-  return fallback
-}
 
 export default function Home() {
-  const [bestsellers, setBestsellers] = useState(() => getCachedOrFallback('bestSellers', INITIAL_BESTSELLERS))
-  const [trending, setTrending] = useState(() => getCachedOrFallback('trending', INITIAL_TRENDING))
-  const [newArrivals, setNewArrivals] = useState(() => getCachedOrFallback('newArrivals', INITIAL_NEW_ARRIVALS))
-  const [limitedStock, setLimitedStock] = useState(() => getCachedOrFallback('limitedStock', INITIAL_LIMITED))
-  const [colorSwatches, setColorSwatches] = useState(() => getCachedOrFallback('colors', INITIAL_COLORS))
-  const [collections, setCollections] = useState(() => getCachedOrFallback('collections', INITIAL_COLLECTIONS))
-  const [sections, setSections] = useState(() => getCachedOrFallback('sections', []))
-  const [allProducts, setAllProducts] = useState(() => getCachedOrFallback('allProducts', INITIAL_CATALOG))
-  const [loading, setLoading] = useState(false)
-  const [showStoryModal, setShowStoryModal] = useState(false)
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
   const { addToCart } = useCart()
-
-  // Hero state
-  const [heroIdx, setHeroIdx] = useState(0)
-  const [heroDir, setHeroDir] = useState(1)
-  const heroTimer = useRef(null)
-
-  // Scroll parallax
-  const { scrollY } = useScroll()
-  const yBg = useTransform(scrollY, [0, 400], [0, 60])
 
   useEffect(() => {
     let isMounted = true
-
-    // Parallel background synchronization: zero delay on initial render, seamlessly refresh with live data
-    Promise.allSettled([
-      productService.getHomepageData(),
-      productService.getAll()
-    ]).then(([homepageRes, allRes]) => {
-      if (!isMounted) return
-
-      let updatedBestSellers = null
-      let updatedTrending = null
-      let updatedNewArrivals = null
-      let updatedLimited = null
-      let updatedColors = null
-      let updatedCollections = null
-      let updatedSections = null
-      let updatedAllProducts = null
-
-      if (homepageRes.status === 'fulfilled' && homepageRes.value) {
-        const data = homepageRes.value
-        if (Array.isArray(data.sections) && data.sections.length > 0) {
-          const activeSecs = data.sections.filter(s => s.active !== false).sort((a, b) => a.displayOrder - b.displayOrder)
-          setSections(activeSecs)
-          updatedSections = activeSecs
+    Promise.allSettled([productService.getAll(), productService.getCategories()])
+      .then(([prodRes, catRes]) => {
+        if (!isMounted) return
+        if (prodRes.status === 'fulfilled' && Array.isArray(prodRes.value)) {
+          setProducts(prodRes.value)
         }
-        if (Array.isArray(data.bestSellers) && data.bestSellers.length > 0) {
-          setBestsellers(data.bestSellers)
-          updatedBestSellers = data.bestSellers
+        if (catRes.status === 'fulfilled' && Array.isArray(catRes.value)) {
+          setCategories(catRes.value)
         }
-        if (Array.isArray(data.trending) && data.trending.length > 0) {
-          setTrending(data.trending)
-          updatedTrending = data.trending
-        }
-        if (Array.isArray(data.newArrivals) && data.newArrivals.length > 0) {
-          setNewArrivals(data.newArrivals)
-          updatedNewArrivals = data.newArrivals
-        }
-        if (Array.isArray(data.limitedStock) && data.limitedStock.length > 0) {
-          setLimitedStock(data.limitedStock)
-          updatedLimited = data.limitedStock
-        }
-        if (Array.isArray(data.colors) && data.colors.length > 0) {
-          setColorSwatches(data.colors)
-          updatedColors = data.colors
-        }
-        if (Array.isArray(data.collections) && data.collections.length > 0) {
-          setCollections(data.collections)
-          updatedCollections = data.collections
-        }
-      }
-
-      if (allRes.status === 'fulfilled' && Array.isArray(allRes.value) && allRes.value.length > 0) {
-        const safeList = allRes.value
-        setAllProducts(safeList)
-        updatedAllProducts = safeList
-
-        if (!updatedBestSellers) {
-          const bs = safeList.filter(p => p.bestseller).slice(0, 10)
-          if (bs.length > 0) {
-            setBestsellers(bs)
-            updatedBestSellers = bs
-          }
-        }
-        if (!updatedTrending) {
-          const tr = safeList.slice(2, 10)
-          if (tr.length > 0) {
-            setTrending(tr)
-            updatedTrending = tr
-          }
-        }
-        if (!updatedNewArrivals) {
-          const na = safeList.slice(0, 8)
-          if (na.length > 0) {
-            setNewArrivals(na)
-            updatedNewArrivals = na
-          }
-        }
-      }
-
-      // Update local storage cache for instant 0ms loads on future visits
-      try {
-        const existing = (() => {
-          try {
-            return JSON.parse(localStorage.getItem('chitrika_home_cache') || '{}')
-          } catch {
-            return {}
-          }
-        })()
-        const newCache = {
-          ...existing,
-          ...(updatedSections ? { sections: updatedSections } : {}),
-          ...(updatedBestSellers ? { bestSellers: updatedBestSellers } : {}),
-          ...(updatedTrending ? { trending: updatedTrending } : {}),
-          ...(updatedNewArrivals ? { newArrivals: updatedNewArrivals } : {}),
-          ...(updatedLimited ? { limitedStock: updatedLimited } : {}),
-          ...(updatedColors ? { colors: updatedColors } : {}),
-          ...(updatedCollections ? { collections: updatedCollections } : {}),
-          ...(updatedAllProducts ? { allProducts: updatedAllProducts } : {}),
-          timestamp: Date.now()
-        }
-        localStorage.setItem('chitrika_home_cache', JSON.stringify(newCache))
-      } catch (e) {}
-    }).catch(err => {
-      console.warn('Background homepage data sync notice:', err)
-    })
-
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
     return () => {
       isMounted = false
     }
   }, [])
 
-  const startHeroTimer = () => {
-    clearInterval(heroTimer.current)
-    heroTimer.current = setInterval(() => {
-      setHeroDir(1)
-      setHeroIdx(i => (i + 1) % HERO_SLIDES.length)
-    }, 6500)
-  }
-
-  useEffect(() => {
-    startHeroTimer()
-    return () => clearInterval(heroTimer.current)
-  }, [])
-
-  const gotoSlide = (idx) => {
-    setHeroDir(idx > heroIdx ? 1 : -1)
-    setHeroIdx(idx)
-    startHeroTimer()
-  }
-
-  const prevSlide = () => { setHeroDir(-1); setHeroIdx(i => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length); startHeroTimer() }
-  const nextSlide = () => { setHeroDir(1); setHeroIdx(i => (i + 1) % HERO_SLIDES.length); startHeroTimer() }
-
   const handleAdd = (product) => {
     addToCart(product)
-    toast.success(`${product.name} added to cart!`, { style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' } })
+    toast.success(`${product.name} added to bag`, {
+      style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' },
+    })
   }
 
-  const slide = HERO_SLIDES[heroIdx]
+  // Show Festive Collection card ONLY if live inventory supports a Festive category/product
+  const hasFestiveInventory =
+    categories.some((c) => c.toLowerCase().includes('festive')) ||
+    products.some((p) => (p.category || '').toLowerCase().includes('festive'))
 
-  // Default sections order if not customized by admin in database
-  const defaultSectionConfig = [
-    { sectionKey: 'HERO_BANNER', title: 'Timeless Tradition • Modern You' },
-    { sectionKey: 'SHOP_BY_COLLECTION', title: 'The Royal Curations' },
-    { sectionKey: 'BRAND_STORY', title: 'Bridal Trousseau Atelier' },
-    { sectionKey: 'BEST_SELLERS', title: 'The Signature Edit' },
-    { sectionKey: 'TRENDING_NOW', title: 'Trending This Season' },
-    { sectionKey: 'NEW_ARRIVALS', title: 'Fresh From The Atelier' },
-    { sectionKey: 'SHOP_BY_COLOR', title: 'Palette Royale' },
-    { sectionKey: 'LIMITED_STOCK', title: 'Limited Stock Alert' },
-    { sectionKey: 'FEATURED_PRODUCTS', title: 'Every Drape, Perfected' }
-  ]
+  const collectionCards = hasFestiveInventory
+    ? [
+        ...CORE_COLLECTIONS,
+        {
+          key: 'festive',
+          title: 'Festive Collections',
+          description: 'Curated festive handloom sarees currently available in our live inventory.',
+          path: '/products?category=Festive',
+          image: '/images/dharmavaram_collections_showcase.jpg',
+          tag: 'Live Inventory',
+        },
+      ]
+    : CORE_COLLECTIONS
 
-  const activeSections = sections.length > 0 ? sections : defaultSectionConfig
+  const heroWhatsappUrl = buildWhatsAppUrl(
+    'Namaste Lokesh Lingam Weaver, I would like to order or enquire about your Dharmavaram handloom sarees.'
+  )
 
-  const renderSection = (sec, index) => {
-    const key = sec.sectionKey || sec.key
+  return (
+    <div className="relative min-h-screen bg-[#FBF5EA] text-[#38271F] overflow-x-hidden pb-14 sm:pb-0">
+      <SEOHead
+        title="Lokesh Lingam Weaver | Dharmavaram Handloom Sarees"
+        description={BUSINESS.seo.defaultDescription}
+        canonicalUrl="/"
+        image="/images/dharmavaram_hero_campaign.jpg"
+        type="website"
+      />
 
-    switch (key) {
-      case 'HERO_BANNER':
-        return (
-          <section key="hero" className="relative min-h-[560px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[820px] xl:min-h-[880px] flex flex-col justify-between overflow-hidden bg-[#240810] pt-3 sm:pt-4 pb-4 sm:pb-6">
-            <AnimatePresence mode="sync">
-              <motion.div
-                key={heroIdx}
-                className="absolute inset-0 z-0"
-                initial={{ opacity: 0, scale: 1.04, x: heroDir * 50 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.98, x: -heroDir * 40 }}
-                transition={{ duration: 0.9, ease: [0.25, 1, 0.5, 1] }}
+      <Navbar />
+
+      {/* ════════════════════════════════════════════════════════════════
+          1. HOMEPAGE HERO SECTION
+      ════════════════════════════════════════════════════════════════ */}
+      <section className="relative min-h-[540px] sm:min-h-[620px] lg:min-h-[680px] flex flex-col justify-between overflow-hidden bg-[#38271F]">
+        <div className="absolute inset-0 z-0">
+          <picture>
+            <source
+              type="image/webp"
+              srcSet="/images/dharmavaram_hero_campaign-600.webp 600w, /images/dharmavaram_hero_campaign-900.webp 900w, /images/dharmavaram_hero_campaign.webp 1376w"
+              sizes="100vw"
+            />
+            <img
+              src="/images/dharmavaram_hero_campaign.jpg"
+              alt="Authentic Dharmavaram Handloom Silk Saree — Lokesh Lingam Weaver"
+              loading="eager"
+              fetchpriority="high"
+              decoding="sync"
+              width={1376}
+              height={768}
+              className="w-full h-full object-cover object-center brightness-[0.88]"
+            />
+          </picture>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#38271F]/95 via-[#651B2B]/70 to-transparent lg:w-4/5" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#38271F]/90 via-transparent to-black/25" />
+        </div>
+
+        <div className="relative z-10 w-full container-luxury flex-1 flex items-center py-12 sm:py-16">
+          <div className="max-w-2xl space-y-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#651B2B]/80 border border-[#B58A45]/60 text-[#E7D4B9] tracking-[0.22em] text-[10px] font-bold uppercase backdrop-blur-sm">
+              <span>Direct Handloom Weaver • Dharmavaram, AP</span>
+            </div>
+
+            <h1 className="font-display text-[clamp(2rem,4.6vw,4rem)] font-bold text-[#FBF5EA] leading-[1.08] tracking-tight">
+              AUTHENTIC DHARMAVARAM HANDLOOM SAREES
+            </h1>
+
+            <p className="font-sans text-sm sm:text-base text-[#E7D4B9] max-w-xl leading-relaxed">
+              Discover the beauty of traditional Dharmavaram weaving. Crafted with dedication,
+              heritage and 15 years of weaving experience, bringing handloom sarees directly from
+              our looms to your hands.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+              <Link
+                to="/products"
+                className="inline-flex items-center justify-center gap-2 bg-[#651B2B] hover:bg-[#4A111D] text-[#FBF5EA] border border-[#B58A45]/60 font-bold text-xs tracking-[0.16em] uppercase px-7 py-3.5 rounded-full shadow-lg transition-all min-h-[48px]"
               >
-                <picture>
-                  <source
-                    type="image/webp"
-                    srcSet={`${slide.image.replace(/\.(jpg|jpeg|png)$/i, '')}-600.webp 600w, ${slide.image.replace(/\.(jpg|jpeg|png)$/i, '')}-900.webp 900w, ${slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')} 1280w`}
-                    sizes="100vw"
-                  />
-                  <motion.img
-                    src={slide.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')}
-                    alt={slide.titleMain || 'CHITRIKA Boutique'}
-                    loading={heroIdx === 0 ? 'eager' : 'lazy'}
-                    fetchpriority={heroIdx === 0 ? 'high' : 'auto'}
-                    decoding={heroIdx === 0 ? 'sync' : 'async'}
-                    width={1280}
-                    height={714}
-                    className="absolute -top-8 -bottom-8 w-full h-[calc(100%+64px)] object-cover object-[center_28%] lg:object-center filter contrast-[1.03] brightness-[0.96]"
-                    style={{ y: yBg }}
-                  />
-                </picture>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#1A040C]/90 via-[#1A040C]/55 to-transparent sm:w-4/5 lg:w-3/5" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#150309] via-transparent to-black/35" />
-              </motion.div>
-            </AnimatePresence>
+                <span>EXPLORE COLLECTIONS</span>
+                <ArrowRight size={14} />
+              </Link>
 
-            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/50 to-transparent pointer-events-none z-10" />
-
-            <div className="relative z-10 w-full container-luxury flex-1 flex items-center py-4 sm:py-8 md:py-10">
-              <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8">
-                <div className="flex items-start gap-3 sm:gap-6 max-w-2xl">
-                  <div className="hidden sm:flex flex-col items-center gap-3 text-white/45 text-[11px] font-mono select-none pt-2">
-                    <span className={`transition-all font-bold ${heroIdx === 0 ? 'text-white text-xs' : 'text-white/40'}`}>01</span>
-                    <span className="w-[1.5px] h-6 bg-white/70 rounded-full" />
-                    <button onClick={() => gotoSlide(1)} className={`hover:text-white transition-colors ${heroIdx === 1 ? 'text-white font-bold' : ''}`}>02</button>
-                    <button onClick={() => gotoSlide(2)} className={`hover:text-white transition-colors ${heroIdx === 2 ? 'text-white font-bold' : ''}`}>03</button>
-                    <button onClick={() => gotoSlide(3)} className={`hover:text-white transition-colors ${heroIdx === 3 ? 'text-white font-bold' : ''}`}>04</button>
-                  </div>
-
-                  <div className="space-y-3 sm:space-y-4">
-                    <div className="inline-flex items-center gap-1.5 text-[#E6C894] tracking-[0.26em] text-[9px] sm:text-[10px] font-bold uppercase">
-                      <span>{slide.tag || 'WEAR YOUR STORY •'}</span>
-                    </div>
-
-                    <h1 className="font-display text-[clamp(2.2rem,5.5vw,4.5rem)] font-bold text-white leading-[1.03] tracking-tight">
-                      Timeless<br />
-                      Tradition<br />
-                      <span
-                        style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
-                        className="italic font-normal text-[clamp(2.8rem,7vw,5.5rem)] text-[#FFFDF8] block -mt-1 sm:-mt-2 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
-                      >
-                        Modern You
-                      </span>
-                    </h1>
-
-                    <p className="font-sans text-xs sm:text-[13.5px] text-white/85 max-w-md leading-relaxed tracking-wide">
-                      {slide.subtitle || 'Explore our curated ethnic and contemporary collections crafted for every occasion.'}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
-                      <Link
-                        to={slide.cta || '/products'}
-                        className="inline-flex items-center justify-center gap-2 bg-[#6B1426] hover:bg-[#8B1A32] text-white font-bold text-[11px] sm:text-xs tracking-[0.16em] uppercase px-7 sm:px-8 py-3.5 rounded-full shadow-[0_8px_25px_rgba(107,20,38,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 min-h-[48px]"
-                      >
-                        <span>EXPLORE COLLECTIONS</span>
-                        <ArrowRight size={13} className="stroke-[2.5]" />
-                      </Link>
-
-                      <button
-                        onClick={() => setShowStoryModal(true)}
-                        className="inline-flex items-center justify-center gap-2 bg-black/35 hover:bg-black/55 border border-white/30 text-white font-semibold text-[11px] sm:text-xs tracking-[0.12em] uppercase px-6 py-3.5 rounded-full backdrop-blur-md transition-all duration-200 hover:border-white/60 active:scale-95 min-h-[48px]"
-                      >
-                        <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-white text-[9px] pl-0.5">▶</span>
-                        <span>WATCH OUR STORY</span>
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-3 pt-2">
-                      <div className="flex -space-x-2">
-                        <img src="/images/classic_silk_saree-400.webp" alt="Client 1" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
-                        <img src="/images/wedding_lehenga-400.webp" alt="Client 2" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
-                        <img src="/images/anarkali_set-400.webp" alt="Client 3" width={32} height={32} loading="lazy" decoding="async" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" />
-                      </div>
-                      <div className="text-[11px] sm:text-xs text-white/90">
-                        <span className="font-bold tracking-wide">10,000+ Happy Customers</span>
-                        <div className="flex text-[#FFD700] text-[10px] gap-0.5 mt-0.5">
-                          {'★★★★★'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="hidden lg:flex flex-col items-end justify-center h-[420px] text-right self-stretch pr-2">
-                  <div className="pt-4">
-                    <p
-                      style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
-                      className="text-4xl xl:text-5xl text-white transform -rotate-3 select-none leading-tight filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
-                    >
-                      Elegance
-                    </p>
-                    <p
-                      style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
-                      className="text-3xl xl:text-4xl text-[#E6C894] transform -rotate-3 select-none leading-none -mt-1 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
-                    >
-                      in Every Detail ♡
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <a
+                href={heroWhatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 bg-[#B58A45] hover:bg-[#FBF5EA] text-[#38271F] font-bold text-xs tracking-[0.16em] uppercase px-7 py-3.5 rounded-full shadow-lg transition-all min-h-[48px]"
+              >
+                <MessageCircle size={15} />
+                <span>ORDER ON WHATSAPP</span>
+              </a>
             </div>
-
-            <div className="relative z-20 w-full container-luxury pt-3">
-              <div className="bg-black/40 backdrop-blur-xl border border-white/18 rounded-2xl py-3 px-3.5 sm:px-6 md:px-8 shadow-[0_20px_50px_rgba(0,0,0,0.4)] grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 md:divide-x divide-white/10 text-white">
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                    <Layers size={15} />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Premium Fabrics</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Handpicked Quality</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                    <Gem size={15} />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Bespoke Designs</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Made for You</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                    <ShieldCheck size={15} />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Secure Payments</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Safe & Trusted</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5 sm:gap-3 py-1.5 justify-start md:pl-6">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-[#E6C687]/40 flex items-center justify-center text-[#E6C687] shrink-0">
-                    <Globe size={15} />
-                  </div>
-                  <div className="text-left min-w-0">
-                    <p className="font-serif text-[11.5px] sm:text-[13px] font-bold text-white leading-tight truncate">Worldwide Shipping</p>
-                    <p className="font-sans text-[9.5px] sm:text-[10px] text-[#E6C687]/80 tracking-wider truncate">Delivering Happiness</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )
-
-      case 'SHOP_BY_COLLECTION':
-        return (
-          <div key="shop-by-collection">
-            <RangoliDivider />
-            <InteractiveItemsReel items={(allProducts && allProducts.length > 0) ? allProducts : INITIAL_CATALOG} />
           </div>
-        )
+        </div>
 
-      case 'BRAND_STORY':
-        return (
-          <div key="brand-story">
-            <RangoliDivider flip />
-            <BespokeTrousseauBanner />
-          </div>
-        )
-
-      case 'BEST_SELLERS': {
-        const bsList = (bestsellers && bestsellers.length > 0) ? bestsellers : INITIAL_BESTSELLERS
-        return (
-          <div key="bestsellers">
-            <RangoliDivider />
-            <BestsellerCurvedCarousel bestsellers={bsList} onAdd={handleAdd} />
-          </div>
-        )
-      }
-
-      case 'TRENDING_NOW': {
-        const trList = (trending && trending.length > 0) ? trending : INITIAL_TRENDING
-        return (
-          <section key="trending" className="section relative z-10 pt-6">
-            <div className="container-luxury">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-2 border-b border-[#C9A45C]/20">
-                <div>
-                  <span className="section-eyebrow text-[#C9A45C]">✦ TRENDING THIS SEASON ✦</span>
-                  <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'Trending Now'}</h2>
-                  {sec.subtitle && <p className="section-description">{sec.subtitle}</p>}
-                </div>
-                <div className="hidden sm:flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8B1A32] bg-[#8B1A32]/10 px-3 py-1 rounded-full border border-[#8B1A32]/25 uppercase tracking-wider">
-                    <Flame size={13} className="text-[#8B1A32]" /> Patron Favorites
-                  </span>
-                </div>
+        {/* Verified Highlights Strip */}
+        <div className="relative z-20 w-full container-luxury pb-6">
+          <div className="bg-[#38271F]/80 backdrop-blur-md border border-[#B58A45]/40 rounded-2xl py-3.5 px-4 sm:px-6 grid grid-cols-2 lg:grid-cols-4 gap-4 text-[#FBF5EA]">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#651B2B] border border-[#B58A45]/60 flex items-center justify-center text-[#E7D4B9] shrink-0">
+                <Layers size={16} />
               </div>
-
-              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {trList.slice(0, 8).map((p, i) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04, duration: 0.4 }}
-                  >
-                    <SweetCard product={{ ...p, badge: 'TRENDING' }} onAdd={() => handleAdd(p)} />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )
-      }
-
-      case 'NEW_ARRIVALS': {
-        const naList = (newArrivals && newArrivals.length > 0) ? newArrivals : INITIAL_NEW_ARRIVALS
-        return (
-          <section key="new-arrivals" className="section relative z-10 pt-6">
-            <div className="container-luxury">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-2 border-b border-[#C9A45C]/20">
-                <div>
-                  <span className="section-eyebrow text-[#C9A45C]">✦ FRESH FROM THE ATELIER ✦</span>
-                  <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'New Arrivals'}</h2>
-                  {sec.subtitle && <p className="section-description">{sec.subtitle}</p>}
-                </div>
-                <Link to="/products?sort=newest" className="text-xs font-bold text-[#5A1020] hover:text-[#C9A45C] flex items-center gap-1 transition-colors">
-                  <span>Explore New Edits</span>
-                  <ArrowRight size={13} />
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {naList.slice(0, 8).map((p, i) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04, duration: 0.4 }}
-                  >
-                    <SweetCard product={{ ...p, badge: 'NEW' }} onAdd={() => handleAdd(p)} />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )
-      }
-
-      case 'SHOP_BY_COLOR': {
-        const colorsList = (colorSwatches && colorSwatches.length > 0) ? colorSwatches : INITIAL_COLORS
-        return (
-          <section key="shop-by-color" className="section relative z-10 py-8 bg-gradient-to-b from-transparent via-[#FAF7F2] to-transparent">
-            <div className="container-luxury">
-              <div className="text-center max-w-xl mx-auto mb-6">
-                <span className="section-eyebrow text-[#C9A45C]">✦ PALETTE ROYALE ✦</span>
-                <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'Shop By Color'}</h2>
-                <p className="section-description">
-                  Immerse yourself in heritage dyes, sacred festive jewel tones, and opulent zari pairings.
+              <div className="min-w-0">
+                <p className="font-serif text-sm font-bold text-[#FBF5EA] truncate">
+                  Direct Handloom Weaver
+                </p>
+                <p className="text-[10.5px] text-[#E7D4B9]/80 truncate">
+                  From our looms to you
                 </p>
               </div>
+            </div>
 
-              <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap max-w-4xl mx-auto">
-                {colorsList.map((c) => (
-                  <Link
-                    key={c.colorName}
-                    to={`/products?color=${encodeURIComponent(c.colorName)}`}
-                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white border border-[#C9A45C]/30 shadow-xs hover:shadow-md hover:border-[#5A1020] hover:scale-105 active:scale-95 transition-all group"
-                  >
-                    <span
-                      style={{ backgroundColor: c.colorCode || '#5A1020' }}
-                      className="w-5 h-5 rounded-full inline-block border-2 border-white shadow-xs shrink-0 ring-1 ring-black/10"
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#651B2B] border border-[#B58A45]/60 flex items-center justify-center text-[#E7D4B9] shrink-0">
+                <Award size={16} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-serif text-sm font-bold text-[#FBF5EA] truncate">
+                  15 Years Experience
+                </p>
+                <p className="text-[10.5px] text-[#E7D4B9]/80 truncate">
+                  Traditional weaving craft
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#651B2B] border border-[#B58A45]/60 flex items-center justify-center text-[#E7D4B9] shrink-0">
+                <Calendar size={16} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-serif text-sm font-bold text-[#FBF5EA] truncate">
+                  Since 2019
+                </p>
+                <p className="text-[10.5px] text-[#E7D4B9]/80 truncate">
+                  Lokesh Lingam Weaver
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#651B2B] border border-[#B58A45]/60 flex items-center justify-center text-[#E7D4B9] shrink-0">
+                <MapPin size={16} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-serif text-sm font-bold text-[#FBF5EA] truncate">
+                  Dharmavaram, AP
+                </p>
+                <p className="text-[10.5px] text-[#E7D4B9]/80 truncate">
+                  India – 515671
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════════
+          2. COLLECTION CATEGORIES SECTION
+      ════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 sm:py-18 bg-[#FBF5EA]">
+        <div className="container-luxury">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="section-eyebrow">✦ Handloom Categories ✦</span>
+            <h2 className="section-title mt-1">Our Saree Collections</h2>
+            <p className="section-description">
+              Explore Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves.
+            </p>
+          </div>
+
+          <div
+            className={`grid grid-cols-1 md:grid-cols-3 ${
+              collectionCards.length === 4 ? 'lg:grid-cols-4' : ''
+            } gap-6`}
+          >
+            {collectionCards.map((col, idx) => (
+              <motion.div
+                key={col.key}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.08, duration: 0.45 }}
+                className="bg-white border border-[#E7D4B9] hover:border-[#B58A45] rounded-3xl overflow-hidden shadow-sm hover:shadow-luxury transition-all flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="relative h-64 overflow-hidden bg-[#E7D4B9]/40">
+                    <ReliableImage
+                      src={col.image}
+                      alt={col.title}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <span className="font-serif font-bold text-xs sm:text-sm text-[#211D1E] group-hover:text-[#5A1020] transition-colors">
-                      {c.colorName}
+                    <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#651B2B]/90 text-[#FBF5EA] text-[9.5px] font-bold uppercase tracking-wider border border-[#B58A45]/40">
+                      {col.tag}
                     </span>
-                    {(c.count > 0 || c.productCount > 0) && (
-                      <span className="text-[10px] font-sans font-semibold text-[#C9A45C] bg-[#FAF7F2] px-1.5 py-0.5 rounded-full">
-                        {c.count || c.productCount}
-                      </span>
-                    )}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-serif text-2xl font-bold text-[#651B2B] mb-2">
+                      {col.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#38271F]/75 leading-relaxed">
+                      {col.description}
+                    </p>
+                  </div>
+                </div>
+                <div className="px-6 pb-6">
+                  <Link
+                    to={col.path}
+                    className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#651B2B] hover:text-[#B58A45] transition-colors"
+                  >
+                    <span>Explore Collection</span>
+                    <ArrowRight size={14} />
                   </Link>
-                ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════════
+          3. LIVE SAREE CATALOGUE (REAL INVENTORY ONLY)
+      ════════════════════════════════════════════════════════════════ */}
+      <section className="py-12 sm:py-16 bg-white border-y border-[#E7D4B9]">
+        <div className="container-luxury">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-3 border-b border-[#E7D4B9]">
+            <div>
+              <span className="section-eyebrow">✦ Handloom Catalogue ✦</span>
+              <h2 className="section-title mt-1">Featured Handloom Sarees</h2>
+              <p className="section-description !mx-0 !mt-1">
+                Available sarees listed directly from our store inventory.
+              </p>
+            </div>
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#651B2B] hover:text-[#B58A45] transition-colors"
+            >
+              <span>View All Sarees</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {[1, 2, 3, 4].map((n) => (
+                <div
+                  key={n}
+                  className="aspect-[3/4] rounded-2xl bg-[#FBF5EA] animate-pulse border border-[#E7D4B9]"
+                />
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {products.slice(0, 8).map((p) => (
+                <SweetCard key={p.id} product={p} onAdd={() => handleAdd(p)} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-3xl bg-[#FBF5EA] border border-[#E7D4B9] p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div className="lg:col-span-5 rounded-2xl overflow-hidden border border-[#B58A45]/30 aspect-[16/10]">
+                <ReliableImage
+                  src="/images/dharmavaram_collections_showcase.jpg"
+                  alt="Dharmavaram handloom silk saree collection"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="lg:col-span-7 space-y-4">
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#B58A45] block">
+                  Direct Loom Catalogue
+                </span>
+                <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#651B2B]">
+                  Request Current Loom Sarees &amp; Pricing on WhatsApp
+                </h3>
+                <p className="text-xs sm:text-sm text-[#38271F]/80 leading-relaxed">
+                  Our latest Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional
+                  handloom weaves are shared directly with customers from our Dharmavaram looms.
+                  Message us on WhatsApp or visit our Instagram page for current pieces and pricing.
+                </p>
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <a
+                    href={heroWhatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                  >
+                    <MessageCircle size={15} />
+                    <span>Enquire on WhatsApp</span>
+                  </a>
+                  <a
+                    href={BUSINESS.social.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-outline"
+                  >
+                    <Instagram size={15} />
+                    <span>View {BUSINESS.social.instagramHandle}</span>
+                  </a>
+                </div>
               </div>
             </div>
-          </section>
-        )
-      }
+          )}
+        </div>
+      </section>
 
-      case 'LIMITED_STOCK': {
-        const limList = (limitedStock && limitedStock.length > 0) ? limitedStock : INITIAL_LIMITED
-        return (
-          <section key="limited-stock" className="section relative z-10 pt-6">
-            <div className="container-luxury">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-2 border-b border-amber-700/25">
-                <div>
-                  <span className="section-eyebrow text-amber-800">✦ FINAL PIECES & VAULT RARITIES ✦</span>
-                  <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'Limited Stock Alert'}</h2>
-                  <p className="section-description">Only a few handcrafted pieces remain in our atelier vaults.</p>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                  <Clock size={13} className="text-amber-700" />
-                  <span>Selling Fast</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {limList.slice(0, 8).map((p, i) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04, duration: 0.4 }}
-                  >
-                    <SweetCard product={{ ...p, badge: 'FEW LEFT' }} onAdd={() => handleAdd(p)} />
-                  </motion.div>
-                ))}
+      {/* ════════════════════════════════════════════════════════════════
+          4. ABOUT THE WEAVER SECTION
+      ════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 sm:py-20 bg-[#FBF5EA]">
+        <div className="container-luxury">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="lg:col-span-6">
+              <div className="relative rounded-3xl overflow-hidden border-2 border-[#B58A45]/40 shadow-luxury aspect-[16/11]">
+                <ReliableImage
+                  src="/images/dharmavaram_loom_heritage.jpg"
+                  alt="Traditional Dharmavaram wooden handloom weaving"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
-          </section>
-        )
-      }
 
-      case 'FEATURED_PRODUCTS':
-      default: {
-        const featList = (allProducts && allProducts.length > 0) ? allProducts : INITIAL_CATALOG
-        return (
-          <section key="featured-edit" className="section relative z-10 pt-6">
-            <div className="container-luxury">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-2 border-b border-[#C9A45C]/20">
-                <div>
-                  <span className="section-eyebrow text-[#C9A45C]">✦ THE CHITRIKA EDIT ✦</span>
-                  <h2 className="section-title text-[#211D1E] mt-1">{sec.title || 'Every Drape, Perfected'}</h2>
-                  {sec.subtitle && <p className="section-description">{sec.subtitle}</p>}
+            <div className="lg:col-span-6 space-y-5">
+              <span className="section-eyebrow">✦ About the Weaver ✦</span>
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#651B2B] leading-tight">
+                OUR WEAVING HERITAGE
+              </h2>
+              <p className="font-sans text-sm sm:text-base text-[#38271F]/85 leading-relaxed">
+                “Rooted in the weaving traditions of Dharmavaram, Lokesh Lingam Weaver celebrates the
+                beauty of Indian handloom sarees. With 15 years of weaving experience, our focus is
+                on traditional designs, intricate details and bringing handloom collections directly
+                from the weaver to the customer.”
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="bg-white border border-[#E7D4B9] rounded-2xl p-4">
+                  <p className="font-serif text-xl font-bold text-[#651B2B]">
+                    15 Years of Weaving Experience
+                  </p>
+                  <p className="text-xs text-[#38271F]/70 mt-1">
+                    Focused on traditional Dharmavaram &amp; Kanchi-style handloom craftsmanship.
+                  </p>
                 </div>
-                <div className="hidden sm:block text-right">
-                  <p
-                    style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', cursive" }}
-                    className="text-2xl lg:text-3xl text-[#8B1A32] transform -rotate-3 select-none leading-none"
-                  >
-                    Tradition Reimagined ♡
+                <div className="bg-white border border-[#E7D4B9] rounded-2xl p-4">
+                  <p className="font-serif text-xl font-bold text-[#651B2B]">
+                    Established Since 2019
+                  </p>
+                  <p className="text-xs text-[#38271F]/70 mt-1">
+                    Serving handloom saree patrons directly from Dharmavaram, Andhra Pradesh.
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,1.8vw,20px)]">
-                {featList.slice(0, 8).map((p, i) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04, duration: 0.4 }}
-                  >
-                    <SweetCard key={p.id} product={p} onAdd={() => handleAdd(p)} />
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="section-cta">
-                <Link to="/products" className="btn-primary min-h-[48px]">
-                  Shop All Silhouettes <ArrowRight size={14} />
+              <div className="pt-2">
+                <Link to="/about" className="btn-outline">
+                  <span>Read Our Heritage</span>
+                  <ArrowRight size={14} />
                 </Link>
               </div>
             </div>
-          </section>
-        )
-      }
-    }
-  }
-
-  return (
-    <div className="relative min-h-full bg-[#FFFDF8] overflow-x-hidden pb-14 sm:pb-0">
-      <SEOHead
-        title="Luxury Women's Fashion, Handcrafted Sarees & Designer Wear"
-        description="Experience timeless elegance with CHITRIKA. Shop luxury handcrafted silk sarees, bridal lehengas, designer kurtis, and contemporary ethnic wear."
-        canonicalUrl="/"
-        type="website"
-      />
-      {/* ══ GLOBAL LUXURY BOUTIQUE BACKGROUND TEXTURE ══ */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div
-          className="w-full h-full bg-cover bg-center bg-fixed opacity-[0.14] mix-blend-multiply"
-          style={{
-            backgroundImage: "url('/images/boutique_luxury_bg.webp')",
-            filter: 'contrast(1.04) saturate(1.08)',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FFFDF8]/40 via-transparent to-[#FFFDF8]/70 pointer-events-none" />
-      </div>
-
-      {/* ══ AMBIENT GLOW SPOTLIGHT ══ */}
-      <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-[#C9A45C]/08 via-[#8B0000]/03 to-transparent rounded-full blur-2xl pointer-events-none z-0" />
-
-      <Navbar />
-
-      {/* ══ DYNAMIC HOMEPAGE SECTIONS ══ */}
-      {activeSections.map((sec, idx) => renderSection(sec, idx))}
-
-      {/* Rangoli Divider before Testimonials */}
-      <RangoliDivider />
-
-      {/* ══ TESTIMONIALS (PATRON EXPERIENCES) ══ */}
-      <TestimonialsCarousel />
-
-      {/* ══ VIDEO STORY MODAL ═════════════════════════════════════ */}
-      {showStoryModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="relative w-full max-w-2xl bg-[#1E050D] border border-[#C9A45C]/40 rounded-3xl overflow-hidden shadow-2xl p-6 text-center text-white">
-            <button
-              onClick={() => setShowStoryModal(false)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
-            >
-              <X size={18} />
-            </button>
-            <div className="inline-flex items-center gap-1.5 text-[#C9A45C] text-xs font-bold tracking-widest uppercase mb-3">
-              <span>✦ CHITRIKA ATELIER HERITAGE ✦</span>
-            </div>
-            <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3">Crafted for Royal Moments</h3>
-            <p className="font-sans text-xs sm:text-sm text-white/80 max-w-lg mx-auto leading-relaxed mb-6">
-              Step inside our Hyderabad atelier where master artisans hand-embroider zardozi motifs and handloom pure silk heirlooms for brides and discerning connoisseurs across the globe.
-            </p>
-            <div className="rounded-2xl overflow-hidden aspect-video relative border border-[#C9A45C]/30 mb-6 bg-black">
-              <img src="/images/hero_dupatta_couture-600.webp" alt="Atelier Preview" width={600} height={335} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-85" />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                <div className="w-16 h-16 rounded-full bg-[#6B1426] flex items-center justify-center shadow-xl">
-                  <Play size={24} className="fill-white ml-1" />
-                </div>
-              </div>
-            </div>
-            <Link
-              to="/products"
-              onClick={() => setShowStoryModal(false)}
-              className="inline-flex items-center gap-2 bg-[#C9A45C] hover:bg-white text-[#211D1E] font-bold text-xs tracking-widest uppercase px-8 py-3.5 rounded-full shadow-lg transition-all"
-            >
-              <span>EXPLORE THE COLLECTION</span>
-              <ArrowRight size={13} />
-            </Link>
           </div>
         </div>
-      )}
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════════
+          5. WHY CHOOSE US (VERIFIED BUSINESS FACTS ONLY)
+      ════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 sm:py-16 bg-[#651B2B] text-[#FBF5EA]">
+        <div className="container-luxury">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#E7D4B9] block mb-2">
+              ✦ Why Choose Us ✦
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#FBF5EA]">
+              Lokesh Lingam Weaver
+            </h2>
+            <p className="text-xs sm:text-sm text-[#E7D4B9]/85 mt-2">
+              {BUSINESS.location.fullAddress} • {BUSINESS.businessType}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {WHY_CHOOSE_POINTS.map((point) => {
+              const Icon = point.icon
+              return (
+                <div
+                  key={point.title}
+                  className="rounded-2xl bg-[#4A111D]/80 border border-[#B58A45]/40 p-6 space-y-3"
+                >
+                  <div className="w-11 h-11 rounded-full bg-[#B58A45]/20 border border-[#B58A45] flex items-center justify-center text-[#E7D4B9]">
+                    <Icon size={20} />
+                  </div>
+                  <h3 className="font-serif text-lg font-bold text-[#FBF5EA]">{point.title}</h3>
+                  <p className="text-xs text-[#E7D4B9]/85 leading-relaxed">{point.desc}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════════
+          6. CUSTOMER PROOF & INSTAGRAM HIGHLIGHTS
+      ════════════════════════════════════════════════════════════════ */}
+      <TestimonialsCarousel />
+
+      {/* ════════════════════════════════════════════════════════════════
+          7. DIRECT CONTACT CALLOUT
+      ════════════════════════════════════════════════════════════════ */}
+      <section className="py-12 bg-[#E7D4B9]/40 border-t border-[#E7D4B9]">
+        <div className="container-luxury flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#651B2B]">
+              Direct Handloom Weaver • {BUSINESS.location.fullAddress}
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#651B2B]">
+              Speak Directly With Lokesh Lingam Weaver
+            </h3>
+            <p className="text-xs sm:text-sm text-[#38271F]/75">
+              Phone &amp; WhatsApp: {BUSINESS.contact.phone} • Instagram:{' '}
+              {BUSINESS.social.instagramHandle}
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 shrink-0">
+            <a href={`tel:${BUSINESS.contact.phoneRaw}`} className="btn-outline">
+              <Phone size={14} />
+              <span>Call Now</span>
+            </a>
+            <a
+              href={heroWhatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+            >
+              <MessageCircle size={14} />
+              <span>WhatsApp Enquiry</span>
+            </a>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

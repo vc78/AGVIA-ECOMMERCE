@@ -122,13 +122,13 @@ public class StoreSettingService {
     public StoreSettingDto resetToDefaults(String updatedBy) {
         StoreSetting setting = getOrCreateSetting();
 
-        setting.setStoreName("CHITRIKA Women's Wear Boutique");
-        setting.setStoreTagline("Haute Couture & Heritage Silks");
-        setting.setSupportEmail("care@chitrika.in");
-        setting.setSupportPhone("+91 90323 06961");
-        setting.setWhatsappNumber("+91 90323 06961");
-        setting.setStoreAddress("Road No. 36, Jubilee Hills, Hyderabad, Telangana 500033, India");
-        setting.setBusinessHours("10:30 AM - 8:30 PM IST (Mon - Sun)");
+        setting.setStoreName("Lokesh Lingam Weaver");
+        setting.setStoreTagline("Handloom Sarees & Traditional Weaves");
+        setting.setSupportEmail("");
+        setting.setSupportPhone("+91 7799349294");
+        setting.setWhatsappNumber("+91 7799349294");
+        setting.setStoreAddress("Dharmavaram, Andhra Pradesh, India – 515671");
+        setting.setBusinessHours("");
 
         setting.setMinimumOrderValue(new BigDecimal("200.00"));
         setting.setFreeDeliveryThreshold(new BigDecimal("999.00"));
@@ -139,12 +139,12 @@ public class StoreSettingService {
         setting.setEnableGuestCheckout(true);
 
         setting.setMaintenanceMode(false);
-        setting.setMaintenanceMessage("Our boutique atelier is undergoing scheduled curation. We will resume taking orders shortly.");
-        setting.setAnnouncementBarEnabled(true);
-        setting.setAnnouncementText("✨ Festive Curation: Complimentary Handloom Potli with orders above ₹3,000 | Free Shipping across India on orders above ₹999");
-        setting.setAnnouncementLink("/shop");
+        setting.setMaintenanceMessage("Our store is undergoing scheduled updates. Please contact us on WhatsApp (+91 7799349294) for enquiries.");
+        setting.setAnnouncementBarEnabled(false);
+        setting.setAnnouncementText("");
+        setting.setAnnouncementLink("/products");
         setting.setHolidayMode(false);
-        setting.setHolidayNotice("Orders placed now will be handcrafted and dispatched starting next week.");
+        setting.setHolidayNotice("Dispatch updates will be confirmed via WhatsApp (+91 7799349294).");
 
         setting.setCurrencySymbol("₹");
         setting.setCurrencyCode("INR");
@@ -155,7 +155,7 @@ public class StoreSettingService {
         setting.setEnableLowStockAlerts(true);
         setting.setNotifyAdminOnNewOrder(true);
         setting.setNotifyCustomerOnDispatch(true);
-        setting.setAdminAlertEmail("orders@pragathisweets.com");
+        setting.setAdminAlertEmail("");
         setting.setSoundAlertsEnabled(true);
 
         setting.setUpdatedBy(updatedBy != null ? updatedBy : "ADMIN");

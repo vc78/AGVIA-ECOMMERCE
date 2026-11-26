@@ -1,12 +1,12 @@
-# AGVIA Women's Wear Boutique — Production Robots Configuration
+# Lokesh Lingam Weaver — Production Robots Configuration
 User-agent: *
 Allow: /
 Allow: /images/
 Allow: /assets/
 Allow: /products
 Allow: /categories
-Allow: /collections/
-Allow: /offers
+Allow: /about
+Allow: /contact
 
 # Private & User Account Areas (Prevent Indexing)
 Disallow: /admin/
@@ -33,4 +33,4 @@ Disallow: /*?*filter=
 Disallow: /*?*sort=
 
 # XML Sitemaps
-Sitemap: https://agviaboutique.com/sitemap.xml
+Sitemap: https://agvia-ecommerce.vercel.app/sitemap.xml

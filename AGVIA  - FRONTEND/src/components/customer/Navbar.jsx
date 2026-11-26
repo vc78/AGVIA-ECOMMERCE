@@ -1,132 +1,62 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Menu, X, User, Search, Heart, ShoppingBag, LogOut,
-  ArrowRight, ChevronDown, Sparkles, Truck, Gift,
-  Crown, Flower2, Gem, Scissors, Feather, Layers, Home, ShieldCheck
+  ArrowRight, MessageCircle, MapPin, ShieldCheck, Phone
 } from 'lucide-react'
 import { loggedOut } from '../../store/authSlice'
 import { authService } from '../../services/authService'
 import { broadcastAuthEvent } from '../../utils/authSync'
 import { useCart } from '../../hooks/useCart'
 import { motion, AnimatePresence } from 'framer-motion'
-import ReliableImage from '../common/ReliableImage'
+import BrandLogo from '../common/BrandLogo'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 import toast from 'react-hot-toast'
 
-// ── Luxury Boutique Categories ──────────────────────────────────────
-const NAV_CATEGORIES = {
-  COLLECTIONS: {
-    label: 'COLLECTIONS',
+const NAV_LINKS = [
+  { label: 'Home', path: '/', match: (loc) => loc.pathname === '/' },
+  {
+    label: 'Collections',
     path: '/products',
-    items: [
-      { name: 'Bridal Couture', path: '/products?category=Lehengas', desc: 'Regal bridal sets & trousseau edits', img: '/images/wedding_lehenga.jpg' },
-      { name: 'Festive Celebrations', path: '/products?category=Sarees', desc: 'Handwoven pure silks & organza', img: '/images/classic_silk_saree.jpg' },
-      { name: 'Royal Anarkalis', path: '/products?category=Anarkalis+%26+Kurtas', desc: 'Flowing silhouettes with zardozi', img: '/images/anarkali_set.jpg' },
-      { name: 'Modern Evening', path: '/products?category=Dresses+%26+Gowns', desc: 'Contemporary couture & gowns', img: '/images/evening_gown.jpg' },
-    ]
+    match: (loc) => loc.pathname === '/products' && !loc.search.includes('category='),
   },
-  SAREES: {
-    label: 'SAREES',
-    path: '/products?category=Sarees',
-    items: [
-      { name: 'Classic Silk Sarees', path: '/products?category=Sarees', desc: 'Traditional heirloom weaves with zari', img: '/images/classic_silk_saree.jpg' },
-      { name: 'Floral Organza Sarees', path: '/products?category=Sarees', desc: 'Sheer lightweight pastels & motifs', img: '/images/floral_organza_saree.jpg' },
-      { name: 'Kanjeevaram & Banarasi', path: '/products?category=Sarees', desc: 'Pure temple border silks', img: '/images/classic_silk_saree.jpg' },
-    ]
+  {
+    label: 'Dharmavaram Sarees',
+    path: '/products?category=Dharmavaram+Silk+Sarees',
+    match: (loc) => decodeURIComponent(loc.search).toLowerCase().includes('dharmavaram'),
   },
-  LEHENGAS: {
-    label: 'LEHENGAS',
-    path: '/products?category=Lehengas',
-    items: [
-      { name: 'Royal Wedding Lehengas', path: '/products?category=Lehengas', desc: 'Heavy hand-embroidered bridal sets', img: '/images/wedding_lehenga.jpg' },
-      { name: 'Festive Silk Lehengas', path: '/products?category=Lehengas', desc: 'Lightweight festive flared skirts', img: '/images/festive_lehenga_set.jpg' },
-    ]
+  {
+    label: 'Kanchi-style Sarees',
+    path: '/products?category=Kanchi-Style+Silk+Sarees',
+    match: (loc) => decodeURIComponent(loc.search).toLowerCase().includes('kanchi'),
   },
-  KURTAS: {
-    label: 'KURTAS',
-    path: '/products?category=Anarkalis+%26+Kurtas',
-    items: [
-      { name: 'Embroidered Anarkalis', path: '/products?category=Anarkalis+%26+Kurtas', desc: 'Grand floor-length festive kalis', img: '/images/anarkali_set.jpg' },
-      { name: 'Everyday Kurta Sets', path: '/products?category=Anarkalis+%26+Kurtas', desc: 'Chic comfortable daily wear', img: '/images/everyday_kurta_set.jpg' },
-      { name: 'Festive Kurtis', path: '/products?category=Kurtis', desc: 'Intricate neckline & threadwork', img: '/images/festive_kurti.jpg' },
-    ]
+  {
+    label: 'Traditional Weaves',
+    path: '/products?category=Traditional+Handloom+Weaves',
+    match: (loc) => decodeURIComponent(loc.search).toLowerCase().includes('traditional'),
   },
-  WESTERN_WEAR: {
-    label: 'WESTERN WEAR',
-    path: '/products?category=Western+Wear',
-    items: [
-      { name: 'Tailored Co-ord Sets', path: '/products?category=Western+Wear', desc: 'Chic modern co-ordinated outfits', img: '/images/coord_set.jpg' },
-      { name: 'Evening Dresses & Gowns', path: '/products?category=Dresses+%26+Gowns', desc: 'Cocktail gowns with subtle sheen', img: '/images/evening_gown.jpg' },
-    ]
-  },
-  MORE: {
-    label: 'MORE',
-    path: '/products',
-    items: [
-      { name: 'Bridal Dupattas', path: '/products?category=Dupattas', desc: 'Embellished bridal veil drapes', img: '/images/bridal_dupatta.jpg' },
-      { name: 'Custom Stitching', path: '/wedding-orders', desc: 'Made-to-measure bespoke blouse & tailoring', img: '/images/anarkali_set.jpg' },
-      { name: 'VIP Membership', path: '/subscription', desc: 'CHITRIKA Haute Privilege Circle & styling perks', img: '/images/hero_banner.jpg' },
-    ]
-  }
-}
+  { label: 'About Us', path: '/about', match: (loc) => loc.pathname === '/about' },
+  { label: 'Contact', path: '/contact', match: (loc) => loc.pathname === '/contact' },
+]
 
-// ── Watermark Botanical Illustration (SVG) ───────────────────────────
-function BotanicalCornerDecor({ className = '' }) {
-  return (
-    <svg viewBox="0 0 160 110" fill="none" className={`pointer-events-none select-none opacity-30 ${className}`}>
-      <path d="M150 100 C130 80, 100 60, 60 70 C40 75, 20 90, 5 105" stroke="#C9A45C" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M120 70 C135 60, 145 40, 140 25 C125 35, 115 55, 120 70 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <path d="M95 62 C110 50, 115 30, 105 18 C92 28, 90 48, 95 62 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <path d="M70 68 C80 50, 75 32, 60 25 C55 40, 60 58, 70 68 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <path d="M45 78 C48 60, 40 45, 28 40 C28 55, 36 70, 45 78 Z" fill="#C9A45C" fillOpacity="0.18" stroke="#C9A45C" strokeWidth="0.8" />
-      <circle cx="140" cy="22" r="1.5" fill="#C9A45C" />
-      <circle cx="103" cy="15" r="1.5" fill="#C9A45C" />
-      <circle cx="58" cy="22" r="1.5" fill="#C9A45C" />
-    </svg>
-  )
-}
-
-// ── CHITRIKA Lady Emblem Logo Icon ─────────────────────────────────────
-function AgviaLogoEmblem() {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10 md:w-11 md:h-11 shrink-0">
-      {/* Sparkles around lady */}
-      <path d="M14 18 L16 11 L18 18 L25 20 L18 22 L16 29 L14 22 L7 20 Z" fill="#C9A45C" />
-      <path d="M50 14 L51 9 L52 14 L57 15 L52 16 L51 21 L50 16 L45 15 Z" fill="#C9A45C" />
-      <path d="M12 44 L13 40 L14 44 L18 45 L14 46 L13 50 L12 46 L8 45 Z" fill="#C9A45C" opacity="0.85" />
-      <path d="M52 46 L53 42 L54 46 L58 47 L54 48 L53 52 L52 48 L48 47 Z" fill="#C9A45C" opacity="0.85" />
-      
-      {/* Crown / Hair */}
-      <circle cx="32" cy="18" r="4.5" stroke="#C9A45C" strokeWidth="1.5" fill="#FAF6F0" />
-      <path d="M30 13 L32 10 L34 13 L36 11 L35 15 L29 15 L28 11 Z" fill="#C9A45C" />
-      
-      {/* Elegant Silhouette Gown */}
-      <path d="M30 23 L28 29 L23 35 L16 53 L32 52 L48 53 L41 35 L36 29 L34 23 Z" stroke="#C9A45C" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Gown inner drapery lines */}
-      <path d="M28 29 L32 44 L36 29" stroke="#C9A45C" strokeWidth="1" strokeLinecap="round" opacity="0.75" />
-      <path d="M25 38 L32 52 L39 38" stroke="#C9A45C" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-      <path d="M19 48 L32 52 L45 48" stroke="#C9A45C" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
-      {/* Base flourish pedestal */}
-      <path d="M22 55 L32 53.5 L42 55" stroke="#C9A45C" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  )
-}
+const MOBILE_HEADLINES = [
+  { text: 'DIRECT HANDLOOM WEAVER • DHARMAVARAM', icon: MapPin },
+  { text: '15 YEARS WEAVING EXPERIENCE • SINCE 2019', icon: ShieldCheck },
+  { text: `WHATSAPP ENQUIRY: ${BUSINESS.contact.whatsapp}`, icon: MessageCircle },
+]
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const dropdownTimeoutRef = useRef(null)
-
-  const MOBILE_HEADLINES = [
-    { text: 'FREE SHIPPING ON ORDERS ₹999+', icon: Truck },
-    { text: '✦ ELEGANT STYLES FOR EVERY OCCASION ✦', icon: Sparkles },
-    { text: 'USE CODE: CHITRIKA15 FOR 15% OFF', icon: Gift },
-    { text: 'EASY 7-DAY HASSLE-FREE RETURNS', icon: Truck },
-  ]
   const [headlineIndex, setHeadlineIndex] = useState(0)
+
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { count } = useCart()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -134,12 +64,6 @@ export default function Navbar() {
     }, 3500)
     return () => clearInterval(timer)
   }, [])
-
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { count } = useCart()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -149,10 +73,8 @@ export default function Navbar() {
 
   useEffect(() => {
     setMobileMenuOpen(false)
-    setActiveDropdown(null)
   }, [location.pathname, location.search])
 
-  // Prevent background scrolling when mobile menu drawer is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden'
@@ -183,70 +105,42 @@ export default function Navbar() {
     }
   }
 
-  const handleMouseEnter = (key) => {
-    clearTimeout(dropdownTimeoutRef.current)
-    setActiveDropdown(key)
-  }
-
-  const handleMouseLeave = () => {
-    dropdownTimeoutRef.current = setTimeout(() => {
-      setActiveDropdown(null)
-    }, 150)
-  }
-
-  const isHomeActive = location.pathname === '/'
+  const whatsappShortcutUrl = buildWhatsAppUrl(
+    'Namaste Lokesh Lingam Weaver, I would like to enquire about your Dharmavaram handloom sarees.'
+  )
 
   return (
     <>
-      {/* Spacer for sticky dual header (top bar ~30px + main nav ~64px = ~94px) */}
-      <div className="h-[88px] md:h-[94px]" />
+      {/* Spacer for sticky dual header */}
+      <div className="h-[92px] md:h-[104px]" />
 
-      <header className="fixed top-0 left-0 right-0 z-50 select-none shadow-[0_4px_25px_rgba(0,0,0,0.06)]">
-
-        {/* ══════════════════════════════════════════════════════════════
-            1. TOP ANNOUNCEMENT BAR (DEEP BURGUNDY / WINE)
-        ══════════════════════════════════════════════════════════════ */}
-        {/* ══════════════════════════════════════════════════════════════
-            1. TOP ANNOUNCEMENT BAR (DEEP BURGUNDY / WINE)
-        ══════════════════════════════════════════════════════════════ */}
-        <div className="relative bg-[#480814] text-[#E6C894] border-b border-[#5E1220] overflow-hidden select-none">
-          {/* Subtle background damask floral flourishes at edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black/25 to-transparent pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black/25 to-transparent pointer-events-none" />
-
-          {/* Desktop Spread (md and up) */}
-          <div className="hidden md:flex w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] h-7 sm:h-8 items-center justify-between text-[10px] sm:text-[10.5px] tracking-[0.16em] uppercase font-medium">
-            
-            {/* Left: Free Shipping & Easy Returns */}
-            <div className="flex items-center gap-1.5 text-[#E6C894]">
-              <Truck size={12} className="text-[#E6C894] shrink-0" />
-              <span className="font-semibold tracking-[0.18em]">FREE SHIPPING</span>
-              <span className="opacity-40">|</span>
-              <span className="tracking-[0.18em]">EASY RETURNS</span>
+      <header className="fixed top-0 left-0 right-0 z-50 select-none shadow-[0_4px_24px_rgba(56,39,31,0.08)]">
+        {/* 1. TOP HERITAGE BAR (DEEP MAROON) */}
+        <div className="relative bg-[#651B2B] text-[#E7D4B9] border-b border-[#B58A45]/35 overflow-hidden">
+          <div className="hidden md:flex w-full max-w-[1360px] mx-auto px-[clamp(16px,3vw,40px)] h-8 items-center justify-between text-[10px] tracking-[0.16em] uppercase font-medium">
+            <div className="flex items-center gap-1.5">
+              <MapPin size={12} className="text-[#B58A45] shrink-0" />
+              <span>Direct Handloom Weaver • Dharmavaram, AP</span>
             </div>
 
-            {/* Center: Elegant Styles Symmetrical Flourish */}
-            <div className="flex items-center gap-2 text-[#E6C894] tracking-[0.22em] text-[10.5px] font-serif">
-              <span className="w-6 lg:w-12 h-[1px] bg-gradient-to-r from-transparent to-[#E6C894]/70" />
-              <span className="text-[#E6C894] text-[9px]">✦</span>
-              <span className="tracking-[0.24em] font-medium text-white/95">
-                ELEGANT STYLES FOR EVERY OCCASION
-              </span>
-              <span className="text-[#E6C894] text-[9px]">✦</span>
-              <span className="w-6 lg:w-12 h-[1px] bg-gradient-to-l from-transparent to-[#E6C894]/70" />
+            <div className="flex items-center gap-2 text-[#FBF5EA] tracking-[0.2em] font-serif text-[11px]">
+              <span className="w-6 h-[1px] bg-[#B58A45]/70" />
+              <span>15 Years of Weaving Experience • Since 2019</span>
+              <span className="w-6 h-[1px] bg-[#B58A45]/70" />
             </div>
 
-            {/* Right: Exclusive Collections & Secure Payments */}
-            <div className="flex items-center gap-1.5 text-[#E6C894]">
-              <Gift size={11} className="text-[#E6C894] shrink-0" />
-              <span className="tracking-[0.18em]">EXCLUSIVE COLLECTIONS</span>
-              <span className="opacity-40">|</span>
-              <span className="tracking-[0.18em]">SECURE PAYMENTS</span>
-            </div>
-
+            <a
+              href={whatsappShortcutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[#E7D4B9] hover:text-white transition-colors"
+            >
+              <MessageCircle size={12} className="text-[#B58A45] shrink-0" />
+              <span>WhatsApp: {BUSINESS.contact.whatsapp}</span>
+            </a>
           </div>
 
-          {/* Mobile Centered Dynamic Headline (< md) */}
+          {/* Mobile Ticker */}
           <div className="flex md:hidden w-full h-7 items-center justify-center px-3 relative overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
@@ -255,12 +149,12 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
                 transition={{ duration: 0.3 }}
-                className="flex items-center gap-1.5 text-[9px] xs:text-[10px] tracking-[0.18em] uppercase font-semibold text-[#E6C894] whitespace-nowrap"
+                className="flex items-center gap-1.5 text-[9.5px] tracking-[0.14em] uppercase font-semibold text-[#FBF5EA] whitespace-nowrap"
               >
                 {(() => {
                   const item = MOBILE_HEADLINES[headlineIndex]
                   const Icon = item.icon
-                  return <Icon size={11} className="text-[#E6C894] shrink-0" />
+                  return <Icon size={11} className="text-[#B58A45] shrink-0" />
                 })()}
                 <span>{MOBILE_HEADLINES[headlineIndex].text}</span>
               </motion.div>
@@ -268,329 +162,202 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════
-            2. MAIN LUXURY NAVBAR (WARM IVORY / SILK CREAM)
-        ══════════════════════════════════════════════════════════════ */}
-        <div className={`relative bg-[#FAF6F0] border-b border-[#EAE0D2] transition-all duration-300 ${scrolled ? 'py-1.5' : 'py-2 md:py-2.5'}`}>
-          
-          {/* Subtle Botanical Leaf Watermark in Corners */}
-          <BotanicalCornerDecor className="absolute -left-4 -bottom-2 w-32 h-20 transform -scale-x-100 hidden lg:block" />
-          <BotanicalCornerDecor className="absolute -right-2 -bottom-2 w-36 h-22 hidden lg:block" />
-
-          <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] flex items-center justify-between gap-3">
-
-            {/* ── Left: CHITRIKA Official Brand Logo & Wordmark ── */}
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 shrink-0 group py-0.5 select-none" aria-label="CHITRIKA Home">
-              <img
-                src="/images/chitrika-logo.webp"
-                alt="CHITRIKA Emblem"
-                width={48}
-                height={54}
-                fetchpriority="high"
-                decoding="async"
-                className="h-10 sm:h-11 lg:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_2px_6px_rgba(90,16,32,0.12)]"
+        {/* 2. MAIN NAVIGATION BAR (WARM IVORY) */}
+        <div
+          className={`relative bg-[#FBF5EA] border-b border-[#E7D4B9] transition-all duration-300 ${
+            scrolled ? 'py-1.5' : 'py-2'
+          }`}
+        >
+          <div className="w-full max-w-[1360px] mx-auto px-[clamp(12px,2.5vw,32px)] flex items-center justify-between gap-2 lg:gap-4">
+            {/* Official Logo (Exact Asset) */}
+            <Link
+              to="/"
+              className="flex items-center shrink-0 group py-0.5 select-none"
+              aria-label="Lokesh Lingam Weaver Home"
+            >
+              <BrandLogo
+                variant="light"
+                size="md"
+                priority
+                className="transition-transform duration-300 group-hover:scale-[1.03]"
               />
-              <div className="flex flex-col justify-center">
-                <span className="font-serif text-lg sm:text-xl lg:text-2xl font-bold tracking-[0.16em] uppercase text-[#5A1020] leading-none transition-colors group-hover:text-[#7A1F32]">
-                  CHITRIKA
-                </span>
-                <span className="font-sans text-[7px] sm:text-[8px] lg:text-[8.5px] tracking-[0.28em] uppercase text-[#B68C48] font-bold mt-1">
-                  WOMEN'S WEAR BOUTIQUE
-                </span>
-              </div>
             </Link>
 
-            {/* ── Center: Tablet Compact Nav (md to xl) ── */}
-            <nav className="hidden md:flex xl:hidden items-center gap-2 lg:gap-3">
-              <Link
-                to="/"
-                className={`text-[11px] tracking-[0.14em] uppercase px-2.5 py-1 rounded-full transition-all ${
-                  isHomeActive ? 'bg-[#5A1020] text-white font-bold' : 'text-[#382820] hover:text-[#5A1020]'
-                }`}
-              >
-                Home
-              </Link>
-              <Link
-                to="/products?category=Sarees"
-                className="text-[11px] tracking-[0.14em] uppercase px-2 py-1 text-[#382820] hover:text-[#5A1020] transition-colors"
-              >
-                Sarees
-              </Link>
-              <Link
-                to="/products?category=Lehengas"
-                className="text-[11px] tracking-[0.14em] uppercase px-2 py-1 text-[#382820] hover:text-[#5A1020] transition-colors"
-              >
-                Lehengas
-              </Link>
-              <Link
-                to="/products"
-                className="text-[11px] tracking-[0.14em] uppercase px-2 py-1 text-[#382820] hover:text-[#5A1020] transition-colors"
-              >
-                Collections
-              </Link>
-            </nav>
-
-            {/* ── Center: Desktop Full Navigation Links ── */}
-            <nav className="hidden xl:flex items-center gap-4 lg:gap-5 xl:gap-6">
-              
-              {/* HOME LINK WITH ORNAMENTAL FLOURISH */}
-              <Link
-                to="/"
-                className="relative py-1 flex flex-col items-center group cursor-pointer"
-              >
-                <span className={`text-[12px] tracking-[0.18em] uppercase font-semibold transition-colors duration-200 ${
-                  isHomeActive ? 'text-[#4A0A16]' : 'text-[#382820] hover:text-[#4A0A16]'
-                }`}>
-                  HOME
-                </span>
-                {/* Reference Image Underline Flourish: ──◆── */}
-                {isHomeActive ? (
-                  <div className="flex items-center justify-center gap-1 mt-1 text-[#B68C48]">
-                    <span className="w-3.5 h-[1.5px] bg-[#B68C48]" />
-                    <span className="w-1.5 h-1.5 rotate-45 bg-[#B68C48]" />
-                    <span className="w-3.5 h-[1.5px] bg-[#B68C48]" />
-                  </div>
-                ) : (
-                  <div className="h-[2.5px] mt-1" />
-                )}
-              </Link>
-
-              {/* DROPDOWN CATEGORIES */}
-              {Object.entries(NAV_CATEGORIES).map(([key, cat]) => {
-                const isOpen = activeDropdown === key
-                const isActive = location.search.toLowerCase().includes(cat.label.toLowerCase()) || 
-                  (key === 'COLLECTIONS' && location.pathname === '/products' && !location.search)
-
+            {/* Desktop Navigation Links */}
+            <nav className="hidden xl:flex items-center gap-4 2xl:gap-5" aria-label="Primary Navigation">
+              {NAV_LINKS.map((item) => {
+                const active = item.match(location)
                 return (
-                  <div
-                    key={key}
-                    className="relative py-1"
-                    onMouseEnter={() => handleMouseEnter(key)}
-                    onMouseLeave={handleMouseLeave}
+                  <Link
+                    key={item.label}
+                    to={item.path}
+                    className={`relative py-1.5 text-[11.5px] tracking-[0.12em] uppercase font-semibold whitespace-nowrap transition-colors ${
+                      active ? 'text-[#651B2B]' : 'text-[#38271F] hover:text-[#651B2B]'
+                    }`}
                   >
-                    <Link
-                      to={cat.path}
-                      className={`flex items-center gap-1 text-[12px] tracking-[0.16em] uppercase font-medium transition-colors duration-200 ${
-                        isActive || isOpen ? 'text-[#4A0A16] font-semibold' : 'text-[#382820] hover:text-[#4A0A16]'
-                      }`}
-                    >
-                      <span>{cat.label}</span>
-                      <ChevronDown
-                        size={12}
-                        className={`transition-transform duration-200 ${isOpen ? 'rotate-180 text-[#B68C48]' : 'text-[#382820]/60'}`}
-                      />
-                    </Link>
-
-                    {/* Dropdown Menu Card */}
-                    <AnimatePresence>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 6 }}
-                          transition={{ duration: 0.18 }}
-                          className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-72 sm:w-80"
-                        >
-                          <div className="bg-[#FFFDF9] rounded-2xl shadow-[0_16px_45px_rgba(74,10,22,0.12)] border border-[#EBE1D4] overflow-hidden p-3.5">
-                            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#EFE7DC]">
-                              <span className="font-serif text-[11px] uppercase tracking-[0.2em] font-bold text-[#4A0A16]">
-                                {cat.label}
-                              </span>
-                              <Link
-                                to={cat.path}
-                                onClick={() => setActiveDropdown(null)}
-                                className="text-[10px] text-[#B68C48] hover:text-[#4A0A16] tracking-wider uppercase font-semibold flex items-center gap-1"
-                              >
-                                View All <ArrowRight size={10} />
-                              </Link>
-                            </div>
-
-                            <div className="space-y-2">
-                              {cat.items.map((item) => (
-                                <Link
-                                  key={item.name}
-                                  to={item.path}
-                                  onClick={() => setActiveDropdown(null)}
-                                  className="group/item flex items-center gap-3 p-2 rounded-xl hover:bg-[#FAF5ED] transition-colors"
-                                >
-                                  <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-[#E8DEC0]">
-                                    <ReliableImage
-                                      src={item.img}
-                                      alt={item.name}
-                                      sizes="48px"
-                                      loading="lazy"
-                                      className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500"
-                                    />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-serif text-[13px] font-bold text-[#4A0A16] group-hover/item:text-[#B68C48] transition-colors truncate">
-                                      {item.name}
-                                    </p>
-                                    <p className="font-sans text-[10px] text-[#6A5A50] line-clamp-1">
-                                      {item.desc}
-                                    </p>
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                    {item.label}
+                    {active && (
+                      <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B58A45] rounded-full" />
+                    )}
+                  </Link>
                 )
               })}
-
             </nav>
 
-            {/* ── Right: Pill Search Bar & Interactive Icons ── */}
-            <div className="flex items-center gap-2 sm:gap-3 md:gap-3.5 shrink-0">
-              
-              {/* Pill-shaped Search Bar */}
+            {/* Tablet Navigation Links */}
+            <nav className="hidden md:flex xl:hidden items-center gap-3 overflow-x-auto no-scrollbar" aria-label="Tablet Navigation">
+              {NAV_LINKS.slice(0, 5).map((item) => {
+                const active = item.match(location)
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.path}
+                    className={`text-[10.5px] tracking-[0.1em] uppercase font-semibold whitespace-nowrap px-2 py-1 rounded-full transition-colors ${
+                      active ? 'bg-[#651B2B] text-[#FBF5EA]' : 'text-[#38271F] hover:text-[#651B2B]'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </nav>
+
+            {/* Right Utility Controls */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+              {/* Search Bar */}
               <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center">
-                <div className="flex items-center gap-2 rounded-full border border-[#DFD3C5] bg-[#FAF6F0] px-3 py-1 transition-all duration-300 focus-within:border-[#B68C48] focus-within:bg-white focus-within:shadow-[0_2px_12px_rgba(182,140,72,0.12)] w-40 lg:w-52 xl:w-60">
-                  <Search size={13} className="text-[#8C7A6B] shrink-0" />
+                <div className="flex items-center gap-1.5 rounded-full border border-[#B58A45]/45 bg-white/85 px-3 py-1.5 transition-all focus-within:border-[#651B2B] focus-within:bg-white w-36 lg:w-44 2xl:w-52">
+                  <Search size={13} className="text-[#6E5A4F] shrink-0" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search styles, collections..."
-                    className="w-full bg-transparent text-[11px] text-[#2C1F18] placeholder-[#9E8E81] focus:outline-none"
+                    placeholder="Search sarees..."
+                    className="w-full bg-transparent text-[11px] text-[#38271F] placeholder-[#6E5A4F]/70 focus:outline-none"
                   />
                 </div>
               </form>
 
-              {/* Atelier Admin Direct Header Badge */}
+              {/* WhatsApp Contact Shortcut */}
+              <a
+                href={whatsappShortcutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-[#65704B]/40 bg-[#65704B]/10 hover:bg-[#65704B] text-[#38271F] hover:text-white transition-all text-[10.5px] font-bold uppercase tracking-wider"
+                title={`WhatsApp ${BUSINESS.contact.whatsapp}`}
+              >
+                <MessageCircle size={13} />
+                <span className="hidden 2xl:inline">WhatsApp</span>
+              </a>
+
+              {/* Admin Panel Shortcut */}
               {isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
                 <Link
                   to="/admin/dashboard"
-                  className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-[#5A1020] text-[#FAF7F2] border border-[#C9A45C]/60 rounded-full text-[10px] font-bold tracking-widest uppercase hover:bg-[#72152b] transition-all shadow-xs shrink-0"
-                  title="Open Atelier Admin Console"
+                  className="hidden md:flex items-center gap-1 px-2.5 py-1.5 bg-[#651B2B] text-[#FBF5EA] border border-[#B58A45]/60 rounded-full text-[10px] font-bold tracking-wider uppercase hover:bg-[#4A111D] transition-all"
                 >
-                  <ShieldCheck size={13} className="text-[#C9A45C]" />
-                  <span>Admin Panel</span>
+                  <ShieldCheck size={13} className="text-[#B58A45]" />
+                  <span>Admin</span>
                 </Link>
               )}
 
-              {/* User Profile & Sign In / Out */}
+              {/* Account / Auth */}
               {isAuthenticated ? (
-                <div className="flex relative group/user items-center gap-1 sm:gap-1.5">
+                <div className="relative group/user flex items-center gap-1">
                   <Link
                     to="/profile"
-                    className="touch-target p-1.5 sm:p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5 flex items-center gap-1.5"
+                    className="touch-target p-1.5 text-[#38271F] hover:text-[#651B2B] transition-colors rounded-full hover:bg-[#E7D4B9]/40 flex items-center gap-1.5"
                     title={`Signed in as ${user?.name || 'Account'}`}
                   >
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#5A1020] text-white flex items-center justify-center font-serif text-xs font-bold shadow-2xs">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#651B2B] text-[#FBF5EA] flex items-center justify-center font-serif text-xs font-bold">
                       {user?.name?.[0]?.toUpperCase() || <User size={15} />}
                     </div>
-                    <span className="hidden md:inline text-[11px] font-medium text-[#382820] max-w-[80px] truncate">
+                    <span className="hidden lg:inline text-[11px] font-medium text-[#38271F] max-w-[76px] truncate">
                       {user?.name?.split(' ')[0]}
                     </span>
                   </Link>
 
-                  {/* Desktop hover menu */}
                   <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
-                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[145px] text-xs">
+                    <div className="bg-white rounded-xl shadow-lg border border-[#E7D4B9] p-1.5 min-w-[150px] text-xs">
                       {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
-                        <Link to="/admin/dashboard" className="px-2.5 py-1.5 hover:bg-[#5A1020]/10 rounded-lg text-[#5A1020] font-bold flex items-center gap-1.5 border-b border-[#E8DEC0]/60 mb-1">
-                          <ShieldCheck size={13} className="text-[#C9A45C]" /> Atelier Admin
+                        <Link
+                          to="/admin/dashboard"
+                          className="px-2.5 py-1.5 hover:bg-[#FBF5EA] rounded-lg text-[#651B2B] font-bold flex items-center gap-1.5 border-b border-[#E7D4B9] mb-1"
+                        >
+                          <ShieldCheck size={13} className="text-[#B58A45]" /> Admin Dashboard
                         </Link>
                       )}
-                      <Link to="/profile" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                      <Link to="/profile" className="px-2.5 py-1.5 hover:bg-[#FBF5EA] rounded-lg text-[#38271F] font-medium block">
                         My Profile
                       </Link>
-                      <Link to="/orders" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                      <Link to="/orders" className="px-2.5 py-1.5 hover:bg-[#FBF5EA] rounded-lg text-[#38271F] font-medium block">
                         My Orders
                       </Link>
-                      <Link to="/wishlist" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
+                      <Link to="/track-order" className="px-2.5 py-1.5 hover:bg-[#FBF5EA] rounded-lg text-[#38271F] font-medium block">
+                        Track Order
+                      </Link>
+                      <Link to="/wishlist" className="px-2.5 py-1.5 hover:bg-[#FBF5EA] rounded-lg text-[#38271F] font-medium block">
                         My Wishlist
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-2.5 py-1.5 hover:bg-rose-50 text-rose-700 rounded-lg font-medium flex items-center gap-1.5 mt-0.5 border-t border-gray-100"
+                        className="w-full text-left px-2.5 py-1.5 hover:bg-rose-50 text-rose-800 rounded-lg font-medium flex items-center gap-1.5 mt-0.5 border-t border-gray-100"
                       >
                         <LogOut size={12} /> Sign Out
                       </button>
                     </div>
                   </div>
-
-                  {/* Mobile Direct Sign Out button */}
-                  <button
-                    onClick={handleLogout}
-                    className="sm:hidden p-1.5 text-rose-700 hover:text-white hover:bg-rose-700 border border-rose-200/60 rounded-full transition-all flex items-center justify-center"
-                    title="Sign Out"
-                    aria-label="Sign Out"
-                  >
-                    <LogOut size={14} />
-                  </button>
                 </div>
               ) : (
-                <div className="flex relative group/user items-center gap-1.5">
-                  <Link
-                    to="/login"
-                    className="flex items-center gap-1 py-1 px-2.5 sm:px-3 rounded-full bg-[#5A1020]/10 hover:bg-[#5A1020] text-[#5A1020] hover:text-white transition-all text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider border border-[#5A1020]/30 shadow-2xs"
-                    title="Sign In / Login"
-                  >
-                    <User size={14} strokeWidth={2} />
-                    <span>Sign In</span>
-                  </Link>
-
-                  {/* Desktop hover menu for unauthenticated */}
-                  <div className="hidden group-hover/user:flex flex-col absolute right-0 top-full pt-1.5 z-50">
-                    <div className="bg-white rounded-xl shadow-lg border border-[#E8DEC0] p-1.5 min-w-[135px] text-xs">
-                      <Link to="/login" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#382820] font-medium block">
-                        Patron Sign In
-                      </Link>
-                      <Link to="/register" className="px-2.5 py-1.5 hover:bg-[#FAF6F0] rounded-lg text-[#5A1020] font-medium block border-t border-gray-100 mt-0.5">
-                        Create Account
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                <Link
+                  to="/login"
+                  className="flex items-center gap-1 py-1.5 px-2.5 sm:px-3 rounded-full bg-[#651B2B]/10 hover:bg-[#651B2B] text-[#651B2B] hover:text-[#FBF5EA] transition-all text-[10.5px] font-bold uppercase tracking-wider border border-[#651B2B]/30"
+                  title="Sign In"
+                >
+                  <User size={14} />
+                  <span className="hidden xs:inline">Sign In</span>
+                </Link>
               )}
 
-              {/* Wishlist Icon */}
+              {/* Wishlist */}
               <Link
                 to="/wishlist"
-                className="hidden sm:flex touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                className="hidden sm:flex touch-target p-2 text-[#38271F] hover:text-[#651B2B] transition-colors rounded-full hover:bg-[#E7D4B9]/40"
                 title="Wishlist"
+                aria-label="Wishlist"
               >
-                <Heart size={19} strokeWidth={1.75} />
+                <Heart size={18} strokeWidth={1.75} />
               </Link>
 
-              {/* Shopping Bag Icon with Cart Count Badge */}
+              {/* Cart */}
               <Link
                 to="/cart"
-                className="touch-target relative p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                className="touch-target relative p-2 text-[#38271F] hover:text-[#651B2B] transition-colors rounded-full hover:bg-[#E7D4B9]/40"
                 title="Shopping Bag"
+                aria-label="Shopping Bag"
               >
-                <ShoppingBag size={19} strokeWidth={1.75} />
+                <ShoppingBag size={18} strokeWidth={1.75} />
                 {count > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#5A1020] text-white text-[9.5px] font-bold flex items-center justify-center shadow-xs">
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#651B2B] text-[#FBF5EA] text-[9.5px] font-bold flex items-center justify-center">
                     {count > 99 ? '99+' : count}
                   </span>
                 )}
               </Link>
 
-              {/* Mobile Menu Hamburger */}
+              {/* Mobile Menu Button */}
               <button
-                className="xl:hidden touch-target p-2 text-[#382820] hover:text-[#4A0A16] transition-colors rounded-full hover:bg-black/5"
+                className="xl:hidden touch-target p-2 text-[#38271F] hover:text-[#651B2B] transition-colors rounded-full hover:bg-[#E7D4B9]/40"
                 onClick={() => setMobileMenuOpen(true)}
-                aria-label="Open Mobile Menu"
+                aria-label="Open Menu"
               >
                 <Menu size={22} />
               </button>
-
             </div>
-
           </div>
         </div>
-
       </header>
 
-      {/* ══════════════════════════════════════════════════════════════
-          3. MOBILE NAVIGATION DRAWER
-      ══════════════════════════════════════════════════════════════ */}
+      {/* 3. MOBILE NAVIGATION DRAWER */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
@@ -606,331 +373,152 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              className="fixed inset-y-0 right-0 z-[60] w-full max-w-[min(340px,calc(100vw-32px))] bg-[#FFFDF9] flex flex-col shadow-2xl"
+              className="fixed inset-y-0 right-0 z-[60] w-full max-w-[min(340px,calc(100vw-32px))] bg-[#FBF5EA] flex flex-col shadow-2xl"
             >
               {/* Drawer Header */}
-              <div className="flex justify-between items-center px-4 py-3 border-b border-[#EAE0D2] bg-[#FAF6F0]">
-                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
-                  <img
-                    src="/images/chitrika-logo.webp"
-                    alt="CHITRIKA"
-                    width={40}
-                    height={45}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-9 w-auto object-contain"
-                  />
-                  <div className="flex flex-col">
-                    <span className="font-serif text-base font-bold tracking-[0.18em] uppercase text-[#5A1020] leading-none">
-                      CHITRIKA
-                    </span>
-                    <span className="font-sans text-[7px] tracking-[0.26em] uppercase text-[#B68C48] font-bold mt-0.5">
-                      BOUTIQUE
-                    </span>
-                  </div>
+              <div className="flex justify-between items-center px-4 py-3 border-b border-[#E7D4B9] bg-[#FBF5EA]">
+                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center">
+                  <BrandLogo variant="light" size="sm" />
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="touch-target p-2 text-[#4A0A16] hover:bg-white rounded-full transition-colors"
+                  className="touch-target p-2 text-[#651B2B] hover:bg-white rounded-full transition-colors"
                   aria-label="Close menu"
                 >
                   <X size={20} />
                 </button>
               </div>
 
-              {/* Mobile Drawer User Profile / Sign In Banner */}
-              <div className="p-3 mx-3 mt-3 bg-[#FAF6F0] border border-[#C9A45C]/30 rounded-2xl flex items-center justify-between gap-2.5 shadow-2xs">
-                {isAuthenticated ? (
-                  <>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-[#5A1020] text-white flex items-center justify-center font-serif text-xs font-bold shrink-0 shadow-xs">
-                        {user?.name?.[0]?.toUpperCase() || 'U'}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-serif text-xs font-bold text-[#5A1020] truncate">
-                          {user?.name || 'Account'}
-                        </p>
-                        <p className="text-[9px] text-[#211D1E]/60 truncate font-sans">
-                          {user?.email || 'Logged in'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Link
-                        to="/profile"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="px-2.5 py-1 bg-white border border-[#C9A45C]/40 rounded-lg text-[10px] font-bold text-[#5A1020] hover:bg-[#5A1020] hover:text-white transition-colors"
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                        className="px-2 py-1 bg-rose-50 border border-rose-200 rounded-lg text-[10px] font-bold text-rose-700 hover:bg-rose-700 hover:text-white transition-colors flex items-center gap-1"
-                      >
-                        <LogOut size={11} /> Out
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="min-w-0">
-                      <p className="font-serif text-xs font-bold text-[#5A1020]">
-                        Namaste, Guest
-                      </p>
-                      <p className="text-[9px] text-[#211D1E]/60 font-sans">
-                        Sign in for boutique couture privileges
-                      </p>
-                    </div>
-                    <Link
-                      to="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3.5 py-1.5 bg-[#5A1020] text-white rounded-xl text-[10.5px] font-bold uppercase tracking-wider hover:bg-[#8B0000] transition-colors shrink-0 shadow-xs"
-                    >
-                      Sign In
-                    </Link>
-                  </>
-                )}
-              </div>
-
               {/* Mobile Search */}
-              <div className="p-3 border-b border-[#EAE0D2]">
-                <form onSubmit={(e) => { handleSearchSubmit(e); setMobileMenuOpen(false); }}>
-                  <div className="flex items-center gap-2 rounded-full border border-[#DFD3C5] bg-[#FAF6F0] px-3.5 py-2">
-                    <Search size={14} className="text-[#8C7A6B]" />
+              <div className="p-3 border-b border-[#E7D4B9]">
+                <form
+                  onSubmit={(e) => {
+                    handleSearchSubmit(e)
+                    setMobileMenuOpen(false)
+                  }}
+                >
+                  <div className="flex items-center gap-2 rounded-full border border-[#B58A45]/40 bg-white px-3.5 py-2">
+                    <Search size={14} className="text-[#6E5A4F]" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search styles, sarees, lehengas..."
-                      className="w-full bg-transparent text-xs text-[#2C1F18] focus:outline-none"
+                      placeholder="Search handloom sarees..."
+                      className="w-full bg-transparent text-xs text-[#38271F] focus:outline-none"
                     />
                   </div>
                 </form>
               </div>
 
-              {/* Drawer Links */}
+              {/* Drawer Navigation Links */}
               <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1">
-                <Link
-                  to="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[15px] font-semibold text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
-                >
-                  <span>Home</span>
-                  <ArrowRight size={14} className="text-[#B68C48]" />
-                </Link>
-
-                <div className="pt-3 pb-1 px-4">
-                  <span className="text-[10px] uppercase tracking-[0.25em] font-sans font-bold text-[#B68C48]">
-                    Boutique Collections
-                  </span>
-                </div>
-
-                {Object.entries(NAV_CATEGORIES).map(([key, cat]) => (
-                  <div key={key} className="space-y-0.5">
-                    <Link
-                      to={cat.path}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-between font-serif text-[14px] font-medium text-[#382820] hover:text-[#4A0A16] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
-                    >
-                      <span>{cat.label}</span>
-                      <ArrowRight size={13} className="text-[#B68C48]/60" />
-                    </Link>
-                  </div>
+                {NAV_LINKS.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between font-serif text-[15px] font-semibold text-[#38271F] hover:text-[#651B2B] hover:bg-[#E7D4B9]/35 px-4 py-3 rounded-xl transition-all min-h-[44px]"
+                  >
+                    <span>{item.label}</span>
+                    <ArrowRight size={14} className="text-[#B58A45]" />
+                  </Link>
                 ))}
 
                 <div className="pt-3 pb-1 px-4">
-                  <span className="text-[10px] uppercase tracking-[0.25em] font-sans font-bold text-[#B68C48]">
-                    Account & Privileges
+                  <span className="text-[10px] uppercase tracking-[0.22em] font-sans font-bold text-[#B58A45]">
+                    Customer Services
                   </span>
                 </div>
+
+                <Link
+                  to="/track-order"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between font-serif text-[14px] text-[#38271F] hover:bg-[#E7D4B9]/35 px-4 py-3 rounded-xl min-h-[44px]"
+                >
+                  <span>Track Order</span>
+                  <ArrowRight size={13} className="text-[#B58A45]" />
+                </Link>
 
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
+                  className="flex items-center justify-between font-serif text-[14px] text-[#38271F] hover:bg-[#E7D4B9]/35 px-4 py-3 rounded-xl min-h-[44px]"
                 >
-                  <span className="flex items-center gap-2"><Heart size={15} className="text-[#4A0A16]" /> Wishlist</span>
-                  <ArrowRight size={13} className="text-[#B68C48]/60" />
+                  <span className="flex items-center gap-2"><Heart size={15} className="text-[#651B2B]" /> Wishlist</span>
+                  <ArrowRight size={13} className="text-[#B58A45]" />
                 </Link>
 
                 <Link
                   to="/cart"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
+                  className="flex items-center justify-between font-serif text-[14px] text-[#38271F] hover:bg-[#E7D4B9]/35 px-4 py-3 rounded-xl min-h-[44px]"
                 >
-                  <span className="flex items-center gap-2"><ShoppingBag size={15} className="text-[#4A0A16]" /> Shopping Bag</span>
-                  <ArrowRight size={13} className="text-[#B68C48]/60" />
+                  <span className="flex items-center gap-2"><ShoppingBag size={15} className="text-[#651B2B]" /> Shopping Bag ({count})</span>
+                  <ArrowRight size={13} className="text-[#B58A45]" />
                 </Link>
 
-                <Link
-                  to="/orders"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between font-serif text-[14px] text-[#382820] hover:bg-[#FAF6F0] px-4 py-3 rounded-xl transition-all min-h-[44px]"
-                >
-                  <span>My Orders</span>
-                  <ArrowRight size={13} className="text-[#B68C48]/60" />
-                </Link>
-
-                {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
-                  <Link
-                    to="/admin/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between font-serif text-[14px] font-semibold text-[#5A1020] hover:bg-[#5A1020]/10 px-4 py-3 rounded-xl transition-all min-h-[44px] border border-[#C9A45C]/30 bg-[#FFFDF8] mt-1"
-                  >
-                    <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#C9A45C]" /> Atelier Admin</span>
-                    <ArrowRight size={13} className="text-[#C9A45C]" />
-                  </Link>
-                )}
-              </div>
-
-              {/* Drawer Footer */}
-              <div className="p-4 border-t border-[#EAE0D2] bg-[#FAF6F0] flex items-center justify-between">
                 {isAuthenticated ? (
-                  <button
-                    onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    className="text-xs text-rose-700 font-medium flex items-center gap-1.5"
-                  >
-                    <LogOut size={14} /> Sign Out ({user?.name?.split(' ')[0]})
-                  </button>
+                  <>
+                    <Link
+                      to="/orders"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between font-serif text-[14px] text-[#38271F] hover:bg-[#E7D4B9]/35 px-4 py-3 rounded-xl min-h-[44px]"
+                    >
+                      <span>My Orders</span>
+                      <ArrowRight size={13} className="text-[#B58A45]" />
+                    </Link>
+                    {(user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN') && (
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-between font-serif text-[14px] font-bold text-[#651B2B] bg-white border border-[#B58A45]/40 px-4 py-3 rounded-xl min-h-[44px]"
+                      >
+                        <span className="flex items-center gap-2"><ShieldCheck size={15} className="text-[#B58A45]" /> Admin Dashboard</span>
+                        <ArrowRight size={13} className="text-[#B58A45]" />
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        handleLogout()
+                        setMobileMenuOpen(false)
+                      }}
+                      className="w-full flex items-center justify-between font-serif text-[14px] font-semibold text-rose-800 hover:bg-rose-50 px-4 py-3 rounded-xl min-h-[44px]"
+                    >
+                      <span className="flex items-center gap-2"><LogOut size={15} /> Sign Out</span>
+                    </button>
+                  </>
                 ) : (
                   <Link
                     to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-xs text-[#4A0A16] font-semibold tracking-wider uppercase underline"
+                    className="flex items-center justify-center gap-2 mt-3 py-3 rounded-full bg-[#651B2B] text-[#FBF5EA] text-xs font-bold uppercase tracking-wider"
                   >
-                    Sign In to Boutique
+                    <User size={14} /> Sign In / Register
                   </Link>
                 )}
-                <span className="text-[10px] text-[#B68C48] tracking-widest uppercase">
-                  CHITRIKA COUTURE
-                </span>
+              </div>
+
+              {/* Drawer Bottom WhatsApp & Phone */}
+              <div className="p-4 border-t border-[#E7D4B9] bg-[#E7D4B9]/30 space-y-2">
+                <a
+                  href={whatsappShortcutUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-[#65704B] text-white text-xs font-bold uppercase tracking-wider"
+                >
+                  <MessageCircle size={14} /> WhatsApp {BUSINESS.contact.whatsapp}
+                </a>
+                <a
+                  href={`tel:${BUSINESS.contact.phoneRaw}`}
+                  className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-[#38271F]"
+                >
+                  <Phone size={13} className="text-[#651B2B]" /> Call {BUSINESS.contact.phone}
+                </a>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-
-      {/* ══════════════════════════════════════════════════════════════
-          4. DEDICATED MOBILE BOTTOM NAVIGATION BAR (< sm screens)
-      ══════════════════════════════════════════════════════════════ */}
-      {/* ══════════════════════════════════════════════════════════════
-          4. DEDICATED MOBILE BOTTOM NAVIGATION BAR (< sm screens)
-          Locked static with respect to screen viewport (fixed bottom)
-      ══════════════════════════════════════════════════════════════ */}
-      <nav
-        aria-label="Mobile bottom navigation"
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FFFDF9]/98 backdrop-blur-lg border-t border-[#E6C687]/40 shadow-[0_-4px_25px_rgba(90,16,32,0.08)] px-1 py-1 select-none"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          transform: 'translateZ(0)',
-          WebkitTransform: 'translateZ(0)',
-          paddingBottom: 'max(6px, env(safe-area-inset-bottom, 6px))'
-        }}
-      >
-        <div className="flex items-center justify-between w-full max-w-md mx-auto">
-          {/* Home */}
-          <Link
-            to="/"
-            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-              location.pathname === '/' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-            }`}
-          >
-            <Home size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Home</span>
-            {location.pathname === '/' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-          </Link>
-
-          {/* Shop */}
-          <Link
-            to="/products"
-            className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-              location.pathname.startsWith('/products') ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-            }`}
-          >
-            <Sparkles size={18} strokeWidth={1.8} />
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Shop</span>
-            {location.pathname.startsWith('/products') && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-          </Link>
-
-          {/* Bag */}
-          <Link
-            to="/cart"
-            className={`flex-1 min-w-0 relative flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-              location.pathname === '/cart' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-            }`}
-          >
-            <div className="relative">
-              <ShoppingBag size={18} strokeWidth={1.8} />
-              {count > 0 && (
-                <span className="absolute -top-1 -right-2 min-w-[15px] h-[15px] px-0.5 rounded-full bg-[#5A1020] text-white text-[8.5px] font-bold flex items-center justify-center">
-                  {count > 99 ? '99+' : count}
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Bag</span>
-            {location.pathname === '/cart' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-          </Link>
-
-          {/* Conditional Profile & Sign Out OR Sign In */}
-          {isAuthenticated ? (
-            <>
-              {/* Profile */}
-              <Link
-                to="/profile"
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-                  location.pathname === '/profile' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-                }`}
-              >
-                <User size={18} strokeWidth={1.8} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Profile</span>
-                {location.pathname === '/profile' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-              </Link>
-
-              {/* Sign Out */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg text-rose-700 hover:text-rose-900 transition-colors"
-                title="Sign Out"
-                aria-label="Sign Out"
-              >
-                <LogOut size={18} strokeWidth={1.8} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate font-semibold">Sign Out</span>
-              </button>
-            </>
-          ) : (
-            <>
-              {/* Wishlist */}
-              <Link
-                to="/wishlist"
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-                  location.pathname === '/wishlist' ? 'text-[#5A1020] font-bold' : 'text-[#756B6C] hover:text-[#5A1020]'
-                }`}
-              >
-                <Heart size={18} strokeWidth={1.8} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate">Saved</span>
-                {location.pathname === '/wishlist' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-              </Link>
-
-              {/* Sign In */}
-              <Link
-                to="/login"
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center min-h-[44px] rounded-lg transition-colors ${
-                  location.pathname === '/login' ? 'text-[#5A1020] font-bold' : 'text-[#5A1020] hover:text-[#8B0000]'
-                }`}
-              >
-                <User size={18} strokeWidth={2} />
-                <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate font-bold text-[#5A1020]">Sign In</span>
-                {location.pathname === '/login' && <span className="w-1.5 h-1.5 rounded-full bg-[#5A1020] mt-0.5" />}
-              </Link>
-            </>
-          )}
-        </div>
-      </nav>
     </>
   )
 }

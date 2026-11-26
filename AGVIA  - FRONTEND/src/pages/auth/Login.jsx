@@ -10,6 +10,8 @@ import { ArrowLeft } from 'lucide-react'
 import OtpVerificationCard from '../../components/auth/OtpVerificationCard'
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
 import SEOHead from '../../components/common/SEOHead'
+import BrandLogo from '../../components/common/BrandLogo'
+import { BUSINESS } from '../../constants/business'
 import { getAuthErrorMessage, logDeveloperError } from '../../services/errorMessageService'
 
 export default function Login() {
@@ -146,25 +148,20 @@ export default function Login() {
         <div className="w-full max-w-md p-5 sm:p-8 bg-white border border-[#B8860B]/15 rounded-3xl shadow-sm relative overflow-hidden mt-8 sm:mt-0">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
 
-          <Link to="/" className="flex flex-col items-center mb-6 sm:mb-8 select-none group">
-            <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#8B0000] leading-none group-hover:text-[#B8860B] transition-colors duration-300">
-              CHITRIKA
-            </span>
-            <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#B8860B] font-semibold mt-1.5 pl-[1px]">
-              HAUTE COUTURE BOUTIQUE
-            </span>
+          <Link to="/" className="flex flex-col items-center mb-5 sm:mb-7 select-none group">
+            <BrandLogo size="md" />
           </Link>
 
-          <h1 className="font-display text-2xl text-center text-[#8B0000] font-bold mb-1">
+          <h1 className="font-display text-2xl text-center text-[#651B2B] font-bold mb-1">
             Welcome Back
           </h1>
-          <p className="text-center text-[#3A2D23]/60 mb-6 text-xs leading-relaxed">
-            Sign in with your Email or Mobile Number to access your bespoke wardrobe.
+          <p className="text-center text-[#38271F]/70 mb-6 text-xs leading-relaxed">
+            Sign in with your Email or Mobile Number to manage orders at {BUSINESS.name}.
           </p>
 
           <form onSubmit={handleInitiateLogin} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-semibold text-[#3A2D23]/70 mb-1">
+              <label className="block text-[11px] font-semibold text-[#38271F]/80 mb-1">
                 Email or Mobile Number
               </label>
               <input
@@ -173,7 +170,7 @@ export default function Login() {
                 required
                 value={form.identifier}
                 onChange={handleChange}
-                placeholder="e.g. client@agvia.com or 9032306961"
+                placeholder="Enter your email or 10-digit mobile number"
                 className="input-field"
               />
             </div>

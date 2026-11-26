@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Entry point for the Pragathi Sweets e-commerce backend.
+ * Entry point for the Lokesh Lingam Weaver e-commerce backend.
  */
 @SpringBootApplication
 @EnableScheduling

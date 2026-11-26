@@ -27,86 +27,16 @@ import SEOHead from '../../components/common/SEOHead'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReliableImage from '../../components/common/ReliableImage'
 import api from '../../services/api'
+import { productService } from '../../services/productService'
+import { BUSINESS } from '../../constants/business'
 import { trackCheckoutStarted } from '../../services/analytics'
 
-// Curated styles for "You May Also Like" carousel matching screenshot exactly
-const RECOMMENDED_STYLES = [
-  {
-    id: 1,
-    name: 'CHITRIKA Classic Silk Saree',
-    price: 4999,
-    image: '/images/classic_silk_saree.jpg',
-    category: 'Sarees',
-    subtitle: 'Pure gold zari borders',
-    badge: 'Bestseller',
-  },
-  {
-    id: 10,
-    name: 'CHITRIKA Bridal Dupatta',
-    price: 1299,
-    image: '/images/bridal_dupatta.jpg',
-    category: 'Dupattas',
-    subtitle: 'Heritage gold border',
-    badge: 'Bridal',
-  },
-  {
-    id: 4,
-    name: 'CHITRIKA Everyday Kurta Set',
-    price: 1999,
-    image: '/images/everyday_kurta_set.jpg',
-    category: 'Kurtas',
-    subtitle: 'Artisanal silk craft',
-    badge: 'Trending',
-  },
-  {
-    id: 2,
-    name: 'CHITRIKA Floral Organza Saree',
-    price: 3999,
-    image: '/images/floral_organza_saree.jpg',
-    category: 'Sarees',
-    subtitle: 'Blush floral sheer weave',
-    badge: 'New Arrival',
-  },
-  {
-    id: 7,
-    name: 'CHITRIKA Evening Gown',
-    price: 3499,
-    image: '/images/evening_gown.jpg',
-    category: 'Dresses & Gowns',
-    subtitle: 'Corseted modern silhouette',
-    badge: 'Exclusive',
-  },
-]
-
-// Sample boutique attributes to enrich display if items don't have them
-const SAMPLE_ATTRIBUTES = [
-  {
-    colorName: 'Blush Pink',
-    swatches: ['#E8B4B8', '#E6C687', '#C8D5B9'],
-    size: 'Free Size',
-    badge: 'Bestseller',
-    badgeIcon: '👑',
-  },
-  {
-    colorName: 'Navy Blue',
-    swatches: ['#1E3A5F', '#E6C687', '#E5E0D8'],
-    size: 'M',
-    badge: 'New Arrival',
-    badgeIcon: '✨',
-  },
-  {
-    colorName: 'Mehendi Green',
-    swatches: ['#6B705C', '#E6C687', '#E8B4B8'],
-    size: 'Free Size',
-    badge: 'Trending',
-    badgeIcon: '🔥',
-  },
-]
-
 export default function Cart() {
-  const { items, updateQty, removeFromCart, addToCart, clearCart, subtotal } = useCart()
+  const { items, updateQty, removeFromCart, addToCart, subtotal } = useCart()
   const navigate = useNavigate()
 
+  // Live catalogue recommendations (never fabricated items)
+  const [recommendedProducts, setRecommendedProducts] = useState([])
   // Selection state for cart items (all selected by default)
   const [selectedIds, setSelectedIds] = useState({})
   // Wishlist state for toggling hearts
@@ -119,8 +49,16 @@ export default function Cart() {
   const [appliedCouponCode, setAppliedCouponCode] = useState('')
   const [validating, setValidating] = useState(false)
 
-  // Carousel ref for "You May Also Like"
+  // Carousel ref for live recommendations
   const carouselRef = useRef(null)
+
+  useEffect(() => {
+    productService.getAll().then((list) => {
+      if (Array.isArray(list) && list.length > 0) {
+        setRecommendedProducts(list.slice(0, 8))
+      }
+    }).catch(() => {})
+  }, [])
 
   const getItemKey = (item) => item.cartItemId || (item.variantId ? `${item.id}_v_${item.variantId}` : `${item.id}_size_${item.size || 'M'}`)
 
@@ -227,21 +165,8 @@ export default function Cart() {
       } else {
         toast.error(result?.message || 'Invalid or expired promo code.')
       }
-    } catch {
-      // Fallback demo / offline coupon support
-      if (code === 'CIRCLE15' || code === 'CHITRIKA15' || code === 'CHITRIKA_VIP10' || code === 'CHITRIKA10' || code === 'WELCOME10') {
-        const pct = (code === 'CIRCLE15' || code === 'CHITRIKA15') ? 0.15 : 0.10
-        const disc = Math.round(selectedSubtotal * pct)
-        setDiscountAmount(disc)
-        setAppliedCoupon(`${code} (-₹${disc.toLocaleString('en-IN')})`)
-        setAppliedCouponCode(code)
-        toast.success(`Coupon ${code} applied successfully! (${Math.round(pct * 100)}% OFF)`, {
-          style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' },
-        })
-        setCouponCode('')
-      } else {
-        toast.error('Invalid or expired coupon code. Try CIRCLE15 or CHITRIKA_VIP10')
-      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Unable to validate coupon code at the moment.')
     } finally {
       setValidating(false)
     }
@@ -254,55 +179,16 @@ export default function Cart() {
     toast.success('Coupon removed')
   }
 
-  // Load sample items if cart is empty so user can see the exact design
-  const handleLoadSampleItems = () => {
-    clearCart()
-    addToCart(
-      {
-        id: 1,
-        name: 'Blush Heritage Organza Saree',
-        price: 12500,
-        image: '/images/classic_silk_saree.jpg',
-        category: 'Organza Sarees',
-        unit: 'piece',
-      },
-      1
-    )
-    addToCart(
-      {
-        id: 4,
-        name: 'Royal Indigo Chanderi Suit',
-        price: 8900,
-        image: '/images/evening_gown.jpg',
-        category: 'Chanderi Suits',
-        unit: 'set',
-      },
-      1
-    )
-    addToCart(
-      {
-        id: 9,
-        name: 'Mehendi Green Georgette Saree',
-        price: 10800,
-        image: '/images/festive_kurti.jpg',
-        category: 'Georgette Sarees',
-        unit: 'piece',
-      },
-      2
-    )
-    toast.success('Loaded boutique pieces into your bag!')
-  }
-
   const scrollCarousel = (dir) => {
     if (!carouselRef.current) return
     carouselRef.current.scrollBy({ left: dir * 280, behavior: 'smooth' })
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans antialiased selection:bg-[#5A1020] selection:text-white">
+    <div className="min-h-screen bg-[#FBF5EA] text-[#38271F] font-sans antialiased selection:bg-[#651B2B] selection:text-white">
       <SEOHead
-        title="Shopping Cart"
-        description="Review your curated fashion selections and proceed to checkout at CHITRIKA."
+        title="Shopping Bag"
+        description={`Review your selected handloom sarees and proceed to checkout at ${BUSINESS.name}.`}
         noindex={true}
       />
       <Navbar />
@@ -407,27 +293,28 @@ export default function Cart() {
             </div>
             <h2
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              className="text-2xl md:text-3xl font-bold text-[#211D1E] mb-2"
+              className="text-2xl md:text-3xl font-bold text-[#651B2B] mb-2"
             >
-              Your wardrobe bag is currently empty
+              Your shopping bag is currently empty
             </h2>
-            <p className="text-xs sm:text-sm text-[#211D1E]/60 max-w-md mx-auto mb-6">
-              Explore our handcrafted sarees, bespoke lehengas, and couture evening wear.
+            <p className="text-xs sm:text-sm text-[#38271F]/70 max-w-md mx-auto mb-6">
+              Explore our Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/products"
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#5A1020] text-white font-semibold text-xs tracking-wider uppercase hover:bg-[#8B0000] transition-colors shadow-md"
+                className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#651B2B] text-white font-semibold text-xs tracking-wider uppercase hover:bg-[#4E1320] transition-colors shadow-md"
               >
-                Explore Collection
+                Explore Collections
               </Link>
-              <button
-                type="button"
-                onClick={handleLoadSampleItems}
-                className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#C9A45C] text-[#5A1020] font-semibold text-xs tracking-wider uppercase hover:bg-[#FAF7F2] transition-colors"
+              <a
+                href={BUSINESS.social.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#B58A45] text-[#651B2B] font-semibold text-xs tracking-wider uppercase hover:bg-[#FBF5EA] transition-colors"
               >
-                ✨ Load Sample Designer Bag
-              </button>
+                Enquire on WhatsApp
+              </a>
             </div>
           </div>
         ) : (
@@ -464,15 +351,12 @@ export default function Cart() {
               {/* Items List */}
               <div className="space-y-2.5">
                 <AnimatePresence>
-                  {items.map((item, idx) => {
+                  {items.map((item) => {
                     const itemKey = getItemKey(item)
                     const isChecked = !!selectedIds[itemKey]
-                    const attr = SAMPLE_ATTRIBUTES[idx % SAMPLE_ATTRIBUTES.length]
-                    const colorName = item.colorName || item.color || attr.colorName
-                    const swatches = item.colorCode ? [item.colorCode] : attr.swatches
-                    const sizeLabel = item.size || attr.size
-                    const badgeText = item.badge || attr.badge
-                    const badgeIcon = attr.badgeIcon
+                    const colorName = item.colorName || item.color || null
+                    const sizeLabel = item.size || null
+                    const badgeText = item.badge || null
                     const isWishlisted = !!wishlistMap[item.id]
 
                     return (
@@ -517,35 +401,24 @@ export default function Cart() {
                             >
                               {item.name}
                             </h3>
-                            <p className="text-[11px] text-[#211D1E]/60 mt-0.5 line-clamp-1">
-                              {item.category || 'Luxury Silhouettes'}
+                            <p className="text-[11px] text-[#38271F]/65 mt-0.5 line-clamp-1">
+                              {item.category || 'Handloom Sarees'}
                             </p>
 
-                            {/* Color attribute & swatches */}
-                            <div className="flex items-center gap-1.5 mt-1 text-[11px] text-[#211D1E]/75">
-                              {item.colorCode && (
-                                <span
-                                  style={{ backgroundColor: item.colorCode }}
-                                  className="w-3.5 h-3.5 rounded-full inline-block border border-white shadow-xs ring-1 ring-[#C9A45C]"
-                                />
-                              )}
-                              <span className="text-[10.5px] font-medium text-[#211D1E]/70">
-                                Colour: <strong className="font-semibold text-[#211D1E]">{colorName}</strong>
-                              </span>
-                              {!item.colorCode && (
-                                <div className="flex items-center gap-1 ml-1">
-                                  {swatches.map((color, sIdx) => (
-                                    <span
-                                      key={sIdx}
-                                      style={{ backgroundColor: color }}
-                                      className={`w-3 h-3 rounded-full inline-block border border-white shadow-xs ${
-                                        sIdx === 0 ? 'ring-1.5 ring-offset-1 ring-[#C9A45C]' : 'opacity-70'
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                            {/* Color attribute if present */}
+                            {colorName && (
+                              <div className="flex items-center gap-1.5 mt-1 text-[11px] text-[#38271F]/75">
+                                {item.colorCode && (
+                                  <span
+                                    style={{ backgroundColor: item.colorCode }}
+                                    className="w-3.5 h-3.5 rounded-full inline-block border border-white shadow-xs ring-1 ring-[#B58A45]"
+                                  />
+                                )}
+                                <span className="text-[10.5px] font-medium text-[#38271F]/70">
+                                  Colour: <strong className="font-semibold text-[#38271F]">{colorName}</strong>
+                                </span>
+                              </div>
+                            )}
 
                             {/* SKU attribute */}
                             {item.sku && (
@@ -585,9 +458,9 @@ export default function Cart() {
                             {badgeText && (
                               <span
                                 style={{ fontFamily: "'Lato', sans-serif" }}
-                                className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#FDF3E7] text-[#B8860B] border border-[#B8860B]/20"
+                                className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#FBF5EA] text-[#651B2B] border border-[#B58A45]/25"
                               >
-                                <span>{badgeIcon}</span> {badgeText}
+                                {badgeText}
                               </span>
                             )}
 
@@ -804,32 +677,32 @@ export default function Cart() {
                   </div>
                 </div>
 
-                {/* 3 Trust Badges */}
-                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[#E6C687]/20 text-center">
+                {/* 3 Verified Info Badges */}
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[#E7D4B9] text-center">
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E6C687]/40 text-[#C9A45C] flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-[#FBF5EA] border border-[#B58A45]/40 text-[#B58A45] flex items-center justify-center">
                       <ShieldCheck size={15} />
                     </div>
-                    <span className="text-[10px] font-medium text-[#211D1E]/75 leading-tight">
+                    <span className="text-[10px] font-medium text-[#38271F]/80 leading-tight">
                       Secure Checkout
                     </span>
                   </div>
 
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E6C687]/40 text-[#C9A45C] flex items-center justify-center">
-                      <Truck size={15} />
+                    <div className="w-8 h-8 rounded-full bg-[#FBF5EA] border border-[#B58A45]/40 text-[#B58A45] flex items-center justify-center">
+                      <Package size={15} />
                     </div>
-                    <span className="text-[10px] font-medium text-[#211D1E]/75 leading-tight">
-                      Free Shipping
+                    <span className="text-[10px] font-medium text-[#38271F]/80 leading-tight">
+                      Direct Weaver
                     </span>
                   </div>
 
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E6C687]/40 text-[#C9A45C] flex items-center justify-center">
-                      <RotateCcw size={15} />
+                    <div className="w-8 h-8 rounded-full bg-[#FBF5EA] border border-[#B58A45]/40 text-[#B58A45] flex items-center justify-center">
+                      <Truck size={15} />
                     </div>
-                    <span className="text-[10px] font-medium text-[#211D1E]/75 leading-tight">
-                      Easy Returns
+                    <span className="text-[10px] font-medium text-[#38271F]/80 leading-tight">
+                      Live Tracking
                     </span>
                   </div>
                 </div>
@@ -838,64 +711,60 @@ export default function Cart() {
           </div>
         )}
 
-        {/* ══ BOTTOM SECTION: "YOU MAY ALSO LIKE" CAROUSEL ════════════ */}
-        <section className="mt-7 sm:mt-9 pt-5 sm:pt-6 border-t border-[#E6C687]/30">
+        {/* ══ LIVE CATALOGUE RECOMMENDATIONS (Only shown when real inventory exists) ══ */}
+        {recommendedProducts.length > 0 && (
+        <section className="mt-7 sm:mt-9 pt-5 sm:pt-6 border-t border-[#E7D4B9]">
           <div className="flex items-center justify-between mb-3.5">
             <div>
               <h2
                 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-                className="text-xl sm:text-2xl font-bold text-[#5A1020]"
+                className="text-xl sm:text-2xl font-bold text-[#651B2B]"
               >
-                You May Also Like
+                Explore More Handloom Sarees
               </h2>
-              <p className="text-[11px] text-[#211D1E]/60 mt-0.5">
-                More styles to complete your look
+              <p className="text-[11px] text-[#38271F]/65 mt-0.5">
+                Direct from {BUSINESS.name}, {BUSINESS.location.short}
               </p>
             </div>
 
             <div className="flex items-center gap-3">
               <Link
                 to="/products"
-                className="text-xs font-semibold text-[#8B0000] hover:text-[#C9A45C] transition-colors flex items-center gap-1"
+                className="text-xs font-semibold text-[#651B2B] hover:text-[#B58A45] transition-colors flex items-center gap-1"
               >
                 View All <ArrowRight size={13} />
               </Link>
             </div>
           </div>
 
-          {/* Carousel with Navigation Arrows */}
           <div className="relative group/rec">
-            {/* Left Button */}
             <button
               onClick={() => scrollCarousel(-1)}
-              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 border border-[#E6C687]/50 shadow-md flex items-center justify-center text-[#5A1020] hover:bg-[#5A1020] hover:text-white transition-all"
+              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 border border-[#B58A45]/50 shadow-md flex items-center justify-center text-[#651B2B] hover:bg-[#651B2B] hover:text-white transition-all"
               aria-label="Previous suggestions"
             >
               <ChevronLeft size={16} />
             </button>
 
-            {/* Right Button */}
             <button
               onClick={() => scrollCarousel(1)}
-              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 border border-[#E6C687]/50 shadow-md flex items-center justify-center text-[#5A1020] hover:bg-[#5A1020] hover:text-white transition-all"
+              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 border border-[#B58A45]/50 shadow-md flex items-center justify-center text-[#651B2B] hover:bg-[#651B2B] hover:text-white transition-all"
               aria-label="Next suggestions"
             >
               <ChevronRight size={16} />
             </button>
 
-            {/* Carousel Container */}
             <div
               ref={carouselRef}
               className="flex gap-3 sm:gap-3.5 md:gap-4 overflow-x-auto pb-3 scroll-smooth"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              {RECOMMENDED_STYLES.map((prod) => (
+              {recommendedProducts.map((prod) => (
                 <div
                   key={prod.id}
-                  className="shrink-0 w-[180px] sm:w-[200px] md:w-[220px] bg-white rounded-xl overflow-hidden border border-[#E6C687]/30 shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+                  className="shrink-0 w-[180px] sm:w-[200px] md:w-[220px] bg-white rounded-xl overflow-hidden border border-[#E7D4B9] shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
                 >
-                  {/* Image with Heart Icon */}
-                  <div className="relative aspect-[3/3.8] overflow-hidden bg-[#FAF7F2]">
+                  <Link to={`/products/${prod.id}`} className="relative aspect-[3/3.8] overflow-hidden bg-[#FBF5EA] block">
                     <ReliableImage
                       src={prod.image}
                       alt={prod.name}
@@ -903,73 +772,50 @@ export default function Cart() {
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <button
-                      type="button"
-                      onClick={() => handleToggleWishlist(`rec-${prod.id}`)}
-                      className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/80 backdrop-blur-xs flex items-center justify-center text-[#211D1E]/60 hover:text-red-700 transition-colors shadow-xs"
-                    >
-                      <Heart
-                        size={13}
-                        className={wishlistMap[`rec-${prod.id}`] ? 'fill-[#8B0000] text-[#8B0000]' : ''}
-                      />
-                    </button>
-                  </div>
+                  </Link>
 
-                  {/* Info and Add to Cart */}
                   <div className="p-3.5 flex items-center justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <h4
-                        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-                        className="text-sm font-bold text-[#211D1E] truncate group-hover:text-[#8B0000] transition-colors"
-                      >
-                        {prod.name}
-                      </h4>
-                      <p
-                        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-                        className="text-sm font-bold text-[#5A1020] mt-0.5"
-                      >
-                        ₹{prod.price.toLocaleString('en-IN')}
-                      </p>
+                      <Link to={`/products/${prod.id}`}>
+                        <h4
+                          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                          className="text-sm font-bold text-[#38271F] truncate group-hover:text-[#651B2B] transition-colors"
+                        >
+                          {prod.name}
+                        </h4>
+                      </Link>
+                      {prod.price > 0 && (
+                        <p
+                          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                          className="text-sm font-bold text-[#651B2B] mt-0.5"
+                        >
+                          ₹{Number(prod.price).toLocaleString('en-IN')}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    {prod.price > 0 && (prod.stockQuantity ?? 1) > 0 && (
                       <button
                         type="button"
                         onClick={() => {
-                          addToCart({
-                            id: prod.id,
-                            name: prod.name,
-                            price: prod.price,
-                            image: prod.image,
-                            category: prod.category,
-                            unit: 'piece',
-                          })
-                          toast.success(`${prod.name} added to cart!`, {
-                            style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' },
+                          addToCart(prod)
+                          toast.success(`${prod.name} added to bag!`, {
+                            style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' },
                           })
                         }}
-                        className="w-8 h-8 rounded-full bg-[#5A1020] hover:bg-[#8B0000] text-white flex items-center justify-center shadow-xs transition-colors"
-                        title="Add to Cart"
+                        className="w-8 h-8 rounded-full bg-[#651B2B] hover:bg-[#4E1320] text-white flex items-center justify-center shadow-xs transition-colors shrink-0"
+                        title="Add to Bag"
                       >
                         <ShoppingCart size={13} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleToggleWishlist(`rec-${prod.id}`)}
-                        className="w-7 h-7 rounded-full border border-gray-200 hover:border-[#5A1020] flex items-center justify-center text-[#211D1E]/50 hover:text-[#8B0000] transition-colors"
-                      >
-                        <Heart
-                          size={12}
-                          className={wishlistMap[`rec-${prod.id}`] ? 'fill-[#8B0000] text-[#8B0000]' : ''}
-                        />
-                      </button>
-                    </div>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
+        )}
       </main>
 
       <Footer />

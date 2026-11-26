@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, RefreshCw, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import OtpInput from './OtpInput'
+import BrandLogo from '../common/BrandLogo'
 
 /**
- * Reusable CHITRIKA Luxury OTP Verification Screen
- * - Clean CHITRIKA design tokens: Deep wine (#8B0000), Champagne gold (#B8860B), Warm ivory (#FFFDF8), Charcoal (#3A2D23)
- * - Independent client-side countdown timer for Resend button
- * - Communicates with backend for authoritative validation
+ * Reusable Lokesh Lingam Weaver OTP Verification Screen
  */
 export default function OtpVerificationCard({
   phoneMasked,
@@ -84,20 +82,12 @@ export default function OtpVerificationCard({
 
   return (
     <div className="w-full max-w-md p-4 min-[360px]:p-6 sm:p-8 bg-white border border-[#B8860B]/20 rounded-3xl shadow-lg relative overflow-hidden">
-      {/* Top CHITRIKA signature gold gradient accent bar */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
+      {/* Top signature gold gradient accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#651B2B] via-[#B58A45] to-[#651B2B]" />
 
-      {/* Brand Monogram */}
-      <div className="flex flex-col items-center mb-6 select-none">
-        <div className="w-12 h-12 rounded-full bg-[#8B0000]/5 border border-[#B8860B]/25 flex items-center justify-center mb-3">
-          <ShieldCheck className="text-[#8B0000]" size={24} />
-        </div>
-        <span className="font-display text-xl tracking-[0.2em] font-bold uppercase text-[#8B0000] leading-none">
-          CHITRIKA
-        </span>
-        <span className="font-body text-[8px] tracking-[0.35em] uppercase text-[#B8860B] font-semibold mt-1">
-          HAUTE COUTURE BOUTIQUE
-        </span>
+      {/* Brand Logo */}
+      <div className="flex flex-col items-center mb-5 select-none">
+        <BrandLogo size="sm" />
       </div>
 
       <h2 className="font-display text-2xl text-center text-[#8B0000] font-bold mb-1.5">

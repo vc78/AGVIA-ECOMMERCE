@@ -33,7 +33,7 @@ public class TwilioOtpDeliveryService implements OtpDeliveryService {
     @Value("${twilio.api-secret:${TWILIO_API_SECRET:}}")
     private String apiSecret;
 
-    @Value("${twilio.from-number:${TWILIO_FROM_NUMBER:+919032306961}}")
+    @Value("${twilio.from-number:${TWILIO_FROM_NUMBER:+917799349294}}")
     private String fromNumber;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -57,7 +57,7 @@ public class TwilioOtpDeliveryService implements OtpDeliveryService {
             headers.set(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder()
                     .encodeToString((sid + ":" + token).getBytes(StandardCharsets.UTF_8)));
 
-            String messageText = "CHITRIKA Boutique Verification Code: " + otp + ". Valid for 5 minutes. Do not share this OTP.";
+            String messageText = "Lokesh Lingam Weaver Verification Code: " + otp + ". Valid for 5 minutes. Do not share this OTP.";
 
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("From", fromNumber);

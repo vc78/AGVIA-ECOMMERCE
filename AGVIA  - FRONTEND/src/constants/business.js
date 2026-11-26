@@ -1,43 +1,78 @@
-// Authoritative Single Source of Truth for CHITRIKA business information
+// Authoritative Single Source of Truth for Lokesh Lingam Weaver
 export const BUSINESS = {
-  name: "CHITRIKA Women's Wear Boutique",
-  shortName: 'CHITRIKA',
-  tagline: "WOMEN'S WEAR BOUTIQUE",
-  establishedYear: 2018,
-  description: 'Curating bespoke bridal lehengas, pure handloom silk sarees, handcrafted zardozi anarkalis, and timeless occasion wear for the discerning woman.',
+  name: 'Lokesh Lingam Weaver',
+  shortName: 'Lokesh Lingam Weaver',
+  tagline: 'HANDLOOM SAREES & TRADITIONAL WEAVES',
+  category: 'Clothing & Handloom Sarees',
+  businessType: 'Direct handloom weaver',
+  experienceYears: 15,
+  experienceClaim: '15 years of weaving experience',
+  establishedYear: 2019,
+  establishedClaim: 'Since 2019',
+  description:
+    'Rooted in the weaving traditions of Dharmavaram, Lokesh Lingam Weaver celebrates the beauty of Indian handloom sarees. With 15 years of weaving experience, our focus is on traditional designs, intricate details and bringing handloom collections directly from the weaver to the customer.',
 
-  contact: {
-    phone: '+91 90323 06961',
-    phoneRaw: '+919032306961',
-    whatsapp: '+91 90323 06961',
-    whatsappRaw: '919032306961',
-    email: 'concierge@chitrika.in',
-    supportEmail: 'care@chitrika.in',
-    hours: '10:30 AM - 8:30 PM IST',
-    openDays: 'Monday - Sunday (7 Days)',
+  logo: {
+    png: '/images/lokesh-lingam-logo.png',
+    webp: '/images/lokesh-lingam-logo.webp',
+    favicon: '/images/lokesh-lingam-favicon.png',
+    alt: 'Lokesh Lingam Weaver — Handloom Sarees & Traditional Weaves, Dharmavaram',
   },
 
+  contact: {
+    phone: '+91 7799349294',
+    phoneRaw: '+917799349294',
+    whatsapp: '+91 7799349294',
+    whatsappRaw: '917799349294',
+    whatsappUrl: 'https://wa.me/917799349294',
+    // Official email & workshop street address are intentionally omitted until provided by the business owner
+    email: null,
+    supportEmail: null,
+  },
+  phoneDisplay: '+91 7799349294',
+
   location: {
-    street: 'Road No. 36, Jubilee Hills',
-    city: 'Hyderabad',
-    state: 'Telangana',
-    postalCode: '500033',
+    city: 'Dharmavaram',
+    state: 'Andhra Pradesh',
+    postalCode: '515671',
     country: 'India',
-    fullAddress: 'Road No. 36, Jubilee Hills, Hyderabad, Telangana 500033, India',
-    googleMapsUrl: 'https://maps.google.com/?q=Chitrika+Boutique+Hyderabad',
+    full: 'Dharmavaram, Andhra Pradesh, India – 515671',
+    short: 'Dharmavaram, Andhra Pradesh – 515671',
+    fullAddress: 'Dharmavaram, Andhra Pradesh, India – 515671',
+    shortAddress: 'Dharmavaram, Andhra Pradesh – 515671',
+    googleMapsUrl: 'https://maps.google.com/?q=Dharmavaram,+Andhra+Pradesh+515671,+India',
   },
 
   social: {
-    instagram: 'https://instagram.com/chitrikaboutique',
-    facebook: 'https://facebook.com/chitrikaboutique',
-    twitter: 'https://twitter.com/chitrikaboutique',
+    instagramHandle: '@shivani_handlooms_dharmavaram',
+    instagram: 'https://www.instagram.com/shivani_handlooms_dharmavaram/',
+    instagramUrl: 'https://www.instagram.com/shivani_handlooms_dharmavaram/',
+    whatsappUrl: 'https://wa.me/917799349294',
   },
 
+  productCategories: [
+    'Dharmavaram Silk Sarees',
+    'Kanchi-Style Silk Sarees',
+    'Traditional Handloom Weaves',
+  ],
+
   seo: {
-    siteUrl: 'https://chitrikaboutique.com',
-    defaultTitle: "CHITRIKA | Women's Wear Boutique — Luxury Sarees, Lehengas & Couture",
-    titleTemplate: "%s | CHITRIKA Women's Wear Boutique",
-    defaultDescription: "Discover CHITRIKA — Luxury Indian fashion boutique featuring pure silk sarees, handcrafted bridal lehengas, bespoke anarkalis, and contemporary occasion couture.",
-    keywords: "CHITRIKA, Chitrika, Chitrika boutique, luxury sarees, bridal lehenga, designer anarkali, Indian couture, wedding wear, women's designer fashion, handloom silk",
-  }
+    // Preserve existing domain until a new domain is explicitly approved
+    siteUrl:
+      typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'https://agvia-ecommerce.vercel.app',
+    defaultImage: '/images/dharmavaram_hero_campaign.jpg',
+    defaultTitle: 'Lokesh Lingam Weaver | Dharmavaram Handloom Sarees',
+    titleTemplate: '%s | Lokesh Lingam Weaver',
+    defaultDescription:
+      'Explore traditional Dharmavaram silk sarees, Kanchi-style silk sarees and handloom collections from Lokesh Lingam Weaver.',
+    keywords:
+      'Lokesh Lingam Weaver, Dharmavaram handloom sarees, Dharmavaram silk sarees, Kanchi-style silk sarees, traditional handloom weaves, Andhra Pradesh handloom weaver, direct handloom weaver',
+  },
+}
+
+export function buildWhatsAppUrl(message = '') {
+  const base = BUSINESS.contact.whatsappUrl
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base
 }

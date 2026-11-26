@@ -50,8 +50,8 @@ public class WhatsAppService {
     @Value("${app.whatsapp.twilio.auth-token:}")
     private String authToken;
 
-    /** Official CHITRIKA WhatsApp number whatsapp:+919032306961 */
-    @Value("${app.whatsapp.twilio.from-number:whatsapp:+919032306961}")
+    /** Official Lokesh Lingam Weaver WhatsApp number whatsapp:+917799349294 */
+    @Value("${app.whatsapp.twilio.from-number:whatsapp:+917799349294}")
     private String fromNumber;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -66,10 +66,10 @@ public class WhatsAppService {
      */
     public String sendOtp(String phone, String code) {
         String cleanPhone = normalisePhone(phone);
-        String message = "🔐 *PRAGATHI SWEETS* — Verification Code\n\n"
+        String message = "🔐 *LOKESH LINGAM WEAVER* — Verification Code\n\n"
                 + "Your 6-digit verification code is: *" + code + "*\n\n"
                 + "Valid for 10 minutes. Please do not share this OTP with anyone.\n"
-                + "Thank you for choosing Pragathi Sweets!";
+                + "Thank you for choosing Lokesh Lingam Weaver!";
         
         if (enabled && isConfigured()) {
             send(cleanPhone, message);

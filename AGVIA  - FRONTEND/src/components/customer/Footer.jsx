@@ -1,565 +1,167 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  Instagram, Facebook, Youtube, Mail, ShoppingBag,
-  Info, Headphones, ShieldCheck, Truck, RotateCcw, ChevronRight, ChevronDown, Landmark
-} from 'lucide-react'
-import toast from 'react-hot-toast'
-import { BUSINESS } from '../../constants/business'
-import api from '../../services/api'
-
-/* ── Pinterest SVG Icon ── */
-const PinterestIcon = ({ size = 16, className = '' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
-  </svg>
-)
-
-/* ── WhatsApp SVG Icon ── */
-const WhatsAppIcon = ({ size = 16, className = '' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
-  </svg>
-)
-
-/* ── Ornate Vertical Gold Column Separator with Central Motif ── */
-function ColSep() {
-  return (
-    <div className="hidden lg:flex flex-col items-center justify-center shrink-0 px-2 select-none opacity-85" aria-hidden="true">
-      <div className="w-[1px] h-28 bg-gradient-to-b from-transparent via-[#C9A45C]/60 to-[#C9A45C]" />
-      <div className="my-2.5 text-[#C9A45C] flex items-center justify-center">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Ornate Indian Jewel / Rhombus with Petals */}
-          <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" fill="#C9A45C" fillOpacity="0.9" />
-          <circle cx="12" cy="12" r="2.2" fill="#5A1020" stroke="#FAF7F2" strokeWidth="0.75" />
-          <circle cx="12" cy="5" r="0.8" fill="#FFFDF8" />
-          <circle cx="12" cy="19" r="0.8" fill="#FFFDF8" />
-          <circle cx="5" cy="12" r="0.8" fill="#FFFDF8" />
-          <circle cx="19" cy="12" r="0.8" fill="#FFFDF8" />
-        </svg>
-      </div>
-      <div className="w-[1px] h-28 bg-gradient-to-t from-transparent via-[#C9A45C]/60 to-[#C9A45C]" />
-    </div>
-  )
-}
+import { Instagram, Phone, MapPin, MessageCircle, ArrowUp } from 'lucide-react'
+import BrandLogo from '../common/BrandLogo'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 
 export default function Footer() {
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [openSection, setOpenSection] = useState(null)
+  const whatsappUrl = buildWhatsAppUrl(
+    'Namaste Lokesh Lingam Weaver, I would like to enquire about your handloom saree collections.'
+  )
 
-  const toggleSection = (section) => {
-    setOpenSection(prev => prev === section ? null : section)
-  }
-
-  const handleSubscribe = async (e) => {
-    e.preventDefault()
-    if (!email.trim()) return
-    setLoading(true)
-    try {
-      const { data } = await api.post('/newsletter/subscribe', { email })
-      if (data?.data) localStorage.setItem('ps_circle_member', JSON.stringify(data.data))
-      toast.success(data?.message || 'Welcome to CHITRIKA Haute Circle! Code CIRCLE15 unlocked.', {
-        icon: '👑', style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
-      })
-      setEmail('')
-    } catch {
-      toast.success('Welcome to CHITRIKA Haute Circle! Your VIP perks are active.', {
-        icon: '👑', style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
-      })
-      setEmail('')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const shopLinks = [
-    { label: 'All Collections', to: '/products' },
-    { label: 'Sarees', to: '/products?category=Sarees' },
-    { label: 'Lehengas', to: '/products?category=Lehengas' },
-    { label: 'Kurtas', to: '/products?category=Anarkalis+%26+Kurtas' },
-    { label: 'Anarkalis', to: '/products?category=Anarkalis+%26+Kurtas' },
-    { label: 'Western Wear', to: '/products?category=Western+Wear' },
-    { label: 'New Arrivals', to: '/products' },
-    { label: 'Festive Collection', to: '/products' },
-    { label: 'Wedding Collection', to: '/products?category=Lehengas' },
-    { label: 'Gift Cards', to: '/products' },
-  ]
-
-  const aboutLinks = [
-    { label: 'Our Story', to: '/about' },
-    { label: 'Craftsmanship', to: '/craftsmanship' },
-    { label: 'Sustainability', to: '/sustainability' },
-    { label: 'Blogs & Style Guide', to: '/blogs' },
-    { label: 'Store Locations', to: '/store-locations' },
-    { label: 'Careers', to: '/careers' },
-    { label: 'Atelier Console (Admin)', to: '/admin/login' },
-  ]
-
-  const helpLinks = [
-    { label: 'Track Order', to: '/track' },
-    { label: 'Shipping & Delivery', to: '/shipping-policy' },
-    { label: 'Returns & Exchanges', to: '/return-exchange-policy' },
-    { label: 'Size Guide', to: '/size-guide' },
-    { label: 'Product Care', to: '/product-care' },
-    { label: 'FAQs', to: '/faq' },
-    { label: 'Contact Us', to: '/contact' },
-    { label: 'Bulk Orders', to: '/bulk-orders' },
-    { label: 'Styling Consultation', to: '/styling' },
-    { label: 'Atelier Appointments', to: '/appointments' },
-  ]
-
-  const policyLinks = [
-    { label: 'Privacy Policy', to: '/privacy-policy' },
-    { label: 'Terms & Conditions', to: '/terms' },
-    { label: 'Refund Policy', to: '/refund-policy' },
-    { label: 'Shipping Policy', to: '/shipping-policy' },
-    { label: 'Cancellation Policy', to: '/cancellation-policy' },
-    { label: 'Cookie Policy', to: '/cookie-policy' },
-    { label: 'Return & Exchange Policy', to: '/return-exchange-policy' },
-    { label: 'Intellectual Property', to: '/intellectual-property' },
-    { label: 'Disclaimer', to: '/disclaimer' },
-  ]
-
-  const bottomLinks = [
+  const navLinks = [
     { label: 'Home', to: '/' },
+    { label: 'Collections', to: '/products' },
     { label: 'About Us', to: '/about' },
-    { label: 'Privacy Policy', to: '/privacy-policy' },
-    { label: 'Terms & Conditions', to: '/terms' },
-    { label: 'Shipping Policy', to: '/shipping-policy' },
-    { label: 'Return Policy', to: '/refund-policy' },
-    { label: 'Size Guide', to: '/size-guide' },
-    { label: 'FAQs', to: '/faq' },
     { label: 'Contact Us', to: '/contact' },
-    { label: 'Atelier Admin', to: '/admin/login' },
+    { label: 'Track Order', to: '/track-order' },
+    { label: 'Admin Console', to: '/admin/login' },
   ]
 
-  const socials = [
-    { icon: Instagram, href: BUSINESS.social.instagram, label: 'Instagram' },
-    { icon: Facebook, href: BUSINESS.social.facebook, label: 'Facebook' },
-    { icon: PinterestIcon, href: '#', label: 'Pinterest' },
-    { icon: Youtube, href: '#', label: 'YouTube' },
-    { icon: WhatsAppIcon, href: `https://wa.me/919032306961`, label: 'WhatsApp' },
+  const collectionLinks = [
+    { label: 'Dharmavaram Silk Sarees', to: '/products?category=Dharmavaram+Silk+Sarees' },
+    { label: 'Kanchi-Style Silk Sarees', to: '/products?category=Kanchi-Style+Silk+Sarees' },
+    { label: 'Traditional Handloom Weaves', to: '/products?category=Traditional+Handloom+Weaves' },
+    { label: 'All Handloom Collections', to: '/products' },
   ]
-
-  const linkCls = 'font-sans text-[12px] text-white/70 hover:text-[#E6C687] transition-colors leading-relaxed block py-0.5'
-  const headingCls = 'font-serif text-[14.5px] font-semibold text-white mb-3.5 flex items-center gap-2'
 
   return (
-    <footer className="relative select-none overflow-hidden font-body text-white">
-
-      {/* ══════════════════════════════════════════════════════════════
-          1. TOP SCALLOPED ARCH & "WEAR YOUR STORY" CREST RIBBON
-      ══════════════════════════════════════════════════════════════ */}
-      <div className="relative w-full overflow-hidden select-none bg-[#FFFDF8]">
-        {/* SVG Scalloped Arched Transition into Royal Red Footer */}
-        <div className="relative w-full h-20 sm:h-24 md:h-28">
-          <svg
-            viewBox="0 0 1440 100"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="none"
-            className="absolute bottom-0 w-full h-full text-[#380A15]"
-          >
-            {/* Dark Royal Burgundy Base Fill */}
-            <path
-              d="M0 40 C360 40 460 90 720 90 C980 90 1080 40 1440 40 V100 H0 Z"
-              fill="currentColor"
-            />
-            {/* Scalloped Gold Accent Border */}
-            <path
-              d="M0 40 C360 40 460 90 720 90 C980 90 1080 40 1440 40"
-              stroke="#C9A45C"
-              strokeWidth="1.5"
-              strokeOpacity="0.8"
-            />
-            {/* Secondary Fine Gold Highlight */}
-            <path
-              d="M0 43 C360 43 460 93 720 93 C980 93 1080 43 1440 43"
-              stroke="#E6C687"
-              strokeWidth="0.75"
-              strokeOpacity="0.4"
-            />
-          </svg>
-
-          {/* Centered Ivory "Wear Your Story" Arch Cartouche */}
-          <div className="absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center text-center">
-            {/* Floating Scalloped Ivory Cartouche */}
-            <div className="px-6 sm:px-10 py-1.5 sm:py-2 rounded-full bg-[#FFFDF8] border border-[#C9A45C]/60 shadow-[0_4px_16px_rgba(90,16,32,0.12)] flex items-center gap-2">
-              <span className="text-[#C9A45C] text-[10px] sm:text-xs">✦</span>
-              <span
-                style={{ fontFamily: "'Alex Brush', 'Cormorant Garamond', 'Playfair Display', cursive, serif" }}
-                className="text-xl sm:text-2xl md:text-3xl text-[#9B2043] font-normal tracking-wide px-1 select-none"
-              >
-                Wear Your Story
-              </span>
-              <span className="text-[#C9A45C] text-[10px] sm:text-xs">✦</span>
-            </div>
-
-            {/* Hanging Ornate Lotus Pendant */}
-            <div className="mt-1 flex flex-col items-center">
-              <div className="w-[1px] h-3 bg-[#C9A45C]" />
-              <svg width="22" height="18" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M12 2C12 2 8 7 8 11C8 14.5 12 18 12 18C12 18 16 14.5 16 11C16 7 12 2 12 2Z"
-                  fill="#C9A45C"
-                />
-                <path
-                  d="M6 7C6 7 4 10.5 4 13C4 15.5 7.5 17 7.5 17C7.5 17 8 13.5 9 10C7.5 8.5 6 7 6 7Z"
-                  fill="#E6C687"
-                />
-                <path
-                  d="M18 7C18 7 20 10.5 20 13C20 15.5 16.5 17 16.5 17C16.5 17 16 13.5 15 10C16.5 8.5 18 7 18 7Z"
-                  fill="#E6C687"
-                />
-                <circle cx="12" cy="18.5" r="1.5" fill="#FAF7F2" />
-              </svg>
-            </div>
-          </div>
+    <footer className="relative select-none bg-[#38271F] text-[#FBF5EA] border-t-2 border-[#B58A45]/60 font-body">
+      {/* Subtle Heritage Top Border */}
+      <div className="bg-[#651B2B] py-3 border-b border-[#B58A45]/30">
+        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-center gap-3 text-center">
+          <span className="text-[#B58A45] text-xs">✦</span>
+          <p className="font-serif text-sm sm:text-base tracking-[0.2em] uppercase text-[#FBF5EA] font-semibold">
+            LOKESH LINGAM WEAVER
+          </p>
+          <span className="text-[#B58A45] hidden sm:inline">•</span>
+          <p className="font-sans text-[10px] sm:text-[11px] tracking-[0.24em] uppercase text-[#E7D4B9] font-medium">
+            HANDLOOM SAREES &amp; TRADITIONAL WEAVES
+          </p>
+          <span className="text-[#B58A45] text-xs">✦</span>
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════
-          2. MAIN ROYAL PALACE BACKGROUND & 5-COLUMN EDITORIAL GRID
-      ══════════════════════════════════════════════════════════════ */}
-      <div className="relative bg-[#380A15]">
-        {/* Authentic Palace Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-top bg-no-repeat pointer-events-none opacity-90"
-          style={{ backgroundImage: "url('/images/footer_bg.png')" }}
-        />
-
-        {/* Soft luxury gradient to maintain pristine text legibility while revealing palace hall */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2E0711]/45 via-[#1F040A]/60 to-[#120205]/85 pointer-events-none" />
-
-        {/* Main Content Container */}
-        <div className="relative z-10 max-w-[1340px] mx-auto px-4 sm:px-6 xl:px-8 pt-4 pb-6">
-          
-          {/* 5-Column Grid on Desktop / Accordion Reflow on Mobile */}
-          <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-0 pb-8 border-b border-white/10">
-
-            {/* Column 1: Brand Showcase */}
-            <div className="w-full lg:w-[24%] shrink-0 flex flex-col items-start lg:pr-6 pb-4 lg:pb-0 border-b border-white/10 lg:border-b-0">
-              <Link to="/" className="mb-4 group flex items-center gap-3 select-none">
-                <img
-                  src="/images/chitrika-logo.webp"
-                  alt="CHITRIKA"
-                  width={56}
-                  height={62}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-14 sm:h-16 w-auto object-contain brightness-110 drop-shadow-[0_2px_12px_rgba(201,164,92,0.35)] group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="flex flex-col">
-                  <span className="font-serif text-2xl font-bold tracking-[0.18em] uppercase text-[#FAF7F2] leading-none group-hover:text-[#C9A45C] transition-colors">
-                    CHITRIKA
-                  </span>
-                  <span className="font-sans text-[8px] sm:text-[8.5px] tracking-[0.28em] uppercase text-[#C9A45C] font-semibold mt-1">
-                    WOMEN'S WEAR BOUTIQUE
-                  </span>
-                </div>
-              </Link>
-              <p className="font-sans text-[11.5px] sm:text-[12px] text-white/70 leading-relaxed mb-4 max-w-sm">
-                Curating bespoke ethnic and contemporary wear for the modern woman. Tradition, quality and elegance — all in one place.
-              </p>
-              
-              {/* Circular Gold Outline Social Icons */}
-              <div className="flex gap-2 flex-wrap items-center">
-                {socials.map(({ icon: Icon, href, label }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="touch-target w-9 h-9 min-w-[36px] min-h-[36px] rounded-full border border-[#C9A45C]/50 flex items-center justify-center text-[#E6C687] hover:bg-[#7B1030] hover:border-[#7B1030] hover:text-white transition-all duration-200 shadow-sm"
-                  >
-                    <Icon size={15} />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <ColSep />
-
-            {/* Column 2: Shop */}
-            <div className="w-full lg:w-[17%] shrink-0 px-0 lg:px-3 border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
-              <button
-                type="button"
-                onClick={() => toggleSection('shop')}
-                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
-                aria-expanded={openSection === 'shop'}
-              >
-                <h4 className={headingCls}>
-                  <ShoppingBag size={14} className="text-[#C9A45C]" /> Shop
-                </h4>
-                <ChevronDown
-                  size={15}
-                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
-                    openSection === 'shop' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              <div className={`${openSection === 'shop' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
-                  {shopLinks.map((l) => (
-                    <li key={l.label}>
-                      <Link to={l.to} className={linkCls}>{l.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <ColSep />
-
-            {/* Column 3: About */}
-            <div className="w-full lg:w-[15%] shrink-0 px-0 lg:px-3 border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
-              <button
-                type="button"
-                onClick={() => toggleSection('about')}
-                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
-                aria-expanded={openSection === 'about'}
-              >
-                <h4 className={headingCls}>
-                  <Info size={14} className="text-[#C9A45C]" /> About
-                </h4>
-                <ChevronDown
-                  size={15}
-                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
-                    openSection === 'about' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              <div className={`${openSection === 'about' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
-                  {aboutLinks.map((l) => (
-                    <li key={l.label}>
-                      <Link to={l.to} className={linkCls}>{l.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <ColSep />
-
-            {/* Column 4: Help & Support */}
-            <div className="w-full lg:w-[22%] shrink-0 px-0 lg:px-3 border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
-              <button
-                type="button"
-                onClick={() => toggleSection('help')}
-                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
-                aria-expanded={openSection === 'help'}
-              >
-                <h4 className={headingCls}>
-                  <Headphones size={14} className="text-[#C9A45C]" /> Help &amp; Support
-                </h4>
-                <ChevronDown
-                  size={15}
-                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
-                    openSection === 'help' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              <div className={`${openSection === 'help' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
-                  {helpLinks.map((l) => (
-                    <li key={l.label}>
-                      <Link to={l.to} className={linkCls}>{l.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <ColSep />
-
-            {/* Column 5: Policies */}
-            <div className="w-full lg:flex-1 px-0 lg:px-3 pb-2 lg:pb-0">
-              <button
-                type="button"
-                onClick={() => toggleSection('policies')}
-                className="w-full flex items-center justify-between text-left lg:pointer-events-none py-1 lg:py-0"
-                aria-expanded={openSection === 'policies'}
-              >
-                <h4 className={headingCls}>
-                  <ShieldCheck size={14} className="text-[#C9A45C]" /> Policies
-                </h4>
-                <ChevronDown
-                  size={15}
-                  className={`text-[#C9A45C] lg:hidden transition-transform duration-200 ${
-                    openSection === 'policies' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              <div className={`${openSection === 'policies' ? 'block' : 'hidden'} lg:block pt-1.5 lg:pt-0`}>
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-1 lg:gap-0 lg:space-y-1">
-                  {policyLinks.map((l) => (
-                    <li key={l.label}>
-                      <Link to={l.to} className={linkCls}>{l.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ══════════════════════════════════════════════════════════════
-              3. NEWSLETTER & TRUST BADGES HORIZONTAL BAR
-          ══════════════════════════════════════════════════════════════ */}
-          <div className="my-4 sm:my-5 rounded-2xl bg-[#23030A]/90 backdrop-blur-md border border-[#C9A45C]/30 p-3.5 sm:p-5 flex flex-col xl:flex-row items-center justify-between gap-4 sm:gap-5 shadow-lg">
-            
-            {/* Newsletter Info Header */}
-            <div className="flex items-center gap-3 w-full xl:w-auto">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#C9A45C]/15 border border-[#C9A45C]/40 flex items-center justify-center shrink-0">
-                <Mail size={18} className="text-[#C9A45C]" />
-              </div>
-              <div>
-                <h5 className="font-serif text-[13.5px] sm:text-[14px] font-semibold text-white tracking-wide">
-                  Subscribe to Our World
-                </h5>
-                <p className="font-sans text-[10.5px] sm:text-[11px] text-white/60">
-                  Get exclusive updates, new arrivals and special offers.
-                </p>
-              </div>
-            </div>
-
-            {/* Pill Newsletter Form */}
-            <form
-              onSubmit={handleSubscribe}
-              className="flex items-center rounded-full border border-[#C9A45C]/40 bg-[#140206]/85 p-1 w-full xl:max-w-md shadow-inner"
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                className="flex-1 min-w-0 bg-transparent text-[11px] sm:text-[12px] font-sans text-white placeholder-white/40 px-3 sm:px-4 py-2 focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="touch-target bg-[#FAF7F2] hover:bg-[#C9A45C] text-[#5A1020] hover:text-[#1A0B10] font-bold text-[10px] sm:text-[11px] tracking-wider uppercase px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all flex items-center gap-1 shrink-0 shadow-sm"
-              >
-                <span>SUBSCRIBE</span>
-                <ChevronRight size={13} strokeWidth={2.5} />
-              </button>
-            </form>
-
-            {/* Vertical Divider (Desktop) */}
-            <div className="hidden xl:block w-[1px] h-10 bg-[#C9A45C]/30 mx-1" />
-
-            {/* 3 Trust Badges */}
-            <div className="grid grid-cols-3 gap-2 w-full pt-3 sm:pt-0 border-t border-[#C9A45C]/20 sm:border-none sm:flex sm:items-center sm:gap-6 sm:w-auto justify-center">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-1 sm:gap-2.5">
-                <Truck size={20} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
-                <div>
-                  <p className="font-serif text-[11px] sm:text-[12px] font-semibold text-white leading-tight">Free Shipping</p>
-                  <p className="font-sans text-[9.5px] sm:text-[10px] text-white/50 leading-tight">Orders ₹999+</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-1 sm:gap-2.5">
-                <RotateCcw size={19} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
-                <div>
-                  <p className="font-serif text-[11px] sm:text-[12px] font-semibold text-white leading-tight">Easy Returns</p>
-                  <p className="font-sans text-[9.5px] sm:text-[10px] text-white/50 leading-tight">7 Days Policy</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-1 sm:gap-2.5">
-                <ShieldCheck size={20} className="text-[#C9A45C] shrink-0" strokeWidth={1.75} />
-                <div>
-                  <p className="font-serif text-[11px] sm:text-[12px] font-semibold text-white leading-tight">Secure Pay</p>
-                  <p className="font-sans text-[9.5px] sm:text-[10px] text-white/50 leading-tight">100% Encrypted</p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ══════════════════════════════════════════════════════════════
-              4. BOTTOM COPYRIGHT, NAV LINKS & PAYMENT BADGES
-          ══════════════════════════════════════════════════════════════ */}
-          <div className="pt-3 pb-16 sm:pb-3 flex flex-col xl:flex-row items-center justify-between gap-3 text-center xl:text-left">
-            
-            {/* Copyright */}
-            <p className="font-sans text-[10.5px] text-white/50 tracking-wider">
-              © {new Date().getFullYear()} CHITRIKA Women's Wear Boutique. All rights reserved.
+      {/* Main Footer Grid */}
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-8 border-b border-[#B58A45]/20">
+          {/* Column 1: Official Logo & Business Description */}
+          <div className="lg:col-span-4 space-y-4">
+            <Link to="/" className="inline-block">
+              <BrandLogo variant="dark" size="lg" />
+            </Link>
+            <p className="text-xs text-[#E7D4B9]/90 leading-relaxed max-w-sm">
+              {BUSINESS.description}
             </p>
-
-            {/* Middle Nav Links */}
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 justify-center">
-              {bottomLinks.map((l, i) => (
-                <span key={l.label} className="flex items-center gap-2">
-                  <Link
-                    to={l.to}
-                    className="font-sans text-[10.5px] text-white/50 hover:text-[#E6C687] tracking-wider transition-colors py-0.5"
-                  >
-                    {l.label}
-                  </Link>
-                  {i < bottomLinks.length - 1 && <span className="text-white/20 text-[9px]">|</span>}
-                </span>
-              ))}
+            <div className="flex flex-wrap gap-2 text-[10.5px] font-semibold uppercase tracking-wider text-[#E7D4B9]">
+              <span className="px-3 py-1 rounded-full bg-[#651B2B]/70 border border-[#B58A45]/40">
+                Direct Handloom Weaver
+              </span>
+              <span className="px-3 py-1 rounded-full bg-[#651B2B]/70 border border-[#B58A45]/40">
+                Since {BUSINESS.establishedYear}
+              </span>
             </div>
-
-            {/* Right: Payment Icons + Back to Top */}
-            <div className="flex items-center gap-3.5 flex-wrap justify-center">
-              
-              {/* Crisp Payment Vector Logos */}
-              <div className="flex items-center gap-1.5">
-                {/* VISA */}
-                <div className="h-5 px-2 bg-white rounded flex items-center justify-center shadow-xs" title="Visa">
-                  <span className="font-sans text-[10px] font-black italic text-[#1A1F71] tracking-tighter leading-none">
-                    VISA
-                  </span>
-                </div>
-
-                {/* Mastercard */}
-                <div className="h-5 px-2 bg-[#1A1A1A] rounded flex items-center justify-center shadow-xs" title="Mastercard">
-                  <div className="flex items-center">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#EB001B] inline-block opacity-90" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#F79E1B] inline-block -ml-1 opacity-90" />
-                  </div>
-                </div>
-
-                {/* RuPay */}
-                <div className="h-5 px-2 bg-white rounded flex items-center justify-center gap-0.5 shadow-xs" title="RuPay">
-                  <span className="font-sans text-[9px] font-black text-[#097939] tracking-tight leading-none">Ru</span>
-                  <span className="font-sans text-[9px] font-black text-[#0089D0] tracking-tight leading-none">Pay</span>
-                </div>
-
-                {/* UPI */}
-                <div className="h-5 px-2 bg-white rounded flex items-center justify-center gap-0.5 shadow-xs" title="UPI">
-                  <span className="font-sans text-[9px] font-black text-[#0F7C3C] tracking-wider leading-none">UPI</span>
-                </div>
-
-                {/* Paytm */}
-                <div className="h-5 px-2 bg-white rounded flex items-center justify-center gap-0.5 shadow-xs" title="Paytm">
-                  <span className="font-sans text-[9px] font-bold text-[#002E6E] leading-none">Pay</span>
-                  <span className="font-sans text-[9px] font-black text-[#00B9F5] leading-none">tm</span>
-                </div>
-
-                {/* NetBanking */}
-                <div className="h-5 px-2 bg-white/15 border border-[#C9A45C]/35 rounded flex items-center justify-center text-[#E6C687] shadow-xs" title="NetBanking">
-                  <Landmark size={12} />
-                </div>
-              </div>
-
-              {/* Back to Top */}
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="touch-target flex items-center justify-center gap-1 text-[10px] font-sans tracking-widest text-white/80 hover:text-[#C9A45C] border border-[#C9A45C]/35 hover:border-[#C9A45C] rounded-full px-3.5 py-1.5 transition-all uppercase whitespace-nowrap shadow-xs"
-              >
-                <span>Back to Top</span> ↑
-              </button>
-            </div>
-
           </div>
 
+          {/* Column 2: Navigation */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="font-serif text-base font-bold text-[#E7D4B9] tracking-wide">
+              Navigation
+            </h4>
+            <ul className="space-y-2 text-xs">
+              {navLinks.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    to={item.to}
+                    className="text-[#FBF5EA]/80 hover:text-[#B58A45] transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 3: Product Collections */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-serif text-base font-bold text-[#E7D4B9] tracking-wide">
+              Product Collections
+            </h4>
+            <ul className="space-y-2 text-xs">
+              {collectionLinks.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    to={item.to}
+                    className="text-[#FBF5EA]/80 hover:text-[#B58A45] transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Contact, WhatsApp, Instagram & Location */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-serif text-base font-bold text-[#E7D4B9] tracking-wide">
+              Connect With Us
+            </h4>
+            <div className="space-y-2.5 text-xs text-[#FBF5EA]/85">
+              <div className="flex items-start gap-2.5">
+                <MapPin size={15} className="text-[#B58A45] shrink-0 mt-0.5" />
+                <span>{BUSINESS.location.fullAddress}</span>
+              </div>
+              <a
+                href={`tel:${BUSINESS.contact.phoneRaw}`}
+                className="flex items-center gap-2.5 hover:text-[#B58A45] transition-colors"
+              >
+                <Phone size={15} className="text-[#B58A45] shrink-0" />
+                <span>{BUSINESS.contact.phone}</span>
+              </a>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 hover:text-[#B58A45] transition-colors"
+              >
+                <MessageCircle size={15} className="text-[#B58A45] shrink-0" />
+                <span>WhatsApp: {BUSINESS.contact.whatsapp}</span>
+              </a>
+              <a
+                href={BUSINESS.social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 hover:text-[#B58A45] transition-colors"
+              >
+                <Instagram size={15} className="text-[#B58A45] shrink-0" />
+                <span>{BUSINESS.social.instagramHandle}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Copyright & Signature Bar */}
+        <div className="pt-6 pb-16 sm:pb-0 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <div className="space-y-1">
+            <p className="font-serif text-xs sm:text-sm font-bold tracking-[0.18em] uppercase text-[#E7D4B9]">
+              LOKESH LINGAM WEAVER
+            </p>
+            <p className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#B58A45]">
+              HANDLOOM SAREES &amp; TRADITIONAL WEAVES
+            </p>
+          </div>
+
+          <p className="font-sans text-[11px] text-[#E7D4B9]/70">
+            © {new Date().getFullYear()} Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-widest text-[#E7D4B9] hover:text-white border border-[#B58A45]/45 hover:border-[#B58A45] rounded-full px-4 py-1.5 transition-all"
+          >
+            <span>Back to Top</span>
+            <ArrowUp size={12} />
+          </button>
         </div>
       </div>
     </footer>

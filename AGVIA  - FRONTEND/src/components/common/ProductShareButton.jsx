@@ -53,7 +53,7 @@ export default function ProductShareButton({ product, variant = 'icon', classNam
     e.stopPropagation()
     trackProductShare(product, 'WHATSAPP')
     const waUrl = getProductWhatsAppShareUrl(product)
-    safeOpenWindow(waUrl, 'agvia_product_share', 'noopener,noreferrer')
+    safeOpenWindow(waUrl, 'llw_product_share', 'noopener,noreferrer')
     setOpen(false)
   }
 

@@ -1,163 +1,123 @@
+import { useState } from 'react'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
-import { Crown, Sparkles } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { Crown, Sparkles, MessageCircle } from 'lucide-react'
+import SEOHead from '../../components/common/SEOHead'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
+import { safeOpenWindow } from '../../utils/windowManager'
 
 export default function WeddingOrders() {
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [eventDate, setEventDate] = useState('')
+  const [requirements, setRequirements] = useState('')
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    toast.success(
-      'Thank you for your bridal inquiry! Our senior atelier couturier will connect with you within 24 hours.',
-      { style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' } }
-    )
-    e.target.reset()
+    const msg = [
+      `Namaste ${BUSINESS.name},`,
+      `I would like to enquire about wedding handloom sarees:`,
+      name ? `Name: ${name}` : null,
+      phone ? `Phone: ${phone}` : null,
+      eventDate ? `Event Date: ${eventDate}` : null,
+      requirements ? `Preferences: ${requirements}` : null,
+    ].filter(Boolean).join('\n')
+    safeOpenWindow(buildWhatsAppUrl(msg), 'llw_wedding_whatsapp', 'noopener,noreferrer')
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E]">
+    <div className="min-h-screen bg-[#FBF5EA] text-[#38271F]">
+      <SEOHead title="Wedding Handloom Sarees" canonicalUrl="/wedding-orders" />
       <Navbar />
 
-      {/* Page body — pt accounts for fixed Navbar */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20">
-
-        {/* ── Page Header ── */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 rounded-full bg-[#5A1020]/08 flex items-center justify-center mx-auto mb-5 border border-[#C9A45C]/25">
-            <Crown size={26} className="text-[#C9A45C]" />
+          <div className="w-14 h-14 rounded-full bg-[#651B2B]/10 flex items-center justify-center mx-auto mb-5 border border-[#B58A45]/25">
+            <Crown size={26} className="text-[#B58A45]" />
           </div>
-          <span
-            style={{ fontFamily: "'Lato', 'Inter', sans-serif", letterSpacing: '0.3em' }}
-            className="text-[9px] font-bold uppercase text-[#C9A45C] block mb-3"
-          >
-            ✦ Royal Trousseau Curation ✦
+          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#B58A45] block mb-3">
+            {BUSINESS.name} · {BUSINESS.location.short}
           </span>
-          <h1
-            style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
-            className="text-3xl sm:text-4xl md:text-5xl text-[#5A1020] font-bold mb-4 leading-tight"
-          >
-            Bridal &amp; Wedding Trousseaus
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#651B2B] font-bold mb-4 leading-tight">
+            Wedding &amp; Bridal Handloom Sarees
           </h1>
-          <p
-            style={{ fontFamily: "'Lato', 'Inter', sans-serif" }}
-            className="text-xs sm:text-sm text-[#211D1E]/60 max-w-xl mx-auto leading-relaxed"
-          >
-            Curate an unforgettable bridal wardrobe — bespoke Kanjeevarams, custom-embroidered
-            zardozi lehengas, coordinated bridal party ensembles, and personal styling at our
-            Jubilee Hills atelier.
+          <p className="text-xs sm:text-sm text-[#38271F]/75 max-w-xl mx-auto leading-relaxed">
+            Explore Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves directly from {BUSINESS.name} with {BUSINESS.experienceClaim}. Send your wedding requirements directly via WhatsApp.
           </p>
         </div>
 
-        {/* ── Consultation Form ── */}
-        <div className="bg-white border border-[#C9A45C]/20 rounded-3xl shadow-sm overflow-hidden">
-          {/* Form header bar */}
-          <div className="bg-gradient-to-r from-[#5A1020] to-[#7A1F32] px-6 py-4 flex items-center gap-3">
-            <Sparkles size={16} className="text-[#E6C687]" />
-            <h3
-              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-              className="text-white font-bold text-base sm:text-lg tracking-wide"
-            >
-              Bridal Consultation Request
+        <div className="bg-white border border-[#B58A45]/25 rounded-3xl shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-[#651B2B] to-[#38271F] px-6 py-4 flex items-center gap-3">
+            <Sparkles size={16} className="text-[#E7D4B9]" />
+            <h3 className="font-serif text-white font-bold text-base sm:text-lg tracking-wide">
+              Wedding Saree WhatsApp Enquiry
             </h3>
           </div>
 
           <form onSubmit={handleSubmit} className="p-5 sm:p-7 md:p-8 space-y-5">
-
-            {/* Row 1: Name + Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label
-                  style={{ fontFamily: "'Lato', sans-serif", letterSpacing: '0.1em' }}
-                  className="text-[10px] uppercase font-bold text-[#C9A45C]"
-                >
-                  Bride / Patron Name <span className="text-rose-500">*</span>
+                <label className="text-[10px] uppercase font-bold tracking-wider text-[#B58A45]">
+                  Your Name *
                 </label>
                 <input
                   required
                   type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Full Name"
-                  className="w-full bg-[#FAF7F2] border border-[#C9A45C]/25 rounded-xl px-4 py-3 text-sm text-[#211D1E] placeholder:text-[#211D1E]/35 focus:outline-none focus:ring-2 focus:ring-[#C9A45C]/40 focus:border-[#C9A45C] transition-all duration-200"
+                  className="input-field"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label
-                  style={{ fontFamily: "'Lato', sans-serif", letterSpacing: '0.1em' }}
-                  className="text-[10px] uppercase font-bold text-[#C9A45C]"
-                >
-                  Email Address <span className="text-rose-500">*</span>
+                <label className="text-[10px] uppercase font-bold tracking-wider text-[#B58A45]">
+                  Phone / WhatsApp *
                 </label>
                 <input
                   required
-                  type="email"
-                  placeholder="you@example.com"
-                  className="w-full bg-[#FAF7F2] border border-[#C9A45C]/25 rounded-xl px-4 py-3 text-sm text-[#211D1E] placeholder:text-[#211D1E]/35 focus:outline-none focus:ring-2 focus:ring-[#C9A45C]/40 focus:border-[#C9A45C] transition-all duration-200"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Your 10-digit mobile number"
+                  className="input-field"
                 />
               </div>
             </div>
 
-            {/* Row 2: Phone */}
             <div className="flex flex-col gap-1.5">
-              <label
-                style={{ fontFamily: "'Lato', sans-serif", letterSpacing: '0.1em' }}
-                className="text-[10px] uppercase font-bold text-[#C9A45C]"
-              >
-                Phone / WhatsApp <span className="text-rose-500">*</span>
+              <label className="text-[10px] uppercase font-bold tracking-wider text-[#B58A45]">
+                Event Date
               </label>
               <input
-                required
-                type="tel"
-                placeholder="+91 90323 06961"
-                className="w-full bg-[#FAF7F2] border border-[#C9A45C]/25 rounded-xl px-4 py-3 text-sm text-[#211D1E] placeholder:text-[#211D1E]/35 focus:outline-none focus:ring-2 focus:ring-[#C9A45C]/40 focus:border-[#C9A45C] transition-all duration-200"
-              />
-            </div>
-
-            {/* Row 3: Wedding Date */}
-            <div className="flex flex-col gap-1.5">
-              <label
-                style={{ fontFamily: "'Lato', sans-serif", letterSpacing: '0.1em' }}
-                className="text-[10px] uppercase font-bold text-[#C9A45C]"
-              >
-                Estimated Wedding Date <span className="text-rose-500">*</span>
-              </label>
-              <input
-                required
                 type="date"
-                className="w-full bg-[#FAF7F2] border border-[#C9A45C]/25 rounded-xl px-4 py-3 text-sm text-[#211D1E] focus:outline-none focus:ring-2 focus:ring-[#C9A45C]/40 focus:border-[#C9A45C] transition-all duration-200"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                className="input-field"
               />
             </div>
 
-            {/* Row 4: Requirements */}
             <div className="flex flex-col gap-1.5">
-              <label
-                style={{ fontFamily: "'Lato', sans-serif", letterSpacing: '0.1em' }}
-                className="text-[10px] uppercase font-bold text-[#C9A45C]"
-              >
-                Silhouettes &amp; Requirements <span className="text-rose-500">*</span>
+              <label className="text-[10px] uppercase font-bold tracking-wider text-[#B58A45]">
+                Saree Preferences *
               </label>
               <textarea
                 required
-                rows={5}
-                placeholder="Specify silhouettes required (Bridal Lehenga, Reception Gown, Muhurtham Sarees, Bridesmaids Edits), preferred colors, and custom sizing notes..."
-                className="w-full bg-[#FAF7F2] border border-[#C9A45C]/25 rounded-xl px-4 py-3 text-sm text-[#211D1E] placeholder:text-[#211D1E]/35 focus:outline-none focus:ring-2 focus:ring-[#C9A45C]/40 focus:border-[#C9A45C] transition-all duration-200 resize-none leading-relaxed"
+                rows={4}
+                value={requirements}
+                onChange={(e) => setRequirements(e.target.value)}
+                placeholder="Share preferred saree categories (Dharmavaram silk, Kanchi-style silk, traditional weaves), colours, and quantity..."
+                className="input-field resize-none"
               />
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
-              style={{ fontFamily: "'Lato', sans-serif", letterSpacing: '0.15em' }}
-              className="w-full bg-[#5A1020] hover:bg-[#7A1F32] text-white font-bold text-xs uppercase py-4 rounded-full transition-all duration-300 shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-[#651B2B] hover:bg-[#4E1320] text-white font-bold text-xs uppercase tracking-widest py-4 rounded-full transition-all shadow-md flex items-center justify-center gap-2"
             >
-              <Crown size={14} className="text-[#E6C687]" />
-              Request Atelier Consultation
+              <MessageCircle size={15} />
+              Enquire on WhatsApp ({BUSINESS.phoneDisplay})
             </button>
-
-            <p
-              style={{ fontFamily: "'Lato', sans-serif" }}
-              className="text-center text-[10px] text-[#211D1E]/40 tracking-wide"
-            >
-              Our bridal stylists will reach out within 24 hours.
-            </p>
           </form>
         </div>
       </main>

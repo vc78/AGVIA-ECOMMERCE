@@ -223,7 +223,7 @@ export default function EditProduct() {
     return (
       <AdminLayout>
         <div className="py-24 text-center text-xs text-[#211D1E]/50 animate-pulse font-body">
-          Retrieving silhouette data from CHITRIKA atelier repository...
+          Retrieving product details from Lokesh Lingam Weaver catalogue...
         </div>
       </AdminLayout>
     )

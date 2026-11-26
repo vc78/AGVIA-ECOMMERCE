@@ -1,8 +1,8 @@
 {
-  "name": "agvia-boutique-frontend",
+  "name": "lokesh-lingam-weaver-frontend",
   "private": true,
   "version": "1.0.0",
-  "description": "AGVIA — Women's Wear Boutique Frontend & Analytics Dashboard",
+  "description": "Lokesh Lingam Weaver — Dharmavaram Handloom Sarees Storefront & Admin Dashboard",
   "type": "module",
   "scripts": {
     "dev": "vite",

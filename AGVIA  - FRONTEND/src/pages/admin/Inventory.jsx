@@ -250,7 +250,7 @@ export default function Inventory() {
           rows={filteredInventory} 
           title={`Atelier Fabric & Stock (${filteredInventory.length})`}
           emptyMessage="No inventory records matched the selected filter." 
-          exportFilename="chitrika_fabric_inventory"
+          exportFilename="lokesh_lingam_weaver_inventory"
         />
       )}
     </AdminLayout>

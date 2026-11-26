@@ -52,14 +52,14 @@ export default function Settings() {
   const [sendingTest, setSendingTest] = useState(false)
 
   const [form, setForm] = useState({
-    // Store Identity & Concierge
+    // Store Identity & Contact
     storeName: BUSINESS.name,
     storeTagline: BUSINESS.tagline,
-    supportEmail: BUSINESS.contact.supportEmail || 'care@chitrika.in',
+    supportEmail: BUSINESS.contact.supportEmail || '',
     supportPhone: BUSINESS.contact.phone,
     whatsappNumber: BUSINESS.contact.whatsapp,
     storeAddress: BUSINESS.location.fullAddress,
-    businessHours: BUSINESS.contact.hours,
+    businessHours: '',
 
     // Tariffs & Checkout Rules
     minimumOrderValue: 200,
@@ -72,12 +72,12 @@ export default function Settings() {
 
     // Live Operations & Store Banners
     maintenanceMode: false,
-    maintenanceMessage: 'Our boutique atelier is undergoing scheduled curation. We will resume taking orders shortly.',
-    announcementBarEnabled: true,
-    announcementText: '✨ Festive Curation: Complimentary Handloom Potli with orders above ₹3,000 | Free Shipping across India on orders above ₹999',
-    announcementLink: '/shop',
+    maintenanceMessage: 'Our store is undergoing scheduled updates. Please reach us on WhatsApp (+91 7799349294) for enquiries.',
+    announcementBarEnabled: false,
+    announcementText: '',
+    announcementLink: '/products',
     holidayMode: false,
-    holidayNotice: 'Orders placed now will be handcrafted and dispatched starting next week.',
+    holidayNotice: 'Dispatch updates are confirmed on WhatsApp (+91 7799349294).',
 
     // Tax & Currencies
     currencySymbol: '₹',
@@ -90,7 +90,7 @@ export default function Settings() {
     enableLowStockAlerts: true,
     notifyAdminOnNewOrder: true,
     notifyCustomerOnDispatch: true,
-    adminAlertEmail: 'orders@pragathisweets.com',
+    adminAlertEmail: '',
     soundAlertsEnabled: true
   })
 
@@ -324,7 +324,7 @@ export default function Settings() {
                       value={form.storeName || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="e.g. CHITRIKA Women's Wear Boutique"
+                      placeholder="e.g. Lokesh Lingam Weaver"
                     />
                   </div>
 
@@ -337,28 +337,27 @@ export default function Settings() {
                       value={form.storeTagline || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="e.g. Haute Couture & Heritage Silks"
+                      placeholder="e.g. Handloom Sarees & Traditional Weaves"
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block flex items-center gap-1">
-                      <Mail size={11} /> Concierge Support Email
+                      <Mail size={11} /> Official Business Email
                     </label>
                     <input
                       name="supportEmail"
                       type="email"
-                      required
                       value={form.supportEmail || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="care@chitrika.in"
+                      placeholder="Enter official email when available"
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block flex items-center gap-1">
-                      <Phone size={11} /> Concierge Telephone
+                      <Phone size={11} /> Business Telephone
                     </label>
                     <input
                       name="supportPhone"
@@ -366,7 +365,7 @@ export default function Settings() {
                       value={form.supportPhone || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="+91 90323 06961"
+                      placeholder="+91 7799349294"
                     />
                   </div>
 
@@ -379,33 +378,33 @@ export default function Settings() {
                       value={form.whatsappNumber || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="+91 90323 06961"
+                      placeholder="+91 7799349294"
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block flex items-center gap-1">
-                      <Clock size={11} /> Operating & Styling Hours
+                      <Clock size={11} /> Operating Hours
                     </label>
                     <input
                       name="businessHours"
                       value={form.businessHours || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="10:30 AM - 8:30 PM IST (Mon - Sun)"
+                      placeholder="Enter confirmed business hours"
                     />
                   </div>
 
                   <div className="sm:col-span-2 space-y-1.5">
                     <label className="text-[10px] font-bold text-[#C9A45C] tracking-widest uppercase block flex items-center gap-1">
-                      <MapPin size={11} /> Flagship Atelier Physical Address
+                      <MapPin size={11} /> Workshop / Business Address
                     </label>
                     <input
                       name="storeAddress"
                       value={form.storeAddress || ''}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="Road No. 36, Jubilee Hills, Hyderabad, Telangana 500033"
+                      placeholder="Dharmavaram, Andhra Pradesh, India – 515671"
                     />
                   </div>
                 </div>
@@ -809,7 +808,7 @@ export default function Settings() {
                         value={form.adminAlertEmail || ''}
                         onChange={handleChange}
                         className="input-field"
-                        placeholder="orders@pragathisweets.com"
+                        placeholder="Enter order alert email (if configured)"
                       />
                     </div>
                   </div>

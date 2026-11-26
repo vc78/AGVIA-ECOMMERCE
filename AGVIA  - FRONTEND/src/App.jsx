@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import AppRoutes from './routes/AppRoutes'
 import LoadingScreen from './components/customer/LoadingScreen'
+import FloatingWhatsApp from './components/customer/FloatingWhatsApp'
 import { authService } from './services/authService'
 import { loggedOut, profileUpdated, authCheckCompleted } from './store/authSlice'
 import { initAuthSync } from './utils/authSync'
@@ -94,6 +95,7 @@ export default function App() {
     <>
       <LoadingScreen />
       <AppRoutes />
+      <FloatingWhatsApp />
     </>
   )
 }

@@ -6,6 +6,8 @@ import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
 
+import { BUSINESS } from '../../constants/business'
+
 export default function GoogleSignInButton({ from = '/' }) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -29,9 +31,8 @@ export default function GoogleSignInButton({ from = '/' }) {
       const { user, token } = await authService.googleLogin(response.credential)
       dispatch(credentialsReceived({ user, token }))
       broadcastAuthEvent('LOGIN', { user, token })
-      toast.success(`Welcome to CHITRIKA, ${user.name || 'Patron'}!`, {
-        icon: '👑',
-        style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
+      toast.success(`Welcome to ${BUSINESS.name}, ${user.name || 'Customer'}!`, {
+        style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' }
       })
       navigate(user.role === 'ADMIN' && from === '/' ? '/admin/dashboard' : from, { replace: true })
     } catch (err) {
@@ -137,7 +138,7 @@ export default function GoogleSignInButton({ from = '/' }) {
         className={`w-full flex justify-center min-h-[44px] ${clientId && gisLoaded ? 'block' : 'hidden'}`}
       />
 
-      {/* Branded Fallback / Direct Button matching CHITRIKA Design System */}
+      {/* Branded Fallback / Direct Button matching Lokesh Lingam Weaver Design System */}
       {(!clientId || !gisLoaded || loading) && (
         <button
           type="button"

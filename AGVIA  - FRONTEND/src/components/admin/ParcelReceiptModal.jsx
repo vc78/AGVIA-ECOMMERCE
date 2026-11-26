@@ -23,7 +23,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
     // Generate unique QR Code for this order (Clean URL without # symbol to ensure instant phone camera scanning)
     const siteUrl = typeof window !== 'undefined' && window.location?.origin 
       ? window.location.origin 
-      : 'https://chitrika.vercel.app'
+      : BUSINESS.seo.siteUrl
     const trackingRef = order.orderNumber || String(order.id || '')
     const trackingToken = order?.trackingToken || fullOrder?.trackingToken || null
     const trackingUrl = trackingToken
@@ -155,35 +155,30 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
         <div className="overflow-y-auto p-5 sm:p-8 space-y-5 font-body print:p-0 print:overflow-visible">
           <div id="parcel-slip-printable" className="border border-[#C9A45C]/40 rounded-2xl p-5 sm:p-6 bg-[#FFFDF8] relative overflow-hidden print:border print:rounded-none">
             
-            {/* Top Luxury Banner */}
-            <div className="bg-[#5A1020] -m-5 sm:-m-6 mb-4 p-3.5 px-5 flex items-center justify-between text-[#FAF7F2] border-b-2 border-[#C9A45C]">
+            {/* Top Branded Banner */}
+            <div className="bg-[#651B2B] -m-5 sm:-m-6 mb-4 p-3.5 px-5 flex items-center justify-between text-[#FBF5EA] border-b-2 border-[#B58A45]">
               <div>
-                <span className="font-serif font-bold text-sm tracking-wider uppercase text-[#C9A45C]">CHITRIKA</span>
-                <span className="text-[10px] text-white/70 ml-2 hidden sm:inline">• HAUTE COUTURE ATELIER DISPATCH</span>
+                <span className="font-serif font-bold text-sm tracking-wider uppercase text-[#E7D4B9]">{BUSINESS.name}</span>
+                <span className="text-[10px] text-white/75 ml-2 hidden sm:inline">• {BUSINESS.tagline}</span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-mono tracking-widest uppercase text-[#FAF7F2]/90">
-                  OFFICIAL PARCEL PACKING SLIP & TAX INVOICE
+                <span className="text-[10px] font-mono tracking-widest uppercase text-[#FBF5EA]/90">
+                  OFFICIAL PARCEL PACKING SLIP
                 </span>
               </div>
             </div>
 
             {/* Header: Brand & QR Code */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-[#C9A45C]/20">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-[#B58A45]/25">
               <div className="flex items-center gap-3">
-                <img 
-                  src="/images/chitrika-logo.webp" 
-                  alt="CHITRIKA" 
-                  width={40} 
-                  height={45} 
-                  className="h-10 sm:h-11 w-auto max-h-11 shrink-0 object-contain" 
+                <img
+                  src="/images/lokesh-lingam-logo.png"
+                  alt={BUSINESS.name}
+                  className="h-12 sm:h-14 w-auto max-h-14 shrink-0 object-contain"
                 />
                 <div>
-                  <h1 className="font-serif text-2xl font-bold text-[#5A1020] tracking-wide">CHITRIKA</h1>
-                  <p className="text-[11px] text-[#211D1E]/70 font-medium">Boutique Luxury Women's Wear & Atelier Dispatches</p>
-                  <p className="text-[10px] text-[#211D1E]/50 mt-0.5 font-mono">
-                    GSTIN: 36AAHCA1234F1Z5 | CIN: U18101TG2026PTC099882
-                  </p>
+                  <h1 className="font-serif text-xl sm:text-2xl font-bold text-[#651B2B] tracking-wide">{BUSINESS.name}</h1>
+                  <p className="text-[11px] text-[#38271F]/75 font-medium">{BUSINESS.category} · {BUSINESS.location.shortAddress}</p>
                 </div>
               </div>
 
@@ -250,17 +245,17 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
               </div>
 
               {/* Ship From */}
-              <div className="border border-[#C9A45C]/30 rounded-xl p-3.5 bg-white relative">
-                <span className="text-[9px] font-bold uppercase tracking-wider bg-[#C9A45C] text-[#5A1020] px-2 py-0.5 rounded-full absolute -top-2.5 left-3">
-                  Return & Dispatch (Consignor)
+              <div className="border border-[#B58A45]/30 rounded-xl p-3.5 bg-white relative">
+                <span className="text-[9px] font-bold uppercase tracking-wider bg-[#B58A45] text-white px-2 py-0.5 rounded-full absolute -top-2.5 left-3">
+                  Sender (Direct Weaver)
                 </span>
-                <h4 className="font-bold text-sm text-[#5A1020] mt-1">CHITRIKA ATELIER DISPATCH CENTER</h4>
-                <p className="text-xs text-[#211D1E]/80 mt-1 leading-relaxed">
-                  {BUSINESS.location.street}, {BUSINESS.location.city}, {BUSINESS.location.state} - {BUSINESS.location.pincode}
+                <h4 className="font-bold text-sm text-[#651B2B] mt-1">{BUSINESS.name}</h4>
+                <p className="text-xs text-[#38271F]/80 mt-1 leading-relaxed">
+                  {BUSINESS.location.fullAddress}
                 </p>
-                <div className="mt-2.5 pt-2 border-t border-gray-100 text-[11px] text-[#211D1E]/70 space-y-0.5 font-medium">
-                  <p><span className="text-gray-400">Concierge Helpline:</span> {BUSINESS.contact.phone}</p>
-                  <p><span className="text-gray-400">Official Support:</span> {BUSINESS.contact.email}</p>
+                <div className="mt-2.5 pt-2 border-t border-gray-100 text-[11px] text-[#38271F]/70 space-y-0.5 font-medium">
+                  <p><span className="text-gray-400">Phone / WhatsApp:</span> {BUSINESS.contact.phone}</p>
+                  <p><span className="text-gray-400">Instagram:</span> {BUSINESS.social.instagramHandle}</p>
                 </div>
               </div>
             </div>
@@ -326,8 +321,8 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                   ) : (
                     <tr>
                       <td className="py-2.5 px-3 text-center font-mono text-[10px]">1</td>
-                      <td className="py-2.5 px-3 font-semibold text-[#211D1E]">
-                        CHITRIKA Curated Luxury Women's Wear Ensemble ({activeOrder.items || 1} Piece/Set)
+                      <td className="py-2.5 px-3 font-semibold text-[#38271F]">
+                        {BUSINESS.name} Handloom Saree Order ({activeOrder.items || 1} Piece)
                       </td>
                       <td className="py-2.5 px-3 text-center font-mono font-bold">{activeOrder.items || 1}</td>
                       <td className="py-2.5 px-3 text-right font-mono text-[#211D1E]/70">₹{subtotal.toLocaleString('en-IN')}</td>
@@ -341,7 +336,7 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
             {/* Financial Totals (Right Aligned) */}
             <div className="flex justify-end my-4">
               <div className="w-full sm:w-72 bg-white border border-[#C9A45C]/30 rounded-xl p-3 text-xs space-y-1.5 shadow-2xs">
-                <div className="flex justify-between text-[#211D1E]/70">
+                <div className="flex justify-between text-[#38271F]/70">
                   <span>Merchandise Subtotal:</span>
                   <span className="font-mono font-semibold">₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
@@ -351,16 +346,8 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
                     <span className="font-mono">-₹{discount.toLocaleString('en-IN')}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-[#211D1E]/70">
-                  <span>Express Courier & Insurance:</span>
-                  <span className="font-semibold text-emerald-700">FREE</span>
-                </div>
-                <div className="flex justify-between text-[#211D1E]/50 text-[10px]">
-                  <span>GST Included (5% IGST/CGST):</span>
-                  <span className="font-mono">₹{gstEstimated.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="pt-2 border-t border-[#C9A45C]/30 flex justify-between text-sm font-bold text-[#5A1020]">
-                  <span>Total Invoice Amount:</span>
+                <div className="pt-2 border-t border-[#B58A45]/30 flex justify-between text-sm font-bold text-[#651B2B]">
+                  <span>Total Order Amount:</span>
                   <span className="font-mono">₹{grandTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
@@ -368,28 +355,27 @@ export default function ParcelReceiptModal({ order, isOpen, onClose }) {
 
             {/* Cut / Fold Indicator Line (Explicit for Pasting on Parcel Box) */}
             <div className="relative my-6 text-center">
-              <div className="border-t-2 border-dashed border-[#C9A45C]/60 w-full" />
-              <span className="bg-[#FFFDF8] px-3 py-1 text-[9px] font-bold text-[#A67D28] tracking-widest uppercase inline-flex items-center gap-1.5 absolute -top-3 left-1/2 -translate-x-1/2 border border-[#C9A45C]/30 rounded-full">
-                <Scissors size={11} /> CUT OR FOLD HERE TO ATTACH SECURELY ON CUSTOMER PARCEL <Scissors size={11} />
+              <div className="border-t-2 border-dashed border-[#B58A45]/60 w-full" />
+              <span className="bg-[#FFFDF8] px-3 py-1 text-[9px] font-bold text-[#651B2B] tracking-widest uppercase inline-flex items-center gap-1.5 absolute -top-3 left-1/2 -translate-x-1/2 border border-[#B58A45]/30 rounded-full">
+                <Scissors size={11} /> CUT OR FOLD HERE TO ATTACH SECURELY ON PARCEL <Scissors size={11} />
               </span>
             </div>
 
-            {/* Security & Verification Stamp */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-[10px] text-[#211D1E]/60">
+            {/* Verification Footer */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-[10px] text-[#38271F]/70">
               <div className="space-y-0.5">
-                <p className="font-bold text-[#5A1020] uppercase flex items-center gap-1">
-                  <ShieldCheck size={12} className="text-[#C9A45C]" /> Tamper-Evident Luxury Seal
+                <p className="font-bold text-[#651B2B] uppercase flex items-center gap-1">
+                  <ShieldCheck size={12} className="text-[#B58A45]" /> Verified Dispatch Slip
                 </p>
-                <p>Do not accept shipment if outer security ribbon is breached.</p>
-                <p>For return assistance or styling inquiries: concierge@chitrika.in | +91 90323 06961</p>
+                <p>For order updates or enquiries on WhatsApp: {BUSINESS.contact.phone} | {BUSINESS.social.instagramHandle}</p>
               </div>
 
-              <div className="border border-[#C9A45C]/40 rounded-xl p-2.5 bg-white text-center sm:text-right shrink-0">
-                <span className="text-[9px] uppercase tracking-wider text-[#A67D28] font-bold block">
-                  CHITRIKA Quality Checked & Sealed
+              <div className="border border-[#B58A45]/40 rounded-xl p-2.5 bg-white text-center sm:text-right shrink-0">
+                <span className="text-[9px] uppercase tracking-wider text-[#651B2B] font-bold block">
+                  {BUSINESS.name}
                 </span>
-                <span className="font-mono text-[9px] text-[#5A1020] font-bold">
-                  SEAL: AGV-{String(activeOrder.id || '0000').padStart(4, '0')}-{activeOrder.date ? String(activeOrder.date).replace(/-/g, '') : '2026'}
+                <span className="font-mono text-[9px] text-[#651B2B] font-bold">
+                  REF: LLW-{String(activeOrder.id || '0000').padStart(4, '0')}-{activeOrder.date ? String(activeOrder.date).replace(/-/g, '') : '2026'}
                 </span>
               </div>
             </div>

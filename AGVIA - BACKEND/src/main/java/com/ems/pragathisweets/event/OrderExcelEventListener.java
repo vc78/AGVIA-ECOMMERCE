@@ -9,7 +9,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Transactional event listener for CHITRIKA_ORDERS.xlsx synchronization.
+ * Transactional event listener for Orders Excel synchronization.
  * 
  * ZERO ROLLBACK GUARANTEE:
  * - Runs ONLY AFTER the MySQL transaction has committed (TransactionPhase.AFTER_COMMIT).
@@ -26,7 +26,7 @@ public class OrderExcelEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onOrderConfirmed(OrderConfirmedEvent event) {
-        log.info("[OrderExcelEventListener] Received order confirmed event for orderId={}, orderNumber={}, source={}. Syncing to CHITRIKA_ORDERS.xlsx...",
+        log.info("[OrderExcelEventListener] Received order confirmed event for orderId={}, orderNumber={}, source={}. Syncing to Orders Excel...",
                 event.getOrderId(), event.getOrderNumber(), event.getSource());
         try {
             excelReportingService.syncOrder(event.getOrderId());

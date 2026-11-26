@@ -1,5 +1,5 @@
 /**
- * CHITRIKA Atelier - Data Export Utilities
+ * Lokesh Lingam Weaver - Data Export Utilities
  * Handles CSV, JSON and Bulk downloads for admin datasets (Orders, Patrons, Products, Inventory, Analytics).
  */
 
@@ -23,7 +23,7 @@ function formatCSVCell(val) {
  * @param {Array<{ key: string, label: string }>} columns - Column definitions
  * @param {string} filename - Target file name without extension
  */
-export function exportToCSV(rows = [], columns = [], filename = 'chitrika_export') {
+export function exportToCSV(rows = [], columns = [], filename = 'lokesh_lingam_weaver_export') {
   if (!rows || rows.length === 0) {
     throw new Error('No data available to export.')
   }
@@ -52,7 +52,7 @@ export function exportToCSV(rows = [], columns = [], filename = 'chitrika_export
 /**
  * Generic JSON Exporter
  */
-export function exportToJSON(data, filename = 'chitrika_data') {
+export function exportToJSON(data, filename = 'lokesh_lingam_weaver_data') {
   const jsonContent = JSON.stringify(data, null, 2)
   downloadBlob(jsonContent, `${filename}_${getTimestamp()}.json`, 'application/json;charset=utf-8;')
 }
@@ -101,39 +101,39 @@ export function exportOrders(orders = []) {
     { key: 'discountAmount', label: 'Discount (INR)', getter: (r) => r.discountAmount || 0 },
     { key: 'notificationStatus', label: 'Patron Notification' }
   ]
-  exportToCSV(orders, columns, 'chitrika_atelier_orders')
+  exportToCSV(orders, columns, 'lokesh_lingam_weaver_orders')
 }
 
-/** Export Patrons / Customers */
+/** Export Customers */
 export function exportCustomers(customers = []) {
   const columns = [
-    { key: 'id', label: 'Patron ID' },
+    { key: 'id', label: 'Customer ID' },
     { key: 'name', label: 'Full Name' },
     { key: 'email', label: 'Email Address' },
     { key: 'phone', label: 'Contact Phone', getter: (r) => r.phone || 'N/A' },
-    { key: 'orders', label: 'Lifetime Orders' },
-    { key: 'spent', label: 'Total Wardrobe Spend (INR)', getter: (r) => r.spent || 0 },
-    { key: 'joined', label: 'Member Since' },
-    { key: 'status', label: 'Client Tier', getter: (r) => r.orders > 0 ? 'Active Patron' : 'New Client' }
+    { key: 'orders', label: 'Total Orders' },
+    { key: 'spent', label: 'Total Spend (INR)', getter: (r) => r.spent || 0 },
+    { key: 'joined', label: 'Joined Date' },
+    { key: 'status', label: 'Status', getter: (r) => r.orders > 0 ? 'Active Customer' : 'Registered' }
   ]
-  exportToCSV(customers, columns, 'chitrika_patrons_directory')
+  exportToCSV(customers, columns, 'lokesh_lingam_weaver_customers')
 }
 
-/** Export Silhouettes / Products */
+/** Export Products */
 export function exportProducts(products = []) {
   const columns = [
-    { key: 'id', label: 'Silhouette ID' },
+    { key: 'id', label: 'Product ID' },
     { key: 'sku', label: 'SKU' },
-    { key: 'name', label: 'Couture Name' },
-    { key: 'category', label: 'Collection / Category' },
-    { key: 'price', label: 'Original Price (INR)' },
+    { key: 'name', label: 'Product Name' },
+    { key: 'category', label: 'Category' },
+    { key: 'price', label: 'Price (INR)' },
     { key: 'discountPrice', label: 'Offer Price (INR)', getter: (r) => r.discountPrice || 'N/A' },
     { key: 'stock', label: 'Available Stock' },
     { key: 'unit', label: 'Unit Type', getter: (r) => r.unit || 'piece' },
-    { key: 'rating', label: 'Average Rating', getter: (r) => r.rating || r.avgRating || '5.0' },
-    { key: 'active', label: 'Catalog Status', getter: (r) => r.active !== false ? 'Active' : 'Inactive' }
+    { key: 'rating', label: 'Rating', getter: (r) => r.rating || r.avgRating || '—' },
+    { key: 'active', label: 'Status', getter: (r) => r.active !== false ? 'Active' : 'Inactive' }
   ]
-  exportToCSV(products, columns, 'chitrika_couture_collection')
+  exportToCSV(products, columns, 'lokesh_lingam_weaver_catalogue')
 }
 
 /** Export Stock & Inventory */
@@ -141,20 +141,20 @@ export function exportInventory(inventory = []) {
   const columns = [
     { key: 'id', label: 'Item ID' },
     { key: 'sku', label: 'SKU Identifier' },
-    { key: 'name', label: 'Couture Silhouette' },
-    { key: 'category', label: 'Line / Category' },
+    { key: 'name', label: 'Product Name' },
+    { key: 'category', label: 'Category' },
     { key: 'stock', label: 'Current Inventory' },
     { key: 'unit', label: 'Unit' },
     { key: 'health', label: 'Stock Health', getter: (r) => (Number(r.stock) <= 10 ? 'LOW STOCK ALERT' : 'OPTIMAL') }
   ]
-  exportToCSV(inventory, columns, 'chitrika_fabric_inventory')
+  exportToCSV(inventory, columns, 'lokesh_lingam_weaver_inventory')
 }
 
-/** Export Privilege Codes / Coupons */
+/** Export Coupons */
 export function exportCoupons(coupons = []) {
   const columns = [
     { key: 'id', label: 'Coupon ID' },
-    { key: 'code', label: 'Privilege Code' },
+    { key: 'code', label: 'Coupon Code' },
     { key: 'title', label: 'Campaign Title' },
     { key: 'discountType', label: 'Type' },
     { key: 'discountValue', label: 'Discount Value' },
@@ -162,24 +162,24 @@ export function exportCoupons(coupons = []) {
     { key: 'expires', label: 'Expiry Date' },
     { key: 'active', label: 'Status', getter: (r) => r.active ? 'ACTIVE' : 'PAUSED' }
   ]
-  exportToCSV(coupons, columns, 'chitrika_privilege_codes')
+  exportToCSV(coupons, columns, 'lokesh_lingam_weaver_coupons')
 }
 
-/** Export Atelier Subscriptions */
+/** Export Subscriptions */
 export function exportSubscriptions(subscriptions = []) {
   const columns = [
     { key: 'id', label: 'Membership ID' },
-    { key: 'customerName', label: 'Patron Name' },
+    { key: 'customerName', label: 'Customer Name' },
     { key: 'customerEmail', label: 'Email' },
     { key: 'customerPhone', label: 'Phone' },
-    { key: 'planName', label: 'Circle Plan' },
+    { key: 'planName', label: 'Plan Name' },
     { key: 'planTier', label: 'Tier' },
-    { key: 'status', label: 'Membership Status' },
+    { key: 'status', label: 'Status' },
     { key: 'startDate', label: 'Start Date' },
     { key: 'endDate', label: 'Expiry Date' },
-    { key: 'amount', label: 'Annual Fee (INR)' }
+    { key: 'amount', label: 'Fee (INR)' }
   ]
-  exportToCSV(subscriptions, columns, 'chitrika_atelier_circle_subscribers')
+  exportToCSV(subscriptions, columns, 'lokesh_lingam_weaver_memberships')
 }
 
 /** Export Categories */
@@ -188,29 +188,29 @@ export function exportCategories(categories = []) {
     { key: 'id', label: 'Category ID' },
     { key: 'name', label: 'Category Name' },
     { key: 'description', label: 'Description' },
-    { key: 'count', label: 'Total Silhouettes' },
+    { key: 'count', label: 'Total Products' },
     { key: 'active', label: 'Status' }
   ]
-  exportToCSV(categories, columns, 'chitrika_categories')
+  exportToCSV(categories, columns, 'lokesh_lingam_weaver_categories')
 }
 
 /** Export Reviews */
 export function exportReviews(reviews = []) {
   const columns = [
     { key: 'id', label: 'Review ID' },
-    { key: 'product', label: 'Product / Silhouette' },
-    { key: 'customer', label: 'Patron' },
+    { key: 'product', label: 'Product' },
+    { key: 'customer', label: 'Customer' },
     { key: 'rating', label: 'Rating (out of 5)' },
     { key: 'comment', label: 'Review Details' },
     { key: 'status', label: 'Moderation Status', getter: (r) => r.approved ? 'Approved' : 'Pending' }
   ]
-  exportToCSV(reviews, columns, 'chitrika_patron_reviews')
+  exportToCSV(reviews, columns, 'lokesh_lingam_weaver_reviews')
 }
 
 /** Export Date-Range Analytics Summary */
 export function exportAnalyticsReport({ startDate, endDate, summary = {}, dailyTrend = [], orders = [] }) {
   const metaRows = [
-    { Metric: 'Report Type', Value: 'CHITRIKA Atelier Analytics Date-Wise Summary' },
+    { Metric: 'Report Type', Value: 'Lokesh Lingam Weaver Analytics Date-Wise Summary' },
     { Metric: 'Filter Start Date', Value: startDate },
     { Metric: 'Filter End Date', Value: endDate },
     { Metric: 'Generated At', Value: new Date().toLocaleString('en-IN') },
@@ -234,13 +234,11 @@ export function exportAnalyticsReport({ startDate, endDate, summary = {}, dailyT
   ).join('\r\n')
 
   const fullContent = '\uFEFF' + summaryCSV + dailyHeader + dailyRows
-  downloadBlob(fullContent, `chitrika_analytics_${startDate}_to_${endDate}.csv`, 'text/csv;charset=utf-8;')
+  downloadBlob(fullContent, `lokesh_lingam_weaver_analytics_${startDate}_to_${endDate}.csv`, 'text/csv;charset=utf-8;')
 }
 
 /**
- * Export Master Atelier Enterprise CSV Archive
- * Compiles all 9 admin panel datasets into a unified spreadsheet:
- * Executive KPI summary, Orders, Patrons, Products, Inventory, Categories, Coupons, Subscriptions, Reviews
+ * Export Master Store CSV Archive
  */
 export function exportMasterAdminCSV({
   overview = {},
@@ -264,9 +262,9 @@ export function exportMasterAdminCSV({
 }) {
   const totalRevenue = overview.revenue || orders.reduce((sum, o) => sum + Number(o.total || o.finalAmount || 0), 0)
   const metaRows = [
-    ['REPORT', 'CHITRIKA Master Atelier Enterprise Dossier (Web Analytics & All Admin Registries)'],
+    ['REPORT', 'Lokesh Lingam Weaver Master Store & Analytics Report'],
     ['GENERATED AT', new Date().toLocaleString('en-IN')],
-    ['WINDOW', (startDate && endDate) ? `${startDate} to ${endDate}` : 'Complete Atelier Lifetime Records'],
+    ['WINDOW', (startDate && endDate) ? `${startDate} to ${endDate}` : 'All Time Records'],
     ['TOTAL REVENUE (INR)', totalRevenue],
     ['TOTAL ORDERS', orders.length || overview.orders || 0],
     ['UNIQUE VISITORS', overview.visitors || 0],
@@ -501,7 +499,7 @@ export function exportMasterAdminCSV({
       s.customerName || 'VIP Member',
       s.email || '—',
       s.customerPhone || '—',
-      s.planName || 'CHITRIKA VIP',
+      s.planName || 'Lokesh Lingam Weaver VIP',
       s.planTier || 'VIP',
       s.amount || 299,
       s.status || 'ACTIVE',
@@ -526,7 +524,7 @@ export function exportMasterAdminCSV({
 
   const csvRows = sections.map(row => row.map(formatCSVCell).join(','))
   const fullContent = '\uFEFF' + csvRows.join('\r\n')
-  downloadBlob(fullContent, `agvia_master_atelier_lists_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
+  downloadBlob(fullContent, `lokesh_lingam_weaver_master_lists_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
 }
 
 /**
@@ -548,7 +546,7 @@ export function exportAnalyticsCSV({
   const sections = []
 
   // Metadata
-  sections.push(['=== CHITRIKA ATELIER - WEBSITE ANALYTICS & TELEMETRY REPORT ==='])
+  sections.push(['=== LOKESH LINGAM WEAVER - WEBSITE ANALYTICS & TELEMETRY REPORT ==='])
   sections.push(['GENERATED AT', new Date().toLocaleString('en-IN')])
   sections.push(['REPORTING WINDOW', (startDate && endDate) ? `${startDate} to ${endDate}` : 'All Time'])
   sections.push(['UNIQUE VISITORS', overview.visitors || 0])
@@ -647,6 +645,6 @@ export function exportAnalyticsCSV({
 
   const csvRows = sections.map(row => row.map(formatCSVCell).join(','))
   const fullContent = '\uFEFF' + csvRows.join('\r\n')
-  downloadBlob(fullContent, `chitrika_website_analytics_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
+  downloadBlob(fullContent, `lokesh_lingam_weaver_analytics_${getTimestamp()}.csv`, 'text/csv;charset=utf-8;')
 }
 

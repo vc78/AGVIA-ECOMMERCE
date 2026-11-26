@@ -141,8 +141,8 @@ export default function ProductsManagement() {
     <AdminLayout>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 select-none font-body">
         <div>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#5A1020]">Atelier Catalogue</h2>
-          <p className="text-xs text-[#211D1E]/60 mt-1">Manage luxury garments, sarees, and couture in the CHITRIKA collection.</p>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#651B2B]">Product Catalogue</h2>
+          <p className="text-xs text-[#38271F]/65 mt-1">Manage Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional weaves for Lokesh Lingam Weaver.</p>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -185,7 +185,7 @@ export default function ProductsManagement() {
           rows={products} 
           title="Active Atelier Silhouettes"
           emptyMessage="No silhouettes yet — add your first couture piece."
-          exportFilename="chitrika_couture_collection"
+          exportFilename="lokesh_lingam_weaver_catalogue"
         />
       )}
     </AdminLayout>

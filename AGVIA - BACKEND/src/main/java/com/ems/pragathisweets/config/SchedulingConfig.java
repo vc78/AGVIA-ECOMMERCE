@@ -17,7 +17,7 @@ public class SchedulingConfig {
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(2);
-        scheduler.setThreadNamePrefix("chitrika-scheduler-");
+        scheduler.setThreadNamePrefix("llw-scheduler-");
         scheduler.setWaitForTasksToCompleteOnShutdown(true);
         scheduler.setAwaitTerminationSeconds(20);
         scheduler.initialize();

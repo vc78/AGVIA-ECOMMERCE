@@ -14,7 +14,7 @@ public class MockOtpDeliveryService implements OtpDeliveryService {
         log.info("[MOCK SMS] OTP dispatched for purpose {} to {}", purpose, masked);
         // Safe console output for local development / testing without sending real paid SMS
         System.out.println("===========================================================");
-        System.out.println("🔑 [CHITRIKA MOCK OTP DELIVERY]");
+        System.out.println("🔑 [LOKESH LINGAM WEAVER MOCK OTP DELIVERY]");
         System.out.println("📱 Recipient (Masked): " + masked);
         System.out.println("🎯 Purpose:            " + purpose);
         System.out.println("🔢 6-Digit OTP:        " + otp);

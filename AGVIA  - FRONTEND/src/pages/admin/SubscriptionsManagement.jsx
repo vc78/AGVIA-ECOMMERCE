@@ -41,7 +41,7 @@ export default function SubscriptionsManagement() {
     email: '',
     customerName: '',
     customerPhone: '',
-    planName: 'CHITRIKA_ATELIER_VIP',
+    planName: 'LOKESH_LINGAM_WEAVER_VIP',
     planTier: 'VIP',
     amount: '299',
     durationDays: 365,
@@ -136,7 +136,7 @@ export default function SubscriptionsManagement() {
         email: '',
         customerName: '',
         customerPhone: '',
-        planName: 'CHITRIKA_ATELIER_VIP',
+        planName: 'LOKESH_LINGAM_WEAVER_VIP',
         planTier: 'VIP',
         amount: '299',
         durationDays: 365,
@@ -179,7 +179,7 @@ export default function SubscriptionsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-[10px] tracking-[0.25em] font-bold text-[#B8860B] uppercase">Memberships</span>
               <span className="text-xs bg-[#B8860B]/15 text-[#8B0000] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Crown size={11} /> CHITRIKA Atelier Circle
+                <Crown size={11} /> Lokesh Lingam Weaver Membership
               </span>
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl text-[#5A1020] font-bold mt-1">
@@ -518,7 +518,7 @@ export default function SubscriptionsManagement() {
                       type="tel"
                       value={grantForm.customerPhone}
                       onChange={(e) => setGrantForm({ ...grantForm, customerPhone: e.target.value })}
-                      placeholder="+91 9032306961"
+                      placeholder="+91 7799349294"
                       className="w-full px-3 py-2 rounded-xl border border-[#B8860B]/25 focus:outline-none focus:border-[#8B0000]"
                     />
                   </div>

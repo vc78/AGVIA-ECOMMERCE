@@ -263,7 +263,7 @@ public class MerchandisingService {
                 HomepageSection.builder().sectionKey("TRENDING_NOW").title("Trending Now").subtitle("Styles capturing the season's admiration").displayOrder(5).active(true).automatic(true).maxItems(8).build(),
                 HomepageSection.builder().sectionKey("SHOP_BY_COLOR").title("Shop by Palette").subtitle("Explore sarees curated in pure pigments").displayOrder(6).active(true).automatic(true).maxItems(8).build(),
                 HomepageSection.builder().sectionKey("LIMITED_STOCK").title("Limited Weaves").subtitle("Rare patterns with very few pieces remaining").displayOrder(7).active(true).automatic(true).maxItems(8).build(),
-                HomepageSection.builder().sectionKey("BRAND_STORY").title("The CHITRIKA Legacy").subtitle("Master craftsmanship woven over generations").displayOrder(8).active(true).automatic(true).maxItems(1).build()
+                HomepageSection.builder().sectionKey("BRAND_STORY").title("Our Weaving Heritage").subtitle("Rooted in the weaving traditions of Dharmavaram — 15 years of weaving experience").displayOrder(8).active(true).automatic(true).maxItems(1).build()
         );
         homepageSectionRepository.saveAll(defaults);
     }

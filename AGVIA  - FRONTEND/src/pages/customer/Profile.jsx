@@ -125,7 +125,7 @@ export default function Profile() {
     }
   ])
 
-  // ── 8. Subscription / CHITRIKA Atelier Circle State ──────────────────
+  // ── 8. Subscription State ──────────────────
   const [subscription, setSubscription] = useState(null)
   const [copiedCoupon, setCopiedCoupon] = useState(false)
 
@@ -486,7 +486,8 @@ export default function Profile() {
   }
 
   const handleCopyVipCoupon = () => {
-    const code = subscription?.exclusiveCoupon || subscription?.couponCode || 'CHITRIKA_VIP10'
+    const code = subscription?.exclusiveCoupon || subscription?.couponCode || ''
+    if (!code) return
     navigator.clipboard.writeText(code)
     setCopiedCoupon(true)
     toast.success(`VIP code ${code} copied!`, { icon: '✂️' })
@@ -659,8 +660,8 @@ export default function Profile() {
               )}
 
               {isVipActive && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#B8860B] to-[#E6C687] text-[#1A0A0A] text-[10px] font-bold uppercase tracking-wider">
-                  <Crown size={12} /> CHITRIKA Atelier Circle VIP
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#B58A45] to-[#E7D4B9] text-[#38271F] text-[10px] font-bold uppercase tracking-wider">
+                  <Crown size={12} /> Lokesh Lingam Weaver Member
                 </div>
               )}
             </div>
@@ -869,7 +870,7 @@ export default function Profile() {
                           <CheckCircle2 size={10} /> Mobile Active
                         </span>
                       </div>
-                      <p className="font-mono text-sm font-semibold text-gray-800">{user?.phone || '+91 90323 06961'}</p>
+                      <p className="font-mono text-sm font-semibold text-gray-800">{user?.phone || '+91 7799349294'}</p>
                       <p className="text-[11px] text-gray-500 mt-0.5">Used for doorstep OTP verification and courier updates.</p>
                     </div>
                     <button
@@ -1194,7 +1195,7 @@ export default function Profile() {
                     { key: 'deliveryAlerts', label: 'Doorstep Courier Tracking', desc: 'SMS and push updates when your parcel is out for delivery.' },
                     { key: 'smsNotifications', label: 'Critical SMS Alerts', desc: 'Essential OTPs and security alerts sent directly to your phone.' },
                     { key: 'festivalSpecials', label: 'Runway Drops & Bridal Previews', desc: 'Exclusive bridal trousseau and festive collection previews.' },
-                    { key: 'promotionalEmails', label: 'The CHITRIKA Atelier Edit Newsletter', desc: 'Curated couture lookbooks and private salon invitations.' }
+                    { key: 'promotionalEmails', label: 'Lokesh Lingam Weaver Collection Updates', desc: 'Updates on newly woven Dharmavaram and Kanchi-style silk sarees.' }
                   ].map(item => (
                     <div key={item.key} className="py-4 flex items-center justify-between gap-4">
                       <div>
@@ -1342,8 +1343,8 @@ export default function Profile() {
             {activeTab === 'vip' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                 <div className="pb-4 border-b border-[#B8860B]/10">
-                  <h2 className="font-display text-xl font-bold text-[#8B0000]">CHITRIKA Atelier Circle VIP & Loyalty</h2>
-                  <p className="text-xs text-[#3A2D23]/60">Exclusive privileges, reward coins, and personalized festive benefits.</p>
+                  <h2 className="font-display text-xl font-bold text-[#651B2B]">Lokesh Lingam Weaver Membership</h2>
+                  <p className="text-xs text-[#38271F]/65">Membership status and account privileges.</p>
                 </div>
 
                 {isVipActive ? (
@@ -1355,7 +1356,7 @@ export default function Profile() {
                         </div>
                         <div>
                           <span className="text-[9px] tracking-[0.25em] text-[#D4AF37] font-bold uppercase block">
-                            CHITRIKA ATELIER CIRCLE
+                            LOKESH LINGAM WEAVER
                           </span>
                           <h3 className="font-display text-lg font-bold text-white">VIP Royal Member</h3>
                         </div>
@@ -1388,7 +1389,7 @@ export default function Profile() {
                       <div>
                         <span className="text-[9px] text-[#D4AF37] font-bold uppercase tracking-wider block">Exclusive VIP Coupon</span>
                         <span className="font-mono text-xl font-bold text-white tracking-widest">
-                          {subscription?.exclusiveCoupon || subscription?.couponCode || 'CHITRIKA_VIP10'}
+                          {subscription?.exclusiveCoupon || subscription?.couponCode || '—'}
                         </span>
                       </div>
                       <button
@@ -1403,9 +1404,9 @@ export default function Profile() {
                 ) : (
                   <div className="p-6 rounded-3xl bg-gradient-to-br from-[#FFFDF8] to-[#FBF6EE] border-2 border-dashed border-[#B8860B]/40 text-center">
                     <Crown size={32} className="mx-auto text-[#B8860B] mb-2" />
-                    <h3 className="font-display text-lg font-bold text-[#8B0000]">Join CHITRIKA Atelier Circle VIP</h3>
-                    <p className="text-xs text-[#3A2D23]/70 max-w-md mx-auto mt-1 mb-5">
-                      Get flat 10% VIP discount on all orders, zero delivery fees, and priority morning dispatch for ₹299/year.
+                    <h3 className="font-display text-lg font-bold text-[#651B2B]">Lokesh Lingam Weaver Membership</h3>
+                    <p className="text-xs text-[#38271F]/70 max-w-md mx-auto mt-1 mb-5">
+                      Stay updated on newly woven Dharmavaram &amp; Kanchi-style silk sarees from Lokesh Lingam Weaver.
                     </p>
                     <Link to="/subscription" className="btn-primary">
                       Unlock VIP Membership
@@ -1588,7 +1589,7 @@ export default function Profile() {
                           required
                           value={newPhone}
                           onChange={(e) => setNewPhone(e.target.value)}
-                          placeholder="90323 06961"
+                          placeholder="10-digit mobile number"
                           className="input-field flex-1"
                         />
                       </div>
@@ -1735,7 +1736,7 @@ export default function Profile() {
                       required
                       value={addressForm.phone}
                       onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
-                      placeholder="+91 90323 06961"
+                      placeholder="+91 7799349294"
                       className="input-field"
                     />
                   </div>

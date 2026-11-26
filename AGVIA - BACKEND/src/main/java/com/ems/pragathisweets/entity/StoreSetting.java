@@ -19,34 +19,34 @@ public class StoreSetting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // --- Store Identity & Concierge ---
+    // --- Store Identity & Contact ---
     @Column(name = "store_name", nullable = false)
     @Builder.Default
-    private String storeName = "CHITRIKA Women's Wear Boutique";
+    private String storeName = "Lokesh Lingam Weaver";
 
     @Column(name = "store_tagline")
     @Builder.Default
-    private String storeTagline = "Haute Couture & Heritage Silks";
+    private String storeTagline = "Handloom Sarees & Traditional Weaves";
 
     @Column(name = "support_email")
     @Builder.Default
-    private String supportEmail = "care@chitrika.in";
+    private String supportEmail = "";
 
     @Column(name = "support_phone")
     @Builder.Default
-    private String supportPhone = "+91 90323 06961";
+    private String supportPhone = "+91 7799349294";
 
     @Column(name = "whatsapp_number")
     @Builder.Default
-    private String whatsappNumber = "+91 90323 06961";
+    private String whatsappNumber = "+91 7799349294";
 
     @Column(name = "store_address", length = 500)
     @Builder.Default
-    private String storeAddress = "Road No. 36, Jubilee Hills, Hyderabad, Telangana 500033, India";
+    private String storeAddress = "Dharmavaram, Andhra Pradesh, India – 515671";
 
     @Column(name = "business_hours")
     @Builder.Default
-    private String businessHours = "10:30 AM - 8:30 PM IST (Mon - Sun)";
+    private String businessHours = "";
 
     // --- Tariffs & Checkout Rules ---
     @Column(name = "minimum_order_value", precision = 12, scale = 2)
@@ -84,19 +84,19 @@ public class StoreSetting {
 
     @Column(name = "maintenance_message", length = 1000)
     @Builder.Default
-    private String maintenanceMessage = "Our boutique atelier is undergoing scheduled curation. We will resume taking orders shortly.";
+    private String maintenanceMessage = "Our store is undergoing scheduled updates. Please contact us on WhatsApp (+91 7799349294) for enquiries.";
 
     @Column(name = "announcement_bar_enabled")
     @Builder.Default
-    private Boolean announcementBarEnabled = true;
+    private Boolean announcementBarEnabled = false;
 
     @Column(name = "announcement_text", length = 1000)
     @Builder.Default
-    private String announcementText = "✨ Festive Curation: Complimentary Handloom Potli with orders above ₹3,000 | Free Shipping across India on orders above ₹999";
+    private String announcementText = "";
 
     @Column(name = "announcement_link")
     @Builder.Default
-    private String announcementLink = "/shop";
+    private String announcementLink = "/products";
 
     @Column(name = "holiday_mode")
     @Builder.Default
@@ -104,7 +104,7 @@ public class StoreSetting {
 
     @Column(name = "holiday_notice", length = 1000)
     @Builder.Default
-    private String holidayNotice = "Orders placed now will be handcrafted and dispatched starting next week.";
+    private String holidayNotice = "Dispatch updates will be confirmed via WhatsApp (+91 7799349294).";
 
     // --- Tax & Currencies ---
     @Column(name = "currency_symbol", length = 10)
@@ -142,7 +142,7 @@ public class StoreSetting {
 
     @Column(name = "admin_alert_email")
     @Builder.Default
-    private String adminAlertEmail = "orders@pragathisweets.com";
+    private String adminAlertEmail = "";
 
     @Column(name = "sound_alerts_enabled")
     @Builder.Default

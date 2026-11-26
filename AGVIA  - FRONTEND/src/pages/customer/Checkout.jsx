@@ -16,6 +16,7 @@ import api from '../../services/api'
 import { trackCheckoutStarted, trackPurchase } from '../../services/analytics'
 import SEOHead from '../../components/common/SEOHead'
 import { getFriendlyErrorMessage, logDeveloperError } from '../../services/errorMessageService'
+import { BUSINESS } from '../../constants/business'
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -136,18 +137,7 @@ export default function Checkout() {
       }
     } catch (err) {
       console.error(err)
-      if (code === 'CIRCLE15' || code === 'CHITRIKA15' || code === 'CHITRIKA_VIP10' || code === 'CHITRIKA10' || code === 'WELCOME10') {
-        const pct = (code === 'CIRCLE15' || code === 'CHITRIKA15') ? 0.15 : 0.10
-        const disc = Math.round(subtotal * pct)
-        setDiscount(disc)
-        setCouponCode(code)
-        setCouponInput('')
-        toast.success(`Coupon ${code} applied successfully! (${Math.round(pct * 100)}% OFF)`, {
-          style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
-        })
-      } else {
-        toast.error(err?.response?.data?.message || 'Could not validate coupon. Try CIRCLE15 or CHITRIKA_VIP10')
-      }
+      toast.error(err?.response?.data?.message || 'Unable to validate promo code.')
     } finally {
       setValidatingCoupon(false)
     }
@@ -165,7 +155,7 @@ export default function Checkout() {
     if (isAuthenticated) return true
 
     const cleanPhone = (address.phone || '').replace(/\D/g, '')
-    const email = address.email || `client.${cleanPhone || Date.now()}@agvia.com`
+    const email = address.email || `guest.${cleanPhone || Date.now()}@checkout.local`
     const fullName = address.name || 'Valued Customer'
     const password = 'Password@123'
 
@@ -341,8 +331,8 @@ export default function Checkout() {
         key: rpOrder.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: rpOrder.amountInPaise,
         currency: rpOrder.currency,
-        name: "CHITRIKA Women's Wear Boutique",
-        description: 'Bespoke Luxury Order',
+        name: BUSINESS.name,
+        description: `${BUSINESS.name} — Handloom Sarees Order`,
         order_id: rpOrder.razorpayOrderId,
         handler: async (response) => {
           try {
@@ -703,13 +693,13 @@ export default function Checkout() {
               </motion.div>
             )}
 
-            {/* Delivery Timeline info */}
-            <div className="border border-[#C9A45C]/20 rounded-xl p-3.5 bg-white flex gap-3 select-none">
-              <Truck size={18} className="text-[#C9A45C] mt-0.5 shrink-0" />
+            {/* Dispatch & Support info */}
+            <div className="border border-[#B58A45]/25 rounded-xl p-3.5 bg-white flex gap-3 select-none">
+              <Truck size={18} className="text-[#B58A45] mt-0.5 shrink-0" />
               <div>
-                <h4 className="font-serif text-xs sm:text-sm text-[#5A1020] font-bold">Atelier White-Glove Dispatch</h4>
-                <p className="text-[10px] text-[#211D1E]/60 leading-normal mt-0.5 font-sans">
-                  All bespoke garments are pressed, wrapped in muslin bags, and securely packaged in our signature keepsake boxes for express delivery in 3-5 business days.
+                <h4 className="font-serif text-xs sm:text-sm text-[#651B2B] font-bold">Direct Dispatch & Order Tracking</h4>
+                <p className="text-[10px] text-[#38271F]/70 leading-normal mt-0.5 font-sans">
+                  Orders from {BUSINESS.name} ({BUSINESS.location.short}) include live order tracking. For shipping timelines or order enquiries, message us on WhatsApp ({BUSINESS.phoneDisplay}).
                 </p>
               </div>
             </div>
@@ -822,8 +812,8 @@ export default function Checkout() {
                 )}
               </div>
 
-              <div className="flex items-center justify-center gap-1 text-[8.5px] text-[#211D1E]/50 font-semibold border-t border-[#C9A45C]/10 pt-2.5 font-sans">
-                <ShieldCheck size={13} className="text-[#C9A45C]" /> Insured express courier with tamper-proof seal
+              <div className="flex items-center justify-center gap-1 text-[8.5px] text-[#38271F]/65 font-semibold border-t border-[#B58A45]/15 pt-2.5 font-sans">
+                <ShieldCheck size={13} className="text-[#B58A45]" /> Verified Order Tracking · WhatsApp Support {BUSINESS.phoneDisplay}
               </div>
             </div>
           </div>

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, KeyRound } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
+import BrandLogo from '../../components/common/BrandLogo'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -25,14 +26,9 @@ export default function ForgotPassword() {
       <div className="w-full max-w-md p-8 bg-white border border-[#B8860B]/15 rounded-3xl shadow-sm relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
         
-        <div className="flex flex-col items-center mb-8 select-none">
-          <div className="w-14 h-14 rounded-2xl bg-[#8B0000]/10 text-[#8B0000] border border-[#8B0000]/10 flex items-center justify-center mb-3">
-            <KeyRound size={24} />
-          </div>
-          <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#8B0000] leading-none">
-            CHITRIKA
-          </span>
-          <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#B8860B] font-semibold mt-1.5 pl-[1px]">
+        <div className="flex flex-col items-center mb-6 select-none">
+          <BrandLogo size="sm" />
+          <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#B58A45] font-semibold mt-2">
             RESET REQUEST
           </span>
         </div>

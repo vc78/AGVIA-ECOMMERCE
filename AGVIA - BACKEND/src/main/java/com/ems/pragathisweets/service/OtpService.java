@@ -50,9 +50,9 @@ public class OtpService {
                 .build();
         otpRepo.save(otp);
 
-        String subject = "🔐 Email Verification Code: " + code + " — Pragathi Sweets";
+        String subject = "Email Verification Code: " + code + " — Lokesh Lingam Weaver";
         String htmlBody = buildEmailOtpHtml(code);
-        String plainText = "Your Pragathi Sweets email verification code is: " + code + "\nValid for 10 minutes. Do not share this OTP.";
+        String plainText = "Your Lokesh Lingam Weaver email verification code is: " + code + "\nValid for 10 minutes. Do not share this OTP.";
 
         boolean liveEmailSent = false;
         try {
@@ -137,7 +137,7 @@ public class OtpService {
         // 2. Backup email dispatch to registered user email
         boolean liveEmailSent = false;
         if (user.getEmail() != null && !user.getEmail().isBlank()) {
-            String subject = "🔐 Mobile Update Verification Code: " + code + " — Pragathi Sweets";
+            String subject = "Mobile Update Verification Code: " + code + " — Lokesh Lingam Weaver";
             String htmlBody = buildPhoneOtpHtml(user.getFullName(), formattedPhone, code);
             String plainText = "Your mobile update OTP code for " + formattedPhone + " is: " + code + "\nValid for 10 minutes.";
             try {
@@ -200,43 +200,43 @@ public class OtpService {
     }
 
     private String buildEmailOtpHtml(String code) {
-        return "<!DOCTYPE html><html><body style=\"margin:0;padding:20px;background-color:#FFFDF8;font-family:sans-serif;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:500px;background-color:#FFFFFF;border-radius:16px;border:1px solid #EADDC9;padding:28px;\">" +
+        return "<!DOCTYPE html><html><body style=\"margin:0;padding:20px;background-color:#FBF5EA;font-family:sans-serif;\">" +
+                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:500px;background-color:#FFFFFF;border-radius:16px;border:1px solid #E7D4B9;padding:28px;\">" +
                 "  <tr><td style=\"text-align:center;padding-bottom:16px;\">" +
-                "    <h2 style=\"margin:0;color:#8B0000;\">PRAGATHI SWEETS</h2>" +
-                "    <p style=\"margin:4px 0 0;font-size:12px;color:#B8860B;text-transform:uppercase;letter-spacing:1px;\">Taste The Tradition</p>" +
+                "    <h2 style=\"margin:0;color:#651B2B;font-family:Georgia,serif;\">LOKESH LINGAM WEAVER</h2>" +
+                "    <p style=\"margin:4px 0 0;font-size:11px;color:#B58A45;text-transform:uppercase;letter-spacing:1.5px;\">Handloom Sarees &amp; Traditional Weaves</p>" +
                 "  </td></tr>" +
                 "  <tr><td style=\"padding:16px 0;text-align:center;\">" +
-                "    <h3 style=\"margin:0 0 12px;color:#3A2D23;\">Email Verification Code</h3>" +
-                "    <p style=\"margin:0 0 20px;font-size:14px;color:#666;\">Use the one-time verification code below to confirm your new email address:</p>" +
-                "    <div style=\"display:inline-block;padding:14px 28px;background-color:#FAF6EE;border:2px dashed #8B0000;border-radius:12px;font-size:28px;font-weight:bold;letter-spacing:6px;color:#8B0000;font-family:monospace;\">" +
+                "    <h3 style=\"margin:0 0 12px;color:#38271F;\">Email Verification Code</h3>" +
+                "    <p style=\"margin:0 0 20px;font-size:14px;color:#5A4438;\">Use the one-time verification code below to confirm your email address:</p>" +
+                "    <div style=\"display:inline-block;padding:14px 28px;background-color:#FBF5EA;border:2px dashed #651B2B;border-radius:12px;font-size:28px;font-weight:bold;letter-spacing:6px;color:#651B2B;font-family:monospace;\">" +
                 code +
                 "    </div>" +
-                "    <p style=\"margin:20px 0 0;font-size:12px;color:#888;\">This code is valid for <strong>10 minutes</strong>. If you did not request this change, please ignore this email.</p>" +
+                "    <p style=\"margin:20px 0 0;font-size:12px;color:#7A6254;\">This code is valid for <strong>10 minutes</strong>. If you did not request this change, please ignore this email.</p>" +
                 "  </td></tr>" +
-                "  <tr><td style=\"padding-top:20px;border-top:1px solid #EEE;text-align:center;font-size:11px;color:#AAA;\">" +
-                "    © Pragathi Sweets • Hyderabad • All rights reserved." +
+                "  <tr><td style=\"padding-top:20px;border-top:1px solid #E7D4B9;text-align:center;font-size:11px;color:#7A6254;\">" +
+                "    © Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh, India – 515671" +
                 "  </td></tr>" +
                 "</table></body></html>";
     }
 
     private String buildPhoneOtpHtml(String customerName, String targetPhone, String code) {
-        return "<!DOCTYPE html><html><body style=\"margin:0;padding:20px;background-color:#FFFDF8;font-family:sans-serif;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:500px;background-color:#FFFFFF;border-radius:16px;border:1px solid #EADDC9;padding:28px;\">" +
+        return "<!DOCTYPE html><html><body style=\"margin:0;padding:20px;background-color:#FBF5EA;font-family:sans-serif;\">" +
+                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:500px;background-color:#FFFFFF;border-radius:16px;border:1px solid #E7D4B9;padding:28px;\">" +
                 "  <tr><td style=\"text-align:center;padding-bottom:16px;\">" +
-                "    <h2 style=\"margin:0;color:#8B0000;\">PRAGATHI SWEETS</h2>" +
-                "    <p style=\"margin:4px 0 0;font-size:12px;color:#B8860B;text-transform:uppercase;letter-spacing:1px;\">Taste The Tradition</p>" +
+                "    <h2 style=\"margin:0;color:#651B2B;font-family:Georgia,serif;\">LOKESH LINGAM WEAVER</h2>" +
+                "    <p style=\"margin:4px 0 0;font-size:11px;color:#B58A45;text-transform:uppercase;letter-spacing:1.5px;\">Handloom Sarees &amp; Traditional Weaves</p>" +
                 "  </td></tr>" +
                 "  <tr><td style=\"padding:16px 0;text-align:center;\">" +
-                "    <h3 style=\"margin:0 0 12px;color:#3A2D23;\">Mobile Number Update OTP</h3>" +
-                "    <p style=\"margin:0 0 20px;font-size:14px;color:#666;\">Namaste " + customerName + ", here is your verification code to update your mobile number to <strong>" + targetPhone + "</strong>:</p>" +
-                "    <div style=\"display:inline-block;padding:14px 28px;background-color:#FAF6EE;border:2px dashed #8B0000;border-radius:12px;font-size:28px;font-weight:bold;letter-spacing:6px;color:#8B0000;font-family:monospace;\">" +
+                "    <h3 style=\"margin:0 0 12px;color:#38271F;\">Mobile Number Update OTP</h3>" +
+                "    <p style=\"margin:0 0 20px;font-size:14px;color:#5A4438;\">Namaste " + customerName + ", here is your verification code to update your mobile number to <strong>" + targetPhone + "</strong>:</p>" +
+                "    <div style=\"display:inline-block;padding:14px 28px;background-color:#FBF5EA;border:2px dashed #651B2B;border-radius:12px;font-size:28px;font-weight:bold;letter-spacing:6px;color:#651B2B;font-family:monospace;\">" +
                 code +
                 "    </div>" +
-                "    <p style=\"margin:20px 0 0;font-size:12px;color:#888;\">This code is valid for <strong>10 minutes</strong>. Never share your OTP with anyone.</p>" +
+                "    <p style=\"margin:20px 0 0;font-size:12px;color:#7A6254;\">This code is valid for <strong>10 minutes</strong>. Never share your OTP with anyone.</p>" +
                 "  </td></tr>" +
-                "  <tr><td style=\"padding-top:20px;border-top:1px solid #EEE;text-align:center;font-size:11px;color:#AAA;\">" +
-                "    © Pragathi Sweets • Hyderabad • All rights reserved." +
+                "  <tr><td style=\"padding-top:20px;border-top:1px solid #E7D4B9;text-align:center;font-size:11px;color:#7A6254;\">" +
+                "    © Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh, India – 515671" +
                 "  </td></tr>" +
                 "</table></body></html>";
     }

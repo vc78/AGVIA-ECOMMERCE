@@ -12,17 +12,18 @@ import QRCode from 'qrcode'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { orderService } from '../../services/orderService'
-import { BUSINESS } from '../../constants/business'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 import { safeOpenWindow } from '../../utils/windowManager'
+import BrandLogo from '../../components/common/BrandLogo'
 import toast from 'react-hot-toast'
 
 // Steps mapping
 const ORDER_STEPS = [
-  { id: 'CONFIRMED', title: 'Order Confirmed', desc: 'Received & transmitted to the atelier', icon: CheckCircle2 },
-  { id: 'PROCESSING', title: 'Atelier Tailoring & Quality Inspection', desc: 'Handcrafted with meticulous precision', icon: ChefHat },
-  { id: 'PACKAGED', title: 'Heirloom Keepsake Packaging', desc: 'Sealed in acid-free tissue inside luxury CHITRIKA box', icon: Box },
-  { id: 'SHIPPED', title: 'Dispatched with Insured Courier', desc: 'In transit with premium express delivery partner', icon: Truck },
-  { id: 'DELIVERED', title: 'Successfully Delivered', desc: 'Enjoy your timeless CHITRIKA couture ensemble!', icon: Sparkles }
+  { id: 'CONFIRMED', title: 'Order Confirmed', desc: 'Received by Lokesh Lingam Weaver', icon: CheckCircle2 },
+  { id: 'PROCESSING', title: 'Loom Check & Preparation', desc: 'Prepared and inspected at Dharmavaram', icon: ChefHat },
+  { id: 'PACKAGED', title: 'Careful Folding & Packing', desc: 'Ready for dispatch from Dharmavaram', icon: Box },
+  { id: 'SHIPPED', title: 'Dispatched', desc: 'Handed over for delivery transit', icon: Truck },
+  { id: 'DELIVERED', title: 'Delivered', desc: 'Delivered to customer address', icon: Sparkles }
 ]
 
 function getStepIndex(status = '') {
@@ -137,14 +138,14 @@ export default function TrackOrder() {
     try {
       const siteUrl = typeof window !== 'undefined' && window.location?.origin
         ? window.location.origin
-        : 'https://chitrika.onrender.com'
+        : BUSINESS.seo.siteUrl
       const paramName = isToken ? 'token' : 'order'
       const targetUrl = `${siteUrl}/track-order?${paramName}=${encodeURIComponent(tokenOrRef)}`
 
       QRCode.toDataURL(targetUrl, {
         width: 180,
         margin: 1,
-        color: { dark: '#5A1020', light: '#FFFFFF' },
+        color: { dark: '#651B2B', light: '#FFFFFF' },
         errorCorrectionLevel: 'M',
       }).then(url => setQrCodeUrl(url)).catch(() => {})
     } catch (_) {}
@@ -182,9 +183,9 @@ export default function TrackOrder() {
 
   const handleProtectedAction = (actionName) => {
     if (!isAuthenticated) {
-      toast.error(`Please sign in with your CHITRIKA account to ${actionName}.`, {
+      toast.error(`Please sign in to your ${BUSINESS.name} account to ${actionName}.`, {
         icon: '🔒',
-        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+        style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' }
       })
       const redirectUrl = `/login?from=${encodeURIComponent(window.location.pathname + window.location.search)}`
       navigate(redirectUrl)
@@ -194,7 +195,7 @@ export default function TrackOrder() {
     if (actionName === 'view complete order') {
       navigate('/orders')
     } else if (actionName === 'download invoice') {
-      toast('Redirecting to your orders to download authentic invoice...', { icon: '📄' })
+      toast('Redirecting to your orders to download receipt...', { icon: '📄' })
       navigate('/orders')
     } else if (actionName === 'initiate return or exchange') {
       const orderNum = trackingOrder?.orderNumber || trackingOrder?.id || ''
@@ -207,11 +208,10 @@ export default function TrackOrder() {
   const handleWhatsAppInquiry = () => {
     if (!trackingOrder) return
     const orderNum = trackingOrder.maskedOrderNumber || trackingOrder.orderNumber || trackingOrder.id
-    const text = encodeURIComponent(
-      `Hello CHITRIKA Concierge! 👋\nI am tracking my atelier order *#${orderNum}* (Status: ${trackingOrder.status}). Could you please share an update on the courier dispatch schedule?\n\nThank you!`
+    const url = buildWhatsAppUrl(
+      `Namaste ${BUSINESS.name}, I am checking my order *#${orderNum}* (Status: ${trackingOrder.status}). Could you please share an update on dispatch? Thank you!`
     )
-    const storeRaw = (BUSINESS?.contact?.whatsappRaw || '919032306961').replace(/\D/g, '')
-    safeOpenWindow(`https://api.whatsapp.com/send?phone=${storeRaw}&text=${text}`, 'agvia_tracking_support', 'noopener,noreferrer')
+    safeOpenWindow(url, 'llw_tracking_support', 'noopener,noreferrer')
   }
 
   const currentStep = trackingOrder ? getStepIndex(trackingOrder.status) : 0
@@ -248,14 +248,14 @@ export default function TrackOrder() {
           <div className="w-14 h-14 rounded-2xl bg-[#5A1020]/10 text-[#5A1020] border border-[#C9A45C]/30 flex items-center justify-center mx-auto shadow-xs">
             <Compass size={28} />
           </div>
-          <span className="text-[10px] tracking-[0.3em] font-bold text-[#C9A45C] uppercase block">
-            Real-Time Atelier Monitoring & Courier Tracking
+          <span className="text-[10px] tracking-[0.3em] font-bold text-[#B58A45] uppercase block">
+            {BUSINESS.name} · Live Order Tracking
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#5A1020]">
-            Track Your Atelier Order
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#651B2B]">
+            Track Your Order
           </h1>
-          <p className="text-xs text-[#211D1E]/70 max-w-md mx-auto leading-relaxed">
-            Enter your order reference code or scan your parcel QR token to inspect live atelier preparation and insured transit.
+          <p className="text-xs text-[#38271F]/70 max-w-md mx-auto leading-relaxed">
+            Enter your order reference code or scan your parcel QR token to check preparation and dispatch updates from Dharmavaram.
           </p>
         </div>
 
@@ -332,15 +332,16 @@ export default function TrackOrder() {
             id="agvia-print-slip"
             className="bg-white border border-[#C9A45C]/30 rounded-3xl shadow-xl overflow-hidden relative"
           >
-            {/* Luxury Header Banner */}
-            <div className="bg-[#5A1020] text-[#FAF7F2] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#C9A45C]/40">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[9.5px] tracking-widest uppercase bg-[#C9A45C]/20 text-[#C9A45C] px-2.5 py-0.5 rounded-full font-bold border border-[#C9A45C]/40">
-                    {isPublicView ? 'Verified Public Consignment' : 'Atelier Client Order'}
+            {/* Branded Header Banner */}
+            <div className="bg-[#651B2B] text-[#FBF5EA] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#B58A45]/40">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <BrandLogo variant="dark" size="xs" />
+                  <span className="text-[9.5px] tracking-widest uppercase bg-[#B58A45]/20 text-[#E7D4B9] px-2.5 py-0.5 rounded-full font-bold border border-[#B58A45]/40">
+                    {isPublicView ? 'QR Tracking Verification' : 'Customer Order'}
                   </span>
                   {isRefreshing && (
-                    <span className="text-[10px] text-[#C9A45C] flex items-center gap-1">
+                    <span className="text-[10px] text-[#E7D4B9] flex items-center gap-1">
                       <RefreshCw size={10} className="animate-spin" /> Live Syncing...
                     </span>
                   )}
@@ -451,19 +452,19 @@ export default function TrackOrder() {
                     </p>
                   </div>
 
-                  <div className="p-4 bg-[#FAF7F2] border border-[#C9A45C]/20 rounded-2xl space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-gray-400 block">Estimated Transit Window</span>
-                    <p className="font-bold text-[#5A1020] flex items-center gap-1.5">
-                      <Clock size={14} className="text-[#C9A45C]" />
-                      {trackingOrder.estimatedDelivery || '2–4 Business Days'}
+                  <div className="p-4 bg-[#FBF5EA] border border-[#B58A45]/20 rounded-2xl space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 block">Dispatch Update</span>
+                    <p className="font-bold text-[#651B2B] flex items-center gap-1.5">
+                      <Clock size={14} className="text-[#B58A45]" />
+                      {trackingOrder.estimatedDelivery || 'Confirmed upon dispatch'}
                     </p>
                   </div>
 
-                  <div className="p-4 bg-[#FAF7F2] border border-[#C9A45C]/20 rounded-2xl space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-gray-400 block">Courier Partner</span>
-                    <p className="font-bold text-[#5A1020] flex items-center gap-1.5">
-                      <Truck size={14} className="text-[#C9A45C]" />
-                      {trackingOrder.carrier || 'CHITRIKA Insured Express Logistics'}
+                  <div className="p-4 bg-[#FBF5EA] border border-[#B58A45]/20 rounded-2xl space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 block">Carrier / Mode</span>
+                    <p className="font-bold text-[#651B2B] flex items-center gap-1.5">
+                      <Truck size={14} className="text-[#B58A45]" />
+                      {trackingOrder.carrier || `${BUSINESS.name} Dispatch`}
                     </p>
                   </div>
                 </div>
@@ -527,8 +528,8 @@ export default function TrackOrder() {
                               className="w-10 h-10 rounded-lg object-cover border border-[#C9A45C]/30 shrink-0"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-lg bg-[#5A1020]/10 text-[#5A1020] flex items-center justify-center text-xs font-serif font-bold shrink-0">
-                              CHITRIKA
+                            <div className="w-10 h-10 rounded-lg bg-[#651B2B]/10 text-[#651B2B] flex items-center justify-center text-xs font-serif font-bold shrink-0">
+                              LLW
                             </div>
                           )}
                           <div>
@@ -556,7 +557,7 @@ export default function TrackOrder() {
                       <div>
                         <span className="font-bold text-[#382820] block text-xs">Shipping Address:</span>
                         <span className="text-[11px] leading-relaxed text-gray-600">
-                          {trackingOrder.shippingAddress || 'Hyderabad Area Delivery'}
+                          {trackingOrder.shippingAddress || BUSINESS.location.short}
                         </span>
                       </div>
                     </div>

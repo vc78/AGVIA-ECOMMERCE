@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 /**
  * Lightweight audit & synchronization entity tracking the export status of orders
- * to the CHITRIKA_ORDERS.xlsx reporting layer.
+ * to the LOKESH_LINGAM_WEAVER_ORDERS.xlsx reporting layer.
  * 
- * Follows CHITRIKA MySQL / JPA naming conventions.
+ * Follows MySQL / JPA naming conventions.
  * MySQL remains the primary source of truth.
  */
 @Entity

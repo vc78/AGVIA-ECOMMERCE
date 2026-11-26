@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ProductCardSkeleton } from '../../components/common/SkeletonLoaders'
 import ReliableImage from '../../components/common/ReliableImage'
 import SEOHead from '../../components/common/SEOHead'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -102,22 +103,22 @@ export default function Products() {
     : '/products'
 
   const pageTitle = activeCategory !== 'All'
-    ? `${activeCategory} Silhouettes`
-    : 'All Silhouettes'
+    ? activeCategory
+    : 'Handloom Saree Collections'
 
   const pageDescription = activeCategory !== 'All'
-    ? `Explore CHITRIKA's exclusive ${activeCategory} collection. Handcrafted pure silk garments, intricate zardozi embroidery, and timeless bespoke fits.`
-    : "Explore the complete CHITRIKA catalog. Handloom sarees, designer bridal lehengas, bespoke kurtis, and contemporary royal festive wear."
+    ? `Explore ${activeCategory} directly from ${BUSINESS.name} in ${BUSINESS.location.short}.`
+    : BUSINESS.seo.defaultDescription
 
   const itemListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: activeCategory === 'All' ? 'CHITRIKA Atelier Collections' : `CHITRIKA ${activeCategory} Collection`,
+    name: activeCategory === 'All' ? `${BUSINESS.name} Collections` : `${BUSINESS.name} — ${activeCategory}`,
     itemListElement: products.slice(0, 10).map((p, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       name: p.name,
-      url: `https://chitrikaboutique.com/products/${p.id}`
+      url: `${BUSINESS.seo.siteUrl}/products/${p.id}`
     }))
   }
 
@@ -150,10 +151,10 @@ export default function Products() {
               <span className="text-white/70">Collections</span>
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl text-white font-bold leading-tight flex items-center gap-2">
-              The Atelier <span className="italic font-normal text-[#C9A45C]">Collections</span>
+              Handloom <span className="italic font-normal text-[#B58A45]">Collections</span>
             </h1>
             <p className="text-xs sm:text-sm text-white/80 mt-1 max-w-lg leading-relaxed">
-              Curated drapes of pure handloom silk, hand-embroidered bridal lehengas, regal anarkalis, and occasion gowns.
+              Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves from Lokesh Lingam Weaver.
             </p>
           </div>
 
@@ -242,14 +243,14 @@ export default function Products() {
               </div>
             </div>
 
-            {/* Quality Guarantee badge */}
-            <div className="border border-[#C9A45C]/20 rounded-xl p-3.5 bg-white shadow-xs select-none">
-              <span className="text-[8.5px] text-[#C9A45C] font-bold uppercase tracking-widest block">Atelier Guarantee</span>
-              <h5 className="font-serif text-xs text-[#5A1020] mt-1.5 font-bold flex items-center gap-1">
-                <Award size={13} className="text-[#C9A45C]" /> Certified Pure Silk
+            {/* Direct Weaver Identity Card */}
+            <div className="border border-[#B58A45]/25 rounded-xl p-3.5 bg-white shadow-xs select-none">
+              <span className="text-[8.5px] text-[#B58A45] font-bold uppercase tracking-widest block">Direct Handloom Weaver</span>
+              <h5 className="font-serif text-xs text-[#651B2B] mt-1.5 font-bold flex items-center gap-1">
+                <Award size={13} className="text-[#B58A45]" /> Lokesh Lingam Weaver
               </h5>
-              <p className="text-[9.5px] text-[#211D1E]/60 leading-normal mt-1 font-sans">
-                Every ensemble is certified handloom silk, embroidered with genuine zardozi threads and tailored to perfection.
+              <p className="text-[9.5px] text-[#38271F]/70 leading-normal mt-1 font-sans">
+                {BUSINESS.location.full}. 15 years of weaving experience; serving customers directly since 2019.
               </p>
             </div>
           </aside>
@@ -376,12 +377,24 @@ export default function Products() {
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="text-center py-8 md:py-10 border border-dashed border-[#C9A45C]/30 rounded-2xl bg-white select-none shadow-xs">
-                <p className="font-serif text-base italic text-[#5A1020] font-bold">No Silhouettes Found</p>
-                <p className="text-xs text-[#211D1E]/60 mt-1 font-sans">Adjust your filters or try a different search keyword.</p>
-                <button onClick={clearFilters} className="btn-primary mt-4">
-                  Show All Silhouettes
-                </button>
+              <div className="text-center py-8 md:py-10 px-4 border border-dashed border-[#B58A45]/40 rounded-2xl bg-white select-none shadow-xs">
+                <p className="font-serif text-base italic text-[#651B2B] font-bold">No Sarees Currently Listed Here</p>
+                <p className="text-xs text-[#38271F]/70 mt-1 font-sans max-w-md mx-auto">
+                  Adjust your filters or message Lokesh Lingam Weaver directly on WhatsApp for available Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional weaves.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+                  <button onClick={clearFilters} className="btn-outline !text-xs">
+                    Show All Collections
+                  </button>
+                  <a
+                    href={buildWhatsAppUrl(`Namaste ${BUSINESS.name}, please share your available ${activeCategory !== 'All' ? activeCategory : 'handloom saree'} collection and pricing.`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary !text-xs"
+                  >
+                    Enquire on WhatsApp
+                  </a>
+                </div>
               </div>
             ) : (
               /* GRID OR LIST VIEW RENDERING */
@@ -405,8 +418,8 @@ export default function Products() {
                         className="bg-white border border-[#C9A45C]/15 hover:border-[#C9A45C]/40 rounded-xl p-3 sm:p-3.5 flex flex-col sm:flex-row gap-3 sm:gap-3.5 hover:shadow-[0_12px_36px_rgba(201,164,92,0.1)] transition-all duration-300 relative group"
                       >
                         {product.bestseller && (
-                          <span className="absolute top-3 left-3 z-10 bg-[#5A1020] text-white text-[7px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded-full shadow-md">
-                            Atelier Edit
+                          <span className="absolute top-3 left-3 z-10 bg-[#651B2B] text-white text-[7px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded-full shadow-md">
+                            Featured Weave
                           </span>
                         )}
 
@@ -447,24 +460,30 @@ export default function Products() {
                             )}
                           </div>
 
-                          <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#C9A45C]/15">
+                          <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#B58A45]/15">
                             <div className="flex items-center gap-1">
-                              <Star size={11} fill="#B8860B" className="text-[#B8860B]" />
-                              <span className="text-[10px] text-[#3A2D23]/50 font-bold">{product.rating} Rating</span>
+                              {product.rating > 0 ? (
+                                <>
+                                  <Star size={11} fill="#B58A45" className="text-[#B58A45]" />
+                                  <span className="text-[10px] text-[#38271F]/65 font-bold">{product.rating} Rating</span>
+                                </>
+                              ) : (
+                                <span className="text-[10px] text-[#38271F]/60 font-medium">{BUSINESS.name}</span>
+                              )}
                             </div>
-                            
+
                             <div className="flex gap-2">
                               <Link
                                 to={`/products/${product.id}`}
                                 className="btn-outline !py-1 !px-3 text-[9.5px] flex items-center justify-center font-bold tracking-wider"
                               >
-                                View
+                                View Product
                               </Link>
                               <button
                                 onClick={() => handleAdd(product)}
                                 className="btn-primary !py-1 !px-3 text-[9.5px] flex items-center justify-center font-bold tracking-wider"
                               >
-                                Add to box
+                                Add to Bag
                               </button>
                             </div>
                           </div>

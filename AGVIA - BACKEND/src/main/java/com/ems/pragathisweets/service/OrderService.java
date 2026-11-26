@@ -633,7 +633,7 @@ public class OrderService {
         Order order = orderOpt.orElseThrow(() -> new ResourceNotFoundException("No active tracking record found for the provided reference."));
 
         if (Boolean.TRUE.equals(order.getTrackingTokenRevoked())) {
-            throw new ResourceNotFoundException("This tracking link has been revoked or expired. Please contact CHITRIKA concierge.");
+            throw new ResourceNotFoundException("This tracking link has been revoked or expired. Please contact Lokesh Lingam Weaver (+91 7799349294).");
         }
 
         // Ensure token exists on order
@@ -657,11 +657,11 @@ public class OrderService {
                 .maskedOrderNumber(maskedOrderNumber)
                 .status(order.getStatus() != null ? order.getStatus().name() : "CONFIRMED")
                 .createdAt(order.getCreatedAt())
-                .estimatedDelivery("2–4 Business Days")
+                .estimatedDelivery("Confirmed upon dispatch")
                 .totalItems(totalItems)
                 .destinationCity(city)
                 .destinationState(state)
-                .carrier("CHITRIKA Insured Express Logistics")
+                .carrier("Lokesh Lingam Weaver Dispatch")
                 .requiresAuthForFullDetails(true)
                 .timeline(timeline)
                 .build();
@@ -676,7 +676,7 @@ public class OrderService {
     }
 
     private String extractCity(String address) {
-        if (address == null || address.isBlank()) return "Hyderabad";
+        if (address == null || address.isBlank()) return "Dharmavaram";
         String[] parts = address.split("[,\\-]");
         if (parts.length >= 2) {
             String candidate = parts[parts.length - 2].trim();

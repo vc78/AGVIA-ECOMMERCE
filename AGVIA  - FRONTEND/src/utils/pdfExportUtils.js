@@ -1,7 +1,6 @@
 /**
- * CHITRIKA Haute Couture - Interactive Company-Oriented Luxury PDF Generator
- * Generates branded, high-fidelity PDF documents with company logo, gold crest accents,
- * KPI summary tiles, structured data tables, and official verification seals.
+ * Lokesh Lingam Weaver - Branded PDF Document Generator
+ * Generates branded PDF documents with the official business logo, structured tables, and order QR codes.
  */
 
 import { jsPDF } from 'jspdf'
@@ -11,26 +10,26 @@ import { BUSINESS } from '../constants/business'
 
 // Brand Color Palette in RGB
 const THEME = {
-  maroon: [90, 16, 32],        // #5A1020
-  maroonDark: [60, 10, 20],    // #3C0A14
-  gold: [201, 164, 92],         // #C9A45C
-  goldDark: [166, 125, 40],     // #A67D28
-  goldLight: [245, 230, 200],   // #F5E6C8
-  ivory: [255, 253, 248],       // #FFFDF8
-  charcoal: [33, 29, 30],       // #211D1E
-  charcoalMuted: [90, 85, 87],  // #5A5557
-  borderGold: [225, 200, 150],  // subtle gold border
-  green: [46, 125, 50],
-  red: [198, 40, 40],
+  maroon: [101, 27, 43],       // #651B2B
+  maroonDark: [56, 39, 31],    // #38271F
+  gold: [181, 138, 69],        // #B58A45
+  goldDark: [145, 108, 48],    // dark antique gold
+  goldLight: [231, 212, 185],  // #E7D4B9
+  ivory: [251, 245, 234],      // #FBF5EA
+  charcoal: [56, 39, 31],      // #38271F
+  charcoalMuted: [95, 80, 72], // muted brown
+  borderGold: [225, 200, 150],
+  green: [101, 112, 75],       // #65704B
+  red: [165, 38, 48],
   amber: [180, 100, 10]
 }
 
 /**
- * Fetch and convert logo to base64 for embedding in PDF
+ * Fetch and convert official logo to base64 for embedding in PDF
  */
 async function loadLogoBase64() {
   try {
-    const res = await fetch('/images/chitrika-logo.png')
+    const res = await fetch('/images/lokesh-lingam-logo.png')
     if (!res.ok) return null
     const blob = await res.blob()
     return new Promise((resolve) => {
@@ -46,23 +45,23 @@ async function loadLogoBase64() {
 }
 
 /**
- * Creates and formats the official CHITRIKA luxury branded document header
+ * Creates and formats the official Lokesh Lingam Weaver branded document header
  */
 function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRange }) {
   const pageWidth = doc.internal.pageSize.getWidth()
   
-  // Top Luxury Burgundy & Gold Accent Strip
+  // Top Maroon & Antique Gold Accent Strip
   doc.setFillColor(...THEME.maroon)
   doc.rect(0, 0, pageWidth, 12, 'F')
   
   doc.setFillColor(...THEME.gold)
   doc.rect(0, 12, pageWidth, 1.2, 'F')
 
-  // Confidential tag in top bar
+  // Header tag
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...THEME.goldLight)
-  doc.text('CHITRIKA ATELIER ENTERPRISE SYSTEM • OFFICIAL CONFIDENTIAL REPORT', 14, 8)
+  doc.text('LOKESH LINGAM WEAVER • DHARMAVARAM HANDLOOM SAREES • OFFICIAL REPORT', 14, 8)
   
   const nowStr = new Date().toLocaleString('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric',
@@ -75,8 +74,8 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
 
   if (logoData) {
     try {
-      // Draw logo (width 32, height 12)
-      doc.addImage(logoData, 'PNG', 14, y, 32, 12)
+      // Exact 3:2 proportion matching official 1024x682 PNG logo
+      doc.addImage(logoData, 'PNG', 14, y, 21, 14)
     } catch (_) {
       drawTextCrest(doc, 14, y)
     }
@@ -93,8 +92,8 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7.5)
   doc.setTextColor(...THEME.charcoalMuted)
-  doc.text(`${BUSINESS.location.street}, ${BUSINESS.location.city}`, pageWidth - 14, y + 8.5, { align: 'right' })
-  doc.text(`Concierge: ${BUSINESS.contact.phone} | ${BUSINESS.contact.email}`, pageWidth - 14, y + 12.5, { align: 'right' })
+  doc.text(BUSINESS.location.fullAddress, pageWidth - 14, y + 8.5, { align: 'right' })
+  doc.text(`Phone / WhatsApp: ${BUSINESS.contact.phone} | Instagram: ${BUSINESS.social.instagramHandle}`, pageWidth - 14, y + 12.5, { align: 'right' })
 
   y += 18
 
@@ -112,7 +111,7 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
   doc.text(title.toUpperCase(), 14, y)
 
   // Document ID Badge on right
-  const docRef = documentId || `AGV-${Math.floor(100000 + Math.random() * 900000)}`
+  const docRef = documentId || `LLW-${Math.floor(100000 + Math.random() * 900000)}`
   doc.setFillColor(...THEME.goldLight)
   doc.setDrawColor(...THEME.gold)
   doc.roundedRect(pageWidth - 62, y - 5, 48, 6.5, 1.5, 1.5, 'FD')
@@ -136,13 +135,13 @@ function drawDocumentHeader(doc, logoData, { title, subtitle, documentId, dateRa
 
 function drawTextCrest(doc, x, y) {
   doc.setFont('times', 'bold')
-  doc.setFontSize(14)
+  doc.setFontSize(13)
   doc.setTextColor(...THEME.maroon)
-  doc.text('CHITRIKA', x, y + 6)
+  doc.text('LOKESH LINGAM', x, y + 6)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(6.5)
   doc.setTextColor(...THEME.goldDark)
-  doc.text('HAUTE COUTURE ATELIER', x, y + 10)
+  doc.text('WEAVER · DHARMAVARAM', x, y + 10)
 }
 
 /**
@@ -208,7 +207,7 @@ function setupPageDecorations(doc, logoData, headerConfig) {
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7)
     doc.setTextColor(...THEME.charcoalMuted)
-    doc.text('CHITRIKA WOMEN\'S WEAR BOUTIQUE • CERTIFIED ATELIER AUDIT DOCUMENT', 14, footerY + 1)
+    doc.text('LOKESH LINGAM WEAVER • DHARMAVARAM HANDLOOM SAREES', 14, footerY + 1)
     doc.text(`PAGE ${i} OF ${pageCount}`, pageWidth - 14, footerY + 1, { align: 'right' })
   }
 }
@@ -295,12 +294,11 @@ export async function exportOrdersPDF(orders = [], filterName = 'All Orders') {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_orders_dispatch_${formatDateStamp()}.pdf`)
+  doc.save(`lokesh_lingam_weaver_orders_${formatDateStamp()}.pdf`)
 }
 
 /**
  * Export Individual Customer Order Receipt & Parcel Dispatch Packing Slip with Unique QR Code
- * Specifically formatted for adhering securely to customer parcel boxes and tax invoice records.
  */
 export async function exportOrderParcelReceiptPDF(order) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
@@ -314,7 +312,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   // 1. Generate Unique QR Code (clean URL without # for instant phone camera scanning)
   const siteUrl = typeof window !== 'undefined' && window.location?.origin 
     ? window.location.origin 
-    : 'https://chitrika.vercel.app'
+    : BUSINESS.seo.siteUrl
   const trackingRef = order.orderNumber || String(order.id)
   const trackingToken = order.trackingToken || null
   const qrTrackingUrl = trackingToken
@@ -327,7 +325,7 @@ export async function exportOrderParcelReceiptPDF(order) {
       width: 320,
       margin: 1,
       color: {
-        dark: '#211D1E',
+        dark: '#38271F',
         light: '#FFFFFF'
       },
       errorCorrectionLevel: 'M'
@@ -336,7 +334,7 @@ export async function exportOrderParcelReceiptPDF(order) {
     console.error('Failed to generate QR code for parcel receipt:', err)
   }
 
-  // 2. Outer Document Border / Luxury Double Framing (Crisp boundary for parcel sticker/insert)
+  // 2. Outer Document Border
   doc.setDrawColor(...THEME.borderGold)
   doc.setLineWidth(0.4)
   doc.rect(margin - 4, 8, contentWidth + 8, pageHeight - 16)
@@ -354,7 +352,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...THEME.goldLight)
-  doc.text('CHITRIKA ATELIER DISPATCH SYSTEM • OFFICIAL PARCEL PACKING SLIP & TAX INVOICE', margin, 16)
+  doc.text('LOKESH LINGAM WEAVER • OFFICIAL PARCEL PACKING SLIP', margin, 16)
 
   const isCOD = String(order?.paymentMethod || order?.payment || '').toUpperCase().includes('COD')
   doc.text(isCOD ? 'PAYMENT: CASH ON DELIVERY (COD)' : 'PAYMENT: PREPAID (ONLINE/UPI)', pageWidth - margin, 16, { align: 'right' })
@@ -363,7 +361,7 @@ export async function exportOrderParcelReceiptPDF(order) {
   let y = 28
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', margin, y, 36, 13)
+      doc.addImage(logoData, 'PNG', margin, y, 24, 16)
     } catch (_) {
       drawTextCrest(doc, margin, y)
     }
@@ -374,13 +372,13 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(13)
   doc.setTextColor(...THEME.maroon)
-  doc.text('CHITRIKA ATELIER', margin + 40, y + 5.5)
+  doc.text(BUSINESS.name.toUpperCase(), margin + 28, y + 5.5)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
   doc.setTextColor(...THEME.charcoalMuted)
-  doc.text('Heritage Haute Couture & Luxury Women\'s Wear Boutique', margin + 40, y + 10)
-  doc.text('GSTIN: 36AAHCA1234F1Z5  |  CIN: U18101TG2026PTC099882  |  HSN/SAC: 6204', margin + 40, y + 14)
+  doc.text(BUSINESS.tagline, margin + 28, y + 10)
+  doc.text(BUSINESS.location.fullAddress, margin + 28, y + 14)
 
   // QR Code Box (Right Side)
   const qrX = pageWidth - margin - 30
@@ -508,23 +506,22 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7)
   doc.setTextColor(...THEME.maroon)
-  doc.text('RETURN & DISPATCH FROM (CONSIGNOR)', fromX + 4, y + 4.5)
+  doc.text('SENDER (DIRECT WEAVER)', fromX + 4, y + 4.5)
 
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(8.5)
   doc.setTextColor(...THEME.maroon)
-  doc.text('CHITRIKA ATELIER DISPATCH CENTER', fromX + 4, y + 12)
+  doc.text(BUSINESS.name.toUpperCase(), fromX + 4, y + 12)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
   doc.setTextColor(...THEME.charcoal)
-  doc.text(BUSINESS.location.street, fromX + 4, y + 16.5)
-  doc.text(`${BUSINESS.location.city}, ${BUSINESS.location.state} - ${BUSINESS.location.pincode}`, fromX + 4, y + 20.5)
-  doc.text('Country: India', fromX + 4, y + 24.5)
+  doc.text(`${BUSINESS.location.city}, ${BUSINESS.location.state} - ${BUSINESS.location.postalCode}`, fromX + 4, y + 16.5)
+  doc.text('Country: India', fromX + 4, y + 20.5)
   doc.setFont('helvetica', 'bold')
-  doc.text(`Atelier Concierge: ${BUSINESS.contact.phone}`, fromX + 4, y + 30)
+  doc.text(`WhatsApp / Phone: ${BUSINESS.contact.phone}`, fromX + 4, y + 26)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Email: ${BUSINESS.contact.email}`, fromX + 4, y + 34)
+  doc.text(`Instagram: ${BUSINESS.social.instagramHandle}`, fromX + 4, y + 30)
 
   // 7. Payment Callout Banner (Crucial for Courier & Delivery Agent)
   y = 114
@@ -575,7 +572,7 @@ export async function exportOrderParcelReceiptPDF(order) {
     itemsRows = [
       [
         '1',
-        'CHITRIKA Luxury Women\'s Wear Ensemble (Curated Dispatch)',
+        `${BUSINESS.name} Handloom Saree Order`,
         String(order.items || 1),
         `Rs. ${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`,
         `Rs. ${Number(order.subtotal || order.total || 0).toLocaleString('en-IN')}`
@@ -651,10 +648,9 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(6.2)
   doc.setTextColor(...THEME.charcoalMuted)
-  doc.text('• Handle with Care: Artisan silk, embroidery, and embellishments.', margin + 3, finalY + 9)
-  doc.text('• Scannable QR: Delivery agent / patron can scan to inspect status.', margin + 3, finalY + 13.5)
-  doc.text('• Returns & Exchanges: Within 7 days of delivery with original seal.', margin + 3, finalY + 18)
-  doc.text('• Concierge WhatsApp: +91 90323 06961 | Email: support@chitrika.in', margin + 3, finalY + 22.5)
+  doc.text('• Handle with Care: Traditional handloom silk & zari weave.', margin + 3, finalY + 9)
+  doc.text('• Scannable QR: Scan to open live order tracking updates.', margin + 3, finalY + 13.5)
+  doc.text(`• WhatsApp Support: ${BUSINESS.contact.phone} | ${BUSINESS.social.instagramHandle}`, margin + 3, finalY + 18)
 
   // Right Side Box: Financial Calculation Totals
   doc.setFillColor(254, 252, 247)
@@ -708,11 +704,11 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(6.2)
   doc.setTextColor(...THEME.charcoalMuted)
-  doc.text('1. Tamper-evident luxury packaging: Please verify that the gold seal ribbon is intact upon delivery.', margin, footerBoxY + 7.5)
-  doc.text('2. Easy Returns & Exchanges: Scan the unique parcel QR code above or contact concierge within 7 days.', margin, footerBoxY + 11.5)
-  doc.text('3. Computer-generated tax packing manifest authorized for inter-state and local logistics dispatch.', margin, footerBoxY + 15.5)
+  doc.text('1. Verify parcel contents upon delivery and keep your order reference safe.', margin, footerBoxY + 7.5)
+  doc.text(`2. Scan the QR code above or contact WhatsApp ${BUSINESS.contact.phone} for assistance.`, margin, footerBoxY + 11.5)
+  doc.text('3. Computer-generated packing slip issued by Lokesh Lingam Weaver, Dharmavaram.', margin, footerBoxY + 15.5)
 
-  // Quality Checked Badge on Right
+  // Verification Badge on Right
   const badgeX = pageWidth - margin - 50
   doc.setFillColor(254, 252, 247)
   doc.setDrawColor(...THEME.borderGold)
@@ -722,20 +718,20 @@ export async function exportOrderParcelReceiptPDF(order) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(6.5)
   doc.setTextColor(...THEME.maroon)
-  doc.text('CHITRIKA QUALITY INSPECTED', badgeX + 25, footerBoxY + 4.5, { align: 'center' })
+  doc.text(BUSINESS.name.toUpperCase(), badgeX + 25, footerBoxY + 4.5, { align: 'center' })
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(5.5)
   doc.setTextColor(...THEME.charcoalMuted)
-  doc.text('Passed All 28 Quality Checks', badgeX + 25, footerBoxY + 8.5, { align: 'center' })
+  doc.text('Dharmavaram Handloom Sarees', badgeX + 25, footerBoxY + 8.5, { align: 'center' })
   doc.setFont('courier', 'bold')
   doc.setFontSize(6)
   doc.setTextColor(...THEME.goldDark)
-  doc.text(`SEAL: AGV-${String(order.id).padStart(4, '0')}-${order.date ? String(order.date).replace(/-/g, '') : '2026'}`, badgeX + 25, footerBoxY + 12.5, { align: 'center' })
+  doc.text(`REF: LLW-${String(order.id).padStart(4, '0')}-${order.date ? String(order.date).replace(/-/g, '') : '2026'}`, badgeX + 25, footerBoxY + 12.5, { align: 'center' })
 
   // Save the PDF
   const cleanId = String(order.orderNumber || order.id).replace(/[^a-zA-Z0-9_-]/g, '_')
-  doc.save(`chitrika_parcel_receipt_${cleanId}.pdf`)
+  doc.save(`lokesh_lingam_weaver_receipt_${cleanId}.pdf`)
 }
 
 /**
@@ -746,8 +742,8 @@ export async function exportCustomersPDF(customers = []) {
   const logoData = await loadLogoBase64()
 
   const startY = drawDocumentHeader(doc, logoData, {
-    title: 'Patron & Loyal Client Registry',
-    subtitle: 'Confidential Registry of Registered CHITRIKA Clientele',
+    title: 'Customer Registry',
+    subtitle: `Registered Customers of ${BUSINESS.name}`,
     documentId: `PAT-${Date.now().toString().slice(-6)}`
   })
 
@@ -796,7 +792,7 @@ export async function exportCustomersPDF(customers = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_patrons_directory_${formatDateStamp()}.pdf`)
+  doc.save(`lokesh_lingam_weaver_customers_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -821,11 +817,11 @@ export async function exportProductsPDF(products = []) {
     { label: 'Low Stock Alerts', value: lowStock }
   ])
 
-  const headers = [['SKU', 'SILHOUETTE NAME', 'LINE / CATEGORY', 'PRICE (INR)', 'OFFER', 'STOCK']]
+  const headers = [['SKU', 'PRODUCT NAME', 'CATEGORY', 'PRICE (INR)', 'OFFER', 'STOCK']]
   const body = products.map(p => [
-    p.sku || `AGV-${p.id}`,
-    p.name || 'Silhouette',
-    p.category || 'Couture',
+    p.sku || `LLW-${p.id}`,
+    p.name || 'Handloom Saree',
+    p.category || 'Dharmavaram Silk Sarees',
     `₹${Number(p.price || 0).toLocaleString('en-IN')}`,
     p.discountPrice ? `₹${Number(p.discountPrice).toLocaleString('en-IN')}` : '—',
     `${p.stock || 0} in stock`
@@ -866,7 +862,7 @@ export async function exportProductsPDF(products = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_couture_collection_${formatDateStamp()}.pdf`)
+  doc.save(`lokesh_lingam_weaver_catalogue_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -935,7 +931,7 @@ export async function exportInventoryPDF(inventory = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_fabric_inventory_${formatDateStamp()}.pdf`)
+  doc.save(`lokesh_lingam_weaver_inventory_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -986,7 +982,7 @@ export async function exportCouponsPDF(coupons = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_privilege_codes_${formatDateStamp()}.pdf`)
+  doc.save(`lokesh_lingam_weaver_coupons_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1008,7 +1004,7 @@ export async function exportSubscriptionsPDF(subscriptions = []) {
     s.customerName || 'VIP Member',
     s.email,
     s.customerPhone || '—',
-    s.planName || 'CHITRIKA VIP',
+    s.planName || `${BUSINESS.name} VIP`,
     s.planTier || 'VIP',
     `₹${s.amount || 299}`,
     s.status || 'ACTIVE',
@@ -1040,7 +1036,7 @@ export async function exportSubscriptionsPDF(subscriptions = []) {
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_vip_subscriptions_${formatDateStamp()}.pdf`)
+  doc.save(`lokesh_lingam_weaver_memberships_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1457,7 +1453,7 @@ export async function exportMasterAdminPDF({
         s.customerName || 'VIP Member',
         s.email || '—',
         s.customerPhone || '—',
-        s.planName || 'CHITRIKA VIP',
+        s.planName || `${BUSINESS.name} VIP`,
         s.planTier || 'VIP',
         `₹${s.amount || 299}`,
         s.status || 'ACTIVE',
@@ -1501,7 +1497,7 @@ export async function exportMasterAdminPDF({
   })
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_master_atelier_dossier_${formatDateStamp()}.pdf`)
+  doc.save(`lokesh_lingam_weaver_master_report_${formatDateStamp()}.pdf`)
 }
 
 /**
@@ -1752,13 +1748,13 @@ export async function exportAnalyticsPDF({
   }
 
   setupPageDecorations(doc, logoData, {})
-  doc.save(`chitrika_website_analytics_${startDate}_to_${endDate}.pdf`)
+  doc.save(`lokesh_lingam_weaver_analytics_${startDate}_to_${endDate}.pdf`)
 }
 
 /**
- * Generic Table to Luxury PDF Exporter
+ * Generic Table to PDF Exporter
  */
-export async function exportTableToPDF(columns = [], rows = [], title = 'Atelier Report', filename = 'agvia_report') {
+export async function exportTableToPDF(columns = [], rows = [], title = 'Store Report', filename = 'lokesh_lingam_weaver_report') {
   const doc = new jsPDF({ orientation: columns.length > 6 ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' })
   const logoData = await loadLogoBase64()
 
@@ -1832,17 +1828,17 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   // Logo / Text Header
   if (logoData) {
     try {
-      doc.addImage(logoData, 'PNG', 12, 5, 24, 18)
+      doc.addImage(logoData, 'PNG', 12, 6, 24, 16)
     } catch (_) {}
   }
   doc.setFont('times', 'bold')
-  doc.setFontSize(14)
+  doc.setFontSize(13)
   doc.setTextColor(245, 230, 200)
-  doc.text('CHITRIKA ATELIER LOGISTICS', 42, 14)
+  doc.text(BUSINESS.name.toUpperCase(), 40, 14)
   doc.setFont('helvetica', 'normal')
-  doc.setFontSize(8)
+  doc.setFontSize(7.5)
   doc.setTextColor(201, 164, 92)
-  doc.text('REVERSE COURIER CONSIGNMENT & REPLACEMENT SLIP', 42, 20)
+  doc.text('RETURN & EXCHANGE TRACKING SLIP', 40, 20)
 
   // Tracking & Reference Bar
   doc.setFillColor(255, 255, 255)
@@ -1899,14 +1895,13 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(10)
   doc.setTextColor(30, 30, 30)
-  doc.text('CHITRIKA Haute Couture Atelier & Inward Returns', 14, 121)
+  doc.text(BUSINESS.name, 14, 121)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(70, 70, 70)
-  doc.text('Plot 42, Road No. 36, Near Jubilee Hills Check Post', 14, 127)
-  doc.text('Jubilee Hills, Hyderabad, Telangana - 500033', 14, 132)
-  doc.text('Concierge Desk: +91 91219 99244 | support@chitrika.in', 14, 138)
+  doc.text(BUSINESS.location.fullAddress, 14, 127)
+  doc.text(`Phone / WhatsApp: ${BUSINESS.contact.phone} | Instagram: ${BUSINESS.social.instagramHandle}`, 14, 133)
 
   // Item & Resolution Box
   doc.setFillColor(245, 240, 230)
@@ -1914,20 +1909,20 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(8)
   doc.setTextColor(90, 16, 32)
-  doc.text('GARMENT DETAILS & SERVICE ACTION:', 14, 156)
+  doc.text('PRODUCT DETAILS & SERVICE ACTION:', 14, 156)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(40, 40, 40)
-  doc.text(`Silhouette: ${returnReq.orderItemName || 'Couture Garment'}`, 14, 163)
+  doc.text(`Product: ${returnReq.orderItemName || 'Handloom Saree'}`, 14, 163)
   doc.text(`Service: ${returnReq.type || 'RETURN'} | Choice: ${returnReq.resolution?.replace('_', ' ') || 'EXCHANGE'}`, 14, 169)
   if (returnReq.targetSize) {
-    doc.text(`Exchange Target Size: ${returnReq.targetSize}`, 14, 175)
+    doc.text(`Target Variant / Option: ${returnReq.targetSize}`, 14, 175)
   }
 
   // QR Code for internal scanning
   try {
-    const qrDataUri = await QRCode.toDataURL(`https://chitrika.onrender.com/track?ref=${encodeURIComponent(returnReq.returnNumber || '')}`, {
+    const qrDataUri = await QRCode.toDataURL(`${BUSINESS.seo.siteUrl}/track-order?order=${encodeURIComponent(returnReq.returnNumber || '')}`, {
       margin: 1,
       width: 75
     })
@@ -1938,9 +1933,9 @@ export async function exportReverseShippingSlipPDF(returnReq) {
   doc.setFont('helvetica', 'italic')
   doc.setFontSize(7.5)
   doc.setTextColor(140, 140, 140)
-  doc.text('White-Glove Insured Reverse Shipment • Handle with pristine care • CHITRIKA Official Consignment', 14, 195)
+  doc.text(`${BUSINESS.name} • ${BUSINESS.location.shortAddress}`, 14, 195)
 
-  doc.save(`CHITRIKA_Reverse_Slip_${returnReq.returnNumber || 'RET'}.pdf`)
+  doc.save(`lokesh_lingam_weaver_return_${returnReq.returnNumber || 'RET'}.pdf`)
 }
 
 function formatDateStamp() {

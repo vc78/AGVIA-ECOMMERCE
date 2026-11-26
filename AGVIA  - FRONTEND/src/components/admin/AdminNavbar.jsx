@@ -193,7 +193,7 @@ export default function AdminNavbar({ onMenuToggle }) {
         ])
         const backupData = {
           exportDate: new Date().toISOString(),
-          system: 'CHITRIKA Haute Couture Atelier ERP & Analytics Master Backup',
+          system: 'Lokesh Lingam Weaver Admin & Analytics Master Backup',
           analytics: telemetry.status === 'fulfilled' ? telemetry.value : {},
           orders: orders.status === 'fulfilled' ? orders.value : [],
           customers: customers.status === 'fulfilled' ? customers.value : [],
@@ -204,8 +204,8 @@ export default function AdminNavbar({ onMenuToggle }) {
           subscriptions: subscriptions.status === 'fulfilled' ? (subscriptions.value?.content || subscriptions.value || []) : [],
           reviews: reviews.status === 'fulfilled' ? reviews.value : [],
         }
-        exportToJSON(backupData, 'chitrika_complete_atelier_backup')
-        toast.success('Complete atelier JSON archive downloaded!', { id: 'pdf-dl' })
+        exportToJSON(backupData, 'lokesh_lingam_weaver_complete_backup')
+        toast.success('Complete store JSON archive downloaded!', { id: 'pdf-dl' })
       }
       setExportOpen(false)
     } catch (err) {
@@ -232,8 +232,8 @@ export default function AdminNavbar({ onMenuToggle }) {
           <h1 className="font-serif text-sm sm:text-lg md:text-xl text-[#5A1020] font-bold leading-tight truncate">
             Welcome, <span className="text-[#C9A45C]">{user?.name || 'Atelier Director'}</span>
           </h1>
-          <p className="text-[8.5px] sm:text-[9.5px] text-[#211D1E]/50 tracking-wider uppercase font-bold mt-0.5 truncate hidden xs:block">
-            CHITRIKA Boutique Workspace Active
+          <p className="text-[8.5px] sm:text-[9.5px] text-[#38271F]/60 tracking-wider uppercase font-bold mt-0.5 truncate hidden xs:block">
+            Lokesh Lingam Weaver Workspace Active
           </p>
         </div>
       </div>

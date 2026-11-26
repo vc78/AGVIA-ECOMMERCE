@@ -9,6 +9,8 @@ import { ArrowLeft } from 'lucide-react'
 import OtpVerificationCard from '../../components/auth/OtpVerificationCard'
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
 import SEOHead from '../../components/common/SEOHead'
+import BrandLogo from '../../components/common/BrandLogo'
+import { BUSINESS } from '../../constants/business'
 import { getAuthErrorMessage, logDeveloperError } from '../../services/errorMessageService'
 
 export default function Register() {
@@ -149,50 +151,45 @@ export default function Register() {
         <div className="w-full max-w-md p-5 sm:p-8 bg-white border border-[#B8860B]/15 rounded-3xl shadow-sm relative overflow-hidden mt-8 sm:mt-0">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B0000] via-[#B8860B] to-[#8B0000]" />
 
-          <Link to="/" className="flex flex-col items-center mb-6 sm:mb-8 select-none group">
-            <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#8B0000] leading-none group-hover:text-[#B8860B] transition-colors duration-300">
-              CHITRIKA
-            </span>
-            <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#B8860B] font-semibold mt-1.5 pl-[1px]">
-              HAUTE COUTURE BOUTIQUE
-            </span>
+          <Link to="/" className="flex flex-col items-center mb-5 sm:mb-7 select-none group">
+            <BrandLogo size="md" />
           </Link>
 
-          <h1 className="font-display text-2xl text-center text-[#8B0000] font-bold mb-1">
+          <h1 className="font-display text-2xl text-center text-[#651B2B] font-bold mb-1">
             Create Account
           </h1>
-          <p className="text-center text-[#3A2D23]/60 mb-6 text-xs leading-relaxed">
-            Register with your verified mobile number for exclusive handcrafted fashion.
+          <p className="text-center text-[#38271F]/70 mb-6 text-xs leading-relaxed">
+            Register with your verified mobile number for {BUSINESS.name}.
           </p>
 
           <form onSubmit={handleRequestOtp} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-semibold text-[#3A2D23]/70 mb-1">Full Name</label>
+              <label className="block text-[11px] font-semibold text-[#38271F]/80 mb-1">Full Name</label>
               <input
                 name="name"
                 required
                 value={form.name}
                 onChange={handleChange}
-                placeholder="e.g. Venkat Chowdary"
+                placeholder="Enter your full name"
                 className="input-field"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-[#3A2D23]/70 mb-1">Email Address</label>
+              <label className="block text-[11px] font-semibold text-[#38271F]/80 mb-1">Email Address</label>
               <input
                 name="email"
                 type="email"
                 required
                 value={form.email}
                 onChange={handleChange}
-                placeholder="client@agvia.com"
+                placeholder="Enter your email address"
                 className="input-field"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-[#3A2D23]/70 mb-1">
+              <label className="block text-[11px] font-semibold text-[#38271F]/80 mb-1">
                 Mobile Number
               </label>
               <input
@@ -201,7 +198,7 @@ export default function Register() {
                 required
                 value={form.phone}
                 onChange={handleChange}
-                placeholder="10-digit mobile number (e.g. 9032306961)"
+                placeholder="10-digit mobile number"
                 className="input-field font-mono"
               />
               <p className="text-[10px] text-[#3A2D23]/50 mt-1 pl-1">

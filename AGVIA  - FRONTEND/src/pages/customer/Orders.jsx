@@ -28,11 +28,12 @@ import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { orderService } from '../../services/orderService'
 import ReliableImage from '../../components/common/ReliableImage'
-import { BUSINESS } from '../../constants/business'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 import { safeOpenWindow } from '../../utils/windowManager'
 import { exportOrderParcelReceiptPDF } from '../../utils/pdfExportUtils'
 import SEOHead from '../../components/common/SEOHead'
 import ReturnRequestModal from '../../components/customer/ReturnRequestModal'
+import BrandLogo from '../../components/common/BrandLogo'
 
 const getStatusBadge = (status = '') => {
   switch (status.toUpperCase()) {
@@ -69,9 +70,6 @@ export default function Orders() {
   const [returnModalOrder, setReturnModalOrder] = useState(null)
   const { user } = useSelector((state) => state.auth)
   const location = useLocation()
-
-  // Mock Loyalty Coins matching Profile.jsx
-  const goldCoins = 380
 
   const fetchOrders = useCallback(async (isInitial = false) => {
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
@@ -158,80 +156,82 @@ export default function Orders() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
-          {/* Left Column: Loyalty Status / Coins Summary (Cohesive with Profile.jsx) */}
+          {/* Left Column: Direct Weaver Support & Account Links */}
           <div className="lg:col-span-4 space-y-6 select-none">
 
-            {/* Loyalty Card */}
-            <div className="bg-gradient-to-br from-[#1F1F1F] via-[#2A201A] to-[#8B0000] text-[#FFFDF8] rounded-3xl p-6 border border-[#B8860B]/25 relative overflow-hidden shadow-md">
-              <div className="absolute top-0 right-0 w-36 h-36 bg-[#B8860B]/10 rounded-full filter blur-xl pointer-events-none" />
-
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <span className="text-[8px] tracking-[0.25em] text-[#B8860B] font-bold uppercase block">CHITRIKA REWARDS</span>
-                  <p className="font-display text-xs text-[#B8860B] mt-1">Royale Class Membership</p>
-                </div>
-                <Award size={20} className="text-[#B8860B] animate-pulse" />
+            {/* Brand Summary Card */}
+            <div className="bg-gradient-to-br from-[#38271F] via-[#4D1420] to-[#651B2B] text-[#FBF5EA] rounded-3xl p-6 border border-[#B58A45]/30 relative overflow-hidden shadow-md">
+              <div className="flex justify-between items-start mb-4">
+                <BrandLogo variant="dark" size="xs" />
+                <Award size={20} className="text-[#B58A45]" />
               </div>
 
-              <div className="py-6">
-                <span className="text-[10px] text-white/50 tracking-wider block">GOLD COINS BALANCE</span>
-                <span className="font-display text-4xl text-[#B8860B] font-bold flex items-center gap-1.5 mt-1.5">
-                  <Sparkles size={24} className="text-[#B8860B]" /> {goldCoins}
-                </span>
-                <span className="text-[9px] text-white/40 mt-1 block">Value: ₹{goldCoins} (1 Coin = ₹1 Discount)</span>
+              <div className="py-3 space-y-1">
+                <span className="text-[9px] tracking-[0.22em] text-[#B58A45] font-bold uppercase block">{BUSINESS.name}</span>
+                <p className="font-display text-lg text-white font-semibold">{BUSINESS.type}</p>
+                <p className="text-[11px] text-white/75">{BUSINESS.location.full}</p>
               </div>
 
-              <div className="border-t border-white/10 pt-4 flex items-center justify-between text-[10px] text-white/60">
-                <span>Next reward tier: 500 Coins</span>
-                <span className="text-[#B8860B] underline font-bold cursor-pointer">Learn More</span>
+              <div className="border-t border-white/15 pt-4 flex items-center justify-between text-[10.5px] text-white/80">
+                <span>WhatsApp: {BUSINESS.phoneDisplay}</span>
+                <a
+                  href={BUSINESS.social.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#E7D4B9] underline font-bold"
+                >
+                  Chat Now
+                </a>
               </div>
             </div>
 
             {/* Sidebar Navigation */}
-            <div className="bg-white border border-[#B8860B]/15 rounded-3xl p-5 space-y-3 shadow-sm">
-              <h3 className="font-display text-[10px] tracking-[0.2em] text-[#8B0000] font-bold uppercase pb-2 border-b border-[#B8860B]/5 flex items-center gap-1.5">
-                Client Workspace
+            <div className="bg-white border border-[#B58A45]/20 rounded-3xl p-5 space-y-3 shadow-sm">
+              <h3 className="font-display text-[10px] tracking-[0.2em] text-[#651B2B] font-bold uppercase pb-2 border-b border-[#B58A45]/10 flex items-center gap-1.5">
+                Customer Account
               </h3>
               <div className="space-y-1 text-xs">
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2.5 p-3 rounded-xl transition-colors hover:bg-[#F5E6C8]/30 text-[#3A2D23]/75"
+                  className="flex items-center gap-2.5 p-3 rounded-xl transition-colors hover:bg-[#E7D4B9]/30 text-[#38271F]/80"
                 >
-                  <User size={14} className="text-[#B8860B]" />
+                  <User size={14} className="text-[#B58A45]" />
                   <span>Personal Settings</span>
                 </Link>
                 <Link
                   to="/orders"
-                  className="flex items-center gap-2.5 p-3 rounded-xl transition-colors bg-[#8B0000]/5 border border-[#B8860B]/10 text-[#8B0000] font-bold"
+                  className="flex items-center gap-2.5 p-3 rounded-xl transition-colors bg-[#651B2B]/5 border border-[#B58A45]/15 text-[#651B2B] font-bold"
                 >
-                  <ShoppingBag size={14} className="text-[#8B0000]" />
+                  <ShoppingBag size={14} className="text-[#651B2B]" />
                   <span>Order History</span>
+                </Link>
+                <Link
+                  to="/track-order"
+                  className="flex items-center gap-2.5 p-3 rounded-xl transition-colors hover:bg-[#E7D4B9]/30 text-[#38271F]/80"
+                >
+                  <QrCode size={14} className="text-[#B58A45]" />
+                  <span>Track Order Status</span>
                 </Link>
               </div>
             </div>
 
-            {/* Exclusive Coupons */}
-            <div className="bg-white border border-[#B8860B]/15 rounded-3xl p-6 space-y-4 shadow-sm hidden lg:block">
-              <h3 className="font-display text-[10px] tracking-[0.2em] text-[#8B0000] font-bold uppercase pb-2 border-b border-[#B8860B]/5 flex items-center gap-1.5">
-                <Ticket size={14} className="text-[#B8860B]" /> Available Perks
+            {/* Social Highlight Proof */}
+            <div className="bg-white border border-[#B58A45]/20 rounded-3xl p-5 space-y-3 shadow-sm hidden lg:block">
+              <h3 className="font-display text-[10px] tracking-[0.2em] text-[#651B2B] font-bold uppercase pb-2 border-b border-[#B58A45]/10 flex items-center gap-1.5">
+                <MessageCircle size={14} className="text-[#B58A45]" /> Dispatch Updates
               </h3>
-
-              <div className="space-y-3 text-xs">
-                <div className="p-3 bg-[#F5E6C8]/10 border border-[#B8860B]/10 rounded-xl flex justify-between items-center">
-                  <div>
-                    <span className="font-bold text-[#8B0000] block">AZADI15</span>
-                    <span className="text-[10px] text-[#3A2D23]/50">15% Off storewide confections</span>
-                  </div>
-                  <span className="text-[9px] bg-green-50 text-green-700 border border-green-200/50 px-2 py-0.5 rounded font-bold uppercase">Active</span>
-                </div>
-                <div className="p-3 bg-[#F5E6C8]/10 border border-[#B8860B]/10 rounded-xl flex justify-between items-center">
-                  <div>
-                    <span className="font-bold text-[#8B0000] block">RAKHI200</span>
-                    <span className="text-[10px] text-[#3A2D23]/50">₹200 discount on gift boxes</span>
-                  </div>
-                  <span className="text-[9px] bg-green-50 text-green-700 border border-green-200/50 px-2 py-0.5 rounded font-bold uppercase">Active</span>
-                </div>
-              </div>
+              <p className="text-xs text-[#38271F]/70 leading-relaxed">
+                View real dispatch & customer delivery highlights on Instagram{' '}
+                <a
+                  href={BUSINESS.social.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-[#651B2B] underline"
+                >
+                  {BUSINESS.social.instagramHandle}
+                </a>
+                .
+              </p>
             </div>
 
           </div>
@@ -251,8 +251,8 @@ export default function Orders() {
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-emerald-900">Order Placed Successfully!</h4>
-                    <p className="text-xs text-[#3A2D23]/75 mt-0.5 font-normal">
-                      Order <span className="font-bold text-emerald-900">#{location.state.newOrderId}</span> has been confirmed and registered in our atelier system.
+                    <p className="text-xs text-[#38271F]/80 mt-0.5 font-normal">
+                      Order <span className="font-bold text-emerald-900">#{location.state.newOrderId}</span> has been registered with {BUSINESS.name}.
                     </p>
                   </div>
                 </div>
@@ -305,8 +305,8 @@ export default function Orders() {
                 <div className="py-12 text-center">
                   <ShoppingBag size={40} className="text-[#B8860B]/30 mx-auto mb-4" />
                   <p className="font-display text-base italic text-[#8B0000] font-bold">No orders yet.</p>
-                  <p className="text-xs text-[#3A2D23]/50 mt-1 mb-6">
-                    You have not placed any couture orders yet. Explore our handcrafted bridal & luxury collections.
+                  <p className="text-xs text-[#38271F]/65 mt-1 mb-6">
+                    You have not placed any orders yet. Explore our Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves.
                   </p>
                   <Link to="/products" className="btn-primary inline-block">
                     Continue Shopping
@@ -393,11 +393,11 @@ export default function Orders() {
                                 {/* Tracking Progress Bar */}
                                 {o.status?.toUpperCase() !== 'CANCELLED' ? (
                                   <div className="bg-[#FFFDF8] border border-[#B8860B]/10 rounded-2xl p-5 space-y-4">
-                                    <div className="flex justify-between items-center text-[10px] text-[#3A2D23]/40 uppercase tracking-wider font-bold">
+                                    <div className="flex justify-between items-center text-[10px] text-[#38271F]/60 uppercase tracking-wider font-bold">
                                       <span className="flex items-center gap-1">
-                                        <Clock size={12} className="text-[#B8860B]" /> Estimated Delivery: Same Day
+                                        <Clock size={12} className="text-[#B58A45]" /> {BUSINESS.name} Order Status
                                       </span>
-                                      <span className="font-bold text-[#B8860B]">Status: {o.status}</span>
+                                      <span className="font-bold text-[#651B2B]">Status: {o.status}</span>
                                     </div>
 
                                     {/* Timeline visual */}
@@ -451,27 +451,27 @@ export default function Orders() {
 
                                 {/* Detailed Items */}
                                 <div className="space-y-3">
-                                  <h4 className="font-display font-bold text-xs text-[#8B0000] tracking-wider uppercase border-b border-[#B8860B]/5 pb-1">
-                                    Selected Confections
+                                  <h4 className="font-display font-bold text-xs text-[#651B2B] tracking-wider uppercase border-b border-[#B58A45]/10 pb-1">
+                                    Ordered Sarees
                                   </h4>
                                   {itemsList.length === 0 ? (
-                                    <p className="text-xs text-[#3A2D23]/50 italic py-2">
-                                      Item details will be updated as the kitchen prepares your package.
+                                    <p className="text-xs text-[#38271F]/60 italic py-2">
+                                      Item details will appear as your order is updated.
                                     </p>
                                   ) : (
-                                    <div className="divide-y divide-[#B8860B]/5 space-y-3">
+                                    <div className="divide-y divide-[#B58A45]/10 space-y-3">
                                       {itemsList.map((item, idx) => (
                                         <div key={idx} className="flex justify-between items-center pt-3 first:pt-0">
                                           <div className="flex items-center gap-3">
                                             <ReliableImage
-                                              src={item.image || item.imageUrl || '/images/classic_silk_saree.jpg'}
-                                              alt={item.name || item.productName || 'Confection'}
+                                              src={item.image || item.imageUrl || '/images/dharmavaram_collections_showcase.jpg'}
+                                              alt={item.name || item.productName || 'Handloom Saree'}
                                               sizes="48px"
                                               loading="lazy"
-                                              className="w-12 h-12 rounded-lg border border-[#B8860B]/10 shadow-sm shrink-0 object-cover"
+                                              className="w-12 h-12 rounded-lg border border-[#B58A45]/15 shadow-sm shrink-0 object-cover"
                                             />
                                             <div>
-                                              <p className="font-display text-sm font-bold text-[#8B0000]">{item.name || item.productName || 'CHITRIKA Silhouette'}</p>
+                                              <p className="font-display text-sm font-bold text-[#651B2B]">{item.name || item.productName || 'Handloom Saree'}</p>
                                                {(item.colorName || item.sku) && (
                                                  <div className="flex items-center gap-1.5 text-[10px] text-[#3A2D23]/60 mt-0.5">
                                                    {item.colorName && (
@@ -515,14 +515,10 @@ export default function Orders() {
                                         <>
                                           <p>{o.address.line1}</p>
                                           <p>{o.address.city} - {o.address.pincode}</p>
-                                          <p className="mt-1 font-bold text-[#B8860B]">Phone: {o.address.phone}</p>
+                                          <p className="mt-1 font-bold text-[#B58A45]">Phone: {o.address.phone}</p>
                                         </>
                                       ) : (
-                                        <>
-                                          <p>12, Jubilee Hills, Road No. 36</p>
-                                          <p>Hyderabad - 500033</p>
-                                          <p className="mt-1 font-bold text-[#B8860B]">Phone: +91 90323 06961</p>
-                                        </>
+                                        <p className="text-[#38271F]/60 italic">Shipping details recorded with your order.</p>
                                       )}
                                     </div>
                                   </div>
@@ -623,12 +619,12 @@ export default function Orders() {
 
                                   <button
                                     onClick={() => {
-                                      const text = encodeURIComponent(`Hello CHITRIKA Concierge, I would like assistance regarding my atelier order #${o.orderNumber || o.id}.`)
-                                      safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_support_window', 'noopener,noreferrer')
+                                      const url = buildWhatsAppUrl(`Namaste ${BUSINESS.name}, I would like assistance regarding my order #${o.orderNumber || o.id}.`)
+                                      safeOpenWindow(url, 'llw_support_window', 'noopener,noreferrer')
                                     }}
                                     className="btn-outline !py-2 !px-3.5 text-[10px] flex items-center gap-1.5 font-bold"
                                   >
-                                    <HelpCircle size={12} /> Atelier Support
+                                    <HelpCircle size={12} /> WhatsApp Support
                                   </button>
                                 </div>
 
