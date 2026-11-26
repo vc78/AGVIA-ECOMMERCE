@@ -15,7 +15,8 @@ import Footer from '../../components/customer/Footer'
 import { authService } from '../../services/authService'
 import { orderService } from '../../services/orderService'
 import { subscriptionService } from '../../services/subscriptionService'
-import { profileUpdated, loggedOut } from '../../store/authSlice'
+import { profileUpdated, loggedOut, credentialsReceived } from '../../store/authSlice'
+import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
 import { removeFromWishlist } from '../../store/wishlistSlice'
 import { useCart } from '../../hooks/useCart'
 import SEOHead from '../../components/common/SEOHead'
@@ -45,22 +46,10 @@ export default function Profile() {
   })
   const fileInputRef = useRef(null)
 
-  // ── 2. Contact State (Email Verification & Phone OTP) ─────────
-  const [emailModalOpen, setEmailModalOpen] = useState(false)
-  const [newEmail, setNewEmail] = useState('')
-  const [emailStatus, setEmailStatus] = useState('idle') // idle | sending | otp_sent | verifying
-  const [emailOtpValue, setEmailOtpValue] = useState(['', '', '', '', '', ''])
-  const [emailOtpTimer, setEmailOtpTimer] = useState(60)
-
+  // ── 2. Contact State (Direct Phone Update) ───────────────────
   const [phoneModalOpen, setPhoneModalOpen] = useState(false)
   const [newPhone, setNewPhone] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
-  const [otpValue, setOtpValue] = useState(['', '', '', '', '', ''])
-  const [otpTimer, setOtpTimer] = useState(60)
-  const [otpSending, setOtpSending] = useState(false)
-  const [otpVerifying, setOtpVerifying] = useState(false)
-  const [phoneWhatsAppUrl, setPhoneWhatsAppUrl] = useState('')
-  const [receivedOtpCode, setReceivedOtpCode] = useState('')
+  const [savingPhone, setSavingPhone] = useState(false)
 
   // ── 3. Saved Addresses State (User-Isolated) ──────────────────
   const [addresses, setAddresses] = useState(() => {
@@ -204,28 +193,6 @@ export default function Profile() {
     return () => { isMounted = false }
   }, [dispatch])
 
-  // OTP Countdown timer
-  useEffect(() => {
-    let interval = null
-    if (otpSent && otpTimer > 0) {
-      interval = setInterval(() => setOtpTimer(t => t - 1), 1000)
-    } else if (otpTimer === 0) {
-      clearInterval(interval)
-    }
-    return () => clearInterval(interval)
-  }, [otpSent, otpTimer])
-
-  // Email OTP Countdown timer
-  useEffect(() => {
-    let interval = null
-    if (emailStatus === 'otp_sent' && emailOtpTimer > 0) {
-      interval = setInterval(() => setEmailOtpTimer(t => t - 1), 1000)
-    } else if (emailOtpTimer === 0) {
-      clearInterval(interval)
-    }
-    return () => clearInterval(interval)
-  }, [emailStatus, emailOtpTimer])
-
   // Warn on navigation with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -289,108 +256,32 @@ export default function Profile() {
     reader.readAsDataURL(file)
   }
 
-  // ── Handler: Email Verification Flow ─────────────────────────
-  const handleSendEmailVerification = async (e) => {
-    if (e) e.preventDefault()
-    if (!newEmail || !newEmail.includes('@')) {
-      toast.error('Please enter a valid email address.')
-      return
-    }
-    setEmailStatus('sending')
-    try {
-      await authService.sendEmailOtp(newEmail)
-      setEmailStatus('otp_sent')
-      setEmailOtpTimer(60)
-      setEmailOtpValue(['', '', '', '', '', ''])
-
-      toast.success(`Verification code sent to ${newEmail}! Check your inbox.`, {
-        icon: '✉️',
-        style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
-      })
-    } catch (err) {
-      setEmailStatus('idle')
-      toast.error(err?.response?.data?.message || 'Could not send verification OTP. Please try again.')
-    }
-  }
-
-  const handleVerifyEmailOtp = async () => {
-    const enteredOtp = emailOtpValue.join('')
-    if (enteredOtp.length !== 6) {
-      toast.error('Please enter the complete 6-digit verification code.')
-      return
-    }
-    setEmailStatus('verifying')
-    try {
-      const updatedUser = await authService.verifyEmailOtp(newEmail, enteredOtp)
-      dispatch(profileUpdated({ ...user, ...updatedUser }))
-      toast.success('Primary email address verified & updated!', {
-        icon: '✓',
-        style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
-      })
-      setEmailModalOpen(false)
-      setEmailStatus('idle')
-      setNewEmail('')
-      setEmailOtpValue(['', '', '', '', '', ''])
-    } catch (err) {
-      setEmailStatus('otp_sent')
-      toast.error(err?.response?.data?.message || 'Invalid or expired OTP code.')
-    }
-  }
-
-  // ── Handler: Phone OTP Verification Flow ─────────────────────
-  const handleSendOtp = async (e) => {
-    if (e) e.preventDefault()
+  // ── Handler: Direct Phone Number Update ───────────────────────
+  const handleUpdatePhoneDirect = async (e) => {
+    e.preventDefault()
     const cleanPhone = newPhone.replace(/\D/g, '')
     if (cleanPhone.length < 10) {
-      toast.error('Please enter a valid 10-digit Indian mobile number.')
+      toast.error('Please enter a valid 10-digit mobile number.')
       return
     }
-    setOtpSending(true)
+    setSavingPhone(true)
     try {
-      const res = await authService.sendPhoneOtp(newPhone)
-      // Support both wrapped (res.data) and unwrapped response shapes
-      const payload = res?.data || res
-      const code = payload?.otpCode || payload?.data?.otpCode || ''
-      setReceivedOtpCode(code)
-      setPhoneWhatsAppUrl('')          // no longer opening WhatsApp
-      setOtpSent(true)
-      setOtpTimer(60)
-      setOtpValue(['', '', '', '', '', ''])
-
-      toast.success(`OTP generated for +91 ${cleanPhone.slice(-10)}. Check the code below.`, {
-        icon: '🔐',
-        duration: 4000,
-        style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px', fontWeight: 600 }
+      const formatted = `+91${cleanPhone.slice(-10)}`
+      const updatedUser = await authService.updateProfile({
+        name: user?.name || personalForm.displayName || 'Customer',
+        phone: formatted,
+        address: user?.address || ''
       })
-    } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to generate phone OTP. Please check the number.')
-    } finally {
-      setOtpSending(false)
-    }
-  }
-
-  const handleVerifyOtp = async () => {
-    const enteredOtp = otpValue.join('')
-    if (enteredOtp.length !== 6) {
-      toast.error('Please enter the complete 6-digit verification code.')
-      return
-    }
-    setOtpVerifying(true)
-    try {
-      const updatedUser = await authService.verifyPhoneOtp(newPhone, enteredOtp)
       dispatch(profileUpdated({ ...user, ...updatedUser }))
-      toast.success('Mobile number verified & updated!', {
-        icon: '✓',
-        style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
+      toast.success('Mobile number updated successfully!', {
+        style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' }
       })
       setPhoneModalOpen(false)
-      setOtpSent(false)
       setNewPhone('')
-      setOtpValue(['', '', '', '', '', ''])
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Invalid or expired OTP code.')
+      toast.error(err?.response?.data?.message || 'Could not update mobile number.')
     } finally {
-      setOtpVerifying(false)
+      setSavingPhone(false)
     }
   }
 
@@ -448,15 +339,15 @@ export default function Profile() {
     })
   }
 
-  // ── Handler: Password Change ─────────────────────────────────
-  const handlePasswordSubmit = (e) => {
+  // ── Handler: Password Change (Server-Verified) ───────────────
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault()
     if (!passwordForm.current) {
       toast.error('Please enter your current password.')
       return
     }
-    if (passwordForm.next.length < 6) {
-      toast.error('New password must be at least 6 characters.')
+    if (passwordForm.next.length < 8 || !/[a-z]/.test(passwordForm.next) || !/[A-Z]/.test(passwordForm.next) || !/\d/.test(passwordForm.next)) {
+      toast.error('New password must be at least 8 characters and include uppercase, lowercase, and a number.')
       return
     }
     if (passwordForm.next !== passwordForm.confirm) {
@@ -465,13 +356,24 @@ export default function Profile() {
     }
 
     setSavingPass(true)
-    setTimeout(() => {
-      setSavingPass(false)
-      setPasswordForm({ current: '', next: '', confirm: '' })
-      toast.success('✓ Password updated successfully!', {
-        style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
+    try {
+      const { user: updatedUser, token } = await authService.changePassword({
+        currentPassword: passwordForm.current,
+        newPassword: passwordForm.next,
+        confirmPassword: passwordForm.confirm
       })
-    }, 1000)
+      if (token && updatedUser) {
+        dispatch(credentialsReceived({ user: updatedUser, token }))
+      }
+      setPasswordForm({ current: '', next: '', confirm: '' })
+      toast.success('Password updated and previous sessions rotated!', {
+        style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' }
+      })
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.customerMessage || 'Could not update password.')
+    } finally {
+      setSavingPass(false)
+    }
   }
 
   // ── Handler: Sign out Device ─────────────────────────────────
@@ -851,14 +753,8 @@ export default function Profile() {
                         </span>
                       </div>
                       <p className="font-mono text-sm font-semibold text-gray-800">{user?.email}</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5">Used for order receipts and login authentication.</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">Used for order receipts and sign-in authentication.</p>
                     </div>
-                    <button
-                      onClick={() => { setEmailModalOpen(true); setEmailStatus('idle'); setNewEmail('') }}
-                      className="px-4 py-2 border border-[#8B0000] text-[#8B0000] hover:bg-[#8B0000] hover:text-white rounded-xl text-xs font-bold transition-all shrink-0"
-                    >
-                      Change Email
-                    </button>
                   </div>
 
                   {/* Phone Section */}
@@ -866,16 +762,13 @@ export default function Profile() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] font-bold text-[#B8860B] uppercase tracking-wider">Mobile Phone</span>
-                        <span className="inline-flex items-center gap-1 text-[9px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                          <CheckCircle2 size={10} /> Mobile Active
-                        </span>
                       </div>
-                      <p className="font-mono text-sm font-semibold text-gray-800">{user?.phone || '+91 7799349294'}</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5">Used for doorstep OTP verification and courier updates.</p>
+                      <p className="font-mono text-sm font-semibold text-gray-800">{user?.phone || 'Not added yet'}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">Used for delivery coordination and courier updates.</p>
                     </div>
                     <button
-                      onClick={() => { setPhoneModalOpen(true); setOtpSent(false); setNewPhone('') }}
-                      className="px-4 py-2 border border-[#8B0000] text-[#8B0000] hover:bg-[#8B0000] hover:text-white rounded-xl text-xs font-bold transition-all shrink-0"
+                      onClick={() => { setPhoneModalOpen(true); setNewPhone(user?.phone ? user.phone.replace(/^\+91/, '') : '') }}
+                      className="px-4 py-2 border border-[#651B2B] text-[#651B2B] hover:bg-[#651B2B] hover:text-white rounded-xl text-xs font-bold transition-all shrink-0"
                     >
                       Update Number
                     </button>
@@ -1193,7 +1086,7 @@ export default function Profile() {
                   {[
                     { key: 'orderUpdates', label: 'Order Confirmation & Receipts', desc: 'Real-time alerts whenever a new couture order is confirmed.' },
                     { key: 'deliveryAlerts', label: 'Doorstep Courier Tracking', desc: 'SMS and push updates when your parcel is out for delivery.' },
-                    { key: 'smsNotifications', label: 'Critical SMS Alerts', desc: 'Essential OTPs and security alerts sent directly to your phone.' },
+                    { key: 'smsNotifications', label: 'Order & Dispatch SMS Alerts', desc: 'Important order status and delivery notifications sent to your mobile.' },
                     { key: 'festivalSpecials', label: 'Runway Drops & Bridal Previews', desc: 'Exclusive bridal trousseau and festive collection previews.' },
                     { key: 'promotionalEmails', label: 'Lokesh Lingam Weaver Collection Updates', desc: 'Updates on newly woven Dharmavaram and Kanchi-style silk sarees.' }
                   ].map(item => (
@@ -1262,7 +1155,7 @@ export default function Profile() {
                         onChange={(e) => setPasswordForm({ ...passwordForm, next: e.target.value })}
                         required
                         className="input-field"
-                        placeholder="Min 6 characters"
+                        placeholder="Min 8 chars, upper, lower, digit"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1286,6 +1179,15 @@ export default function Profile() {
                     {savingPass ? 'Updating password...' : 'Update Password'}
                   </button>
                 </form>
+
+                {/* Explicit Authenticated Google Account Linking */}
+                <div className="pt-6 border-t border-gray-100 max-w-md space-y-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#651B2B]">Google Sign-In Linking</h3>
+                  <p className="text-[11px] text-gray-500">
+                    Link your Google account matching <strong className="text-gray-700">{user?.email}</strong> for fast single sign-on.
+                  </p>
+                  <GoogleSignInButton mode="link" />
+                </div>
 
                 {/* Active Sessions */}
                 <div className="pt-6 border-t border-gray-100 space-y-4">
@@ -1435,128 +1337,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ── MODAL: CHANGE EMAIL ───────────────────────────────── */}
-        <AnimatePresence>
-          {emailModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative"
-              >
-                <button
-                  onClick={() => setEmailModalOpen(false)}
-                  className="absolute right-5 top-5 text-gray-400 hover:text-gray-600"
-                >
-                  <X size={18} />
-                </button>
-
-                <h3 className="font-display text-xl font-bold text-[#8B0000] mb-1">Change Primary Email</h3>
-                <p className="text-xs text-gray-500 mb-6">A 6-digit OTP verification code will be sent to your new email address.</p>
-
-                {emailStatus === 'otp_sent' || emailStatus === 'verifying' ? (
-                  <div className="space-y-4">
-                    <p className="text-xs text-gray-700">
-                      Enter the 6-digit verification code sent to <strong>{newEmail}</strong>:
-                    </p>
-
-                    <div className="p-3 bg-[#FAF6EE] border border-[#B8860B]/20 rounded-2xl flex items-center gap-2 text-xs text-[#3A2D23]/80">
-                      <Mail size={16} className="text-[#8B0000] shrink-0" />
-                      <span>We sent a 6-digit code to <strong>{newEmail}</strong>. Please check your inbox and enter it below.</span>
-                    </div>
-
-                    <div className="flex justify-between gap-2">
-                      {emailOtpValue.map((digit, index) => (
-                        <input
-                          key={index}
-                          id={`email-otp-${index}`}
-                          type="text"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '')
-                            const updated = [...emailOtpValue]
-                            updated[index] = val
-                            setEmailOtpValue(updated)
-                            if (val && index < 5) {
-                              document.getElementById(`email-otp-${index + 1}`)?.focus()
-                            }
-                          }}
-                          className="w-11 h-12 text-center text-lg font-mono font-bold border border-gray-300 rounded-xl focus:border-[#8B0000] focus:outline-none"
-                        />
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
-                      <span>{emailOtpTimer > 0 ? `Resend OTP in ${emailOtpTimer}s` : 'Did not receive code?'}</span>
-                      {emailOtpTimer === 0 && (
-                        <button
-                          type="button"
-                          onClick={() => handleSendEmailVerification(null)}
-                          className="text-[#8B0000] font-bold underline hover:text-[#700000]"
-                        >
-                          Resend OTP
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="pt-2 flex justify-end gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setEmailStatus('idle')}
-                        className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-bold text-gray-600"
-                      >
-                        Change Email
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleVerifyEmailOtp}
-                        disabled={emailStatus === 'verifying'}
-                        className="btn-primary"
-                      >
-                        {emailStatus === 'verifying' ? 'Verifying...' : 'Verify & Update'}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSendEmailVerification} className="space-y-4">
-                    <div>
-                      <label className="text-[10px] font-bold text-[#B8860B] uppercase tracking-wider block mb-1">New Email Address</label>
-                      <input
-                        type="email"
-                        required
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        placeholder="you@domain.com"
-                        className="input-field"
-                      />
-                    </div>
-
-                    <div className="pt-2 flex justify-end gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setEmailModalOpen(false)}
-                        className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-bold text-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={emailStatus === 'sending'}
-                        className="btn-primary"
-                      >
-                        {emailStatus === 'sending' ? 'Sending OTP...' : 'Send OTP'}
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
-        {/* ── MODAL: PHONE OTP ──────────────────────────────────── */}
+        {/* ── MODAL: UPDATE PHONE ──────────────────────────────── */}
         <AnimatePresence>
           {phoneModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -1573,125 +1354,40 @@ export default function Profile() {
                   <X size={18} />
                 </button>
 
-                <h3 className="font-display text-xl font-bold text-[#8B0000] mb-1">Update Mobile Number</h3>
-                <p className="text-xs text-gray-500 mb-6">Enter your new number below. A 6-digit verification code will be generated for you to confirm the change.</p>
+                <h3 className="font-display text-xl font-bold text-[#651B2B] mb-1">Update Mobile Number</h3>
+                <p className="text-xs text-gray-500 mb-6">Update your contact number for delivery and dispatch coordination.</p>
 
-                {!otpSent ? (
-                  <form onSubmit={handleSendOtp} className="space-y-4">
-                    <div>
-                      <label className="text-[10px] font-bold text-[#B8860B] uppercase tracking-wider block mb-1">New Mobile Number</label>
-                      <div className="flex gap-2">
-                        <span className="px-3.5 py-3 border border-gray-200 bg-gray-50 rounded-xl text-xs font-mono font-bold text-gray-700 flex items-center">
-                          +91
-                        </span>
-                        <input
-                          type="tel"
-                          required
-                          value={newPhone}
-                          onChange={(e) => setNewPhone(e.target.value)}
-                          placeholder="10-digit mobile number"
-                          className="input-field flex-1"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="pt-2 flex justify-end gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPhoneModalOpen(false)}
-                        className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-bold text-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button type="submit" disabled={otpSending} className="btn-primary">
-                        {otpSending ? 'Sending OTP...' : 'Send OTP'}
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="space-y-4">
-                    <p className="text-xs text-gray-700">
-                      Enter the 6-digit code below to confirm <strong>+91 {newPhone}</strong>:
-                    </p>
-
-                    {/* Direct OTP display — no external app needed */}
-                    <div className="p-4 bg-[#FFF8EE] border-2 border-dashed border-[#8B0000]/40 rounded-2xl flex flex-col items-center gap-2">
-                      <span className="text-[10px] font-bold text-[#B8860B] uppercase tracking-[0.2em]">Your Verification Code</span>
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-3xl font-bold tracking-[0.35em] text-[#8B0000] select-all">
-                          {receivedOtpCode || '------'}
-                        </span>
-                        {receivedOtpCode && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard.writeText(receivedOtpCode)
-                              toast.success('OTP copied!', { duration: 1500 })
-                            }}
-                            className="p-1.5 rounded-lg bg-[#8B0000]/10 hover:bg-[#8B0000]/20 text-[#8B0000] transition-colors"
-                            title="Copy OTP"
-                          >
-                            <Copy size={14} />
-                          </button>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-gray-400">Valid for 10 minutes · Do not share</span>
-                    </div>
-                    
-                    <div className="flex justify-between gap-2">
-                      {otpValue.map((digit, index) => (
-                        <input
-                          key={index}
-                          id={`otp-${index}`}
-                          type="text"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '')
-                            const updated = [...otpValue]
-                            updated[index] = val
-                            setOtpValue(updated)
-                            if (val && index < 5) {
-                              document.getElementById(`otp-${index + 1}`)?.focus()
-                            }
-                          }}
-                          className="w-11 h-12 text-center text-lg font-mono font-bold border border-gray-300 rounded-xl focus:border-[#8B0000] focus:outline-none"
-                        />
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
-                      <span>{otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : 'Did not receive code?'}</span>
-                      {otpTimer === 0 && (
-                        <button
-                          type="button"
-                          onClick={() => handleSendOtp(null)}
-                          className="text-[#8B0000] font-bold underline hover:text-[#700000]"
-                        >
-                          Resend OTP
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="pt-2 flex justify-end gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setOtpSent(false)}
-                        className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-bold text-gray-600"
-                      >
-                        Change Number
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleVerifyOtp}
-                        disabled={otpVerifying}
-                        className="btn-primary"
-                      >
-                        {otpVerifying ? 'Verifying...' : 'Verify & Update'}
-                      </button>
+                <form onSubmit={handleUpdatePhoneDirect} className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-[#B58A45] uppercase tracking-wider block mb-1">New Mobile Number</label>
+                    <div className="flex gap-2">
+                      <span className="px-3.5 py-3 border border-gray-200 bg-gray-50 rounded-xl text-xs font-mono font-bold text-gray-700 flex items-center">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        required
+                        value={newPhone}
+                        onChange={(e) => setNewPhone(e.target.value)}
+                        placeholder="10-digit mobile number"
+                        className="input-field flex-1"
+                      />
                     </div>
                   </div>
-                )}
+
+                  <div className="pt-2 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPhoneModalOpen(false)}
+                      className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-bold text-gray-600"
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" disabled={savingPhone} className="btn-primary">
+                      {savingPhone ? 'Saving...' : 'Save Number'}
+                    </button>
+                  </div>
+                </form>
               </motion.div>
             </div>
           )}

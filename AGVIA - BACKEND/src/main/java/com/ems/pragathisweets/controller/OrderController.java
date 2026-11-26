@@ -69,13 +69,20 @@ public class OrderController {
 
     @GetMapping({"/track/{identifier}", "/track"})
     public ResponseEntity<ApiResponse<OrderResponse>> trackOrder(
+            @AuthenticationPrincipal UserDetailsImpl principal,
             @PathVariable(required = false) String identifier,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "orderNumber", required = false) String orderNumber) {
+        if (principal == null) {
+            throw new org.springframework.security.access.AccessDeniedException("Please sign in to view full order details.");
+        }
         String target = identifier != null && !identifier.isBlank()
                 ? identifier
                 : (order != null && !order.isBlank() ? order : orderNumber);
-        return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully", orderService.trackOrder(target)));
+        boolean isAdmin = principal.getAuthorities() != null &&
+                principal.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        return ResponseEntity.ok(ApiResponse.success("Order retrieved successfully",
+                orderService.trackOrderForUser(target, principal.getId(), isAdmin)));
     }
 
     @PostMapping("/{id}/cancel")

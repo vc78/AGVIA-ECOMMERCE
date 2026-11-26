@@ -4,13 +4,12 @@ import com.ems.pragathisweets.dto.*;
 import com.ems.pragathisweets.security.UserDetailsImpl;
 import com.ems.pragathisweets.service.AuthService;
 import com.ems.pragathisweets.service.GoogleAuthService;
-import com.ems.pragathisweets.service.MobileOtpAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -21,39 +20,29 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Mobile OTP signup, login, verification, and session management")
+@Tag(name = "Authentication", description = "Credentials login, registration, Google Sign-In, password recovery, and session management")
 public class AuthController {
 
     private final AuthService authService;
-    private final MobileOtpAuthService mobileOtpAuthService;
     private final GoogleAuthService googleAuthService;
     private final com.ems.pragathisweets.repository.UserRepository userRepository;
 
-    // Helper to attach HttpOnly authentication cookie
-    private void attachAuthCookie(HttpServletRequest request, HttpServletResponse response, String token) {
+    private void attachAuthCookie(HttpServletRequest request, HttpServletResponse response, String token, boolean persistent) {
         if (response == null || token == null || token.isBlank()) return;
         boolean isHttps = request != null && (request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
         String sameSite = isHttps ? "None" : "Lax";
+        long maxAge = persistent ? 86400 : -1;
 
         ResponseCookie cookie = ResponseCookie.from("llw_token", token)
                 .httpOnly(true)
                 .secure(isHttps)
                 .sameSite(sameSite)
                 .path("/")
-                .maxAge(86400)
+                .maxAge(maxAge)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        ResponseCookie compatCookie = ResponseCookie.from("agvia_token", token)
-                .httpOnly(true)
-                .secure(isHttps)
-                .sameSite(sameSite)
-                .path("/")
-                .maxAge(86400)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, compatCookie.toString());
     }
 
-    // Helper to clear HttpOnly authentication cookie
     private void clearAuthCookie(HttpServletRequest request, HttpServletResponse response) {
         if (response == null) return;
         boolean isHttps = request != null && (request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
@@ -71,116 +60,112 @@ public class AuthController {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // MOBILE OTP SIGN UP
-    // ─────────────────────────────────────────────────────────────────────────
-
-    @PostMapping("/signup/request-otp")
-    @Operation(summary = "Initiate sign-up by validating details and sending OTP to mobile number")
-    public ResponseEntity<ApiResponse<SignupOtpResponse>> requestSignupOtp(
-            @Valid @RequestBody SignupOtpRequest request,
-            HttpServletRequest servletRequest) {
-        SignupOtpResponse response = mobileOtpAuthService.requestSignupOtp(request, servletRequest);
-        return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
-    }
-
-    @PostMapping("/signup/verify-otp")
-    @Operation(summary = "Verify sign-up OTP, create authenticated user account, and issue JWT")
-    public ResponseEntity<ApiResponse<AuthResultResponse>> verifySignupOtp(
-            @Valid @RequestBody VerifyOtpRequest request,
+    @PostMapping("/register")
+    @Operation(summary = "Register a new customer account with email and password")
+    public ResponseEntity<ApiResponse<AuthResultResponse>> register(
+            @Valid @RequestBody RegisterRequest request,
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse) {
-        AuthResultResponse response = mobileOtpAuthService.verifySignupOtp(request);
+        AuthResultResponse response = authService.register(request);
         if (response.getToken() != null) {
-            attachAuthCookie(servletRequest, servletResponse, response.getToken());
+            attachAuthCookie(servletRequest, servletResponse, response.getToken(), true);
         }
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(response.getMessage(), response));
+                .body(ApiResponse.success("Registration successful", response));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // MOBILE OTP SIGN IN
-    // ─────────────────────────────────────────────────────────────────────────
-
     @PostMapping("/login")
-    @Operation(summary = "Verify credentials and dispatch login OTP to registered mobile number")
-    public ResponseEntity<ApiResponse<LoginChallengeResponse>> login(
+    @Operation(summary = "Sign in with email and password")
+    public ResponseEntity<ApiResponse<AuthResultResponse>> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse) {
-        LoginChallengeResponse response = mobileOtpAuthService.login(request, servletRequest);
-        if (!response.isRequiresOtp() && response.getToken() != null) {
-            attachAuthCookie(servletRequest, servletResponse, response.getToken());
-        }
-        return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
-    }
-
-    @PostMapping("/login/verify-otp")
-    @Operation(summary = "Verify login OTP and issue authenticated JWT session")
-    public ResponseEntity<ApiResponse<AuthResultResponse>> verifyLoginOtp(
-            @Valid @RequestBody VerifyOtpRequest request,
-            HttpServletRequest servletRequest,
-            HttpServletResponse servletResponse) {
-        AuthResultResponse response = mobileOtpAuthService.verifyLoginOtp(request);
+        AuthResultResponse response = authService.login(request);
+        boolean persistent = !Boolean.FALSE.equals(request.getRememberMe());
         if (response.getToken() != null) {
-            attachAuthCookie(servletRequest, servletResponse, response.getToken());
+            attachAuthCookie(servletRequest, servletResponse, response.getToken(), persistent);
         }
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // OTP RESEND
-    // ─────────────────────────────────────────────────────────────────────────
-
-    @PostMapping("/otp/resend")
-    @Operation(summary = "Resend a new OTP with 60s cooldown and previous OTP invalidation")
-    public ResponseEntity<ApiResponse<SignupOtpResponse>> resendOtp(
-            @Valid @RequestBody ResendOtpRequest request,
-            HttpServletRequest servletRequest) {
-        SignupOtpResponse response = mobileOtpAuthService.resendOtp(request, servletRequest);
-        return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // GOOGLE OAUTH SIGN IN
-    // ─────────────────────────────────────────────────────────────────────────
 
     @PostMapping("/google")
-    @Operation(summary = "Authenticate patron using verified Google Identity token")
+    @Operation(summary = "Authenticate customer using verified Google Identity token")
     public ResponseEntity<ApiResponse<AuthResultResponse>> authenticateWithGoogle(
             @Valid @RequestBody GoogleAuthRequest request,
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse) {
         AuthResultResponse response = googleAuthService.authenticateWithGoogle(request);
         if (response.getToken() != null) {
-            attachAuthCookie(servletRequest, servletResponse, response.getToken());
+            attachAuthCookie(servletRequest, servletResponse, response.getToken(), true);
         }
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // LOGOUT
-    // ─────────────────────────────────────────────────────────────────────────
-
-    @PostMapping("/logout")
-    @Operation(summary = "Clear authenticated session cookie and logout")
-    public ResponseEntity<ApiResponse<Void>> logout(
-            HttpServletRequest servletRequest,
-            HttpServletResponse servletResponse) {
-        clearAuthCookie(servletRequest, servletResponse);
-        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", null));
+    @PostMapping("/google/link")
+    @Operation(summary = "Explicitly link verified Google account to authenticated customer profile")
+    public ResponseEntity<ApiResponse<UserResponse>> linkGoogleAccount(
+            @AuthenticationPrincipal UserDetailsImpl principal,
+            @Valid @RequestBody GoogleAuthRequest request) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required"));
+        }
+        UserResponse updated = googleAuthService.linkGoogleAccount(principal.getId(), request);
+        return ResponseEntity.ok(ApiResponse.success("Google account linked successfully", updated));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // LEGACY & CURRENT USER
-    // ─────────────────────────────────────────────────────────────────────────
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request a single-use password reset link via email")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request,
+            HttpServletRequest servletRequest) {
+        String ip = servletRequest != null ? servletRequest.getRemoteAddr() : null;
+        authService.requestPasswordReset(request, ip);
+        return ResponseEntity.ok(ApiResponse.success(
+                "If an account exists for that email address, a password reset link has been sent.", null));
+    }
 
-    @PostMapping("/register")
-    @Operation(summary = "Legacy direct registration endpoint")
-    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        UserResponse response = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Registration successful", response));
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password using a valid single-use email token and revoke existing sessions")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
+        authService.resetPassword(request);
+        clearAuthCookie(servletRequest, servletResponse);
+        return ResponseEntity.ok(ApiResponse.success(
+                "Password has been reset successfully. Please sign in with your new password.", null));
+    }
+
+    @PostMapping("/change-password")
+    @Operation(summary = "Change password for authenticated user and rotate session tokens")
+    public ResponseEntity<ApiResponse<AuthResultResponse>> changePassword(
+            @AuthenticationPrincipal UserDetailsImpl principal,
+            @Valid @RequestBody ChangePasswordRequest request,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required"));
+        }
+        AuthResultResponse response = authService.changePassword(principal.getId(), request);
+        if (response.getToken() != null) {
+            attachAuthCookie(servletRequest, servletResponse, response.getToken(), true);
+        }
+        return ResponseEntity.ok(ApiResponse.success("Password updated successfully", response));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Revoke active token sessions, clear authenticated cookie, and logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @AuthenticationPrincipal UserDetailsImpl principal,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) {
+        if (principal != null) {
+            authService.logoutUser(principal.getId());
+        }
+        clearAuthCookie(servletRequest, servletResponse);
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", null));
     }
 
     @GetMapping("/me")
@@ -192,16 +177,7 @@ public class AuthController {
         }
         com.ems.pragathisweets.entity.User user = userRepository.findById(principal.getId()).orElse(null);
         if (user != null) {
-            UserResponse response = UserResponse.builder()
-                    .id(user.getId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .phone(user.getPhone())
-                    .phoneVerified(user.isPhoneVerified())
-                    .role(user.getRole() != null ? user.getRole().name() : "ROLE_CUSTOMER")
-                    .enabled(user.isEnabled())
-                    .build();
-            return ResponseEntity.ok(ApiResponse.success(response));
+            return ResponseEntity.ok(ApiResponse.success(authService.toUserResponse(user)));
         }
         UserResponse response = UserResponse.builder()
                 .id(principal.getId())
@@ -211,7 +187,7 @@ public class AuthController {
                 .phoneVerified(principal.isPhoneVerified())
                 .role(principal.getAuthorities() != null && !principal.getAuthorities().isEmpty()
                         ? principal.getAuthorities().iterator().next().getAuthority()
-                        : "ROLE_CUSTOMER")
+                        : "ROLE_USER")
                 .enabled(principal.isEnabled())
                 .build();
         return ResponseEntity.ok(ApiResponse.success(response));

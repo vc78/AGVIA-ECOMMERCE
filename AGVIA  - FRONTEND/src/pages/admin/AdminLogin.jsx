@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { ShieldCheck, ArrowLeft, KeyRound, UserCheck } from 'lucide-react'
+import { ArrowLeft, KeyRound, UserCheck, Eye, EyeOff } from 'lucide-react'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
@@ -12,6 +12,7 @@ import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
   const [form, setForm] = useState({ email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -19,8 +20,8 @@ export default function AdminLogin() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-[#1A0B10] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#C9A45C]/20 border-t-[#C9A45C] rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#38271F] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#B58A45]/20 border-t-[#B58A45] rounded-full animate-spin" />
       </div>
     )
   }
@@ -33,24 +34,15 @@ export default function AdminLogin() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const executeLogin = async (credentials) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     setLoading(true)
     try {
-      const data = await authService.login(credentials)
-      if (data.requiresOtp) {
-        toast.success('Verification code required to access admin console', {
-          style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
-        })
-        navigate('/verify-login-otp', {
-          state: {
-            challengeId: data.challengeId,
-            phoneMasked: data.phoneMasked,
-            devOtp: data.devOtp,
-            from: '/admin/dashboard'
-          }
-        })
-        return
-      }
+      const data = await authService.login({
+        email: form.email.trim(),
+        password: form.password,
+        rememberMe: false
+      })
       const userData = data.user || data
       const token = data.token || ''
       const role = userData.role || ''
@@ -59,24 +51,18 @@ export default function AdminLogin() {
         return
       }
       setActiveTabContext('ADMIN')
-      dispatch(credentialsReceived({ user: userData, token, role: 'ADMIN' }))
+      dispatch(credentialsReceived({ user: userData, token, role: 'ADMIN', rememberMe: false }))
       broadcastAuthEvent('LOGIN', { user: userData, token, role: 'ADMIN' })
       toast.success(`Welcome to ${BUSINESS.name} Admin`, {
         style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' }
       })
       navigate('/admin/dashboard', { replace: true })
     } catch (err) {
-      console.error('[AdminLogin] Error:', err)
-      const errorMsg = err.response?.data?.message || err.message || 'Invalid admin credentials'
+      const errorMsg = err.response?.data?.message || err.customerMessage || 'Invalid admin credentials'
       toast.error(errorMsg)
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    executeLogin(form)
   }
 
   return (
@@ -95,7 +81,6 @@ export default function AdminLogin() {
           </span>
         </div>
 
-        {/* Informative notice if currently signed in as customer */}
         {isAuthenticated && user?.role !== 'ADMIN' && user?.role !== 'ROLE_ADMIN' && (
           <div className="mb-5 p-3 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-start gap-2.5 text-amber-900 text-xs">
             <UserCheck size={16} className="text-amber-700 shrink-0 mt-0.5" />
@@ -116,6 +101,7 @@ export default function AdminLogin() {
             <input
               name="email"
               type="email"
+              autoComplete="email"
               required
               value={form.email}
               onChange={handleChange}
@@ -128,15 +114,26 @@ export default function AdminLogin() {
             <label className="block text-[10px] font-bold uppercase tracking-wider text-[#651B2B] mb-1 font-sans">
               Password
             </label>
-            <input
-              name="password"
-              type="password"
-              required
-              value={form.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              className="input-field !bg-white !border-[#B58A45]/35 focus:!border-[#651B2B] w-full"
-            />
+            <div className="relative">
+              <input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                className="input-field !bg-white !border-[#B58A45]/35 focus:!border-[#651B2B] w-full pr-10"
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#38271F]/50 hover:text-[#651B2B]"
+              >
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
           </div>
 
           <button

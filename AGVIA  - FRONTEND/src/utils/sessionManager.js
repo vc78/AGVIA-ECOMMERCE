@@ -72,11 +72,11 @@ export function getTabToken(preferredRole) {
       )
     }
 
-    // CUSTOMER role
+    // CUSTOMER role (prefer sessionStorage when non-persistent Remember Me is false)
     return (
-      localStorage.getItem(STORAGE_KEYS.CUSTOMER_TOKEN) ||
       sessionStorage.getItem(STORAGE_KEYS.CUSTOMER_TOKEN) ||
-      localStorage.getItem('ps_token') || // Legacy fallback
+      localStorage.getItem(STORAGE_KEYS.CUSTOMER_TOKEN) ||
+      localStorage.getItem('ps_token') ||
       null
     )
   } catch {
@@ -100,9 +100,9 @@ export function getTabUser(preferredRole) {
         localStorage.getItem(STORAGE_KEYS.ADMIN_USER)
     } else {
       raw =
-        localStorage.getItem(STORAGE_KEYS.CUSTOMER_USER) ||
         sessionStorage.getItem(STORAGE_KEYS.CUSTOMER_USER) ||
-        localStorage.getItem('ps_user') // Legacy fallback
+        localStorage.getItem(STORAGE_KEYS.CUSTOMER_USER) ||
+        localStorage.getItem('ps_user')
     }
 
     return raw ? JSON.parse(raw) : null
@@ -113,8 +113,9 @@ export function getTabUser(preferredRole) {
 
 /**
  * Persist credentials into role-isolated storage.
+ * When rememberMe is false for CUSTOMER, tokens stay strictly in sessionStorage.
  */
-export function setTabSession({ role, user, token }) {
+export function setTabSession({ role, user, token, rememberMe = true }) {
   if (typeof window === 'undefined') return
 
   const normalizedRole =
@@ -127,29 +128,37 @@ export function setTabSession({ role, user, token }) {
 
   try {
     if (normalizedRole === 'ADMIN') {
-      // Admin session is isolated per tab/session with scoped fallback
       if (token) {
         sessionStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, token)
-        localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, token)
+        if (rememberMe) localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, token)
       }
       if (user) {
         const payload = JSON.stringify(user)
         sessionStorage.setItem(STORAGE_KEYS.ADMIN_USER, payload)
-        localStorage.setItem(STORAGE_KEYS.ADMIN_USER, payload)
+        if (rememberMe) localStorage.setItem(STORAGE_KEYS.ADMIN_USER, payload)
       }
       sessionStorage.setItem(STORAGE_KEYS.ACTIVE_TAB_ROLE, 'ADMIN')
     } else {
-      // Customer session is stored in customer-scoped keys
       if (token) {
-        localStorage.setItem(STORAGE_KEYS.CUSTOMER_TOKEN, token)
         sessionStorage.setItem(STORAGE_KEYS.CUSTOMER_TOKEN, token)
-        localStorage.setItem('ps_token', token) // Backward compatibility
+        if (rememberMe) {
+          localStorage.setItem(STORAGE_KEYS.CUSTOMER_TOKEN, token)
+          localStorage.setItem('ps_token', token)
+        } else {
+          localStorage.removeItem(STORAGE_KEYS.CUSTOMER_TOKEN)
+          localStorage.removeItem('ps_token')
+        }
       }
       if (user) {
         const payload = JSON.stringify(user)
-        localStorage.setItem(STORAGE_KEYS.CUSTOMER_USER, payload)
         sessionStorage.setItem(STORAGE_KEYS.CUSTOMER_USER, payload)
-        localStorage.setItem('ps_user', payload) // Backward compatibility
+        if (rememberMe) {
+          localStorage.setItem(STORAGE_KEYS.CUSTOMER_USER, payload)
+          localStorage.setItem('ps_user', payload)
+        } else {
+          localStorage.removeItem(STORAGE_KEYS.CUSTOMER_USER)
+          localStorage.removeItem('ps_user')
+        }
       }
       sessionStorage.setItem(STORAGE_KEYS.ACTIVE_TAB_ROLE, 'CUSTOMER')
     }

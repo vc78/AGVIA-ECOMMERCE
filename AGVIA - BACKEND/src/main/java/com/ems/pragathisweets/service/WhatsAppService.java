@@ -62,25 +62,6 @@ public class WhatsAppService {
 
 
     /**
-     * Sends a direct OTP verification message to the customer's WhatsApp number.
-     */
-    public String sendOtp(String phone, String code) {
-        String cleanPhone = normalisePhone(phone);
-        String message = "🔐 *LOKESH LINGAM WEAVER* — Verification Code\n\n"
-                + "Your 6-digit verification code is: *" + code + "*\n\n"
-                + "Valid for 10 minutes. Please do not share this OTP with anyone.\n"
-                + "Thank you for choosing Lokesh Lingam Weaver!";
-        
-        if (enabled && isConfigured()) {
-            send(cleanPhone, message);
-        }
-
-        String waUrl = buildDirectWhatsAppUrl(cleanPhone, message);
-        log.info("[WhatsApp OTP URL] Generated click-to-chat WhatsApp link for {}: {}", cleanPhone, waUrl);
-        return waUrl;
-    }
-
-    /**
      * Checks if Twilio API credentials are fully configured.
      */
     public boolean isConfigured() {

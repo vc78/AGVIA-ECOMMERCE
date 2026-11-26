@@ -48,6 +48,10 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
+    @Query("SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END FROM Order o JOIN o.items i WHERE o.user.id = :userId AND i.product.id = :productId AND o.status = com.ems.pragathisweets.entity.OrderStatus.DELIVERED")
+    boolean hasDeliveredPurchase(@org.springframework.data.repository.query.Param("userId") Long userId,
+                                 @org.springframework.data.repository.query.Param("productId") Long productId);
+
     @Query("select count(o) from Order o where o.status not in (com.ems.pragathisweets.entity.OrderStatus.CANCELLED) " +
             "and o.createdAt between :start and :end")
     long countSuccessfulOrdersBetween(@org.springframework.data.repository.query.Param("start") LocalDateTime start,

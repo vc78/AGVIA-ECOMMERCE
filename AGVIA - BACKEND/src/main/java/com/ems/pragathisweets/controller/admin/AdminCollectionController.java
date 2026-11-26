@@ -56,8 +56,8 @@ public class AdminCollectionController {
                 .name(request.getName())
                 .slug(slug)
                 .description(request.getDescription())
-                .coverImage(request.getCoverImage())
-                .bannerImage(request.getBannerImage())
+                .coverImage(com.ems.pragathisweets.util.SecuritySanitizer.validateSafeImageUrl(request.getCoverImage()))
+                .bannerImage(com.ems.pragathisweets.util.SecuritySanitizer.validateSafeImageUrl(request.getBannerImage()))
                 .displayOrder(request.getDisplayOrder() != null ? request.getDisplayOrder() : 0)
                 .active(request.getActive() == null || request.getActive())
                 .seoTitle(request.getSeoTitle())
@@ -84,8 +84,8 @@ public class AdminCollectionController {
         collection.setName(request.getName());
         collection.setSlug(slug);
         collection.setDescription(request.getDescription());
-        collection.setCoverImage(request.getCoverImage());
-        collection.setBannerImage(request.getBannerImage());
+        collection.setCoverImage(com.ems.pragathisweets.util.SecuritySanitizer.validateSafeImageUrl(request.getCoverImage()));
+        collection.setBannerImage(com.ems.pragathisweets.util.SecuritySanitizer.validateSafeImageUrl(request.getBannerImage()));
         if (request.getDisplayOrder() != null) collection.setDisplayOrder(request.getDisplayOrder());
         if (request.getActive() != null) collection.setActive(request.getActive());
         collection.setSeoTitle(request.getSeoTitle());

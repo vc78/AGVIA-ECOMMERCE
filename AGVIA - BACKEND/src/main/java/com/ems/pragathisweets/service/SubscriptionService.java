@@ -92,6 +92,11 @@ public class SubscriptionService {
             subscription.setCustomerPhone(phone);
         }
 
+        if (razorpayConfig.getKeyId() == null || razorpayConfig.getKeyId().isBlank()
+                || razorpayConfig.getKeySecret() == null || razorpayConfig.getKeySecret().isBlank()) {
+            throw new PaymentVerificationException("Online payment gateway credentials are not configured.");
+        }
+
         // Create Razorpay Order
         long amountInPaise = DEFAULT_PLAN_AMOUNT.multiply(BigDecimal.valueOf(100)).longValue();
         try {
@@ -111,53 +116,55 @@ public class SubscriptionService {
             return response;
 
         } catch (Exception ex) {
-            log.warn("Razorpay order creation fallback (offline/sandbox): {}", ex.getMessage());
-            // Fallback generation for sandbox/dev
-            String mockOrderId = "order_sub_" + System.currentTimeMillis();
-            subscription.setRazorpayOrderId(mockOrderId);
-            subscription = subscriptionRepository.save(subscription);
-
-            SubscriptionResponse response = toResponse(subscription);
-            response.setRazorpayKeyId(razorpayConfig.getKeyId());
-            return response;
+            log.error("Failed to create Razorpay subscription order: {}", ex.getMessage());
+            throw new PaymentVerificationException("Unable to initiate subscription payment. Please try again.");
         }
     }
 
     /**
-     * Verifies payment and activates the subscription in DB.
+     * Verifies Razorpay signature strictly and activates the subscription for the authenticated owner.
      */
     @Transactional
-    public SubscriptionResponse verifyAndActivate(SubscriptionVerifyRequest request) {
+    public SubscriptionResponse verifyAndActivate(Long requesterUserId, SubscriptionVerifyRequest request) {
+        if (request.getRazorpayOrderId() == null || request.getRazorpayOrderId().isBlank()
+                || request.getRazorpayPaymentId() == null || request.getRazorpayPaymentId().isBlank()
+                || request.getRazorpaySignature() == null || request.getRazorpaySignature().isBlank()) {
+            throw new PaymentVerificationException("Complete payment verification signature is required.");
+        }
+
+        if (razorpayConfig.getKeySecret() == null || razorpayConfig.getKeySecret().isBlank()) {
+            throw new PaymentVerificationException("Payment gateway configuration missing.");
+        }
+
         Subscription subscription = subscriptionRepository.findByRazorpayOrderId(request.getRazorpayOrderId())
-                .or(() -> {
-                    if (request.getEmail() != null && !request.getEmail().isBlank()) {
-                        return subscriptionRepository.findTopByEmailOrderByCreatedAtDesc(request.getEmail().trim().toLowerCase());
-                    }
-                    return Optional.empty();
-                })
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription order not found: " + request.getRazorpayOrderId()));
 
-        // Signature verification if real credentials provided
-        if (request.getRazorpaySignature() != null && !request.getRazorpaySignature().isBlank()
-                && !razorpayConfig.getKeySecret().isBlank()) {
-            try {
-                JSONObject attributes = new JSONObject();
-                attributes.put("razorpay_order_id", request.getRazorpayOrderId());
-                attributes.put("razorpay_payment_id", request.getRazorpayPaymentId());
-                attributes.put("razorpay_signature", request.getRazorpaySignature());
+        if (requesterUserId != null && subscription.getUser() != null && !subscription.getUser().getId().equals(requesterUserId)) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to verify this subscription payment.");
+        }
 
-                boolean isValid = Utils.verifyPaymentSignature(attributes, razorpayConfig.getKeySecret());
-                if (!isValid) {
-                    log.error("Invalid signature for subscription order {}", request.getRazorpayOrderId());
-                    subscription.setPaymentStatus(PaymentStatus.FAILED);
-                    subscriptionRepository.save(subscription);
-                    throw new PaymentVerificationException("Payment signature verification failed");
-                }
-            } catch (PaymentVerificationException pve) {
-                throw pve;
-            } catch (Exception ex) {
-                log.warn("Signature verification warning: {}", ex.getMessage());
+        if (subscription.getStatus() == SubscriptionStatus.ACTIVE && subscription.getPaymentStatus() == PaymentStatus.SUCCESS) {
+            return toResponse(subscription);
+        }
+
+        try {
+            JSONObject attributes = new JSONObject();
+            attributes.put("razorpay_order_id", request.getRazorpayOrderId());
+            attributes.put("razorpay_payment_id", request.getRazorpayPaymentId());
+            attributes.put("razorpay_signature", request.getRazorpaySignature());
+
+            boolean isValid = Utils.verifyPaymentSignature(attributes, razorpayConfig.getKeySecret());
+            if (!isValid) {
+                log.error("Invalid signature for subscription order {}", request.getRazorpayOrderId());
+                subscription.setPaymentStatus(PaymentStatus.FAILED);
+                subscriptionRepository.save(subscription);
+                throw new PaymentVerificationException("Payment signature verification failed");
             }
+        } catch (PaymentVerificationException pve) {
+            throw pve;
+        } catch (Exception ex) {
+            log.error("Subscription signature verification error: {}", ex.getMessage());
+            throw new PaymentVerificationException("Payment signature verification failed");
         }
 
         // Activate subscription

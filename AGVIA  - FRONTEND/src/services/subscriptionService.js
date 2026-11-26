@@ -19,14 +19,6 @@ export const subscriptionService = {
   },
 
   /**
-   * Instant mock activation (for testing or direct admin flow).
-   */
-  async activateInstant(payload) {
-    const { data } = await api.post('/subscriptions/activate-instant', payload)
-    return data.data
-  },
-
-  /**
    * Get current user's active subscription based on authenticated JWT session.
    */
   async getMySubscription() {

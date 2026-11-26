@@ -96,7 +96,7 @@ public class ProductService {
                 .lowStockThreshold(request.getLowStockThreshold() != null ? request.getLowStockThreshold() : 10)
                 .paymentOption(request.getPaymentOption() != null ? request.getPaymentOption() : com.ems.pragathisweets.entity.ProductPaymentOption.COD_AND_ONLINE)
                 .unit(request.getUnit())
-                .imageUrl(request.getImageUrl())
+                .imageUrl(com.ems.pragathisweets.util.SecuritySanitizer.validateSafeImageUrl(request.getImageUrl()))
                 .category(category)
                 .active(request.getActive() == null || request.getActive())
                 .avgRating(0.0)
@@ -149,7 +149,7 @@ public class ProductService {
             }
         }
         product.setUnit(request.getUnit());
-        product.setImageUrl(request.getImageUrl());
+        product.setImageUrl(com.ems.pragathisweets.util.SecuritySanitizer.validateSafeImageUrl(request.getImageUrl()));
         product.setCategory(category);
         if (request.getActive() != null) {
             product.setActive(request.getActive());
@@ -218,8 +218,9 @@ public class ProductService {
                     boolean isPrim = imgDto.isPrimary() || (!hasPrimary && i == 0);
                     com.ems.pragathisweets.entity.VariantImage vi = com.ems.pragathisweets.entity.VariantImage.builder()
                             .variant(variant)
-                            .imageUrl(imgDto.getImageUrl())
-                            .altText(imgDto.getAltText() != null ? imgDto.getAltText() : product.getName() + " - " + variant.getColorName())
+                            .imageUrl(com.ems.pragathisweets.util.SecuritySanitizer.validateSafeImageUrl(imgDto.getImageUrl()))
+                            .altText(com.ems.pragathisweets.util.SecuritySanitizer.sanitizePlainText(
+                                    imgDto.getAltText() != null ? imgDto.getAltText() : product.getName() + " - " + variant.getColorName()))
                             .sortOrder(imgDto.getSortOrder() != null ? imgDto.getSortOrder() : i)
                             .isPrimary(isPrim)
                             .build();

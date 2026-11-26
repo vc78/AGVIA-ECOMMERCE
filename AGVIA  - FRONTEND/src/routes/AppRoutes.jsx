@@ -66,8 +66,6 @@ const NotFound = lazyRetry(() => import('../pages/customer/NotFound'))
 // Lazy loaded auth pages
 const Login = lazyRetry(() => import('../pages/auth/Login'))
 const Register = lazyRetry(() => import('../pages/auth/Register'))
-const VerifyOtp = lazyRetry(() => import('../pages/auth/VerifyOtp'))
-const VerifyLoginOtp = lazyRetry(() => import('../pages/auth/VerifyLoginOtp'))
 
 // Lazy loaded admin pages
 const AdminLogin = lazyRetry(() => import('../pages/admin/AdminLogin'))
@@ -139,8 +137,6 @@ export default function AppRoutes() {
           <Route path="/appointments" element={<PageTransition><Appointments /></PageTransition>} />
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
           <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
-          <Route path="/verify-otp" element={<PageTransition><VerifyOtp /></PageTransition>} />
-          <Route path="/verify-login-otp" element={<PageTransition><VerifyLoginOtp /></PageTransition>} />
           <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
           <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
           <Route path="/wishlist" element={<PageTransition><Wishlist /></PageTransition>} />

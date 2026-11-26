@@ -72,7 +72,8 @@ public class NewsletterController {
     }
 
     @GetMapping("/status")
-    @Operation(summary = "Check subscription status", description = "Inspects if an email is an enrolled Circle member")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Check subscription status (Admin only)")
     public ResponseEntity<ApiResponse<Map<String, Object>>> checkStatus(@RequestParam String email) {
         Optional<Subscriber> subscriberOpt = subscriberRepository.findByEmailIgnoreCase(email.trim().toLowerCase());
         if (subscriberOpt.isEmpty()) {

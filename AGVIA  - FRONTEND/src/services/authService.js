@@ -1,273 +1,128 @@
 import api from './api'
 
-// All authentication decisions and state verifications are authoritative on Spring Boot.
-
 const normalizeRole = (role) => (role === 'ROLE_ADMIN' || role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER')
+
+const mapAuthUser = (rawUser = {}) => ({
+  id: rawUser.id,
+  name: rawUser.fullName || rawUser.name,
+  email: rawUser.email,
+  phone: rawUser.phone,
+  address: rawUser.address,
+  phoneVerified: rawUser.phoneVerified,
+  role: normalizeRole(rawUser.role),
+})
 
 export const authService = {
   /**
-   * Request Sign-Up OTP for new account registration.
+   * Normal credentials registration (no OTP required).
    */
-  async requestSignupOtp(payload) {
-    try {
-      const backendPayload = {
-        fullName: payload.fullName || payload.name,
-        email: payload.email,
-        phone: payload.phone,
-        password: payload.password,
-        confirmPassword: payload.confirmPassword || payload.password,
-        address: payload.address || 'India'
-      }
-      const { data } = await api.post('/auth/signup/request-otp', backendPayload)
-      return data.data
-    } catch (err) {
-      console.error('[authService.requestSignupOtp] Error:', err)
-      throw err
+  async register({ fullName, email, password, confirmPassword, termsAccepted }) {
+    const { data } = await api.post('/auth/register', {
+      fullName: fullName?.trim(),
+      email: email?.trim(),
+      password,
+      confirmPassword,
+      termsAccepted: Boolean(termsAccepted),
+    })
+    const res = data.data
+    return {
+      token: res.token,
+      user: mapAuthUser(res.user),
     }
   },
 
   /**
-   * Verify Sign-Up OTP, create account on backend, and issue JWT.
+   * Standard email and password sign-in (no OTP challenge).
    */
-  async verifySignupOtp({ challengeId, otp }) {
-    try {
-      const { data } = await api.post('/auth/signup/verify-otp', {
-        challengeId,
-        otp: String(otp).trim()
-      })
-      const result = data.data
-      return {
-        token: result.token,
-        user: {
-          id: result.user.id,
-          name: result.user.fullName,
-          email: result.user.email,
-          phone: result.user.phone,
-          phoneVerified: result.user.phoneVerified,
-          role: normalizeRole(result.user.role)
-        }
-      }
-    } catch (err) {
-      console.error('[authService.verifySignupOtp] Error:', err)
-      throw err
+  async login({ email, password, rememberMe = true }) {
+    const { data } = await api.post('/auth/login', {
+      email: email?.trim(),
+      identifier: email?.trim(),
+      password,
+      rememberMe: Boolean(rememberMe),
+    })
+    const res = data.data
+    return {
+      token: res.token || res.accessToken,
+      user: mapAuthUser(res.user || res),
     }
   },
 
   /**
-   * Primary Sign-In endpoint.
-   * Validates credentials and initiates SMS OTP challenge on backend.
+   * Authenticate customer using verified Google ID token.
    */
-  async login(credentials) {
-    try {
-      const payload = {
-        email: credentials.email || credentials.identifier || '',
-        identifier: credentials.identifier || credentials.email || '',
-        password: credentials.password
-      }
-      const { data } = await api.post('/auth/login', payload)
-      const res = data.data
-
-      if (res.requiresOtp) {
-        return {
-          requiresOtp: true,
-          challengeId: res.challengeId,
-          phoneMasked: res.phoneMasked,
-          expiresIn: res.expiresIn || 300,
-          devOtp: res.devOtp, // Add devOtp for testing
-          message: res.message || 'OTP sent to your verified mobile number'
-        }
-      }
-
-      // Fallback for direct token issuance if any
-      const rawRole = res.role || res.user?.role
-      return {
-        token: res.accessToken || res.token,
-        user: {
-          id: res.userId || res.user?.id,
-          name: res.fullName || res.user?.fullName,
-          email: res.email || res.user?.email,
-          phone: res.phone || res.user?.phone,
-          role: normalizeRole(rawRole)
-        }
-      }
-    } catch (err) {
-      console.error('[authService.login] Error:', err)
-      throw err
+  async googleLogin(credential, nonce) {
+    const { data } = await api.post('/auth/google', { credential, nonce })
+    const res = data.data
+    return {
+      token: res.token,
+      user: mapAuthUser(res.user),
     }
   },
 
   /**
-   * Verify Sign-In OTP and issue authenticated JWT session.
+   * Explicitly link a verified Google account while authenticated.
    */
-  async verifyLoginOtp({ challengeId, otp }) {
-    try {
-      const { data } = await api.post('/auth/login/verify-otp', {
-        challengeId,
-        otp: String(otp).trim()
-      })
-      const result = data.data
-      return {
-        token: result.token,
-        user: {
-          id: result.user.id,
-          name: result.user.fullName,
-          email: result.user.email,
-          phone: result.user.phone,
-          phoneVerified: result.user.phoneVerified,
-          role: normalizeRole(result.user.role)
-        }
-      }
-    } catch (err) {
-      console.error('[authService.verifyLoginOtp] Error:', err)
-      throw err
-    }
+  async linkGoogleAccount(credential, nonce) {
+    const { data } = await api.post('/auth/google/link', { credential, nonce })
+    return mapAuthUser(data.data)
   },
 
   /**
-   * Resend OTP for pending challenge.
+   * Request a single-use password reset link via email.
    */
-  async resendOtp({ challengeId }) {
-    try {
-      const { data } = await api.post('/auth/otp/resend', { challengeId })
-      return data.data
-    } catch (err) {
-      console.error('[authService.resendOtp] Error:', err)
-      throw err
-    }
+  async forgotPassword(email) {
+    const { data } = await api.post('/auth/forgot-password', { email: email?.trim() })
+    return data
   },
 
   /**
-   * Authenticate patron using verified Google Identity token.
+   * Reset password using the token from email link.
    */
-  async googleLogin(credential) {
-    try {
-      const { data } = await api.post('/auth/google', { credential })
-      const res = data.data
-      return {
-        token: res.token,
-        user: {
-          id: res.user.id,
-          name: res.user.fullName,
-          email: res.user.email,
-          phone: res.user.phone,
-          phoneVerified: res.user.phoneVerified,
-          role: normalizeRole(res.user.role)
-        }
-      }
-    } catch (err) {
-      console.error('[authService.googleLogin] Error:', err)
-      throw err
-    }
+  async resetPassword({ token, newPassword, confirmPassword }) {
+    const { data } = await api.post('/auth/reset-password', {
+      token,
+      newPassword,
+      confirmPassword,
+    })
+    return data
   },
 
   /**
-   * Admin Login wrapper that validates ROLE_ADMIN post-verification.
+   * Change password while signed in and receive rotated session token.
    */
+  async changePassword({ currentPassword, newPassword, confirmPassword }) {
+    const { data } = await api.post('/auth/change-password', {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    })
+    const res = data.data
+    return {
+      token: res.token,
+      user: mapAuthUser(res.user),
+    }
+  },
+
   async adminLogin(credentials) {
     return this.login(credentials)
   },
 
-  /**
-   * Legacy register fallback.
-   */
-  async register(payload) {
-    return this.requestSignupOtp(payload)
-  },
-
-  /**
-   * Terminate authenticated session on Spring Boot and clear server-side cookies.
-   */
   async logout() {
     try {
       await api.post('/auth/logout')
     } catch (err) {
-      console.warn('[authService.logout] Backend logout failed or unreachable:', err)
+      console.warn('[authService.logout] Backend logout unreachable:', err?.message)
     }
   },
 
-  /**
-   * Current user profile from Spring Boot.
-   */
   async getCurrentUser() {
-    try {
-      const { data } = await api.get('/auth/me', { _isAuthCheck: true })
-      return data.data
-    } catch (err) {
-      console.error('[authService.getCurrentUser] Error:', err)
-      throw err
-    }
+    const { data } = await api.get('/auth/me', { _isAuthCheck: true })
+    return data.data
   },
 
   async updateProfile(payload) {
-    try {
-      const { data } = await api.put('/users/profile', payload)
-      return {
-        id: data.data.id,
-        name: data.data.fullName,
-        email: data.data.email,
-        phone: data.data.phone,
-        address: data.data.address,
-        role: normalizeRole(data.data.role)
-      }
-    } catch (err) {
-      console.error(err)
-      throw err
-    }
+    const { data } = await api.put('/users/profile', payload)
+    return mapAuthUser(data.data)
   },
-
-  async sendEmailOtp(newEmail) {
-    try {
-      const { data } = await api.post('/users/email/send-otp', { newEmail })
-      return data
-    } catch (err) {
-      console.error(err)
-      throw err
-    }
-  },
-
-  async verifyEmailOtp(newEmail, otp) {
-    try {
-      const { data } = await api.post('/users/email/verify-otp', { newEmail, otp })
-      return {
-        id: data.data.id,
-        name: data.data.fullName,
-        email: data.data.email,
-        phone: data.data.phone,
-        phoneVerified: data.data.phoneVerified,
-        address: data.data.address,
-        role: normalizeRole(data.data.role)
-      }
-    } catch (err) {
-      console.error(err)
-      throw err
-    }
-  },
-
-  async sendPhoneOtp(newPhone) {
-    try {
-      const { data } = await api.post('/users/phone/send-otp', { newPhone })
-      return data
-    } catch (err) {
-      console.error(err)
-      throw err
-    }
-  },
-
-  async verifyPhoneOtp(newPhone, otp) {
-    try {
-      const { data } = await api.post('/users/phone/verify-otp', { newPhone, otp })
-      return {
-        id: data.data.id,
-        name: data.data.fullName,
-        email: data.data.email,
-        phone: data.data.phone,
-        phoneVerified: data.data.phoneVerified,
-        address: data.data.address,
-        role: normalizeRole(data.data.role)
-      }
-    } catch (err) {
-      console.error(err)
-      throw err
-    }
-  }
 }

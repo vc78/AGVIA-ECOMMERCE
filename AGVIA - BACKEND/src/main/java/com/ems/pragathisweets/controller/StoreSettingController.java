@@ -33,7 +33,7 @@ public class StoreSettingController {
     @GetMapping({"/api/settings", "/api/store-settings"})
     @Operation(summary = "Get public store operational settings (shipping rules, announcements, maintenance)")
     public ResponseEntity<ApiResponse<StoreSettingDto>> getPublicSettings() {
-        return ResponseEntity.ok(ApiResponse.success(storeSettingService.getSettings()));
+        return ResponseEntity.ok(ApiResponse.success(storeSettingService.getPublicSettings()));
     }
 
     /**

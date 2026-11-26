@@ -17,10 +17,12 @@ public class UserDetailsImpl implements UserDetails {
     private final String phone;
     private final boolean phoneVerified;
     private final boolean enabled;
+    private final int tokenVersion;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(Long id, String fullName, String email, String phone, String password,
-                            boolean enabled, boolean phoneVerified, Collection<? extends GrantedAuthority> authorities) {
+                           boolean enabled, boolean phoneVerified, int tokenVersion,
+                           Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -28,6 +30,7 @@ public class UserDetailsImpl implements UserDetails {
         this.password = password;
         this.enabled = enabled;
         this.phoneVerified = phoneVerified;
+        this.tokenVersion = tokenVersion;
         this.authorities = authorities;
     }
 
@@ -42,6 +45,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPassword(),
                 user.isEnabled(),
                 user.isPhoneVerified(),
+                user.effectiveTokenVersion(),
                 authorities
         );
     }
@@ -64,6 +68,10 @@ public class UserDetailsImpl implements UserDetails {
 
     public boolean isPhoneVerified() {
         return phoneVerified;
+    }
+
+    public int getTokenVersion() {
+        return tokenVersion;
     }
 
     @Override

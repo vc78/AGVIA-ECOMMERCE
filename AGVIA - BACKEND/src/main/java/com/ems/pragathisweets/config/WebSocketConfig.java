@@ -31,6 +31,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:5173,https://agvia-ecommerce.vercel.app}")
+    private String allowedOrigins;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // Enable in-memory message broker with prefixes for broadcast and targeted user channels
@@ -40,12 +43,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Standard WebSocket endpoint (supports native WebSockets and SockJS fallback)
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*");
+        String[] origins = java.util.Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty() && !"*".equals(s))
+                .toArray(String[]::new);
 
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOrigins(origins);
+
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins(origins)
                 .withSockJS();
     }
 

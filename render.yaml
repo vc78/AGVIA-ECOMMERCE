@@ -58,6 +58,12 @@ services:
       - key: RAZORPAY_KEY_SECRET
         sync: false
 
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+
       - key: CORS_ALLOWED_ORIGINS
         value: "https://agvia-ecommerce.vercel.app,https://agvia.vercel.app,https://agvia.onrender.com,http://localhost:5173,http://localhost:3000"
 
@@ -65,10 +71,10 @@ services:
         value: "https://agvia-ecommerce.vercel.app"
 
       - key: DEFAULT_ADMIN_EMAIL
-        value: "admin@agvia.com"
+        sync: false
 
       - key: DEFAULT_ADMIN_PASSWORD
         sync: false
 
       - key: DEFAULT_ADMIN_NAME
-        value: "AGVIA Administrator"
+        value: "Lokesh Lingam Weaver Admin"

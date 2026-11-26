@@ -3,10 +3,13 @@ package com.ems.pragathisweets.service;
 import com.ems.pragathisweets.config.RazorpayConfig;
 import com.ems.pragathisweets.dto.PaymentOrderResponse;
 import com.ems.pragathisweets.dto.PaymentVerificationRequest;
+import com.ems.pragathisweets.entity.NotificationType;
 import com.ems.pragathisweets.entity.Order;
+import com.ems.pragathisweets.entity.OrderStatus;
 import com.ems.pragathisweets.entity.Payment;
 import com.ems.pragathisweets.entity.PaymentStatus;
 import com.ems.pragathisweets.entity.Product;
+import com.ems.pragathisweets.event.AdminNotificationEvent;
 import com.ems.pragathisweets.exception.PaymentVerificationException;
 import com.ems.pragathisweets.exception.ResourceNotFoundException;
 import com.ems.pragathisweets.repository.OrderRepository;
@@ -17,10 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.ems.pragathisweets.entity.NotificationType;
-import com.ems.pragathisweets.event.AdminNotificationEvent;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -58,12 +60,18 @@ public class PaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderIdentifier));
     }
 
-    /**
-     * Creates a Razorpay order for the given internal order and persists a Payment record.
-     */
+    private void assertOrderOwnership(Order order, Long requesterUserId, boolean isAdmin) {
+        if (isAdmin) return;
+        if (requesterUserId == null || order.getUser() == null || !order.getUser().getId().equals(requesterUserId)) {
+            log.warn("[PAYMENT_OWNERSHIP_DENIED] User {} attempted access to order {}", requesterUserId, order.getOrderNumber());
+            throw new AccessDeniedException("You do not have permission to process payment for this order.");
+        }
+    }
+
     @Transactional
-    public PaymentOrderResponse createRazorpayOrder(String internalOrderNumber) {
+    public PaymentOrderResponse createRazorpayOrder(String internalOrderNumber, Long requesterUserId, boolean isAdmin) {
         Order order = findOrderByIdOrNumber(internalOrderNumber);
+        assertOrderOwnership(order, requesterUserId, isAdmin);
 
         if (order.getPaymentMethod() == com.ems.pragathisweets.entity.PaymentMethod.COD) {
             throw new PaymentVerificationException("This order is designated for Cash on Delivery. Online payment cannot be initiated.");
@@ -73,13 +81,15 @@ public class PaymentService {
             throw new PaymentVerificationException("This order has already been paid.");
         }
 
-        // Strict server-side verification: Check if order has any items with COD_ONLY or disallowed online payment
+        if (razorpayConfig.getKeyId() == null || razorpayConfig.getKeyId().isBlank()
+                || razorpayConfig.getKeySecret() == null || razorpayConfig.getKeySecret().isBlank()) {
+            throw new PaymentVerificationException("Online payment gateway credentials are not configured.");
+        }
+
         for (com.ems.pragathisweets.entity.OrderItem item : order.getItems()) {
             Product p = item.getProduct();
-            if (p != null) {
-                if (p.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY || !p.isOnlineAllowed()) {
-                    throw new PaymentVerificationException("Online payment is not available for " + item.getProductName() + " (Cash on Delivery only).");
-                }
+            if (p != null && (p.getPaymentOption() == com.ems.pragathisweets.entity.ProductPaymentOption.COD_ONLY || !p.isOnlineAllowed())) {
+                throw new PaymentVerificationException("Online payment is not available for " + item.getProductName() + " (Cash on Delivery only).");
             }
             if (item.getVariantId() != null) {
                 com.ems.pragathisweets.entity.ProductVariant v = productVariantRepository.findById(item.getVariantId()).orElse(null);
@@ -124,20 +134,27 @@ public class PaymentService {
         }
     }
 
-    /**
-     * Verifies the Razorpay payment signature and marks the order/payment as paid.
-     */
     @Transactional
-    public void verifyPayment(PaymentVerificationRequest request) {
+    public void verifyPayment(PaymentVerificationRequest request, Long requesterUserId, boolean isAdmin) {
         Order order = findOrderByIdOrNumber(request.getInternalOrderNumber());
+        assertOrderOwnership(order, requesterUserId, isAdmin);
 
         Payment payment = paymentRepository.findByOrderId(order.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No payment record found for this order"));
 
-        // Idempotency guard: If payment is already marked SUCCESS, return safely without duplicate side effects
         if (payment.getStatus() == PaymentStatus.SUCCESS && order.getPaymentStatus() == PaymentStatus.SUCCESS) {
             log.info("[PaymentService] Idempotent payment verification ignored for order: {}", order.getOrderNumber());
             return;
+        }
+
+        if (payment.getRazorpayOrderId() == null || !payment.getRazorpayOrderId().equals(request.getRazorpayOrderId())) {
+            log.warn("[PAYMENT_ORDER_MISMATCH] Expected razorpayOrderId={} for order={}",
+                    payment.getRazorpayOrderId(), order.getOrderNumber());
+            throw new PaymentVerificationException("Payment verification failed due to order reference mismatch.");
+        }
+
+        if (razorpayConfig.getKeySecret() == null || razorpayConfig.getKeySecret().isBlank()) {
+            throw new PaymentVerificationException("Payment gateway configuration missing.");
         }
 
         Map<String, String> attributes = new HashMap<>();
@@ -160,13 +177,93 @@ public class PaymentService {
             throw new PaymentVerificationException("Payment verification failed. Please contact support.");
         }
 
-        payment.setRazorpayPaymentId(request.getRazorpayPaymentId());
-        payment.setRazorpaySignature(request.getRazorpaySignature());
+        finalizeSuccessfulPayment(order, payment, request.getRazorpayPaymentId(), request.getRazorpaySignature());
+    }
+
+    @Transactional
+    public void handleWebhook(String payload, String signature) {
+        String webhookSecret = razorpayConfig.getWebhookSecret();
+        if (webhookSecret == null || webhookSecret.isBlank()) {
+            log.error("[RAZORPAY_WEBHOOK_UNCONFIGURED] Rejecting webhook because RAZORPAY_WEBHOOK_SECRET is not configured.");
+            throw new PaymentVerificationException("Webhook verification secret is not configured.");
+        }
+        if (signature == null || signature.isBlank() || payload == null || payload.isBlank()) {
+            log.warn("[RAZORPAY_WEBHOOK_REJECTED] Missing webhook payload or signature header.");
+            throw new PaymentVerificationException("Missing webhook signature.");
+        }
+
+        try {
+            boolean valid = Utils.verifyWebhookSignature(payload, signature, webhookSecret);
+            if (!valid) {
+                log.warn("[RAZORPAY_WEBHOOK_INVALID_SIGNATURE] Rejected forged Razorpay webhook.");
+                throw new PaymentVerificationException("Invalid webhook signature.");
+            }
+        } catch (PaymentVerificationException pve) {
+            throw pve;
+        } catch (Exception ex) {
+            log.error("[RAZORPAY_WEBHOOK_ERROR] Signature verification failed: {}", ex.getMessage());
+            throw new PaymentVerificationException("Webhook signature verification failed.");
+        }
+
+        JSONObject root = new JSONObject(payload);
+        String event = root.optString("event", "");
+        JSONObject paymentEntity = Optional.ofNullable(root.optJSONObject("payload"))
+                .map(p -> p.optJSONObject("payment"))
+                .map(p -> p.optJSONObject("entity"))
+                .orElse(null);
+
+        if (paymentEntity == null) {
+            return;
+        }
+
+        String razorpayOrderId = paymentEntity.optString("order_id", "");
+        String razorpayPaymentId = paymentEntity.optString("id", "");
+        long paidPaise = paymentEntity.optLong("amount", -1L);
+        String currency = paymentEntity.optString("currency", "");
+
+        if (razorpayOrderId.isBlank()) {
+            return;
+        }
+
+        Optional<Payment> paymentOpt = paymentRepository.findByRazorpayOrderId(razorpayOrderId);
+        if (paymentOpt.isEmpty()) {
+            log.info("[RAZORPAY_WEBHOOK_UNKNOWN_ORDER] Ignoring webhook for unrecognized order_id={}", razorpayOrderId);
+            return;
+        }
+
+        Payment payment = paymentOpt.get();
+        Order order = payment.getOrder();
+
+        if ("payment.captured".equals(event)) {
+            if (payment.getStatus() == PaymentStatus.SUCCESS && order.getPaymentStatus() == PaymentStatus.SUCCESS) {
+                return;
+            }
+            long expectedPaise = order.getFinalAmount().multiply(BigDecimal.valueOf(100)).longValue();
+            if (paidPaise != expectedPaise || !"INR".equalsIgnoreCase(currency)) {
+                log.error("[RAZORPAY_WEBHOOK_AMOUNT_MISMATCH] order={} expected={}paise got={}paise currency={}",
+                        order.getOrderNumber(), expectedPaise, paidPaise, currency);
+                throw new PaymentVerificationException("Webhook payment amount or currency mismatch.");
+            }
+            finalizeSuccessfulPayment(order, payment, razorpayPaymentId, signature);
+        } else if ("payment.failed".equals(event)) {
+            if (payment.getStatus() != PaymentStatus.SUCCESS) {
+                payment.setStatus(PaymentStatus.FAILED);
+                payment.setFailureReason(paymentEntity.optString("error_description", "Payment failed via webhook"));
+                paymentRepository.save(payment);
+                order.setPaymentStatus(PaymentStatus.FAILED);
+                orderRepository.save(order);
+            }
+        }
+    }
+
+    private void finalizeSuccessfulPayment(Order order, Payment payment, String paymentId, String signature) {
+        payment.setRazorpayPaymentId(paymentId);
+        payment.setRazorpaySignature(signature);
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
 
         order.setPaymentStatus(PaymentStatus.SUCCESS);
-        order.setStatus(com.ems.pragathisweets.entity.OrderStatus.CONFIRMED);
+        order.setStatus(OrderStatus.CONFIRMED);
         orderRepository.save(order);
 
         String customerEmail = order.getUser() != null ? order.getUser().getEmail() : null;
@@ -176,14 +273,12 @@ public class PaymentService {
                 : (order.getUser() != null ? order.getUser().getPhone() : null);
         com.ems.pragathisweets.dto.OrderResponse orderResponse = orderService.toResponse(order);
 
-        // Dispatch authoritative order confirmation to customer and admin notification
         try {
             orderNotificationService.sendOrderConfirmedNotifications(orderResponse, customerEmail, customerName, phone);
         } catch (Exception ex) {
             log.error("[PaymentService] Error requesting order confirmed notifications for {}: {}", order.getOrderNumber(), ex.getMessage());
         }
 
-        // Publish real-time admin events: NEW_ORDER and PAYMENT_RECEIVED
         eventPublisher.publishEvent(new AdminNotificationEvent(
                 NotificationType.NEW_ORDER,
                 "New Order #" + order.getOrderNumber(),
@@ -196,7 +291,7 @@ public class PaymentService {
                         "amount", order.getFinalAmount(),
                         "customerName", customerName,
                         "paymentMethod", "ONLINE",
-                        "paymentId", request.getRazorpayPaymentId()
+                        "paymentId", paymentId != null ? paymentId : ""
                 )
         ));
 
@@ -210,11 +305,10 @@ public class PaymentService {
                         "orderId", order.getId(),
                         "orderNumber", order.getOrderNumber(),
                         "amount", order.getFinalAmount(),
-                        "paymentId", request.getRazorpayPaymentId()
+                        "paymentId", paymentId != null ? paymentId : ""
                 )
         ));
 
-        // Trigger non-blocking Excel Reporting layer synchronization
         eventPublisher.publishEvent(new com.ems.pragathisweets.event.OrderConfirmedEvent(order.getId(), order.getOrderNumber(), "ONLINE"));
     }
 

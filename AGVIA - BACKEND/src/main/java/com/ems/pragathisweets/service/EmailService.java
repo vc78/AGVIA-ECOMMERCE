@@ -59,31 +59,37 @@ public class EmailService {
     }
 
     /**
-     * Sends rich HTML verification code directly to customer's email.
+     * Sends a single-use password reset email containing a cryptographically random link.
+     * Raw tokens and reset URLs are never written to application logs.
      */
     @Async
-    public void sendOtpEmail(String to, String recipientName, String code, String purpose) {
-        String subject = code + " is your Lokesh Lingam Weaver verification code";
-        String logoUrl = frontendUrl.replaceAll("/+$", "") + "/images/lokesh-lingam-logo.png";
+    public void sendPasswordResetEmail(String to, String recipientName, String resetLink) {
+        String safeName = (recipientName != null && !recipientName.isBlank())
+                ? recipientName.replace("<", "").replace(">", "")
+                : "Customer";
+        String subject = "Password Reset Request — Lokesh Lingam Weaver";
         String htmlBody = "<!DOCTYPE html><html><body style=\"margin:0;padding:24px;background-color:#FBF5EA;font-family:sans-serif;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:480px;background-color:#FFFFFF;border-radius:20px;border:1px solid #E7D4B9;padding:32px;box-shadow:0 4px 16px rgba(101,27,43,0.08);\">" +
-                "  <tr><td style=\"text-align:center;padding-bottom:16px;\">" +
-                "    <img src=\"" + logoUrl + "\" alt=\"Lokesh Lingam Weaver\" style=\"max-height:76px;width:auto;margin-bottom:8px;\" />" +
-                "    <p style=\"margin:4px 0 0;font-size:11px;color:#B58A45;text-transform:uppercase;letter-spacing:2px;font-weight:600;\">Handloom Sarees &amp; Traditional Weaves</p>" +
+                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:520px;background-color:#FFFFFF;border-radius:16px;border:1px solid #E7D4B9;padding:32px;\">" +
+                "  <tr><td style=\"text-align:center;padding-bottom:16px;border-bottom:1px solid #E7D4B9;\">" +
+                "    <h2 style=\"margin:0;color:#651B2B;font-family:Georgia,serif;\">LOKESH LINGAM WEAVER</h2>" +
+                "    <p style=\"margin:4px 0 0;font-size:11px;color:#B58A45;text-transform:uppercase;letter-spacing:2px;\">Handloom Sarees &amp; Traditional Weaves</p>" +
                 "  </td></tr>" +
-                "  <tr><td style=\"padding:16px 0;text-align:center;\">" +
-                "    <h3 style=\"margin:0 0 10px;color:#38271F;font-size:18px;\">Verification Code</h3>" +
-                "    <p style=\"margin:0 0 20px;font-size:13px;color:#555;line-height:1.5;\">Namaste " + (recipientName != null && !recipientName.isBlank() ? recipientName : "Customer") + ", use the code below to complete your " + (purpose != null ? purpose.toLowerCase() : "verification") + ":</p>" +
-                "    <div style=\"display:inline-block;padding:16px 32px;background-color:#FBF5EA;border:2px dashed #651B2B;border-radius:14px;font-size:32px;font-weight:bold;letter-spacing:8px;color:#651B2B;font-family:monospace;\">" +
-                code +
-                "    </div>" +
-                "    <p style=\"margin:20px 0 0;font-size:12px;color:#777;\">This code is valid for <strong>5 minutes</strong>. Do not share this OTP with anyone.</p>" +
+                "  <tr><td style=\"padding:24px 0;\">" +
+                "    <h3 style=\"margin:0 0 12px;color:#38271F;font-size:18px;\">Reset Your Password</h3>" +
+                "    <p style=\"margin:0 0 16px;font-size:14px;color:#38271F;line-height:1.6;\">Namaste " + safeName + ", we received a request to reset your account password.</p>" +
+                "    <p style=\"margin:0 0 24px;text-align:center;\">" +
+                "      <a href=\"" + resetLink + "\" style=\"display:inline-block;padding:13px 28px;background-color:#651B2B;color:#FBF5EA;text-decoration:none;font-weight:bold;border-radius:10px;font-size:13px;letter-spacing:0.5px;\">Reset Password</a>" +
+                "    </p>" +
+                "    <p style=\"margin:0 0 12px;font-size:12px;color:#5A4438;line-height:1.5;\">This link expires in <strong>15 minutes</strong> and can only be used once. If you did not request a password reset, you may safely ignore this email.</p>" +
                 "  </td></tr>" +
-                "  <tr><td style=\"padding-top:20px;border-top:1px solid #E7D4B9;text-align:center;font-size:11px;color:#666;\">" +
-                "    Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh, India – 515671 • WhatsApp: +91 7799349294" +
+                "  <tr><td style=\"padding-top:16px;border-top:1px solid #E7D4B9;text-align:center;font-size:11px;color:#7A6254;\">" +
+                "    Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh, India – 515671 • +91 7799349294" +
                 "  </td></tr>" +
                 "</table></body></html>";
-        String plainText = "Lokesh Lingam Weaver Verification Code: " + code + "\nValid for 5 minutes. Never share this code.";
+        String plainText = "Namaste " + safeName + ",\n\n" +
+                "We received a request to reset your Lokesh Lingam Weaver password.\n" +
+                "Use this single-use link within 15 minutes:\n" + resetLink + "\n\n" +
+                "If you did not request this change, please ignore this message.";
         sendHtml(to, subject, htmlBody, plainText);
     }
 

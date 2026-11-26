@@ -42,6 +42,43 @@ public class StoreSettingService {
         return toDto(setting);
     }
 
+    @Transactional(readOnly = true)
+    public StoreSettingDto getPublicSettings() {
+        return redactForPublic(getSettings());
+    }
+
+    public StoreSettingDto redactForPublic(StoreSettingDto dto) {
+        if (dto == null) return null;
+        return StoreSettingDto.builder()
+                .id(dto.getId())
+                .storeName(dto.getStoreName())
+                .storeTagline(dto.getStoreTagline())
+                .supportEmail(dto.getSupportEmail())
+                .supportPhone(dto.getSupportPhone())
+                .whatsappNumber(dto.getWhatsappNumber())
+                .storeAddress(dto.getStoreAddress())
+                .businessHours(dto.getBusinessHours())
+                .minimumOrderValue(dto.getMinimumOrderValue())
+                .freeDeliveryThreshold(dto.getFreeDeliveryThreshold())
+                .standardDeliveryFee(dto.getStandardDeliveryFee())
+                .expressDeliveryFee(dto.getExpressDeliveryFee())
+                .enableCod(dto.getEnableCod())
+                .codMaxLimit(dto.getCodMaxLimit())
+                .enableGuestCheckout(dto.getEnableGuestCheckout())
+                .maintenanceMode(dto.getMaintenanceMode())
+                .maintenanceMessage(dto.getMaintenanceMessage())
+                .announcementBarEnabled(dto.getAnnouncementBarEnabled())
+                .announcementText(dto.getAnnouncementText())
+                .announcementLink(dto.getAnnouncementLink())
+                .holidayMode(dto.getHolidayMode())
+                .holidayNotice(dto.getHolidayNotice())
+                .currencySymbol(dto.getCurrencySymbol())
+                .currencyCode(dto.getCurrencyCode())
+                .gstPercentage(dto.getGstPercentage())
+                .pricesIncludeTax(dto.getPricesIncludeTax())
+                .build();
+    }
+
     @Transactional
     public StoreSettingDto updateSettings(StoreSettingDto dto, String updatedBy) {
         StoreSetting setting = getOrCreateSetting();
@@ -185,7 +222,7 @@ public class StoreSettingService {
     private void broadcastSettingsUpdate(StoreSettingDto dto) {
         try {
             messagingTemplate.convertAndSend("/topic/admin/settings", dto);
-            messagingTemplate.convertAndSend("/topic/settings", dto);
+            messagingTemplate.convertAndSend("/topic/settings", redactForPublic(dto));
             log.info("[WebSocket] Dispatched real-time settings broadcast to /topic/admin/settings and /topic/settings");
         } catch (Exception ex) {
             log.warn("[WebSocket] Failed to broadcast real-time settings packet: {}", ex.getMessage());

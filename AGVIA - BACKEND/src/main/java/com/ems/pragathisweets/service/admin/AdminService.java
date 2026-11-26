@@ -37,6 +37,7 @@ public class AdminService {
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Invalid role. Use ROLE_USER or ROLE_ADMIN");
         }
+        user.incrementTokenVersion();
         return toResponse(userRepository.save(user));
     }
 
@@ -44,6 +45,7 @@ public class AdminService {
     public UserResponse updateUserStatus(Long id, UserStatusUpdateRequest request) {
         User user = findEntity(id);
         user.setEnabled(request.getEnabled());
+        user.incrementTokenVersion();
         return toResponse(userRepository.save(user));
     }
 

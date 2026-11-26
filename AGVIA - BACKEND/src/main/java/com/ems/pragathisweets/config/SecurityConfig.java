@@ -2,21 +2,22 @@ package com.ems.pragathisweets.config;
 
 import com.ems.pragathisweets.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -28,6 +29,16 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CorsConfigurationSource corsConfigurationSource;
+
+    private static final String CSP_POLICY =
+            "default-src 'self'; " +
+            "script-src 'self' https://accounts.google.com/gsi/client https://checkout.razorpay.com; " +
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; " +
+            "font-src 'self' https://fonts.gstatic.com data:; " +
+            "img-src 'self' data: blob: https:; " +
+            "connect-src 'self' https://accounts.google.com https://api.razorpay.com https://lumberjack.razorpay.com https://agvia.onrender.com wss://agvia.onrender.com; " +
+            "frame-src https://accounts.google.com https://api.razorpay.com https://checkout.razorpay.com; " +
+            "frame-ancestors 'none'; base-uri 'self'; object-src 'none'";
 
     private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/api/homepage/**",
@@ -41,8 +52,6 @@ public class SecurityConfig {
             "/api/coupons/**",
             "/api/orders/public-track/**",
             "/api/orders/public-track",
-            "/api/orders/track/**",
-            "/api/orders/track",
             "/api/settings/**",
             "/api/settings",
             "/api/store-settings/**",
@@ -50,21 +59,22 @@ public class SecurityConfig {
             "/api/sitemap.xml"
     };
 
+    private static final String[] PUBLIC_AUTH_ENDPOINTS = {
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/google",
+            "/api/auth/forgot-password",
+            "/api/auth/reset-password",
+            "/api/auth/logout"
+    };
+
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/**",
-            "/api/newsletter/**",
-            "/api/subscriptions/create-order",
-            "/api/subscriptions/verify-payment",
-            "/api/subscriptions/activate-instant",
+            "/api/newsletter/subscribe",
             "/api/health",
             "/actuator/health",
-            "/api/payments/**",
-            "/api/orders/validate",
+            "/api/payments/webhook",
             "/api/analytics/**",
-            "/ws/**",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/ws/**"
     };
 
     @Bean
@@ -80,16 +90,24 @@ public class SecurityConfig {
                                 .maxAgeInSeconds(31536000)
                         )
                         .referrerPolicy(referrer -> referrer
-                                .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
                         )
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(CSP_POLICY))
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_AUTH_ENDPOINTS).permitAll()
+                        .requestMatchers("/api/auth/me", "/api/auth/change-password", "/api/auth/google/link").authenticated()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/reviews").permitAll()
+                        .requestMatchers("/api/orders/validate").authenticated()
+                        .requestMatchers("/api/orders/track/**", "/api/orders/track").authenticated()
+                        .requestMatchers("/api/payments/razorpay/**").authenticated()
+                        .requestMatchers("/api/subscriptions/activate-instant").hasRole("ADMIN")
+                        .requestMatchers("/api/subscriptions/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -114,6 +132,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 }

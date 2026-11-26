@@ -158,6 +158,28 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN phone VARCHAR(20)");
         } catch (Exception ignored) {}
         try {
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN token_version INT NOT NULL DEFAULT 0");
+        } catch (Exception ignored) {}
+        try {
+            jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    user_id BIGINT NOT NULL,
+                    token_hash VARCHAR(64) NOT NULL UNIQUE,
+                    expires_at DATETIME NOT NULL,
+                    used BIT NOT NULL DEFAULT 0,
+                    used_at DATETIME NULL,
+                    request_ip VARCHAR(64) NULL,
+                    created_at DATETIME NOT NULL,
+                    INDEX idx_prt_token_hash (token_hash),
+                    INDEX idx_prt_user_id (user_id),
+                    INDEX idx_prt_expires_at (expires_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """);
+        } catch (Exception ex) {
+            log.warn("Notice checking password_reset_tokens table: {}", ex.getMessage());
+        }
+        try {
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN phone_verified BOOLEAN NOT NULL DEFAULT FALSE");
         } catch (Exception ignored) {}
         try {

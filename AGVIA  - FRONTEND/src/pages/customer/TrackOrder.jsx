@@ -125,7 +125,11 @@ export default function TrackOrder() {
       console.warn('Track order lookup failed:', err)
       if (!isBackground) {
         setTrackingOrder(null)
-        const msg = err?.response?.data?.message || `No active order found with reference "${cleanId}". Please verify your order number.`
+        const status = err?.response?.status
+        const msg =
+          status === 401 || status === 403
+            ? 'Please sign in to view full order details by order number, or use your QR tracking token.'
+            : err?.response?.data?.message || `No active order found with reference "${cleanId}". Please verify your order reference.`
         setErrorMsg(msg)
       }
     } finally {

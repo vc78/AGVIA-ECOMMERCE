@@ -274,30 +274,22 @@ public class OrderService {
 
 
     @Transactional(readOnly = true)
-    public OrderResponse trackOrder(String identifier) {
+    public OrderResponse trackOrderForUser(String identifier, Long requesterUserId, boolean isAdmin) {
         if (identifier == null || identifier.isBlank()) {
             throw new IllegalArgumentException("Order reference is required");
         }
-        // Sanitize any URL fragments, leading hashes, or extra whitespace
         String clean = identifier.replace("#", "").trim();
         if (clean.toUpperCase().startsWith("ORD-")) {
             clean = clean.substring(4).trim();
         }
 
-        // 1. Direct fetch with items and user details (case-insensitive)
         java.util.Optional<Order> orderOpt = orderRepository.findByOrderNumberWithDetails(clean);
-
-        // 2. Try standard findByOrderNumber
         if (orderOpt.isEmpty()) {
             orderOpt = orderRepository.findByOrderNumber(clean);
         }
-
-        // 3. Try case-insensitive standard
         if (orderOpt.isEmpty()) {
             orderOpt = orderRepository.findByOrderNumberIgnoreCase(clean);
         }
-
-        // 4. Try variations with PS prefix
         if (orderOpt.isEmpty()) {
             String psAlt = clean.toUpperCase().startsWith("PS") ? clean : "PS" + clean;
             orderOpt = orderRepository.findByOrderNumberWithDetails(psAlt);
@@ -305,8 +297,6 @@ public class OrderService {
                 orderOpt = orderRepository.findByOrderNumberIgnoreCase(psAlt);
             }
         }
-
-        // 5. Try numeric ID lookup (e.g. order 1, 2, 3...)
         if (orderOpt.isEmpty()) {
             try {
                 if (clean.matches("^[0-9]+$")) {
@@ -320,6 +310,9 @@ public class OrderService {
         }
 
         Order order = orderOpt.orElseThrow(() -> new ResourceNotFoundException("No order found with reference: " + identifier));
+        if (!isAdmin && (requesterUserId == null || order.getUser() == null || !order.getUser().getId().equals(requesterUserId))) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to view full details for this order.");
+        }
         return toResponse(order);
     }
 
@@ -611,35 +604,23 @@ public class OrderService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public PublicOrderTrackingResponse getPublicTracking(String trackingToken) {
         if (trackingToken == null || trackingToken.isBlank()) {
             throw new ResourceNotFoundException("Tracking reference is required");
         }
 
         String clean = trackingToken.trim();
-
-        // 1. Lookup by active tracking token
-        java.util.Optional<Order> orderOpt = orderRepository.findByActiveTrackingTokenWithDetails(clean);
-
-        // 2. Fallback to orderNumber if token not set on older order
-        if (orderOpt.isEmpty()) {
-            orderOpt = orderRepository.findByOrderNumberWithDetails(clean);
-            if (orderOpt.isEmpty()) {
-                orderOpt = orderRepository.findByOrderNumberIgnoreCase(clean);
-            }
+        if (clean.length() < 16) {
+            throw new ResourceNotFoundException("No active tracking record found for the provided reference.");
         }
 
-        Order order = orderOpt.orElseThrow(() -> new ResourceNotFoundException("No active tracking record found for the provided reference."));
+        // Lookup strictly by high-entropy cryptographic tracking token (no sequential/orderNumber enumeration)
+        Order order = orderRepository.findByActiveTrackingTokenWithDetails(clean)
+                .orElseThrow(() -> new ResourceNotFoundException("No active tracking record found for the provided reference."));
 
         if (Boolean.TRUE.equals(order.getTrackingTokenRevoked())) {
             throw new ResourceNotFoundException("This tracking link has been revoked or expired. Please contact Lokesh Lingam Weaver (+91 7799349294).");
-        }
-
-        // Ensure token exists on order
-        if (order.getTrackingToken() == null || order.getTrackingToken().isBlank()) {
-            order.setTrackingToken(Order.generateSecureTrackingToken());
-            order = orderRepository.save(order);
         }
 
         String rawOrderNum = order.getOrderNumber() != null ? order.getOrderNumber() : "ORD" + order.getId();

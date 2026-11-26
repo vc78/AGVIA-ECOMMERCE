@@ -58,6 +58,18 @@ public class User {
     @Column(name = "google_id", length = 100)
     private String googleId;
 
+    @Builder.Default
+    @Column(name = "token_version")
+    private Integer tokenVersion = 0;
+
+    public int effectiveTokenVersion() {
+        return tokenVersion != null ? tokenVersion : 0;
+    }
+
+    public void incrementTokenVersion() {
+        this.tokenVersion = effectiveTokenVersion() + 1;
+    }
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

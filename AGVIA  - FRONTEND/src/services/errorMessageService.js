@@ -102,12 +102,6 @@ export function getFriendlyErrorMessage(error, defaultFallback = 'Something went
     if (lower.includes('coupon') || lower.includes('discount')) {
       return 'This promo code is either invalid, expired, or does not meet the minimum order requirement.'
     }
-    if (lower.includes('otp') && (lower.includes('invalid') || lower.includes('incorrect'))) {
-      return 'The verification code entered is incorrect. Please check and try again.'
-    }
-    if (lower.includes('otp') && lower.includes('expired')) {
-      return 'This verification code has expired. Please request a new code.'
-    }
     if (lower.includes('rate limit') || lower.includes('too many')) {
       return 'You are making requests a little too quickly. Please wait a moment and try again.'
     }
@@ -204,10 +198,9 @@ export function getValidationPrompt(field) {
     name: 'Please enter your full name.',
     fullName: 'Please enter your full name.',
     email: 'Please enter a valid email address.',
-    password: 'Password must be at least 6 characters.',
+    password: 'Password must be at least 8 characters and include uppercase, lowercase, and a number.',
     confirmPassword: 'Passwords do not match. Please verify.',
     phone: 'Please enter a valid 10-digit mobile number.',
-    otp: 'Please enter the 6-digit verification code.',
     line1: 'Please enter your street address.',
     city: 'Please enter your city.',
     state: 'Please enter your state.',
