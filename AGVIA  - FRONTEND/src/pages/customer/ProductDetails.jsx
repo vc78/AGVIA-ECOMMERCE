@@ -17,6 +17,7 @@ import { getProductShareUrl } from '../../utils/shareUtils'
 import { trackProductView, trackAddToCart, trackCheckoutStarted } from '../../services/analytics'
 import SEOHead from '../../components/common/SEOHead'
 import { getFriendlyErrorMessage, logDeveloperError } from '../../services/errorMessageService'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 
 export default function ProductDetails() {
   const { id } = useParams()
@@ -252,18 +253,18 @@ export default function ProductDetails() {
     }
   }
 
-  // Luxury fashion garment details
-  const detailsMock = {
-    craftsmanship: '100% Certified Pure Handloom Silk and delicate organza weave. Embellished with hand-embroidered zardozi, fine cutdana beads, and antique gold metallic threads by generational master craftsmen.',
-    sizing: 'Tailored with comfortable ease. Blouse and choli sets include 2-inch interior seam allowances for custom fitting. Dry clean only. Model is 5\'9" wearing size S.',
-    shipping: 'Delivered in our signature CHITRIKA embroidered keepsake box with protective muslin garment bags. Complimentary express courier across India in 3-5 business days. 7-day atelier exchange policy.',
+  // Verified handloom weave and enquiry details
+  const weaveDetails = {
+    craftsmanship: `Woven by ${BUSINESS.name} in ${BUSINESS.location.short}. Bringing handloom sarees directly from our looms to your hands, backed by ${BUSINESS.experienceClaim}.`,
+    sizing: 'Standard saree measurements and blouse piece details are listed in the product description when supplied. Message us on WhatsApp (+91 7799349294) if you have any weave or length questions.',
+    shipping: `Order dispatch updates are shared directly on WhatsApp (${BUSINESS.phoneDisplay}) and via the Track Order page. Shipping charges and delivery timelines are confirmed during order enquiry or checkout.`,
   }
 
   const toggleAccordion = (tab) => {
     setAccordionOpen({ ...accordionOpen, [tab]: !accordionOpen[tab] })
   }
 
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'Free Size']
+  const sizes = ['Free Size', 'Standard Saree (6.2m)', 'With Blouse Piece']
 
   const productRating = reviews.length > 0
     ? (reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / reviews.length).toFixed(1)
@@ -273,12 +274,12 @@ export default function ProductDetails() {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: product.description || `Handcrafted ${product.name} from CHITRIKA's luxury ${product.category} collection.`,
-    image: product.image ? (product.image.startsWith('http') ? product.image : `https://chitrikaboutique.com${product.image}`) : undefined,
-    sku: product.sku || `CHITRIKA-${product.id}`,
+    description: product.description || `${product.name} — ${product.category || 'Handloom Sarees'} from ${BUSINESS.name}, ${BUSINESS.location.short}.`,
+    image: product.image ? (product.image.startsWith('http') ? product.image : `${BUSINESS.seo.siteUrl}${product.image}`) : undefined,
+    sku: product.sku || `LLW-${product.id}`,
     brand: {
       '@type': 'Brand',
-      name: 'CHITRIKA'
+      name: BUSINESS.name
     },
     category: product.category,
     offers: {
@@ -286,10 +287,10 @@ export default function ProductDetails() {
       price: product.price,
       priceCurrency: 'INR',
       availability: (product.stockQuantity ?? 10) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: `https://chitrikaboutique.com/products/${product.id}`,
+      url: `${BUSINESS.seo.siteUrl}/products/${product.id}`,
       seller: {
         '@type': 'Organization',
-        name: 'CHITRIKA'
+        name: BUSINESS.name
       }
     },
     ...(reviews.length > 0 ? {
@@ -303,8 +304,8 @@ export default function ProductDetails() {
 
   const breadcrumbItems = [
     { name: 'Home', url: '/' },
-    { name: 'Silhouettes', url: '/products' },
-    { name: product.category || 'Collection', url: `/products?category=${encodeURIComponent(product.category || '')}` },
+    { name: 'Collections', url: '/products' },
+    { name: product.category || 'Handloom Sarees', url: `/products?category=${encodeURIComponent(product.category || '')}` },
     { name: product.name, url: `/products/${product.id}` }
   ]
 
@@ -312,7 +313,7 @@ export default function ProductDetails() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans">
       <SEOHead
         title={product.name}
-        description={product.description || `Discover the handcrafted ${product.name} in ${product.category}. Tailored from pure fabrics with bespoke detailing at CHITRIKA.`}
+        description={product.description || `Explore ${product.name} in ${product.category} from Lokesh Lingam Weaver, Dharmavaram.`}
         canonicalUrl={`/products/${product.id}`}
         image={product.image}
         type="product"
@@ -392,14 +393,22 @@ export default function ProductDetails() {
                 <ProductShareButton product={product} variant="icon" className="shrink-0 mt-1" />
               </div>
 
-              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#C9A45C]">
-                <div className="flex text-[#C9A45C]">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={12} fill={i < Math.round(product.rating || 4.8) ? '#C9A45C' : 'none'} className="text-[#C9A45C]" />
-                  ))}
+              {reviews.length > 0 || product.rating ? (
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[#B58A45]">
+                  <div className="flex text-[#B58A45]">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={12} fill={i < Math.round(Number(productRating || product.rating)) ? '#B58A45' : 'none'} className="text-[#B58A45]" />
+                    ))}
+                  </div>
+                  <span className="text-[#38271F]/70 text-[11px] font-medium">
+                    ({productRating || product.rating} / 5 · {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+                  </span>
                 </div>
-                <span className="text-[#211D1E]/60 text-[11px] font-medium">({product.rating || 4.8} / 5 · {reviews.length} reviews)</span>
-              </div>
+              ) : (
+                <p className="text-[11px] text-[#38271F]/60 mt-1.5 font-medium">
+                  Direct from {BUSINESS.name} · {BUSINESS.location.short}
+                </p>
+              )}
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 pb-3 border-b border-[#C9A45C]/15">
                 <span className="font-serif text-2xl md:text-3xl text-[#5A1020] font-bold">₹{displayPrice}</span>
@@ -580,43 +589,43 @@ export default function ProductDetails() {
                 </div>
               </div>
 
-              {/* Action Buttons: WhatsApp Concierge + Share Silhouette */}
+              {/* Action Buttons: WhatsApp Enquiry + Share */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mt-3">
                 <a
-                  href={`https://wa.me/919032306961?text=${encodeURIComponent(
-                    `Namaste CHITRIKA Atelier Concierge ✨\n\nI would like to enquire about ordering this silhouette:\n👗 Silhouette: *${product.name}*\n🏷️ Category: ${product.category || 'Atelier Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n📏 Selected Size: ${selectedSize}\n🔢 Quantity: ${qty}\n🔗 Product Link: ${getProductShareUrl(product.id)}\n\nPlease share availability, delivery timeline, and bespoke customization details.`
-                  )}`}
+                  href={buildWhatsAppUrl(
+                    `Namaste ${BUSINESS.name},\n\nI would like to enquire about this saree:\nProduct: *${product.name}*\nCategory: ${product.category || 'Handloom Sarees'}\n${product.price ? `Price: ₹${Number(product.price).toLocaleString('en-IN')}\n` : ''}${selectedVariant?.colorName ? `Colour: ${selectedVariant.colorName}\n` : ''}Quantity: ${qty}\nLink: ${getProductShareUrl(product.id)}\n\nPlease share availability, weave details, and ordering instructions.`
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg transition-all duration-300 active:scale-98 min-h-[46px]"
-                  title="Instant WhatsApp Concierge"
+                  title="Enquire on WhatsApp (+91 7799349294)"
                 >
                   <MessageCircle size={16} />
-                  <span>WhatsApp Enquire</span>
+                  <span>Enquire on WhatsApp</span>
                 </a>
                 <ProductShareButton product={product} variant="detail" className="flex-1 justify-center min-h-[46px]" />
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 text-[9.5px] text-[#211D1E]/60 font-semibold pt-1">
-                <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-[#C9A45C]" /> 100% Certified Pure Handloom</span>
-                <span className="flex items-center gap-1"><Truck size={13} className="text-[#C9A45C]" /> Complimentary Insured Express Delivery</span>
+              <div className="flex flex-wrap items-center gap-3 text-[9.5px] text-[#38271F]/70 font-semibold pt-1">
+                <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-[#B58A45]" /> Direct Handloom Weaver · Dharmavaram</span>
+                <span className="flex items-center gap-1"><MessageCircle size={13} className="text-[#B58A45]" /> WhatsApp Enquiry · {BUSINESS.phoneDisplay}</span>
               </div>
             </div>
 
             {/* Product Details Accordion */}
-            <div className="mt-6 border-t border-[#C9A45C]/20 pt-4 space-y-2.5">
+            <div className="mt-6 border-t border-[#B58A45]/20 pt-4 space-y-2.5">
               {[
-                { id: 'craftsmanship', label: 'Fabric & Craftsmanship' },
-                { id: 'sizing', label: 'Size & Fit Details' },
-                { id: 'shipping', label: 'Atelier Packaging & Shipping' }
+                { id: 'craftsmanship', label: 'Weave & Weaver Details' },
+                { id: 'sizing', label: 'Measurement & Blouse Info' },
+                { id: 'shipping', label: 'Dispatch & Order Support' }
               ].map((acc) => (
-                <div key={acc.id} className="border-b border-[#C9A45C]/15 pb-2.5">
+                <div key={acc.id} className="border-b border-[#B58A45]/15 pb-2.5">
                   <button
                     onClick={() => toggleAccordion(acc.id)}
-                    className="flex justify-between items-center w-full text-left font-serif text-xs tracking-wider text-[#5A1020] font-bold uppercase py-0.5"
+                    className="flex justify-between items-center w-full text-left font-serif text-xs tracking-wider text-[#651B2B] font-bold uppercase py-0.5"
                   >
                     <span>{acc.label}</span>
-                    <ChevronDown size={14} className={`transform transition-transform text-[#C9A45C] ${accordionOpen[acc.id] ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`transform transition-transform text-[#B58A45] ${accordionOpen[acc.id] ? 'rotate-180' : ''}`} />
                   </button>
                   <AnimatePresence>
                     {accordionOpen[acc.id] && (
@@ -626,8 +635,8 @@ export default function ProductDetails() {
                         exit={{ opacity: 0, height: 0 }}
                         className="overflow-hidden"
                       >
-                        <p className="text-xs text-[#211D1E]/70 leading-relaxed pt-3">
-                          {detailsMock[acc.id]}
+                        <p className="text-xs text-[#38271F]/75 leading-relaxed pt-3">
+                          {weaveDetails[acc.id]}
                         </p>
                       </motion.div>
                     )}
@@ -640,27 +649,31 @@ export default function ProductDetails() {
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-8 sm:mt-10 border-t border-[#C9A45C]/20 pt-6 sm:pt-7 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          
+        <div className="mt-8 sm:mt-10 border-t border-[#B58A45]/20 pt-6 sm:pt-7 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+
           {/* Reviews list */}
           <div className="lg:col-span-7 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
-                <h2 className="font-serif text-xl sm:text-2xl text-[#5A1020] font-bold">Patron Reviews</h2>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <div className="flex text-[#C9A45C]">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={13} fill={i < Math.round(product.rating || 4.8) ? '#C9A45C' : 'none'} className="text-[#C9A45C]" />
-                    ))}
+                <h2 className="font-serif text-xl sm:text-2xl text-[#651B2B] font-bold">Customer Reviews</h2>
+                {reviews.length > 0 ? (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="flex text-[#B58A45]">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} size={13} fill={i < Math.round(Number(productRating)) ? '#B58A45' : 'none'} className="text-[#B58A45]" />
+                      ))}
+                    </div>
+                    <span className="text-xs font-bold text-[#38271F]">{productRating} / 5</span>
+                    <span className="text-xs text-[#38271F]/60">({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})</span>
                   </div>
-                  <span className="text-xs font-bold text-[#211D1E]">{product.rating || 4.8} / 5</span>
-                  <span className="text-xs text-[#211D1E]/60">({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})</span>
-                </div>
+                ) : (
+                  <p className="text-xs text-[#38271F]/60 mt-1">Verified customer feedback</p>
+                )}
               </div>
             </div>
 
             {reviews.length === 0 ? (
-              <p className="text-xs italic text-[#211D1E]/50">No reviews listed yet. Be the first to share your couture experience.</p>
+              <p className="text-xs italic text-[#38271F]/60">No verified customer reviews submitted for this weave yet.</p>
             ) : (
               <div className="space-y-3">
                 {reviews.map((r) => {

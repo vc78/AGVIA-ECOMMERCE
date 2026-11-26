@@ -193,43 +193,14 @@ public class CouponService {
         if (code == null || code.isBlank()) return null;
         String upper = code.trim().toUpperCase();
 
-        // 1. Known VIP, Subscription, and Storewide Coupons
-        if ("CIRCLE15".equals(upper)) {
-            return saveAutoCoupon(upper, "CHITRIKA Haute Circle VIP 15% Boutique Credit", DiscountType.PERCENTAGE, new BigDecimal("15.00"), BigDecimal.ZERO, new BigDecimal("2000.00"));
-        }
-        if ("CHITRIKA_VIP10".equals(upper) || "CHITRIKAVIP10".equals(upper) || "AGVIAVIP10".equals(upper)) {
-            return saveAutoCoupon(upper, "Exclusive VIP 10% Boutique Discount", DiscountType.PERCENTAGE, new BigDecimal("10.00"), BigDecimal.ZERO, new BigDecimal("2000.00"));
-        }
-        if ("CHITRIKA15".equals(upper) || "AGVIA15".equals(upper)) {
-            return saveAutoCoupon(upper, "VIP Welcome Voucher 15% Boutique Credit", DiscountType.PERCENTAGE, new BigDecimal("15.00"), BigDecimal.ZERO, new BigDecimal("2000.00"));
-        }
-        if ("CHITRIKA10".equals(upper) || "AGVIA10".equals(upper)) {
-            return saveAutoCoupon(upper, "Special 10% Storewide Boutique Discount", DiscountType.PERCENTAGE, new BigDecimal("10.00"), BigDecimal.ZERO, new BigDecimal("1500.00"));
-        }
-        if ("WELCOME10".equals(upper)) {
-            return saveAutoCoupon(upper, "Welcome 10% Off on First Boutique Purchase", DiscountType.PERCENTAGE, new BigDecimal("10.00"), BigDecimal.ZERO, new BigDecimal("1000.00"));
-        }
-        if ("FIRST50".equals(upper)) {
-            return saveAutoCoupon(upper, "₹50 Flat Credit on Debut Order", DiscountType.FLAT, new BigDecimal("50.00"), new BigDecimal("299.00"), new BigDecimal("50.00"));
-        }
-        if ("AZADI15".equals(upper)) {
-            return saveAutoCoupon(upper, "15% Off Independence Celebration Offer", DiscountType.PERCENTAGE, new BigDecimal("15.00"), new BigDecimal("499.00"), new BigDecimal("2000.00"));
-        }
-        if ("RAKHI200".equals(upper)) {
-            return saveAutoCoupon(upper, "₹200 Off Raksha Bandhan Delight", DiscountType.FLAT, new BigDecimal("200.00"), new BigDecimal("999.00"), new BigDecimal("200.00"));
-        }
-        if ("DIWALI2025".equals(upper)) {
-            return saveAutoCoupon(upper, "25% Off Corporate Grandeur Bulk Order", DiscountType.PERCENTAGE, new BigDecimal("25.00"), new BigDecimal("1499.00"), new BigDecimal("3000.00"));
-        }
-
-        // 2. Check if any subscriber has this coupon code
+        // Only honour existing subscriber-issued privilege codes in DB; admin manages all coupons explicitly
         if (subscriberRepository != null) {
             try {
                 var subs = subscriberRepository.findByCouponCodeIgnoreCase(upper);
                 if (subs != null && !subs.isEmpty()) {
                     var sub = subs.get(0);
                     BigDecimal pct = sub.getDiscountPercent() != null ? BigDecimal.valueOf(sub.getDiscountPercent()) : new BigDecimal("15.00");
-                    return saveAutoCoupon(upper, "Subscriber VIP Privilege Code", DiscountType.PERCENTAGE, pct, BigDecimal.ZERO, new BigDecimal("2000.00"));
+                    return saveAutoCoupon(upper, "Subscriber Privilege Code", DiscountType.PERCENTAGE, pct, BigDecimal.ZERO, new BigDecimal("2000.00"));
                 }
             } catch (Exception ignored) {
             }

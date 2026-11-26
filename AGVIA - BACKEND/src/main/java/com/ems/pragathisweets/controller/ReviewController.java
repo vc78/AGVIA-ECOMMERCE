@@ -39,8 +39,10 @@ public class ReviewController {
     public ResponseEntity<ApiResponse<ReviewResponse>> addReview(
             @AuthenticationPrincipal UserDetailsImpl principal,
             @Valid @RequestBody ReviewRequest request) {
-        Long userId = principal != null ? principal.getId() : null;
-        ReviewResponse response = reviewService.addReview(userId, request);
+        if (principal == null) {
+            throw new org.springframework.security.access.AccessDeniedException("Please sign in to submit a review.");
+        }
+        ReviewResponse response = reviewService.addReview(principal.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Review added successfully", response));
     }
 

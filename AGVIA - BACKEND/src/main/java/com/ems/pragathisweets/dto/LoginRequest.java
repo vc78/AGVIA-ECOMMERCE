@@ -20,6 +20,8 @@ public class LoginRequest {
     @NotBlank(message = "Password is required")
     private String password;
 
+    private Boolean rememberMe;
+
     public String getEffectiveIdentifier() {
         if (identifier != null && !identifier.isBlank()) {
             return identifier.trim();

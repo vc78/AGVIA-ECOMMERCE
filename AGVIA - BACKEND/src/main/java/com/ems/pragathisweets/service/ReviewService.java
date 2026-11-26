@@ -24,6 +24,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final com.ems.pragathisweets.repository.OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getByProduct(Long productId, Pageable pageable) {
@@ -36,24 +37,28 @@ public class ReviewService {
                 .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
 
         User user = null;
-        String patronName = request.getCustomerName() != null && !request.getCustomerName().isBlank()
-                ? request.getCustomerName().trim()
-                : "Valued Patron";
+        String customerName = request.getCustomerName() != null && !request.getCustomerName().isBlank()
+                ? com.ems.pragathisweets.util.SecuritySanitizer.sanitizePlainText(request.getCustomerName())
+                : "Verified Customer";
 
+        boolean verifiedPurchase = false;
         if (userId != null) {
             user = userRepository.findById(userId).orElse(null);
             if (user != null && user.getFullName() != null && !user.getFullName().isBlank()) {
-                patronName = user.getFullName();
+                customerName = com.ems.pragathisweets.util.SecuritySanitizer.sanitizePlainText(user.getFullName());
+            }
+            if (user != null && orderRepository != null) {
+                verifiedPurchase = orderRepository.hasDeliveredPurchase(user.getId(), product.getId());
             }
         }
 
         Review review = Review.builder()
                 .product(product)
                 .user(user)
-                .customerName(patronName)
+                .customerName(customerName)
                 .rating(request.getRating())
-                .comment(request.getComment())
-                .verifiedPurchase(true)
+                .comment(com.ems.pragathisweets.util.SecuritySanitizer.sanitizePlainText(request.getComment()))
+                .verifiedPurchase(verifiedPurchase)
                 .build();
 
         Review saved = reviewRepository.save(review);

@@ -18,8 +18,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        if (email == null || email.isBlank()) {
+            throw new UsernameNotFoundException("Email identifier is required");
+        }
+        String normalized = email.trim().toLowerCase();
+        User user = userRepository.findByEmailIgnoreCase(normalized)
+                .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
         return UserDetailsImpl.build(user);
     }
 }

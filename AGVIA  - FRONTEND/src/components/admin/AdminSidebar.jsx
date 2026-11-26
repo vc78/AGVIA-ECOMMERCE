@@ -3,47 +3,34 @@ import {
   LayoutDashboard, Package, PlusSquare, ClipboardList, Users, Boxes, Tag, Star, BarChart3, Crown, Layers, Settings as SettingsIcon, X, Receipt, RotateCcw
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import BrandLogo from '../common/BrandLogo'
+import { BUSINESS } from '../../constants/business'
 
 const links = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/pos', label: 'Store Billing (POS)', icon: Receipt },
-  { to: '/admin/products', label: 'Couture Edits', icon: Package },
-  { to: '/admin/products/add', label: 'Add Silhouette', icon: PlusSquare },
+  { to: '/admin/products', label: 'Saree Catalogue', icon: Package },
+  { to: '/admin/products/add', label: 'Add Saree', icon: PlusSquare },
   { to: '/admin/categories', label: 'Categories', icon: Layers },
-  { to: '/admin/orders', label: 'Atelier Orders', icon: ClipboardList },
+  { to: '/admin/orders', label: 'Orders', icon: ClipboardList },
   { to: '/admin/returns', label: 'Returns & Exchanges', icon: RotateCcw },
-  { to: '/admin/customers', label: 'Patrons', icon: Users },
-  { to: '/admin/subscriptions', label: 'Atelier Circle', icon: Crown },
-  { to: '/admin/inventory', label: 'Fabric & Stock', icon: Boxes },
-  { to: '/admin/offers', label: 'Curations & Offers', icon: Tag },
-  { to: '/admin/coupons', label: 'Privilege Codes', icon: Tag },
-  { to: '/admin/reviews', label: 'Patron Reviews', icon: Star },
+  { to: '/admin/customers', label: 'Customers', icon: Users },
+  { to: '/admin/subscriptions', label: 'Memberships', icon: Crown },
+  { to: '/admin/inventory', label: 'Stock & Inventory', icon: Boxes },
+  { to: '/admin/offers', label: 'Offers', icon: Tag },
+  { to: '/admin/coupons', label: 'Coupons', icon: Tag },
+  { to: '/admin/reviews', label: 'Reviews', icon: Star },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/admin/settings', label: 'Settings', icon: SettingsIcon },
 ]
 
 export default function AdminSidebar({ isOpen, onClose }) {
   const content = (
-    <div className="flex flex-col h-full bg-[#1A0B10] text-[#FAF7F2]">
+    <div className="flex flex-col h-full bg-[#38271F] text-[#FBF5EA]">
       {/* Brand Header */}
-      <div className="h-14 sm:h-16 flex items-center justify-between px-4 border-b border-[#C9A45C]/20 bg-[#1A0B10]/95 select-none">
+      <div className="h-14 sm:h-16 flex items-center justify-between px-4 border-b border-[#B58A45]/25 bg-[#38271F]/95 select-none">
         <Link to="/" className="flex items-center gap-2.5 min-w-0" onClick={onClose}>
-          <img 
-            src="/images/chitrika-logo.webp" 
-            alt="CHITRIKA" 
-            width={32} 
-            height={36} 
-            decoding="async" 
-            className="h-8 w-auto max-h-8 shrink-0 object-contain brightness-110 drop-shadow-[0_2px_6px_rgba(201,164,92,0.25)]" 
-          />
-          <div className="flex flex-col min-w-0">
-            <span className="font-serif text-sm tracking-[0.18em] font-bold uppercase text-[#FAF7F2] leading-none truncate">
-              CHITRIKA
-            </span>
-            <span className="font-sans text-[7px] tracking-[0.26em] uppercase text-[#C9A45C] font-semibold mt-0.5 truncate">
-              ATELIER ADMIN
-            </span>
-          </div>
+          <BrandLogo variant="dark" size="xs" />
         </Link>
         <button className="lg:hidden text-white/60 hover:text-white touch-target w-10 h-10 flex items-center justify-center rounded-lg" onClick={onClose}>
           <X size={18} />
@@ -52,8 +39,8 @@ export default function AdminSidebar({ isOpen, onClose }) {
 
       {/* Navigation Links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <span className="block font-sans text-[8.5px] font-bold text-[#C9A45C] tracking-[0.22em] uppercase px-2 mb-2 select-none">
-          Atelier Management
+        <span className="block font-sans text-[8.5px] font-bold text-[#B58A45] tracking-[0.22em] uppercase px-2 mb-2 select-none">
+          {BUSINESS.name} Admin
         </span>
         
         {links.map(({ to, label, icon: Icon }) => (
@@ -64,21 +51,21 @@ export default function AdminSidebar({ isOpen, onClose }) {
             className={({ isActive }) =>
               `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-sans tracking-wide uppercase transition-all duration-200 min-h-[44px] touch-target ${
                 isActive 
-                  ? 'bg-[#5A1020] text-[#FAF7F2] border-r-3 border-[#C9A45C] shadow-xs font-semibold' 
-                  : 'hover:bg-white/5 text-white/70 hover:text-white'
+                  ? 'bg-[#651B2B] text-[#FBF5EA] border-r-3 border-[#B58A45] shadow-xs font-semibold' 
+                  : 'hover:bg-white/5 text-white/75 hover:text-white'
               }`
             }
           >
-            <Icon size={16} className="text-[#C9A45C] shrink-0" />
+            <Icon size={16} className="text-[#B58A45] shrink-0" />
             <span>{label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Footer Info */}
-      <div className="p-3 border-t border-white/10 text-center select-none bg-[#14060B]">
-        <span className="font-sans text-[8px] tracking-widest text-white/40 uppercase block">
-          CHITRIKA ATELIER ERP v2.0
+      <div className="p-3 border-t border-white/10 text-center select-none bg-[#2A1D17]">
+        <span className="font-sans text-[8px] tracking-widest text-white/55 uppercase block">
+          {BUSINESS.name} · Admin Portal
         </span>
       </div>
     </div>

@@ -50,7 +50,7 @@ public class DataSourceConfig {
         config.setUsername(cleanUser);
         config.setPassword(cleanPass);
         config.setDriverClassName(driverClassName);
-        config.setPoolName("ChitrikaHikariPool");
+        config.setPoolName("LokeshLingamWeaverHikariPool");
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(2);
         config.setIdleTimeout(300000); // 5 minutes (must be greater than keepaliveTime)

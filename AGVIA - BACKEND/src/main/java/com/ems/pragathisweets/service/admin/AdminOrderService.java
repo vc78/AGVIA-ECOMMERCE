@@ -281,7 +281,7 @@ public class AdminOrderService {
             notesBuilder.append(" | Note: ").append(request.getNotes().trim());
         }
 
-        String storeAddress = "CHITRIKA Atelier Storefront — Walk-in Patron";
+        String storeAddress = "Lokesh Lingam Weaver — Dharmavaram (In-Store)";
         if (request.getCustomerAddress() != null && !request.getCustomerAddress().isBlank()) {
             storeAddress += " (" + request.getCustomerAddress().trim() + ")";
         }
@@ -390,7 +390,7 @@ public class AdminOrderService {
         }
 
         // 7. Email Receipt if real email is present
-        if (patron.getEmail() != null && !patron.getEmail().endsWith("@agviastore.internal")) {
+        if (patron.getEmail() != null && !patron.getEmail().endsWith("@lokeshlingam.internal")) {
             try {
                 emailService.sendOrderConfirmationEmail(orderService.toResponse(savedOrder), patron.getEmail(), patron.getFullName());
             } catch (Exception e) {
@@ -427,7 +427,7 @@ public class AdminOrderService {
                 ? req.getCustomerName().trim()
                 : "Walk-in Patron";
 
-        String targetEmail = email != null ? email : "patron_" + System.currentTimeMillis() + "@agviastore.internal";
+        String targetEmail = email != null ? email : "walkin_" + System.currentTimeMillis() + "@lokeshlingam.internal";
         String targetPhone = phone != null ? phone : "WALKIN-" + System.currentTimeMillis();
 
         com.ems.pragathisweets.entity.User newPatron = com.ems.pragathisweets.entity.User.builder()

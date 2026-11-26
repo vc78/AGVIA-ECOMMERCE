@@ -1,6 +1,8 @@
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { Ruler } from 'lucide-react'
+import SEOHead from '../../components/common/SEOHead'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 
 const SAREE_DATA = [
   { size:'XS / 32', bust:'80–82',waist:'64–66',hip:'86–88',blouse:'32'},
@@ -55,7 +57,8 @@ function Table({ headers, rows }) {
 
 export default function SizeGuide() {
   return (
-    <div className="min-h-screen bg-[#FAF7F2] font-body text-[#211D1E]">
+    <div className="min-h-screen bg-[#FBF5EA] font-body text-[#38271F]">
+      <SEOHead title="Saree & Blouse Guide" canonicalUrl="/size-guide" />
       <Navbar />
 
       {/* Hero */}
@@ -123,22 +126,24 @@ export default function SizeGuide() {
         </div>
 
         {/* Tips */}
-        <div className="bg-[#5A1020]/6 border border-[#C9A45C]/20 rounded-2xl p-6 mb-8">
-          <h3 className="font-serif text-sm font-bold text-[#5A1020] mb-3">💡 Sizing Tips</h3>
-          <ul className="font-sans text-[12px] text-[#211D1E]/70 space-y-2 list-disc pl-4">
-            <li>All CHITRIKA lehengas and anarkalis include 3–4 inch seam allowance for easy tailoring.</li>
-            <li>For sarees, one size fits most (standard 5.5m length). Petite customers can request 5m.</li>
-            <li>If you are between sizes, we recommend sizing up for comfort.</li>
-            <li>For bespoke orders, share your exact measurements via WhatsApp for a perfect fit.</li>
+        <div className="bg-[#651B2B]/5 border border-[#B58A45]/25 rounded-2xl p-6 mb-8">
+          <h3 className="font-serif text-sm font-bold text-[#651B2B] mb-3">Saree Sizing Notes</h3>
+          <ul className="font-sans text-[12px] text-[#38271F]/75 space-y-2 list-disc pl-4">
+            <li>For exact saree drape length and running blouse piece measurements on any listed piece, please check the product details or ask on WhatsApp.</li>
+            <li>For assistance choosing a weave or colour from {BUSINESS.name}, message us on WhatsApp.</li>
           </ul>
         </div>
 
         {/* CTA */}
         <div className="text-center">
-          <p className="font-sans text-xs text-[#211D1E]/55 mb-3">Still unsure about your size?</p>
-          <a href="https://wa.me/919032306961" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#7B1030] hover:bg-[#9B2043] text-white font-bold text-xs px-6 py-3 rounded-full transition-colors">
-            Chat with a Stylist on WhatsApp
+          <p className="font-sans text-xs text-[#38271F]/65 mb-3">Questions about saree dimensions?</p>
+          <a
+            href={buildWhatsAppUrl(`Namaste ${BUSINESS.name}, I would like to ask about saree measurements.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-[#651B2B] hover:bg-[#4E1320] text-white font-bold text-xs px-6 py-3 rounded-full transition-colors"
+          >
+            Enquire on WhatsApp ({BUSINESS.phoneDisplay})
           </a>
         </div>
       </div>

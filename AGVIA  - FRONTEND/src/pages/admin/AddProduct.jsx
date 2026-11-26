@@ -202,8 +202,8 @@ export default function AddProduct() {
   return (
     <AdminLayout>
       <div className="mb-8 select-none font-body">
-        <h2 className="font-serif text-3xl font-bold text-[#5A1020]">Add New Silhouette</h2>
-        <p className="text-xs text-[#211D1E]/60 mt-1">Introduce a new handcrafted luxury ensemble to the CHITRIKA atelier collection.</p>
+        <h2 className="font-serif text-3xl font-bold text-[#651B2B]">Add New Saree Product</h2>
+        <p className="text-xs text-[#38271F]/65 mt-1">Add a new Dharmavaram, Kanchi-style, or traditional handloom saree to the Lokesh Lingam Weaver catalogue.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 font-body">

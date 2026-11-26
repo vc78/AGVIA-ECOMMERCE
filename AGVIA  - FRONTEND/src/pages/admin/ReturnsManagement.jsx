@@ -457,7 +457,7 @@ export default function ReturnsManagement() {
                       <div className="flex items-center justify-between">
                         <div>
                           <strong className="text-emerald-900 block text-xs">Settlement Options</strong>
-                          <span className="text-[11px] text-emerald-700">Auto-generate CHITRIKA Store Privilege Coupon (+5% VIP Bonus)</span>
+                          <span className="text-[11px] text-emerald-700">Auto-generate Store Credit Coupon</span>
                         </div>
                         <input
                           type="checkbox"

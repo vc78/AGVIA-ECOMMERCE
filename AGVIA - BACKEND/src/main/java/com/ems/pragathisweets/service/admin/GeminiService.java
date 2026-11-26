@@ -37,7 +37,7 @@ public class GeminiService {
         try {
             java.nio.file.Path envPath = java.nio.file.Paths.get(".env");
             if (!java.nio.file.Files.exists(envPath)) {
-                envPath = java.nio.file.Paths.get("CHITRIKA - BACKEND", ".env");
+                envPath = java.nio.file.Paths.get("AGVIA - BACKEND", ".env");
             }
             if (java.nio.file.Files.exists(envPath)) {
                 for (String line : java.nio.file.Files.readAllLines(envPath)) {
@@ -66,28 +66,22 @@ public class GeminiService {
         String endpoint = apiUrl + "?key=" + key;
 
         String prompt = String.format(
-                "You are an acclaimed haute couture stylist, master textile curator, and editorial copywriter for CHITRIKA Luxury Indian Women's Wear Atelier.\n" +
-                "Write an authentic, opulent, and detailed couture description script for the following luxury garment:\n" +
-                "Silhouette Name: %s\n" +
-                "Couture Line / Category: %s\n" +
+                "You are writing a clear, accurate, customer-friendly handloom saree product description for Lokesh Lingam Weaver in Dharmavaram, Andhra Pradesh.\n" +
+                "Write a helpful description for:\n" +
+                "Product Name: %s\n" +
+                "Category: %s\n" +
                 "Fabric / Weave Details: %s\n" +
-                "Unit / Ensemble: %s\n" +
+                "Unit: %s\n" +
                 "Price: %s\n" +
-                "Artisanal Notes: %s\n\n" +
-                "Generate a JSON response containing an extensive, beautifully written couture story that covers:\n" +
-                "1. Heritage Weave & Fabric: Details on handloom craftsmanship, pure mulberry silk/fabric density, and tactile texture.\n" +
-                "2. Zari & Embellishment Artistry: Details on border motifs (e.g. temple korvai, zardozi, hand-cut mirrors, metallic zari).\n" +
-                "3. Silhouette, Drape & Movement: How the garment flatters, moves, and cascades.\n" +
-                "4. Bridal & Festive Styling Guide: Recommended blouse pairings, antique/kundan jewelry, dupatta styling, and footwear.\n" +
-                "5. Heirloom Care: Dry clean only, muslin cloth storage, and preservation notes.\n\n" +
-                "Respond ONLY with valid JSON having the exact keys: description (detailed multi-paragraph couture script with clean headings), shortDescription (concise 2-line summary), suggestedCategory, tags (array of strings), highlights (array of strings), seoDescription. " +
-                "Do not include markdown backticks or explanations.",
+                "Notes: %s\n\n" +
+                "Respond ONLY with valid JSON having exact keys: description, shortDescription, suggestedCategory, tags (array of strings), highlights (array of strings), seoDescription. " +
+                "Do NOT invent certifications (like Silk Mark), awards, or unverified shipping guarantees.",
                 request.getName(),
-                request.getCategory() != null ? request.getCategory() : "Sarees & Couture",
-                request.getIngredients() != null ? request.getIngredients() : "Pure Mulberry Silk, Metallic Zari, Handloom Craftsmanship",
+                request.getCategory() != null ? request.getCategory() : "Dharmavaram Silk Sarees",
+                request.getIngredients() != null ? request.getIngredients() : "Handloom Silk Weave",
                 request.getWeight() != null ? request.getWeight() : "piece",
                 request.getPrice() != null ? request.getPrice() : "",
-                request.getCharacteristics() != null ? request.getCharacteristics() : "Bespoke tailoring, royal bridal trousseau, artisanal embroidery"
+                request.getCharacteristics() != null ? request.getCharacteristics() : "Traditional Dharmavaram weaving heritage"
         );
 
         Map<String, Object> part = Map.of("text", prompt);
@@ -140,28 +134,26 @@ public class GeminiService {
     }
 
     private AiProductGenerateResponse generateArtisanalFallback(AiProductGenerateRequest request) {
-        String name = request.getName() != null && !request.getName().isBlank() ? request.getName() : "Handcrafted Silk Silhouette";
-        String cat = request.getCategory() != null && !request.getCategory().isBlank() ? request.getCategory() : "Heirloom Sarees";
+        String name = request.getName() != null && !request.getName().isBlank() ? request.getName() : "Handloom Saree";
+        String cat = request.getCategory() != null && !request.getCategory().isBlank() ? request.getCategory() : "Dharmavaram Silk Sarees";
         
         String desc = String.format(
-                "Handcrafted with royal finesse, the %s exemplifies CHITRIKA's devotion to timeless Indian couture.\n\n" +
-                "✦ Fabric & Heritage Weave: Woven on traditional pit looms using certified pure mulberry silk threads, boasting an exquisite natural sheen and supple texture that drapes with majestic fluidity.\n\n" +
-                "✦ Artistry & Borders: Features hand-interlocked temple Korvai borders, framed with rich metallic zari and intricate floral vines inspired by royal Mughal and Dravidian architectural motifs.\n\n" +
-                "✦ Styling & Occasion: Designed for grand wedding trousseaus, reception galas, and festive rituals. Pair with an embroidered raw silk blouse, antique temple jewelry, and a sleek jasmine-adorned bridal coiffure.\n\n" +
-                "✦ Heirloom Care: Dry clean exclusively. Preserve wrapped in pure cotton muslin in a cool, dark wardrobe to safeguard the luminous metallic zari for generations.",
+                "%s from Lokesh Lingam Weaver in Dharmavaram, Andhra Pradesh.\n\n" +
+                "Crafted with dedication, heritage, and 15 years of weaving experience, bringing handloom sarees directly from our looms to your hands.\n\n" +
+                "For colour options, border details, or ordering enquiries, contact us on WhatsApp at +91 7799349294.",
                 name
         );
 
-        String shortDesc = String.format("Handwoven %s featuring pure mulberry silk and authentic zari artistry from the CHITRIKA Atelier.", name);
-        String seo = String.format("Shop authentic handloom %s online at CHITRIKA Luxury Boutique. Certified pure silk with royal metallic zari and bespoke craftsmanship.", name);
+        String shortDesc = String.format("%s from Lokesh Lingam Weaver, Dharmavaram.", name);
+        String seo = String.format("Explore %s from Lokesh Lingam Weaver — Dharmavaram handloom sarees.", name);
 
         return AiProductGenerateResponse.builder()
                 .name(name)
                 .description(desc)
                 .shortDescription(shortDesc)
                 .suggestedCategory(cat)
-                .tags(List.of("Pure Mulberry Silk", "Handloom Weave", "Metallic Zari", "Bridal Trousseau", "Artisanal Couture", "Silk Mark Certified"))
-                .highlights(List.of("100% Certified Pure Silk", "Authentic Korvai Temple Borders", "Hand-finished Pallu Artistry", "Bespoke Keepsake Packaging"))
+                .tags(List.of("Dharmavaram Handloom", "Lokesh Lingam Weaver", "Traditional Weaves"))
+                .highlights(List.of("Direct Handloom Weaver", "Dharmavaram Weaving Heritage"))
                 .seoDescription(seo)
                 .build();
     }

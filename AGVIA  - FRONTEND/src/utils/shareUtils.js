@@ -4,8 +4,10 @@ import toast from 'react-hot-toast'
  * Returns a clean, public, unauthenticated product URL.
  * Never includes tokens, session IDs, user IDs, or emails.
  */
+import { BUSINESS } from '../constants/business'
+
 export function getProductShareUrl(productId) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://agvia.in'
+  const origin = typeof window !== 'undefined' ? window.location.origin : BUSINESS.seo.siteUrl
   return `${origin}/products/${productId}`
 }
 
@@ -47,7 +49,8 @@ export async function copyProductLink(product) {
  */
 export function getProductWhatsAppShareUrl(product) {
   const url = getProductShareUrl(product.id)
-  const text = `Discover this exquisite piece on CHITRIKA Luxury Atelier ✨\n👗 *${product.name}*\n💰 ₹${Number(product.price || 0).toLocaleString('en-IN')}\n🔗 ${url}`
+  const priceLine = product.price ? `\nPrice: ₹${Number(product.price).toLocaleString('en-IN')}` : ''
+  const text = `Explore this handloom saree from ${BUSINESS.name} (${BUSINESS.location.shortAddress}):\n*${product.name}*${priceLine}\n${url}`
   return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
 }
 
@@ -58,8 +61,8 @@ export async function shareProduct(product) {
   if (!product?.id) return { success: false }
 
   const url = getProductShareUrl(product.id)
-  const title = `CHITRIKA — ${product.name}`
-  const text = `Discover ${product.name} on CHITRIKA Luxury Atelier`
+  const title = `${BUSINESS.name} — ${product.name}`
+  const text = `Explore ${product.name} from ${BUSINESS.name}`
 
   if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
     try {

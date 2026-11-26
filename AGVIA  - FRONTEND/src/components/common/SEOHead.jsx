@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { BUSINESS } from '../../constants/business'
 
-const BASE_URL = 'https://chitrikaboutique.com'
-const DEFAULT_IMAGE = `${BASE_URL}/images/chitrika-logo.png`
+const BASE_URL = BUSINESS.seo.siteUrl
+const DEFAULT_IMAGE = `${BASE_URL}${BUSINESS.seo.defaultImage}`
 
 /**
  * Updates or creates a meta tag in document.head
@@ -55,7 +55,7 @@ function setJsonLdSchema(schemaId, schemaData) {
 }
 
 /**
- * High-Performance SEO Component for CHITRIKA
+ * High-Performance SEO Component for Lokesh Lingam Weaver
  * Dynamically synchronizes title, meta descriptions, canonical URLs,
  * OpenGraph, Twitter Cards, robots directives, and Schema.org JSON-LD structured data.
  */
@@ -70,8 +70,8 @@ export default function SEOHead({
   breadcrumbs = null
 }) {
   const fullTitle = title
-    ? `${title} | CHITRIKA Women's Wear Boutique`
-    : "CHITRIKA | Women's Wear Boutique — Luxury Handcrafted Fashion"
+    ? `${title} | ${BUSINESS.name}`
+    : BUSINESS.seo.defaultTitle
 
   const metaDesc = description || BUSINESS.seo.defaultDescription
   const shareImage = image ? (image.startsWith('http') ? image : `${BASE_URL}${image}`) : DEFAULT_IMAGE
@@ -97,7 +97,7 @@ export default function SEOHead({
     setMetaTag("meta[property='og:url']", 'content', activeUrl)
     setMetaTag("meta[property='og:type']", 'content', type)
     setMetaTag("meta[property='og:image']", 'content', shareImage)
-    setMetaTag("meta[property='og:site_name']", 'content', "CHITRIKA Women's Wear Boutique")
+    setMetaTag("meta[property='og:site_name']", 'content', BUSINESS.name)
 
     // 6. Twitter Card tags
     setMetaTag("meta[name='twitter:card']", 'content', 'summary_large_image')
@@ -133,14 +133,14 @@ export default function SEOHead({
     }
 
     if (schemas.length > 0) {
-      setJsonLdSchema('agvia-primary-schema', schemas.length === 1 ? schemas[0] : schemas)
+      setJsonLdSchema('llw-primary-schema', schemas.length === 1 ? schemas[0] : schemas)
     } else {
-      setJsonLdSchema('agvia-primary-schema', null)
+      setJsonLdSchema('llw-primary-schema', null)
     }
 
     return () => {
       // Clean up primary schema when unmounting to prevent schema leakage on dynamic route changes
-      setJsonLdSchema('agvia-primary-schema', null)
+      setJsonLdSchema('llw-primary-schema', null)
     }
   }, [fullTitle, metaDesc, activeUrl, type, shareImage, noindex, structuredData, breadcrumbs])
 

@@ -32,7 +32,7 @@ public class NewsletterController {
     );
 
     @PostMapping("/subscribe")
-    @Operation(summary = "Subscribe to CHITRIKA Haute Circle", description = "Subscribes email, activates VIP perks, and returns an exclusive coupon code with validity")
+    @Operation(summary = "Subscribe to Lokesh Lingam Weaver Updates", description = "Subscribes email for new Dharmavaram handloom saree updates")
     public ResponseEntity<ApiResponse<Map<String, Object>>> subscribe(@RequestBody Map<String, String> request) {
         String rawEmail = request.get("email");
         if (rawEmail == null || rawEmail.trim().isEmpty() || !rawEmail.contains("@")) {
@@ -48,62 +48,32 @@ public class NewsletterController {
         if (existingOpt.isPresent()) {
             subscriber = existingOpt.get();
             alreadySubscribed = true;
-            log.info("Existing CHITRIKA Haute Circle subscriber requested perks: {}", email);
+            log.info("Existing subscriber checked status: {}", email);
         } else {
             subscriber = Subscriber.builder()
                     .email(email)
-                    .couponCode("CIRCLE15")
-                    .discountPercent(15)
                     .subscribedAt(LocalDateTime.now())
-                    .validTill(LocalDateTime.now().plusDays(30))
+                    .validTill(LocalDateTime.now().plusYears(1))
                     .active(true)
                     .build();
             subscriber = subscriberRepository.save(subscriber);
-            log.info("New CHITRIKA Haute Circle subscriber enrolled: {}", email);
+            log.info("New subscriber enrolled: {}", email);
         }
-
-        // Ensure CIRCLE15 exists in coupons repository
-        if (couponRepository != null && !couponRepository.existsByCodeIgnoreCase("CIRCLE15")) {
-            try {
-                couponRepository.save(com.ems.pragathisweets.entity.Coupon.builder()
-                        .code("CIRCLE15")
-                        .description("CHITRIKA Haute Circle VIP 15% Boutique Credit")
-                        .discountType(com.ems.pragathisweets.entity.DiscountType.PERCENTAGE)
-                        .discountValue(new java.math.BigDecimal("15.00"))
-                        .minOrderAmount(java.math.BigDecimal.ZERO)
-                        .maxDiscountAmount(new java.math.BigDecimal("2000.00"))
-                        .validFrom(LocalDateTime.now().minusDays(1))
-                        .validTo(LocalDateTime.now().plusYears(5))
-                        .usageLimit(10000)
-                        .usedCount(0)
-                        .active(true)
-                        .build());
-            } catch (Exception ex) {
-                log.warn("Coupon CIRCLE15 auto-provision skipped: {}", ex.getMessage());
-            }
-        }
-
-        long daysRemaining = Math.max(0, ChronoUnit.DAYS.between(LocalDateTime.now(), subscriber.getValidTill()));
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("email", subscriber.getEmail());
-        data.put("couponCode", subscriber.getCouponCode());
-        data.put("discount", subscriber.getDiscountPercent() + "% OFF");
-        data.put("validTill", subscriber.getValidTill().toString());
-        data.put("daysRemaining", daysRemaining);
-        data.put("minOrderAmount", 499);
-        data.put("benefits", CIRCLE_BENEFITS);
         data.put("alreadySubscribed", alreadySubscribed);
 
         String message = alreadySubscribed
-                ? "Welcome back, CHITRIKA Haute Circle VIP! Your privileges and coupon are active."
-                : "Welcome to the CHITRIKA Haute Circle! Your VIP perks & 15% code are now unlocked.";
+                ? "Welcome back! You are subscribed for Lokesh Lingam Weaver collection updates."
+                : "Thank you for subscribing to Lokesh Lingam Weaver updates.";
 
         return ResponseEntity.ok(ApiResponse.success(message, data));
     }
 
     @GetMapping("/status")
-    @Operation(summary = "Check subscription status", description = "Inspects if an email is an enrolled Circle member")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Check subscription status (Admin only)")
     public ResponseEntity<ApiResponse<Map<String, Object>>> checkStatus(@RequestParam String email) {
         Optional<Subscriber> subscriberOpt = subscriberRepository.findByEmailIgnoreCase(email.trim().toLowerCase());
         if (subscriberOpt.isEmpty()) {

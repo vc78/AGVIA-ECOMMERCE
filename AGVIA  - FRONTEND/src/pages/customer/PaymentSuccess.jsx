@@ -6,12 +6,14 @@ import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
 import { orderService } from '../../services/orderService'
 import ReliableImage from '../../components/common/ReliableImage'
+import BrandLogo from '../../components/common/BrandLogo'
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams()
   const location = useLocation()
 
-  const rawOrderId = searchParams.get('orderId') || searchParams.get('id') || location.state?.orderNumber || location.state?.newOrderId || 'AGV-' + Math.floor(100000 + Math.random() * 900000)
+  const rawOrderId = searchParams.get('orderId') || searchParams.get('id') || location.state?.orderNumber || location.state?.newOrderId || 'LLW-' + Math.floor(100000 + Math.random() * 900000)
   const orderId = String(rawOrderId).replace(/^ORD-/, '')
 
   const [order, setOrder] = useState(location.state?.orderDetails || null)
@@ -56,6 +58,9 @@ export default function PaymentSuccess() {
           transition={{ duration: 0.5 }}
           className="text-center space-y-3.5 mb-8"
         >
+          <div className="flex justify-center mb-2">
+            <BrandLogo size="sm" />
+          </div>
           <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-md border-2 ${
             isCod 
               ? 'bg-amber-50 text-amber-700 border-amber-300' 
@@ -64,22 +69,22 @@ export default function PaymentSuccess() {
             {isCod ? <Banknote size={42} /> : <CheckCircle2 size={44} />}
           </div>
 
-          <span className="text-[10px] tracking-[0.3em] font-bold text-[#C9A45C] uppercase block">
-            {isCod ? 'Atelier Order Confirmed · Cash on Delivery' : 'Payment & Couture Order Confirmed'}
+          <span className="text-[10px] tracking-[0.3em] font-bold text-[#B58A45] uppercase block">
+            {isCod ? `${BUSINESS.name} · Order Confirmed (COD)` : `${BUSINESS.name} · Order Confirmed`}
           </span>
 
-          <h1 className="font-serif text-3xl md:text-5xl font-bold text-[#5A1020]">
+          <h1 className="font-serif text-3xl md:text-5xl font-bold text-[#651B2B]">
             {isCod ? 'Order Placed Successfully!' : 'Thank You for Your Order!'}
           </h1>
 
-          <p className="text-sm text-[#211D1E]/75 max-w-lg mx-auto leading-relaxed">
+          <p className="text-sm text-[#38271F]/80 max-w-lg mx-auto leading-relaxed">
             {isCod ? (
               <>
-                Your order <strong className="text-[#5A1020] font-mono">#{rawOrderId}</strong> has been registered in our atelier system. For this product, only <strong>Cash on Delivery (COD)</strong> is applicable. Our delivery partner will collect payment upon parcel arrival.
+                Your order <strong className="text-[#651B2B] font-mono">#{rawOrderId}</strong> has been registered with {BUSINESS.name}. Payment will be collected upon delivery.
               </>
             ) : (
               <>
-                Your transaction has been securely authorized. Order <strong className="text-[#5A1020] font-mono">#{rawOrderId}</strong> has been transmitted to our master atelier karigars for bespoke finishing and heirloom packaging.
+                Your transaction has been authorized. Order <strong className="text-[#651B2B] font-mono">#{rawOrderId}</strong> has been received by {BUSINESS.name} ({BUSINESS.location.short}).
               </>
             )}
           </p>
@@ -125,10 +130,10 @@ export default function PaymentSuccess() {
               </span>
             </div>
 
-            <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#C9A45C]/15">
-              <span className="text-[10px] text-[#211D1E]/60 uppercase font-semibold block mb-0.5">Estimated Dispatch</span>
-              <span className="font-bold text-[#211D1E] flex items-center gap-1.5">
-                <Truck size={14} className="text-[#C9A45C]" /> 3–5 Business Days
+            <div className="p-3 rounded-2xl bg-[#FBF5EA] border border-[#B58A45]/20">
+              <span className="text-[10px] text-[#38271F]/60 uppercase font-semibold block mb-0.5">Order Dispatch</span>
+              <span className="font-bold text-[#38271F] flex items-center gap-1.5">
+                <Truck size={14} className="text-[#B58A45]" /> Updates via WhatsApp & Track Order
               </span>
             </div>
           </div>
@@ -184,37 +189,38 @@ export default function PaymentSuccess() {
           )}
         </motion.div>
 
-        {/* Atelier Circle VIP Membership Upsell */}
+        {/* Direct Weaver WhatsApp & Instagram Support Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.5 }}
-          className="bg-gradient-to-r from-[#2E050E] via-[#5A1020] to-[#2E050E] text-white rounded-3xl p-6 md:p-7 border border-[#C9A45C]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl mb-8"
+          className="bg-gradient-to-r from-[#38271F] via-[#651B2B] to-[#38271F] text-white rounded-3xl p-6 md:p-7 border border-[#B58A45]/35 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl mb-8"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#C9A45C]/20 border border-[#C9A45C]/40 flex items-center justify-center shrink-0">
-              <Crown size={24} className="text-[#C9A45C]" />
+            <div className="w-12 h-12 rounded-2xl bg-[#B58A45]/20 border border-[#B58A45]/40 flex items-center justify-center shrink-0">
+              <Crown size={24} className="text-[#B58A45]" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] text-[#C9A45C] font-bold tracking-widest uppercase">CHITRIKA Atelier Circle</span>
-                <span className="text-[8px] bg-[#C9A45C]/20 text-[#C9A45C] px-2 py-0.5 rounded-full font-bold">15% OFF NEXT ORDER</span>
-              </div>
+              <span className="text-[9px] text-[#B58A45] font-bold tracking-widest uppercase block">
+                {BUSINESS.name} · {BUSINESS.location.short}
+              </span>
               <h4 className="font-serif text-lg font-bold text-white mt-0.5">
-                Join Atelier Circle VIP for ₹499/yr
+                Direct Order & Dispatch Support
               </h4>
-              <p className="text-xs text-white/70">
-                Unlock complimentary made-to-measure fittings, priority bridal dispatch, and bespoke styling consultations.
+              <p className="text-xs text-white/75">
+                Questions about order #{rawOrderId}? Connect with us on WhatsApp ({BUSINESS.phoneDisplay}) or follow {BUSINESS.social.instagramHandle}.
               </p>
             </div>
           </div>
 
-          <Link
-            to="/subscription"
-            className="shrink-0 px-6 py-3 rounded-full bg-gradient-to-r from-[#C9A45C] to-[#E8C7C3] text-[#2E050E] font-bold text-xs tracking-wider uppercase shadow hover:scale-105 transition-all font-sans"
+          <a
+            href={buildWhatsAppUrl(`Namaste ${BUSINESS.name}, I placed order #${rawOrderId}. Please share dispatch updates when ready.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 px-6 py-3 rounded-full bg-gradient-to-r from-[#B58A45] to-[#E7D4B9] text-[#38271F] font-bold text-xs tracking-wider uppercase shadow hover:scale-105 transition-all font-sans"
           >
-            Explore VIP Circle
-          </Link>
+            Message on WhatsApp
+          </a>
         </motion.div>
 
         {/* Action Buttons */}

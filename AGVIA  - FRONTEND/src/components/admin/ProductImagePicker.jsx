@@ -3,16 +3,9 @@ import { Upload, Image as ImageIcon, Link as LinkIcon, Sparkles, Trash2, Loader2
 import toast from 'react-hot-toast'
 
 export const DEFAULT_IMAGE_PRESETS = [
-  { label: 'CHITRIKA Classic Silk Saree', url: '/images/classic_silk_saree.jpg' },
-  { label: 'CHITRIKA Floral Organza Saree', url: '/images/floral_organza_saree.jpg' },
-  { label: 'CHITRIKA Embroidered Anarkali Set', url: '/images/anarkali_set.jpg' },
-  { label: 'CHITRIKA Everyday Kurta Set', url: '/images/everyday_kurta_set.jpg' },
-  { label: 'CHITRIKA Festive Lehenga Set', url: '/images/festive_lehenga_set.jpg' },
-  { label: 'CHITRIKA Embroidered Wedding Lehenga', url: '/images/wedding_lehenga.jpg' },
-  { label: 'CHITRIKA Evening Gown', url: '/images/evening_gown.jpg' },
-  { label: 'CHITRIKA Co-ord Set', url: '/images/coord_set.jpg' },
-  { label: 'CHITRIKA Festive Kurti', url: '/images/festive_kurti.jpg' },
-  { label: 'CHITRIKA Bridal Dupatta', url: '/images/bridal_dupatta.jpg' },
+  { label: 'Dharmavaram Hero Campaign Banner', url: '/images/dharmavaram_hero_campaign.jpg' },
+  { label: 'Dharmavaram Collections Showcase', url: '/images/dharmavaram_collections_showcase.jpg' },
+  { label: 'Dharmavaram Handloom Heritage', url: '/images/dharmavaram_loom_heritage.jpg' },
 ]
 
 // Client-side image optimizer: downscales large photos and compresses into high-quality JPEG

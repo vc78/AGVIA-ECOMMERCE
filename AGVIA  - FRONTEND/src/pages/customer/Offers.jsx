@@ -1,65 +1,54 @@
+import { Link } from 'react-router-dom'
 import Navbar from '../../components/customer/Navbar'
 import Footer from '../../components/customer/Footer'
-import { Ticket, Copy } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { MessageCircle } from 'lucide-react'
 import SEOHead from '../../components/common/SEOHead'
-
-const OFFERS = [
-  { code: 'AZADI15', title: 'Independence Celebration', desc: '15% Off storewide for new and returning patrons.', validity: 'Valid till August 15, 2026' },
-  { code: 'SILK200', title: 'Silk Heritage Delight', desc: '₹200 Off premium handcrafted pure Kanjeevaram & Banarasi silk sarees.', validity: 'Valid till August 30, 2026' },
-  { code: 'CHITRIKA25', title: 'Bridal Grandeur', desc: '25% Off bespoke bridal trousseau, lehengas, and couture festive edits.', validity: 'Valid till November 5, 2026' }
-]
+import { BUSINESS, buildWhatsAppUrl } from '../../constants/business'
 
 export default function Offers() {
-  const copyCode = (code) => {
-    navigator.clipboard.writeText(code).catch(() => {})
-    toast.success(`Coupon code ${code} copied!`, {
-      style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
-    })
-  }
-
   const breadcrumbs = [
     { name: 'Home', url: '/' },
     { name: 'Offers', url: '/offers' }
   ]
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] text-[#3A2D23] font-body">
+    <div className="min-h-screen bg-[#FBF5EA] text-[#38271F] font-body">
       <SEOHead
-        title="Exclusive Boutique Offers & Festive Privileges"
-        description="Unlock exclusive luxury shopping privileges, festive couture offers, and promotional benefits on CHITRIKA handcrafted fashion collections."
+        title="Offers & Enquiries"
+        description={`Enquire directly with ${BUSINESS.name} for festive collections, bulk orders, and pricing.`}
         canonicalUrl="/offers"
         type="website"
         breadcrumbs={breadcrumbs}
       />
       <Navbar />
-      <div className="max-w-4xl mx-auto px-6 pt-12 pb-24">
-        <span className="text-[9px] tracking-[0.3em] font-bold text-[#B8860B] uppercase block text-center mb-3">✦ Exclusive Perks ✦</span>
-        <h1 className="font-display text-4xl md:text-5xl text-[#8B0000] font-bold text-center mb-12">Boutique Offers</h1>
-        
-        <div className="space-y-6">
-          {OFFERS.map((o) => (
-            <div key={o.code} className="bg-white border border-[#B8860B]/15 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="bg-[#8B0000]/10 p-3 rounded-2xl text-[#8B0000] shrink-0">
-                  <Ticket size={24} />
-                </div>
-                <div>
-                  <h3 className="font-display text-lg font-bold text-[#8B0000]">{o.title}</h3>
-                  <p className="text-xs text-[#3A2D23]/60 mt-1 max-w-lg leading-relaxed">{o.desc}</p>
-                  <span className="text-[10px] text-amber-600 block mt-2 font-bold uppercase tracking-wider">{o.validity}</span>
-                </div>
-              </div>
-              
-              <button 
-                onClick={() => copyCode(o.code)}
-                className="flex items-center justify-center gap-2 border-2 border-dashed border-[#B8860B]/30 hover:border-[#8B0000] text-[#8B0000] font-display font-bold text-lg px-6 py-3.5 rounded-2xl transition-all group shrink-0"
-              >
-                {o.code}
-                <Copy size={16} className="text-[#B8860B] group-hover:scale-110 transition-transform" />
-              </button>
-            </div>
-          ))}
+      <div className="max-w-3xl mx-auto px-6 pt-12 pb-24 text-center">
+        <span className="text-[9px] tracking-[0.3em] font-bold text-[#B58A45] uppercase block mb-3">
+          {BUSINESS.name}
+        </span>
+        <h1 className="font-display text-4xl md:text-5xl text-[#651B2B] font-bold mb-6">
+          Direct Weaver Pricing & Enquiries
+        </h1>
+        <p className="text-sm text-[#38271F]/75 max-w-xl mx-auto leading-relaxed mb-8">
+          We bring Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves directly from our looms to your hands. Any verified seasonal privileges or promotional codes published by {BUSINESS.name} appear here or are shared directly on WhatsApp.
+        </p>
+
+        <div className="bg-white border border-[#B58A45]/25 rounded-3xl p-8 shadow-sm space-y-5">
+          <p className="text-xs text-[#38271F]/70">
+            For current weave pricing or wedding & bulk saree enquiries, contact us directly:
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={buildWhatsAppUrl(`Namaste ${BUSINESS.name}, I would like to enquire about saree pricing and current handloom availability.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary inline-flex items-center gap-2 text-xs"
+            >
+              <MessageCircle size={15} /> Enquire on WhatsApp ({BUSINESS.phoneDisplay})
+            </a>
+            <Link to="/products" className="btn-outline text-xs">
+              Explore Collections
+            </Link>
+          </div>
         </div>
       </div>
       <Footer />

@@ -9,17 +9,20 @@ import java.math.RoundingMode;
 @Service
 public class EmailTemplateService {
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend.url:https://agvia-ecommerce.vercel.app}")
+    private String frontendUrl;
+
     public record EmailContent(String subject, String htmlBody, String plainText) {}
 
     // ─────────────────────────────────────────────────────────────────────────
     // 1. Customer Order Confirmation
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildCustomerOrderConfirmation(OrderEmailData data) {
-        String subject = "✅ Order Confirmed #" + data.getOrderNumber() + " — Pragathi Sweets";
+        String subject = "Order Confirmed #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
         String statusTitle = "Order Confirmed";
-        String statusMessage = "Namaste " + escapeHtml(data.getCustomerName()) + "! Thank you for choosing Pragathi Sweets. Your authentic traditional sweets order has been confirmed and is being prepared with pure ghee and the finest ingredients.";
+        String statusMessage = "Namaste " + escapeHtml(data.getCustomerName()) + "! Thank you for ordering from Lokesh Lingam Weaver (Dharmavaram). Your handloom saree order has been confirmed.";
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "✅ Confirmed", "#2E7D32", true);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Confirmed", "#65704B", true);
         String text = renderOrderPlainText(data, "ORDER CONFIRMED", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -28,9 +31,9 @@ public class EmailTemplateService {
     // 2. Admin New Order Alert
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildAdminNewOrderNotification(OrderEmailData data) {
-        String subject = "🔔 [Admin Alert] New Order #" + data.getOrderNumber() + " — ₹" + formatMoney(data.getGrandTotal());
+        String subject = "[Admin Alert] New Order #" + data.getOrderNumber() + " — ₹" + formatMoney(data.getGrandTotal());
         String statusTitle = "New Customer Order Received";
-        String statusMessage = "A new order has been placed on the storefront and requires kitchen dispatch processing.";
+        String statusMessage = "A new order has been placed on Lokesh Lingam Weaver and requires dispatch processing.";
 
         String html = renderAdminOrderEmail(data, statusTitle, statusMessage);
         String text = renderAdminOrderPlainText(data);
@@ -41,11 +44,11 @@ public class EmailTemplateService {
     // 3. Payment Confirmation (Standalone)
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildPaymentConfirmation(OrderEmailData data) {
-        String subject = "💳 Payment Received — Order #" + data.getOrderNumber() + " — Pragathi Sweets";
-        String statusTitle = "Payment Successfully Verified";
+        String subject = "Payment Received — Order #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
+        String statusTitle = "Payment Verified";
         String statusMessage = "We have received your payment of ₹" + formatMoney(data.getGrandTotal()) + " for order #" + data.getOrderNumber() + ". Your order is now confirmed for preparation.";
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "💳 Payment Received", "#1565C0", true);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Payment Received", "#1565C0", true);
         String text = renderOrderPlainText(data, "PAYMENT RECEIVED", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -54,11 +57,11 @@ public class EmailTemplateService {
     // 4. Order Preparing
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildOrderPreparingNotification(OrderEmailData data) {
-        String subject = "👨‍🍳 Your Order is Being Prepared — #" + data.getOrderNumber() + " — Pragathi Sweets";
+        String subject = "Your Order is Being Prepared — #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
         String statusTitle = "Preparing With Care";
-        String statusMessage = "Your order is now being prepared in our kitchen with pure ghee, fresh ingredients, and time-honored artisanal recipes.";
+        String statusMessage = "Your order is now being prepared and checked at Lokesh Lingam Weaver in Dharmavaram.";
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "👨‍🍳 Preparing", "#B8860B", false);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Preparing", "#B58A45", false);
         String text = renderOrderPlainText(data, "ORDER PREPARING", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -67,11 +70,11 @@ public class EmailTemplateService {
     // 5. Order Ready
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildOrderReadyNotification(OrderEmailData data) {
-        String subject = "📦 Order Packed & Ready — #" + data.getOrderNumber() + " — Pragathi Sweets";
+        String subject = "Order Packed & Ready — #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
         String statusTitle = "Ready for Dispatch";
-        String statusMessage = "Your sweets have been packed in our signature gift boxes and are ready for handover to our delivery partner.";
+        String statusMessage = "Your handloom saree order is packed and ready for dispatch from Dharmavaram.";
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "📦 Packed & Ready", "#B8860B", false);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Packed & Ready", "#B58A45", false);
         String text = renderOrderPlainText(data, "ORDER READY", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -80,11 +83,11 @@ public class EmailTemplateService {
     // 6. Out For Delivery
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildOutForDeliveryNotification(OrderEmailData data) {
-        String subject = "🚚 Out For Delivery — #" + data.getOrderNumber() + " — Pragathi Sweets";
-        String statusTitle = "On the Way to Your Doorstep";
-        String statusMessage = "Good news! Your order #" + data.getOrderNumber() + " is out for delivery. Our delivery partner will reach your address shortly.";
+        String subject = "Out For Delivery — #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
+        String statusTitle = "On the Way to Your Address";
+        String statusMessage = "Good news! Your order #" + data.getOrderNumber() + " is in transit and out for delivery.";
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "🚚 Out For Delivery", "#0288D1", false);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Out For Delivery", "#0288D1", false);
         String text = renderOrderPlainText(data, "OUT FOR DELIVERY", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -93,11 +96,11 @@ public class EmailTemplateService {
     // 7. Order Delivered
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildOrderDeliveredNotification(OrderEmailData data) {
-        String subject = "🎉 Delivered — Order #" + data.getOrderNumber() + " — Pragathi Sweets";
+        String subject = "Delivered — Order #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
         String statusTitle = "Order Delivered Successfully";
-        String statusMessage = "Your order has been safely delivered. We hope you enjoy the authentic taste of tradition! Thank you for choosing Pragathi Sweets.";
+        String statusMessage = "Your order has been delivered. Thank you for choosing Lokesh Lingam Weaver, Dharmavaram!";
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "🎉 Delivered", "#2E7D32", false);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Delivered", "#65704B", false);
         String text = renderOrderPlainText(data, "ORDER DELIVERED", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -106,15 +109,15 @@ public class EmailTemplateService {
     // 8. Order Cancelled
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildOrderCancelledNotification(OrderEmailData data, String reason) {
-        String subject = "❌ Order Cancelled — #" + data.getOrderNumber() + " — Pragathi Sweets";
+        String subject = "Order Cancelled — #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
         String statusTitle = "Order Cancelled";
-        String reasonStr = (reason != null && !reason.isBlank()) ? "Reason: " + escapeHtml(reason) : "Your order has been cancelled upon request.";
+        String reasonStr = (reason != null && !reason.isBlank()) ? "Reason: " + escapeHtml(reason) : "Your order has been cancelled.";
         String refundNote = "ONLINE".equalsIgnoreCase(data.getPaymentMethod()) || "RAZORPAY".equalsIgnoreCase(data.getPaymentMethod())
-                ? " If your payment was deducted, the refund will be initiated to your original payment method within 5–7 business days."
+                ? " Any online payment refund will follow your payment provider's standard settlement schedule."
                 : "";
         String statusMessage = reasonStr + refundNote;
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "❌ Cancelled", "#C62828", false);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Cancelled", "#C62828", false);
         String text = renderOrderPlainText(data, "ORDER CANCELLED", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -123,11 +126,11 @@ public class EmailTemplateService {
     // 9. Refund Processed
     // ─────────────────────────────────────────────────────────────────────────
     public EmailContent buildRefundProcessedNotification(OrderEmailData data) {
-        String subject = "💰 Refund Processed — Order #" + data.getOrderNumber() + " — Pragathi Sweets";
+        String subject = "Refund Processed — Order #" + data.getOrderNumber() + " — Lokesh Lingam Weaver";
         String statusTitle = "Refund Completed";
-        String statusMessage = "A refund of ₹" + formatMoney(data.getGrandTotal()) + " for order #" + data.getOrderNumber() + " has been processed to your original payment source. It should reflect in your account within 5–7 banking days.";
+        String statusMessage = "A refund of ₹" + formatMoney(data.getGrandTotal()) + " for order #" + data.getOrderNumber() + " has been initiated to your original payment source.";
 
-        String html = renderOrderEmail(data, statusTitle, statusMessage, "💰 Refunded", "#6A1B9A", false);
+        String html = renderOrderEmail(data, statusTitle, statusMessage, "Refunded", "#651B2B", false);
         String text = renderOrderPlainText(data, "REFUND PROCESSED", statusMessage);
         return new EmailContent(subject, html, text);
     }
@@ -176,25 +179,29 @@ public class EmailTemplateService {
                     "</div>";
         }
 
-        String supportPhone = data.getSupportPhone() != null ? data.getSupportPhone() : "+91 90323 06961";
-        String supportEmail = data.getSupportEmail() != null ? data.getSupportEmail() : "support@pragathisweets.com";
+        String supportPhone = (data.getSupportPhone() != null && !data.getSupportPhone().isBlank()) ? data.getSupportPhone() : "+91 7799349294";
+        String supportEmail = (data.getSupportEmail() != null && !data.getSupportEmail().isBlank()) ? data.getSupportEmail() : null;
+        String baseFront = (frontendUrl != null && !frontendUrl.isBlank()) ? frontendUrl.replaceAll("/+$", "") : "https://agvia-ecommerce.vercel.app";
+        String logoUrl = baseFront + "/images/lokesh-lingam-logo.png";
 
         return "<!DOCTYPE html>" +
                 "<html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head>" +
-                "<body style=\"margin: 0; padding: 20px; background-color: #FFFDF8; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 600px; background-color: #FFFFFF; border-radius: 16px; border: 1px solid #EADDC9; box-shadow: 0 4px 15px rgba(139,0,0,0.05); overflow: hidden;\">" +
+                "<body style=\"margin: 0; padding: 20px; background-color: #FBF5EA; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;\">" +
+                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 600px; background-color: #FFFFFF; border-radius: 16px; border: 1px solid #E7D4B9; box-shadow: 0 4px 15px rgba(101,27,43,0.06); overflow: hidden;\">" +
                 "  <tr>" +
-                "    <td style=\"background: linear-gradient(135deg, #8B0000 0%, #5B0000 100%); padding: 32px 24px; text-align: center; color: #FFFFFF;\">" +
-                "      <h1 style=\"margin: 0; font-size: 26px; font-weight: bold; letter-spacing: 1px; color: #FFFDF8;\">PRAGATHI SWEETS</h1>" +
-                "      <p style=\"margin: 4px 0 0 0; font-size: 13px; color: #EADDC9; letter-spacing: 2px; text-transform: uppercase;\">Taste The Tradition</p>" +
-                "      <div style=\"display: inline-block; margin-top: 15px; background: rgba(255,255,255,0.18); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: bold;\">" +
+                "    <td style=\"background: linear-gradient(135deg, #651B2B 0%, #38271F 100%); padding: 28px 24px; text-align: center; color: #FFFFFF;\">" +
+                "      <div style=\"display:inline-block;background:#FBF5EA;padding:8px 14px;border-radius:10px;margin-bottom:10px;\">" +
+                "        <img src=\"" + logoUrl + "\" alt=\"Lokesh Lingam Weaver\" style=\"max-height:60px;width:auto;display:block;\" />" +
+                "      </div>" +
+                "      <p style=\"margin: 4px 0 0 0; font-size: 12px; color: #E7D4B9; letter-spacing: 2px; text-transform: uppercase;\">Handloom Sarees &amp; Traditional Weaves</p>" +
+                "      <div style=\"display: inline-block; margin-top: 12px; background: rgba(255,255,255,0.18); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: bold;\">" +
                 "        " + statusBadge +
                 "      </div>" +
                 "    </td>" +
                 "  </tr>" +
                 "  <tr>" +
                 "    <td style=\"padding: 24px 28px;\">" +
-                "      <h2 style=\"margin: 0 0 10px 0; color: #8B0000; font-size: 18px;\">" + escapeHtml(title) + "</h2>" +
+                "      <h2 style=\"margin: 0 0 10px 0; color: #651B2B; font-size: 18px;\">" + escapeHtml(title) + "</h2>" +
                 "      <p style=\"margin: 0 0 20px 0; color: #555555; font-size: 14px; line-height: 1.6;\">" +
                 "        " + introMessage +
                 "      </p>" +
@@ -241,14 +248,16 @@ public class EmailTemplateService {
                 "      </div>" +
                 trackingBtn +
                 "      <div style=\"text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid #EEE;\">" +
-                "        <p style=\"margin: 0 0 6px 0; font-size: 13px; color: #777;\">Estimated Delivery: 2–4 Business Days</p>" +
-                "        <p style=\"margin: 0; font-size: 12px; color: #888;\">Need assistance? Email <a href=\"mailto:" + escapeHtml(supportEmail) + "\" style=\"color: #8B0000; text-decoration: none;\">" + escapeHtml(supportEmail) + "</a> or call/WhatsApp <strong style=\"color: #075E54;\">" + escapeHtml(supportPhone) + "</strong></p>" +
+                "        <p style=\"margin: 0 0 6px 0; font-size: 13px; color: #666;\">Track live updates using your Order Tracking link above.</p>" +
+                "        <p style=\"margin: 0; font-size: 12px; color: #777;\">Need assistance? " +
+                (supportEmail != null ? "Email <a href=\"mailto:" + escapeHtml(supportEmail) + "\" style=\"color: #651B2B; text-decoration: none;\">" + escapeHtml(supportEmail) + "</a> or call/WhatsApp " : "Phone or WhatsApp ") +
+                "<strong style=\"color: #651B2B;\">" + escapeHtml(supportPhone) + "</strong></p>" +
                 "      </div>" +
                 "    </td>" +
                 "  </tr>" +
                 "  <tr>" +
-                "    <td style=\"background-color: #F8F3EA; padding: 16px; text-align: center; font-size: 12px; color: #8A7A6D;\">" +
-                "      © Pragathi Sweets • Taste the Tradition • All rights reserved." +
+                "    <td style=\"background-color: #E7D4B9; padding: 16px; text-align: center; font-size: 12px; color: #38271F;\">" +
+                "      © Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh, India – 515671" +
                 "    </td>" +
                 "  </tr>" +
                 "</table></body></html>";
@@ -310,7 +319,7 @@ public class EmailTemplateService {
                 "  </tr>" +
                 "  <tr>" +
                 "    <td style=\"background-color: #ECEFF1; padding: 12px; text-align: center; font-size: 11px; color: #607D8B;\">" +
-                "      Pragathi Sweets Admin Notification Engine • Internal Use Only" +
+                "      Lokesh Lingam Weaver Admin Notification • Internal Use Only" +
                 "    </td>" +
                 "  </tr>" +
                 "</table></body></html>";
@@ -321,7 +330,7 @@ public class EmailTemplateService {
     // ─────────────────────────────────────────────────────────────────────────
     private String renderOrderPlainText(OrderEmailData data, String header, String introMessage) {
         StringBuilder sb = new StringBuilder();
-        sb.append("PRAGATHI SWEETS — ").append(header).append("\n");
+        sb.append("LOKESH LINGAM WEAVER — ").append(header).append("\n");
         sb.append("====================================================\n\n");
         sb.append(introMessage).append("\n\n");
         sb.append("Order Number: #").append(data.getOrderNumber()).append("\n");
@@ -343,9 +352,9 @@ public class EmailTemplateService {
         }
         sb.append("Delivery: Rs. ").append(formatMoney(data.getDeliveryCharge())).append("\n");
         sb.append("Grand Total: Rs. ").append(formatMoney(data.getGrandTotal())).append("\n\n");
-        sb.append("Support: Email ").append(data.getSupportEmail() != null ? data.getSupportEmail() : "support@agvia.in")
-                .append(" or Phone ").append(data.getSupportPhone() != null ? data.getSupportPhone() : "+91 90323 06961").append("\n");
-        sb.append("Thank you for choosing CHITRIKA Women's Wear Boutique!\n");
+        sb.append("Support: Phone / WhatsApp ")
+                .append(data.getSupportPhone() != null ? data.getSupportPhone() : "+91 7799349294").append("\n");
+        sb.append("Thank you for choosing Lokesh Lingam Weaver, Dharmavaram!\n");
         return sb.toString();
     }
 

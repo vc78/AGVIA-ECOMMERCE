@@ -16,8 +16,8 @@
 	<groupId>com.ems</groupId>
 	<artifactId>pragathi-sweets-backend</artifactId>
 	<version>1.0.0</version>
-	<name>AGVIA Boutique Backend</name>
-	<description>AGVIA Women's Wear Boutique E-Commerce Backend &amp; Analytics System</description>
+	<name>Lokesh Lingam Weaver Backend</name>
+	<description>Lokesh Lingam Weaver Dharmavaram Handloom Sarees E-Commerce Backend &amp; Analytics System</description>
 
 	<properties>
 		<java.version>21</java.version>

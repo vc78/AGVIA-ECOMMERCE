@@ -9,33 +9,25 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class CorsConfig {
 
-    @Value("${app.cors.allowed-origins}")
+    @Value("${app.cors.allowed-origins:http://localhost:5173,https://agvia-ecommerce.vercel.app}")
     private String allowedOrigins;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty() && !"*".equals(s))
+                .collect(Collectors.toList());
+
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of(
-            "http://localhost:*",
-            "http://127.0.0.1:*",
-            "https://*.vercel.app",
-            "https://vercel.app",
-            "https://*.onrender.com",
-            "https://chitrika.in",
-            "https://www.chitrika.in",
-            "https://chitrikaboutique.com",
-            "https://www.chitrikaboutique.com",
-            "https://chitrika-ecommerce.vercel.app",
-            "https://agvia.in",
-            "https://www.agvia.in",
-            "https://agvia-ecommerce.vercel.app"
-        ));
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "X-Request-ID"));
         configuration.setExposedHeaders(List.of("Authorization", "X-Request-ID"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);

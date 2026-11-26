@@ -76,7 +76,7 @@ export default function Offers() {
         ...o,
         statusText: o.active ? 'Active' : 'Inactive'
       }))
-      await exportTableToPDF('CHITRIKA Seasonal & Festival Offers', cols, sanitizedOffers, 'agvia_festival_offers')
+      await exportTableToPDF('Lokesh Lingam Weaver Offers', cols, sanitizedOffers, 'lokesh_lingam_weaver_offers')
       toast.success(`Exported ${offers.length} offers to branded PDF!`, {
         id: 'offers-pdf',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
@@ -206,7 +206,7 @@ export default function Offers() {
           rows={offers} 
           title="Active Festival Offers"
           emptyMessage="No offers created yet." 
-          exportFilename="agvia_festival_offers"
+          exportFilename="lokesh_lingam_weaver_offers"
         />
       )}
     </AdminLayout>

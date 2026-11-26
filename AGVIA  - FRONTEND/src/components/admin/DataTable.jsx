@@ -9,7 +9,7 @@ export default function DataTable({
   emptyMessage = 'No records found.',
   title = null,
   enableExport = true,
-  exportFilename = 'agvia_table_export',
+  exportFilename = 'lokesh_lingam_weaver_table_export',
   searchable = true,
   searchPlaceholder = 'Search records...',
   searchKeys = null

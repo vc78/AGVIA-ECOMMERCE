@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { ShieldCheck, ArrowLeft, KeyRound, Sparkles, UserCheck } from 'lucide-react'
+import { ArrowLeft, KeyRound, UserCheck, Eye, EyeOff } from 'lucide-react'
 import { authService } from '../../services/authService'
 import { credentialsReceived } from '../../store/authSlice'
 import { broadcastAuthEvent } from '../../utils/authSync'
 import { setActiveTabContext } from '../../utils/sessionManager'
+import BrandLogo from '../../components/common/BrandLogo'
+import { BUSINESS } from '../../constants/business'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
-  const [form, setForm] = useState({ email: 'admin@chitrika.com', password: 'chitrika@123' })
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -17,8 +20,8 @@ export default function AdminLogin() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-[#1A0B10] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#C9A45C]/20 border-t-[#C9A45C] rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#38271F] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#B58A45]/20 border-t-[#B58A45] rounded-full animate-spin" />
       </div>
     )
   }
@@ -31,163 +34,120 @@ export default function AdminLogin() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const executeLogin = async (credentials) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     setLoading(true)
     try {
-      const data = await authService.login(credentials)
-      if (data.requiresOtp) {
-        toast.success('Verification code required to access admin console', {
-          style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
-        })
-        navigate('/verify-login-otp', {
-          state: {
-            challengeId: data.challengeId,
-            phoneMasked: data.phoneMasked,
-            devOtp: data.devOtp,
-            from: '/admin/dashboard'
-          }
-        })
-        return
-      }
+      const data = await authService.login({
+        email: form.email.trim(),
+        password: form.password,
+        rememberMe: false
+      })
       const userData = data.user || data
       const token = data.token || ''
       const role = userData.role || ''
       if (!role.includes('ADMIN')) {
-        toast.error('Access restricted to atelier administrators only')
+        toast.error('Access restricted to administrators only')
         return
       }
       setActiveTabContext('ADMIN')
-      dispatch(credentialsReceived({ user: userData, token, role: 'ADMIN' }))
+      dispatch(credentialsReceived({ user: userData, token, role: 'ADMIN', rememberMe: false }))
       broadcastAuthEvent('LOGIN', { user: userData, token, role: 'ADMIN' })
-      toast.success('Welcome to CHITRIKA Atelier Workspace', {
-        style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
+      toast.success(`Welcome to ${BUSINESS.name} Admin`, {
+        style: { background: '#651B2B', color: '#FBF5EA', borderRadius: '12px' }
       })
       navigate('/admin/dashboard', { replace: true })
     } catch (err) {
-      console.error('[AdminLogin] Error:', err)
-      const errorMsg = err.response?.data?.message || err.message || 'Invalid admin credentials'
+      const errorMsg = err.response?.data?.message || err.customerMessage || 'Invalid admin credentials'
       toast.error(errorMsg)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    executeLogin(form)
-  }
-
-  const handleQuickLogin = async () => {
-    const creds = { email: 'admin@chitrika.com', password: 'chitrika@123' }
-    setForm(creds)
-    try {
-      await executeLogin(creds)
-    } catch {
-      const fallbackCreds = { email: 'admin@chitrika.com', password: 'agvia@123' }
-      setForm(fallbackCreds)
-      executeLogin(fallbackCreds)
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-[#1A0B10] flex flex-col justify-center items-center px-4 font-body relative">
-      <Link to="/" className="absolute top-6 left-6 text-xs text-[#C9A45C] hover:text-white font-bold uppercase flex items-center gap-1.5 transition-colors tracking-wider">
-        <ArrowLeft size={14} /> Back to Boutique Store
+    <div className="min-h-screen bg-[#38271F] flex flex-col justify-center items-center px-4 font-body relative">
+      <Link to="/" className="absolute top-6 left-6 text-xs text-[#E7D4B9] hover:text-white font-bold uppercase flex items-center gap-1.5 transition-colors tracking-wider">
+        <ArrowLeft size={14} /> Back to Store
       </Link>
 
-      <div className="w-full max-w-md p-8 bg-[#FAF7F2] border border-[#C9A45C]/30 rounded-3xl shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#5A1020] via-[#C9A45C] to-[#5A1020]" />
-        
+      <div className="w-full max-w-md p-8 bg-[#FBF5EA] border border-[#B58A45]/35 rounded-3xl shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#651B2B] via-[#B58A45] to-[#651B2B]" />
+
         <div className="flex flex-col items-center mb-6 select-none">
-          <img 
-            src="/images/chitrika-logo.webp" 
-            alt="CHITRIKA" 
-            width={64} 
-            height={72} 
-            decoding="async" 
-            className="h-14 sm:h-16 w-auto max-h-16 shrink-0 object-contain mb-3 drop-shadow-[0_4px_12px_rgba(90,16,32,0.15)]" 
-          />
-          <span className="font-serif text-2xl tracking-[0.2em] font-bold uppercase text-[#5A1020] leading-none">
-            CHITRIKA
-          </span>
-          <span className="font-sans text-[8px] tracking-[0.35em] uppercase text-[#C9A45C] font-semibold mt-1.5 pl-[1px]">
-            ATELIER ADMIN CONSOLE
+          <BrandLogo size="md" />
+          <span className="font-sans text-[8px] tracking-[0.32em] uppercase text-[#651B2B] font-bold mt-2">
+            ADMIN MANAGEMENT PORTAL
           </span>
         </div>
 
-        {/* Informative notice if currently signed in as patron */}
         {isAuthenticated && user?.role !== 'ADMIN' && user?.role !== 'ROLE_ADMIN' && (
           <div className="mb-5 p-3 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-start gap-2.5 text-amber-900 text-xs">
             <UserCheck size={16} className="text-amber-700 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Patron Account Active</p>
+              <p className="font-semibold">Customer Account Active</p>
               <p className="text-[11px] text-amber-800/80 mt-0.5">
-                Signed in as <span className="font-semibold">{user.name || user.email}</span>. Sign in with Atelier Administrator credentials below to open the workspace.
+                Signed in as <span className="font-semibold">{user.name || user.email}</span>. Sign in with Administrator credentials below to open the admin console.
               </p>
             </div>
           </div>
         )}
 
-        {/* 1-Click Fast Admin Sign In Box */}
-        <div className="mb-5 p-3.5 bg-[#5A1020]/5 border border-[#C9A45C]/35 rounded-2xl">
-          <div className="flex items-center justify-between text-[11px] font-mono text-[#5A1020] mb-2 px-1">
-            <span>Admin: <strong>admin@chitrika.com</strong></span>
-            <span>Pass: <strong>chitrika@123</strong></span>
-          </div>
-          <button
-            type="button"
-            onClick={handleQuickLogin}
-            disabled={loading}
-            className="w-full py-2.5 bg-gradient-to-r from-[#5A1020] to-[#3C0A14] hover:from-[#72152b] hover:to-[#5A1020] text-[#FAF7F2] text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-xs border border-[#C9A45C]/30"
-          >
-            <Sparkles size={14} className="text-[#C9A45C]" />
-            <span>1-Click Admin Access</span>
-          </button>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A1020] mb-1 font-sans">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#651B2B] mb-1 font-sans">
               Admin Email
             </label>
-            <input 
-              name="email" 
-              type="email" 
-              required 
-              value={form.email} 
-              onChange={handleChange} 
-              placeholder="admin@chitrika.com" 
-              className="input-field !bg-white !border-[#C9A45C]/30 focus:!border-[#5A1020] w-full" 
+            <input
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={form.email}
+              onChange={handleChange}
+              placeholder="Enter admin email"
+              className="input-field !bg-white !border-[#B58A45]/35 focus:!border-[#651B2B] w-full"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A1020] mb-1 font-sans">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#651B2B] mb-1 font-sans">
               Password
             </label>
-            <input 
-              name="password" 
-              type="password" 
-              required 
-              value={form.password} 
-              onChange={handleChange} 
-              placeholder="••••••••" 
-              className="input-field !bg-white !border-[#C9A45C]/30 focus:!border-[#5A1020] w-full" 
-            />
+            <div className="relative">
+              <input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                className="input-field !bg-white !border-[#B58A45]/35 focus:!border-[#651B2B] w-full pr-10"
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#38271F]/50 hover:text-[#651B2B]"
+              >
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
           </div>
-          
-          <button 
-            type="submit" 
-            disabled={loading} 
+
+          <button
+            type="submit"
+            disabled={loading}
             className="btn-primary w-full text-xs font-bold tracking-widest py-3.5 flex items-center justify-center gap-2"
           >
-            <KeyRound size={14} className="text-[#C9A45C]" />
-            <span>{loading ? 'Authenticating Admin...' : 'Sign In to Atelier'}</span>
+            <KeyRound size={14} className="text-[#E7D4B9]" />
+            <span>{loading ? 'Authenticating Admin...' : 'Sign In to Admin Portal'}</span>
           </button>
         </form>
 
-        <p className="text-center text-[10px] text-[#211D1E]/40 mt-5 font-sans tracking-wider">
-          PROTECTED ATELIER ENTERPRISE CONSOLE
+        <p className="text-center text-[10px] text-[#38271F]/55 mt-5 font-sans tracking-wider">
+          {BUSINESS.name.toUpperCase()} · PROTECTED ADMIN CONSOLE
         </p>
       </div>
     </div>

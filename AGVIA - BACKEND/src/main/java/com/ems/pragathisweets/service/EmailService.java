@@ -42,48 +42,59 @@ public class EmailService {
     @Value("${app.mail.store-notification-email:}")
     private String storeNotificationEmail;
 
+    @Value("${app.frontend.url:https://agvia-ecommerce.vercel.app}")
+    private String frontendUrl;
+
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd-MMM-yyyy hh:mm a");
 
     @Async
     public void sendWelcomeEmail(String to, String fullName) {
-        String subject = "Welcome to Pragathi Sweets!";
+        String subject = "Welcome to Lokesh Lingam Weaver";
         String body = "Hi " + fullName + ",\n\n" +
-                "Thank you for registering with Pragathi Sweets. Explore our range of authentic sweets and snacks!\n\n" +
-                "Warm regards,\nPragathi Sweets Team";
+                "Thank you for registering with Lokesh Lingam Weaver (Dharmavaram, Andhra Pradesh).\n" +
+                "Explore Dharmavaram silk sarees, Kanchi-style silk sarees, and traditional handloom weaves.\n" +
+                "For any assistance, contact us on Phone / WhatsApp: +91 7799349294\n\n" +
+                "Warm regards,\nLokesh Lingam Weaver";
         send(to, subject, body);
     }
 
     /**
-     * Sends rich HTML verification code directly to customer's email.
+     * Sends a single-use password reset email containing a cryptographically random link.
+     * Raw tokens and reset URLs are never written to application logs.
      */
     @Async
-    public void sendOtpEmail(String to, String recipientName, String code, String purpose) {
-        String subject = "🔐 " + code + " is your CHITRIKA verification code";
-        String htmlBody = "<!DOCTYPE html><html><body style=\"margin:0;padding:24px;background-color:#FFFDF8;font-family:sans-serif;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:480px;background-color:#FFFFFF;border-radius:20px;border:1px solid #EADDC9;padding:32px;box-shadow:0 4px 16px rgba(139,0,0,0.06);\">" +
-                "  <tr><td style=\"text-align:center;padding-bottom:16px;\">" +
-                "    <h2 style=\"margin:0;color:#8B0000;letter-spacing:3px;font-size:24px;\">CHITRIKA</h2>" +
-                "    <p style=\"margin:4px 0 0;font-size:11px;color:#B8860B;text-transform:uppercase;letter-spacing:2px;font-weight:600;\">Haute Couture Boutique</p>" +
+    public void sendPasswordResetEmail(String to, String recipientName, String resetLink) {
+        String safeName = (recipientName != null && !recipientName.isBlank())
+                ? recipientName.replace("<", "").replace(">", "")
+                : "Customer";
+        String subject = "Password Reset Request — Lokesh Lingam Weaver";
+        String htmlBody = "<!DOCTYPE html><html><body style=\"margin:0;padding:24px;background-color:#FBF5EA;font-family:sans-serif;\">" +
+                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:520px;background-color:#FFFFFF;border-radius:16px;border:1px solid #E7D4B9;padding:32px;\">" +
+                "  <tr><td style=\"text-align:center;padding-bottom:16px;border-bottom:1px solid #E7D4B9;\">" +
+                "    <h2 style=\"margin:0;color:#651B2B;font-family:Georgia,serif;\">LOKESH LINGAM WEAVER</h2>" +
+                "    <p style=\"margin:4px 0 0;font-size:11px;color:#B58A45;text-transform:uppercase;letter-spacing:2px;\">Handloom Sarees &amp; Traditional Weaves</p>" +
                 "  </td></tr>" +
-                "  <tr><td style=\"padding:16px 0;text-align:center;\">" +
-                "    <h3 style=\"margin:0 0 10px;color:#3A2D23;font-size:18px;\">Verification Code</h3>" +
-                "    <p style=\"margin:0 0 20px;font-size:13px;color:#666;line-height:1.5;\">Hello " + (recipientName != null && !recipientName.isBlank() ? recipientName : "Client") + ", use the code below to complete your " + (purpose != null ? purpose.toLowerCase() : "verification") + ":</p>" +
-                "    <div style=\"display:inline-block;padding:16px 32px;background-color:#FFFDF8;border:2px dashed #8B0000;border-radius:14px;font-size:32px;font-weight:bold;letter-spacing:8px;color:#8B0000;font-family:monospace;\">" +
-                code +
-                "    </div>" +
-                "    <p style=\"margin:20px 0 0;font-size:12px;color:#888;\">This code is valid for <strong>5 minutes</strong>. Do not share this OTP with anyone.</p>" +
+                "  <tr><td style=\"padding:24px 0;\">" +
+                "    <h3 style=\"margin:0 0 12px;color:#38271F;font-size:18px;\">Reset Your Password</h3>" +
+                "    <p style=\"margin:0 0 16px;font-size:14px;color:#38271F;line-height:1.6;\">Namaste " + safeName + ", we received a request to reset your account password.</p>" +
+                "    <p style=\"margin:0 0 24px;text-align:center;\">" +
+                "      <a href=\"" + resetLink + "\" style=\"display:inline-block;padding:13px 28px;background-color:#651B2B;color:#FBF5EA;text-decoration:none;font-weight:bold;border-radius:10px;font-size:13px;letter-spacing:0.5px;\">Reset Password</a>" +
+                "    </p>" +
+                "    <p style=\"margin:0 0 12px;font-size:12px;color:#5A4438;line-height:1.5;\">This link expires in <strong>15 minutes</strong> and can only be used once. If you did not request a password reset, you may safely ignore this email.</p>" +
                 "  </td></tr>" +
-                "  <tr><td style=\"padding-top:20px;border-top:1px solid #EEE;text-align:center;font-size:11px;color:#AAA;\">" +
-                "    © CHITRIKA • Luxury Women's Wear Boutique • All rights reserved." +
+                "  <tr><td style=\"padding-top:16px;border-top:1px solid #E7D4B9;text-align:center;font-size:11px;color:#7A6254;\">" +
+                "    Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh, India – 515671 • +91 7799349294" +
                 "  </td></tr>" +
                 "</table></body></html>";
-        String plainText = "CHITRIKA Boutique Verification Code: " + code + "\nValid for 5 minutes. Never share this code.";
+        String plainText = "Namaste " + safeName + ",\n\n" +
+                "We received a request to reset your Lokesh Lingam Weaver password.\n" +
+                "Use this single-use link within 15 minutes:\n" + resetLink + "\n\n" +
+                "If you did not request this change, please ignore this message.";
         sendHtml(to, subject, htmlBody, plainText);
     }
 
     /**
-     * Rich HTML order confirmation email sent to customer's Gmail upon order confirmation.
-     * Uses detached thread-safe OrderResponse DTO to avoid cross-thread Hibernate Session concurrency issues.
+     * Rich HTML order confirmation email sent upon order confirmation.
      */
     @Async
     public void sendOrderConfirmationEmail(OrderResponse order, String customerEmail, String customerName) {
@@ -94,15 +105,15 @@ public class EmailService {
 
         String to = customerEmail;
         String name = customerName != null && !customerName.isBlank() ? customerName : (order.getUserName() != null ? order.getUserName() : "Valued Customer");
-        String subject = "✅ Order Confirmed #" + order.getOrderNumber() + " — Pragathi Sweets";
+        String subject = "Order Confirmed #" + order.getOrderNumber() + " — Lokesh Lingam Weaver";
         String htmlBody = buildOrderConfirmationHtml(order, name);
         String plainText = buildOrderConfirmationText(order, name);
 
         sendHtml(to, subject, htmlBody, plainText);
 
-        // Notify store manager / kitchen dispatch email if configured
+        // Notify store owner email if configured
         if (storeNotificationEmail != null && !storeNotificationEmail.isBlank() && !storeNotificationEmail.equalsIgnoreCase(to)) {
-            String storeSubject = "🔔 [New Order Alert] #" + order.getOrderNumber() + " received — ₹" + formatMoney(order.getFinalAmount());
+            String storeSubject = "[New Order Alert] #" + order.getOrderNumber() + " received — ₹" + formatMoney(order.getFinalAmount());
             sendHtml(storeNotificationEmail, storeSubject, htmlBody, plainText);
         }
     }
@@ -112,32 +123,31 @@ public class EmailService {
      */
     @Async
     public void sendOrderConfirmationEmail(String to, String orderNumber, String amount) {
-        String subject = "Order Confirmation - " + orderNumber;
-        String body = "Your order " + orderNumber + " for Rs. " + amount + " has been placed successfully.\n\n" +
-                "We will notify you once it is shipped.\n\nThank you for shopping with Pragathi Sweets!";
+        String subject = "Order Confirmation - " + orderNumber + " — Lokesh Lingam Weaver";
+        String body = "Your order " + orderNumber + " for Rs. " + amount + " has been placed successfully with Lokesh Lingam Weaver.\n\n" +
+                "We will share dispatch updates once your order ships.\n" +
+                "For assistance, contact Phone / WhatsApp: +91 7799349294";
         send(to, subject, body);
     }
 
     @Async
     public void sendOrderStatusUpdateEmail(String to, String orderNumber, String status) {
-        String subject = "Order Update - " + orderNumber;
+        String subject = "Order Update - " + orderNumber + " — Lokesh Lingam Weaver";
         String body = "Your order " + orderNumber + " status has been updated to: " + status + ".\n\n" +
-                "Thank you for shopping with Pragathi Sweets!";
+                "Thank you for choosing Lokesh Lingam Weaver (Dharmavaram).\nPhone / WhatsApp: +91 7799349294";
         send(to, subject, body);
     }
 
     /**
-     * Sent when a COD order is delivered and cash payment is confirmed collected
-     * by the delivery agent. Serves as the customer's payment receipt for COD.
+     * Sent when a COD order is delivered and cash payment is confirmed collected.
      */
     @Async
     public void sendCodPaymentCollectedEmail(String to, String orderNumber, String amount) {
-        String subject = "Payment Received — Order " + orderNumber;
-        String body = "Hi,\n\n" +
+        String subject = "Payment Received — Order " + orderNumber + " — Lokesh Lingam Weaver";
+        String body = "Namaste,\n\n" +
                 "Your Cash on Delivery payment of ₹" + amount + " for order " + orderNumber +
-                " has been successfully collected by our delivery partner.\n\n" +
-                "Your order is now complete. Thank you for choosing Pragathi Sweets!\n\n" +
-                "Warm regards,\nPragathi Sweets Team";
+                " has been recorded as collected upon delivery.\n\n" +
+                "Thank you for choosing Lokesh Lingam Weaver!\nPhone / WhatsApp: +91 7799349294";
         send(to, subject, body);
     }
 
@@ -158,7 +168,7 @@ public class EmailService {
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-        helper.setFrom(fromAddress, "Pragathi Sweets");
+        helper.setFrom(fromAddress, "Lokesh Lingam Weaver");
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(plainText, htmlBody);
@@ -240,24 +250,27 @@ public class EmailService {
         String address = order.getShippingAddress() != null ? order.getShippingAddress() : "Address provided during checkout";
         String phone = order.getContactPhone() != null ? order.getContactPhone() : "-";
 
+        String logoUrl = frontendUrl.replaceAll("/+$", "") + "/images/lokesh-lingam-logo.png";
         return "<!DOCTYPE html>" +
                 "<html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head>" +
-                "<body style=\"margin: 0; padding: 20px; background-color: #FFFDF8; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 600px; background-color: #FFFFFF; border-radius: 16px; border: 1px solid #EADDC9; box-shadow: 0 4px 15px rgba(139,0,0,0.05); overflow: hidden;\">" +
+                "<body style=\"margin: 0; padding: 20px; background-color: #FBF5EA; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;\">" +
+                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 600px; background-color: #FFFFFF; border-radius: 16px; border: 1px solid #E7D4B9; box-shadow: 0 4px 15px rgba(101,27,43,0.06); overflow: hidden;\">" +
                 "  <tr>" +
-                "    <td style=\"background: linear-gradient(135deg, #8B0000 0%, #5B0000 100%); padding: 30px 24px; text-align: center; color: #FFFFFF;\">" +
-                "      <h1 style=\"margin: 0; font-size: 26px; font-weight: bold; letter-spacing: 1px; color: #FFFDF8;\">PRAGATHI SWEETS</h1>" +
-                "      <p style=\"margin: 4px 0 0 0; font-size: 13px; color: #EADDC9; letter-spacing: 2px; text-transform: uppercase;\">Taste The Tradition</p>" +
-                "      <div style=\"display: inline-block; margin-top: 15px; background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: bold;\">" +
-                "        ✅ Order Confirmed" +
+                "    <td style=\"background: linear-gradient(135deg, #651B2B 0%, #38271F 100%); padding: 28px 24px; text-align: center; color: #FFFFFF;\">" +
+                "      <div style=\"display:inline-block;background:#FBF5EA;padding:8px 14px;border-radius:10px;margin-bottom:10px;\">" +
+                "        <img src=\"" + logoUrl + "\" alt=\"Lokesh Lingam Weaver\" style=\"max-height:60px;width:auto;display:block;\" />" +
+                "      </div>" +
+                "      <p style=\"margin: 4px 0 0 0; font-size: 12px; color: #E7D4B9; letter-spacing: 2px; text-transform: uppercase;\">Handloom Sarees &amp; Traditional Weaves</p>" +
+                "      <div style=\"display: inline-block; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: bold;\">" +
+                "        Order Confirmed" +
                 "      </div>" +
                 "    </td>" +
                 "  </tr>" +
                 "  <tr>" +
                 "    <td style=\"padding: 24px 28px;\">" +
-                "      <h2 style=\"margin: 0 0 10px 0; color: #8B0000; font-size: 18px;\">Namaste, " + customerName + "!</h2>" +
-                "      <p style=\"margin: 0 0 20px 0; color: #555555; font-size: 14px; line-height: 1.5;\">" +
-                "        Thank you for choosing Pragathi Sweets. Your authentic traditional sweets order has been confirmed and is being prepared with pure ghee and the finest ingredients." +
+                "      <h2 style=\"margin: 0 0 10px 0; color: #651B2B; font-size: 18px;\">Namaste, " + customerName + "!</h2>" +
+                "      <p style=\"margin: 0 0 20px 0; color: #38271F; font-size: 14px; line-height: 1.5;\">" +
+                "        Thank you for ordering from Lokesh Lingam Weaver (Dharmavaram, Andhra Pradesh). Your order has been confirmed." +
                 "      </p>" +
                 "      <table width=\"100%\" style=\"background-color: #FAF6EE; border-radius: 12px; padding: 16px; margin-bottom: 24px;\">" +
                 "        <tr>" +
@@ -301,14 +314,14 @@ public class EmailService {
                 "        <p style=\"margin: 4px 0 0 0; font-size: 13px; color: #444;\">" + address + "</p>" +
                 "      </div>" +
                 "      <div style=\"text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid #EEE;\">" +
-                "        <p style=\"margin: 0 0 8px 0; font-size: 13px; color: #777;\">Estimated Delivery: 2–4 Business Days</p>" +
-                "        <p style=\"margin: 0; font-size: 12px; color: #888;\">Need assistance? WhatsApp or call us anytime at <strong style=\"color: #075E54;\">+91 90323 06961</strong></p>" +
+                "        <p style=\"margin: 0 0 8px 0; font-size: 13px; color: #666;\">Dispatch updates will be shared via WhatsApp and your Track Order page.</p>" +
+                "        <p style=\"margin: 0; font-size: 12px; color: #777;\">Need assistance? Phone or WhatsApp: <strong style=\"color: #651B2B;\">+91 7799349294</strong></p>" +
                 "      </div>" +
                 "    </td>" +
                 "  </tr>" +
                 "  <tr>" +
-                "    <td style=\"background-color: #F8F3EA; padding: 16px; text-align: center; font-size: 12px; color: #8A7A6D;\">" +
-                "      © CHITRIKA Women's Wear Boutique • Heritage & Couture • All rights reserved." +
+                "    <td style=\"background-color: #E7D4B9; padding: 16px; text-align: center; font-size: 12px; color: #38271F;\">" +
+                "      © Lokesh Lingam Weaver • Dharmavaram, Andhra Pradesh, India – 515671" +
                 "    </td>" +
                 "  </tr>" +
                 "</table></body></html>";
@@ -316,10 +329,10 @@ public class EmailService {
 
     private String buildOrderConfirmationText(OrderResponse order, String customerName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("CHITRIKA WOMEN'S WEAR BOUTIQUE - ORDER CONFIRMED\n");
+        sb.append("LOKESH LINGAM WEAVER - ORDER CONFIRMED\n");
         sb.append("=====================================\n\n");
-        sb.append("Dear ").append(customerName).append(",\n\n");
-        sb.append("Thank you for choosing CHITRIKA! Your order has been placed and confirmed.\n\n");
+        sb.append("Namaste ").append(customerName).append(",\n\n");
+        sb.append("Thank you for ordering from Lokesh Lingam Weaver! Your order has been confirmed.\n\n");
         sb.append("Order Number: #").append(order.getOrderNumber()).append("\n");
         sb.append("Total Amount: Rs. ").append(formatMoney(order.getFinalAmount())).append("\n");
         sb.append("Payment Mode: ").append(order.getPaymentMethod()).append("\n");
@@ -332,9 +345,8 @@ public class EmailService {
                         .append(" (Rs. ").append(formatMoney(item.getSubtotal())).append(")\n");
             }
         }
-        sb.append("\nEstimated Delivery: 2-4 business days.\n");
-        sb.append("For queries or quick dispatch status, reach us on WhatsApp: +91 90323 06961\n\n");
-        sb.append("Warm regards,\nCHITRIKA Boutique Team");
+        sb.append("\nFor order or dispatch queries, reach us on Phone / WhatsApp: +91 7799349294\n\n");
+        sb.append("Warm regards,\nLokesh Lingam Weaver\nDharmavaram, Andhra Pradesh - 515671");
         return sb.toString();
     }
 

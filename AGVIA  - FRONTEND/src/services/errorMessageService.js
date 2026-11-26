@@ -1,10 +1,5 @@
 /**
- * CHITRIKA Centralized User-Friendly Error Messaging Service
- *
- * Strict architectural rule:
- * - Customers NEVER see technical jargon, stack traces, HTTP codes, or database errors.
- * - Developers ALWAYS receive complete technical diagnostics in the console.
- * - Every message answers: 1) WHAT happened, 2) WHAT the customer can do next.
+ * Lokesh Lingam Weaver Centralized User-Friendly Error Messaging Service
  */
 
 // Developer technical logger
@@ -22,7 +17,7 @@ export function logDeveloperError(context, error) {
       stack: error?.stack,
       timestamp: new Date().toISOString()
     }
-    console.error(`[CHITRIKA Tech Log: ${context}]`, technicalDetails)
+    console.error(`[LLW Log: ${context}]`, technicalDetails)
   }
 }
 
@@ -45,7 +40,7 @@ export function getFriendlyErrorMessage(error, defaultFallback = 'Something went
       return 'We could not find what you were looking for. It may have been moved or updated.'
     }
     if (rawLower.includes('401') || rawLower.includes('unauthorized') || rawLower.includes('session')) {
-      return 'Please sign in to your CHITRIKA account to continue.'
+      return 'Please sign in to your account to continue.'
     }
     if (rawLower.includes('403') || rawLower.includes('forbidden')) {
       return 'You do not have permission to perform this action.'
@@ -107,12 +102,6 @@ export function getFriendlyErrorMessage(error, defaultFallback = 'Something went
     if (lower.includes('coupon') || lower.includes('discount')) {
       return 'This promo code is either invalid, expired, or does not meet the minimum order requirement.'
     }
-    if (lower.includes('otp') && (lower.includes('invalid') || lower.includes('incorrect'))) {
-      return 'The verification code entered is incorrect. Please check and try again.'
-    }
-    if (lower.includes('otp') && lower.includes('expired')) {
-      return 'This verification code has expired. Please request a new code.'
-    }
     if (lower.includes('rate limit') || lower.includes('too many')) {
       return 'You are making requests a little too quickly. Please wait a moment and try again.'
     }
@@ -123,7 +112,7 @@ export function getFriendlyErrorMessage(error, defaultFallback = 'Something went
     case 400:
       return 'Some of the details provided need attention. Please verify and try again.'
     case 401:
-      return 'Please sign in to your CHITRIKA account to continue.'
+      return 'Please sign in to your account to continue.'
     case 403:
       return 'You do not have permission to perform this action.'
     case 404:
@@ -209,10 +198,9 @@ export function getValidationPrompt(field) {
     name: 'Please enter your full name.',
     fullName: 'Please enter your full name.',
     email: 'Please enter a valid email address.',
-    password: 'Password must be at least 6 characters.',
+    password: 'Password must be at least 8 characters and include uppercase, lowercase, and a number.',
     confirmPassword: 'Passwords do not match. Please verify.',
     phone: 'Please enter a valid 10-digit mobile number.',
-    otp: 'Please enter the 6-digit verification code.',
     line1: 'Please enter your street address.',
     city: 'Please enter your city.',
     state: 'Please enter your state.',

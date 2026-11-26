@@ -458,7 +458,7 @@ export default function Analytics() {
       } else if (format === 'json') {
         const fullArchive = {
           exportDate: new Date().toISOString(),
-          system: 'CHITRIKA Haute Couture Atelier ERP & Analytics Master Backup',
+          system: 'Lokesh Lingam Weaver Admin & Analytics Master Backup',
           status: 'Authoritative Verified Data',
           dateRange: { startDate, endDate },
           analytics: { overview, trends, funnel, topProducts, topPages, devices, sources, recentActivity },
@@ -471,7 +471,7 @@ export default function Analytics() {
           subscriptions: subsData,
           reviews: reviewsData
         }
-        exportToJSON(fullArchive, 'agvia_master_atelier_complete_archive')
+        exportToJSON(fullArchive, 'lokesh_lingam_weaver_complete_archive')
         toast.success('Complete atelier raw JSON archive & analytics downloaded!', { id: toastId })
       } else if (format === 'analytics_only' || format === 'analytics_pdf') {
         toast.loading('Generating comprehensive Web Analytics PDF dossier...', { id: toastId })

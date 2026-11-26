@@ -232,7 +232,7 @@ export default function CouponsManagement() {
               rows={coupons} 
               title="Active Privilege Codes"
               emptyMessage="No coupons registered yet." 
-              exportFilename="chitrika_privilege_codes"
+              exportFilename="lokesh_lingam_weaver_coupons"
             />
           )}
         </div>

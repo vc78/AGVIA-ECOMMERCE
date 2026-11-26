@@ -17,10 +17,10 @@ public class SwaggerConfig {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
                 .info(new Info()
-                        .title("Pragathi Sweets Backend API")
-                        .description("REST API for the Pragathi Sweets e-commerce platform")
+                        .title("Lokesh Lingam Weaver Backend API")
+                        .description("REST API for the Lokesh Lingam Weaver handloom sarees e-commerce platform")
                         .version("v1.0.0")
-                        .contact(new Contact().name("Pragathi Sweets Engineering")))
+                        .contact(new Contact().name("Lokesh Lingam Weaver")))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()

@@ -16,4 +16,6 @@ public class GoogleAuthRequest {
 
     @NotBlank(message = "Google credential token is required")
     private String credential;
+
+    private String nonce;
 }

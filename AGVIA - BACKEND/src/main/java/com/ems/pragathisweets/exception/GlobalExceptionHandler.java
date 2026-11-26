@@ -109,13 +109,6 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("You are requesting a little too quickly. Please wait a moment and try again."));
     }
 
-    @ExceptionHandler(OtpException.class)
-    public ResponseEntity<ApiResponse<Object>> handleOtpException(OtpException ex) {
-        log.warn("[OTP_EXCEPTION] {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage() != null ? ex.getMessage() : "Verification code could not be verified."));
-    }
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("[ILLEGAL_ARGUMENT] {}", ex.getMessage());

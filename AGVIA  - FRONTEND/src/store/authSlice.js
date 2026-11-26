@@ -24,7 +24,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     credentialsReceived: (state, action) => {
-      const { user, token, role } = action.payload || {}
+      const { user, token, role, rememberMe = true } = action.payload || {}
       const targetUser = user || state.user
       const targetToken = token || state.token
       const effectiveRole =
@@ -41,6 +41,7 @@ const authSlice = createSlice({
         role: effectiveRole,
         user: targetUser,
         token: targetToken,
+        rememberMe,
       })
     },
     loggedOut: (state, action) => {
