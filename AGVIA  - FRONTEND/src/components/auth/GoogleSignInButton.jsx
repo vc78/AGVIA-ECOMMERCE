@@ -29,7 +29,7 @@ export default function GoogleSignInButton({ from = '/' }) {
       const { user, token } = await authService.googleLogin(response.credential)
       dispatch(credentialsReceived({ user, token }))
       broadcastAuthEvent('LOGIN', { user, token })
-      toast.success(`Welcome to CHITRIKA, ${user.name || 'Patron'}!`, {
+      toast.success(`Welcome to AGVIA, ${user.name || 'Patron'}!`, {
         icon: '👑',
         style: { background: '#5A1020', color: '#FFFDF8', borderRadius: '12px' }
       })
@@ -137,7 +137,7 @@ export default function GoogleSignInButton({ from = '/' }) {
         className={`w-full flex justify-center min-h-[44px] ${clientId && gisLoaded ? 'block' : 'hidden'}`}
       />
 
-      {/* Branded Fallback / Direct Button matching CHITRIKA Design System */}
+      {/* Branded Fallback / Direct Button matching AGVIA Design System */}
       {(!clientId || !gisLoaded || loading) && (
         <button
           type="button"

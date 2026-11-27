@@ -7,7 +7,7 @@ const TESTIMONIALS = [
     name: 'Radhika Reddy',
     city: 'HYDERABAD',
     rating: 5,
-    quote: 'My wedding reception lehenga from CHITRIKA drew endless compliments. The zardozi intricacy and bespoke drape were completely unmatched.',
+    quote: 'My wedding reception lehenga from AGVIA drew endless compliments. The zardozi intricacy and bespoke drape were completely unmatched.',
     avatar: '/images/kanjeevaram_gold_silk_saree.jpg',
   },
   {
@@ -21,7 +21,7 @@ const TESTIMONIALS = [
     name: 'Pooja Singhania',
     city: 'MUMBAI',
     rating: 5,
-    quote: "CHITRIKA's concierge team assisted me with made-to-measure styling and dispatch. The velvet keepsake packaging was royal.",
+    quote: "AGVIA's concierge team assisted me with made-to-measure styling and dispatch. The velvet keepsake packaging was royal.",
     avatar: '/images/rose_gold_zardozi_lehenga.jpg',
   },
   {
@@ -304,7 +304,7 @@ export default function TestimonialsCarousel() {
           </span>
         </h2>
         <p className="font-sans text-[11.5px] sm:text-sm text-[#211D1E]/60 mt-1.5 sm:mt-2 max-w-lg mx-auto leading-relaxed px-2">
-          From royal wedding galas to intimate soirees — draped in timeless CHITRIKA grace.
+          From royal wedding galas to intimate soirees — draped in timeless AGVIA grace.
         </p>
       </div>
 

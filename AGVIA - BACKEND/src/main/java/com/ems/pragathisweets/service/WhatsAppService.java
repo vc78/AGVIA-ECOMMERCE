@@ -50,7 +50,7 @@ public class WhatsAppService {
     @Value("${app.whatsapp.twilio.auth-token:}")
     private String authToken;
 
-    /** Official CHITRIKA WhatsApp number whatsapp:+919032306961 */
+    /** Official AGVIA WhatsApp number whatsapp:+919032306961 */
     @Value("${app.whatsapp.twilio.from-number:whatsapp:+919032306961}")
     private String fromNumber;
 

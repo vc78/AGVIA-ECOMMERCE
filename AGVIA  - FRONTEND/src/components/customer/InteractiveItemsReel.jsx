@@ -282,7 +282,7 @@ export default function InteractiveItemsReel() {
         {/* ══ 3-COLUMN HEADER SECTION (RESPONSIVE EDITORIAL COMPOSITION) ═════ */}
         <div className="relative mb-3.5 sm:mb-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 items-center gap-2 sm:gap-4">
-            {/* Left Column: CHITRIKA Brand & Tradition Meets Modern Style (Desktop) */}
+            {/* Left Column: AGVIA Brand & Tradition Meets Modern Style (Desktop) */}
             <div className="hidden lg:flex flex-col items-start pl-2">
               <div className="flex items-center gap-2 mb-1 text-[#5A1020]">
                 <GoldLotusSvg />
@@ -291,7 +291,7 @@ export default function InteractiveItemsReel() {
                 style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
                 className="text-2xl font-bold tracking-[0.22em] text-[#5A1020] uppercase leading-none"
               >
-                CHITRIKA
+                AGVIA
               </h3>
               <p
                 style={{ fontFamily: "'Lato', 'Manrope', 'Inter', sans-serif" }}

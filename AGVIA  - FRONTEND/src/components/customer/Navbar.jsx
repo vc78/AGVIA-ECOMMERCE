@@ -66,7 +66,7 @@ const NAV_CATEGORIES = {
     items: [
       { name: 'Bridal Dupattas', path: '/products?category=Dupattas', desc: 'Embellished bridal veil drapes', img: '/images/bridal_dupatta.jpg' },
       { name: 'Custom Stitching', path: '/wedding-orders', desc: 'Made-to-measure bespoke blouse & tailoring', img: '/images/anarkali_set.jpg' },
-      { name: 'VIP Membership', path: '/subscription', desc: 'CHITRIKA Haute Privilege Circle & styling perks', img: '/images/hero_banner.jpg' },
+      { name: 'VIP Membership', path: '/subscription', desc: 'AGVIA Haute Privilege Circle & styling perks', img: '/images/hero_banner.jpg' },
     ]
   }
 }
@@ -87,7 +87,7 @@ function BotanicalCornerDecor({ className = '' }) {
   )
 }
 
-// ── CHITRIKA Lady Emblem Logo Icon ─────────────────────────────────────
+// ── AGVIA Lady Emblem Logo Icon ─────────────────────────────────────
 function AgviaLogoEmblem() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10 md:w-11 md:h-11 shrink-0">
@@ -123,7 +123,7 @@ export default function Navbar() {
   const MOBILE_HEADLINES = [
     { text: 'FREE SHIPPING ON ORDERS ₹999+', icon: Truck },
     { text: '✦ ELEGANT STYLES FOR EVERY OCCASION ✦', icon: Sparkles },
-    { text: 'USE CODE: CHITRIKA15 FOR 15% OFF', icon: Gift },
+    { text: 'USE CODE: AGVIA15 FOR 15% OFF', icon: Gift },
     { text: 'EASY 7-DAY HASSLE-FREE RETURNS', icon: Truck },
   ]
   const [headlineIndex, setHeadlineIndex] = useState(0)
@@ -279,25 +279,17 @@ export default function Navbar() {
 
           <div className="w-full max-w-[1320px] mx-auto px-[clamp(16px,3vw,40px)] flex items-center justify-between gap-3">
 
-            {/* ── Left: CHITRIKA Official Brand Logo & Wordmark ── */}
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 shrink-0 group py-0.5 select-none" aria-label="CHITRIKA Home">
+            {/* ── Left: AGVIA Official Brand Logo ── */}
+            <Link to="/" className="flex items-center shrink-0 group py-0.5">
               <img
-                src="/images/chitrika-logo.webp"
-                alt="CHITRIKA Emblem"
-                width={48}
-                height={54}
+                src="/images/agvia-logo.webp"
+                alt="AGVIA Women's Wear Boutique"
+                width={140}
+                height={44}
                 fetchpriority="high"
                 decoding="async"
-                className="h-10 sm:h-11 lg:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_2px_6px_rgba(90,16,32,0.12)]"
+                className="h-9 sm:h-10 lg:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
-              <div className="flex flex-col justify-center">
-                <span className="font-serif text-lg sm:text-xl lg:text-2xl font-bold tracking-[0.16em] uppercase text-[#5A1020] leading-none transition-colors group-hover:text-[#7A1F32]">
-                  CHITRIKA
-                </span>
-                <span className="font-sans text-[7px] sm:text-[8px] lg:text-[8.5px] tracking-[0.28em] uppercase text-[#B68C48] font-bold mt-1">
-                  WOMEN'S WEAR BOUTIQUE
-                </span>
-              </div>
             </Link>
 
             {/* ── Center: Tablet Compact Nav (md to xl) ── */}
@@ -610,25 +602,17 @@ export default function Navbar() {
             >
               {/* Drawer Header */}
               <div className="flex justify-between items-center px-4 py-3 border-b border-[#EAE0D2] bg-[#FAF6F0]">
-                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
+                <div className="flex items-center">
                   <img
-                    src="/images/chitrika-logo.webp"
-                    alt="CHITRIKA"
-                    width={40}
-                    height={45}
+                    src="/images/agvia-logo.webp"
+                    alt="AGVIA Women's Wear Boutique"
+                    width={112}
+                    height={32}
                     loading="lazy"
                     decoding="async"
-                    className="h-9 w-auto object-contain"
+                    className="h-8 w-auto object-contain"
                   />
-                  <div className="flex flex-col">
-                    <span className="font-serif text-base font-bold tracking-[0.18em] uppercase text-[#5A1020] leading-none">
-                      CHITRIKA
-                    </span>
-                    <span className="font-sans text-[7px] tracking-[0.26em] uppercase text-[#B68C48] font-bold mt-0.5">
-                      BOUTIQUE
-                    </span>
-                  </div>
-                </Link>
+                </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="touch-target p-2 text-[#4A0A16] hover:bg-white rounded-full transition-colors"
@@ -802,7 +786,7 @@ export default function Navbar() {
                   </Link>
                 )}
                 <span className="text-[10px] text-[#B68C48] tracking-widest uppercase">
-                  CHITRIKA COUTURE
+                  AGVIA COUTURE
                 </span>
               </div>
             </motion.div>

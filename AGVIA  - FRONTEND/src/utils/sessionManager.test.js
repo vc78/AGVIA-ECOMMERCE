@@ -38,7 +38,7 @@ const {
   clearTabSession
 } = await import('./sessionManager.js')
 
-console.log('🧪 Starting CHITRIKA Cross-Tab Session Isolation Automated Tests...')
+console.log('🧪 Starting AGVIA Cross-Tab Session Isolation Automated Tests...')
 
 // Test 1: Customer login in Tab A
 setActiveTabContext('CUSTOMER')
@@ -56,7 +56,7 @@ console.log('✅ Scenario 1 Passed: Customer login in Tab A succeeds and persist
 setActiveTabContext('ADMIN')
 assert.strictEqual(getActiveTabContext(), 'ADMIN')
 
-const adminUser = { id: 1, name: 'Admin Atelier', email: 'admin@chitrika.com', role: 'ADMIN' }
+const adminUser = { id: 1, name: 'Admin Atelier', email: 'admin@agvia.com', role: 'ADMIN' }
 const adminToken = 'jwt_admin_token_999'
 setTabSession({ role: 'ADMIN', user: adminUser, token: adminToken })
 

@@ -1,5 +1,5 @@
 /**
- * CHITRIKA Luxury Boutique & Atelier — Role-Scoped Multi-Tab Session Manager
+ * AGVIA Luxury Boutique & Atelier — Role-Scoped Multi-Tab Session Manager
  *
  * Provides cryptographic-grade session isolation between Customer and Administrator roles.
  * Prevents cross-tab authentication collision where an admin login in one tab overwrites

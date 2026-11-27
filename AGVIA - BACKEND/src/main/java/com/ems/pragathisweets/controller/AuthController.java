@@ -35,7 +35,7 @@ public class AuthController {
         boolean isHttps = request != null && (request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
         String sameSite = isHttps ? "None" : "Lax";
 
-        ResponseCookie cookie = ResponseCookie.from("chitrika_token", token)
+        ResponseCookie cookie = ResponseCookie.from("agvia_token", token)
                 .httpOnly(true)
                 .secure(isHttps)
                 .sameSite(sameSite)
@@ -43,14 +43,6 @@ public class AuthController {
                 .maxAge(86400)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        ResponseCookie legacyCookie = ResponseCookie.from("agvia_token", token)
-                .httpOnly(true)
-                .secure(isHttps)
-                .sameSite(sameSite)
-                .path("/")
-                .maxAge(86400)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, legacyCookie.toString());
     }
 
     // Helper to clear HttpOnly authentication cookie
@@ -59,7 +51,7 @@ public class AuthController {
         boolean isHttps = request != null && (request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
         String sameSite = isHttps ? "None" : "Lax";
 
-        ResponseCookie cookie = ResponseCookie.from("chitrika_token", "")
+        ResponseCookie cookie = ResponseCookie.from("agvia_token", "")
                 .httpOnly(true)
                 .secure(isHttps)
                 .sameSite(sameSite)
@@ -67,14 +59,6 @@ public class AuthController {
                 .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        ResponseCookie legacyCookie = ResponseCookie.from("agvia_token", "")
-                .httpOnly(true)
-                .secure(isHttps)
-                .sameSite(sameSite)
-                .path("/")
-                .maxAge(0)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, legacyCookie.toString());
     }
 
     // ─────────────────────────────────────────────────────────────────────────

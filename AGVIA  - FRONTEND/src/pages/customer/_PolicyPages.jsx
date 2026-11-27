@@ -47,10 +47,10 @@ export function PrivacyPolicyPage() {
         subtitle="Your trust is our highest commitment. Here's how we protect your data."/>
       <div className="max-w-3xl mx-auto px-6 pt-12 pb-24">
         <PolicySection title="Information We Collect">
-          <p>We collect your name, email address, phone number, and delivery address solely to fulfil your orders, manage your CHITRIKA Haute Circle membership, and provide personalised styling consultations. We may also collect browsing data through cookies to improve your boutique experience.</p>
+          <p>We collect your name, email address, phone number, and delivery address solely to fulfil your orders, manage your AGVIA Haute Circle membership, and provide personalised styling consultations. We may also collect browsing data through cookies to improve your boutique experience.</p>
         </PolicySection>
         <PolicySection title="How We Use Your Information">
-          <p>Your personal details are used exclusively for order fulfilment, Razorpay payment verification, concierge support communication, and CHITRIKA newsletter updates (only if you opt in). We never use your data for unsolicited third-party marketing.</p>
+          <p>Your personal details are used exclusively for order fulfilment, Razorpay payment verification, concierge support communication, and AGVIA newsletter updates (only if you opt in). We never use your data for unsolicited third-party marketing.</p>
         </PolicySection>
         <PolicySection title="Data Security">
           <p>All patron profiles, measurement notes, and order histories are stored behind end-to-end encrypted databases with JWT authentication. Payment data is processed securely via Razorpay PCI-DSS compliant gateways — we never store your card details.</p>
@@ -65,10 +65,10 @@ export function PrivacyPolicyPage() {
           <p>You have the right to access, correct, or delete your personal data at any time. To exercise these rights, please contact our Privacy Desk at <span className="text-[#7B1030] font-semibold">agvia.boutique@gmail.com</span> or WhatsApp us at +91 90323 06961.</p>
         </PolicySection>
         <PolicySection title="Updates to This Policy">
-          <p>We may update this Privacy Policy periodically to reflect changes in our practices or applicable law. The revised policy will be posted on this page with an updated effective date. Continued use of CHITRIKA after changes constitutes acceptance.</p>
+          <p>We may update this Privacy Policy periodically to reflect changes in our practices or applicable law. The revised policy will be posted on this page with an updated effective date. Continued use of AGVIA after changes constitutes acceptance.</p>
         </PolicySection>
         <p className="font-sans text-[10.5px] text-[#211D1E]/40 mt-8 border-t border-[#C9A45C]/15 pt-4">
-          Effective Date: January 2024 · CHITRIKA Women's Wear Boutique, Jubilee Hills, Hyderabad
+          Effective Date: January 2024 · AGVIA Women's Wear Boutique, Jubilee Hills, Hyderabad
         </p>
       </div>
       <Footer />
@@ -84,28 +84,28 @@ export function TermsPage() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-body">
       <Navbar />
       <PageHero tag="Legal" title="Terms & Conditions"
-        subtitle="Please read these terms carefully before placing your order with CHITRIKA."/>
+        subtitle="Please read these terms carefully before placing your order with AGVIA."/>
       <div className="max-w-3xl mx-auto px-6 pt-12 pb-24">
         <PolicySection title="Acceptance of Terms">
-          <p>By accessing or using the CHITRIKA website and placing orders, you agree to be bound by these Terms & Conditions. If you do not agree, please do not use our services.</p>
+          <p>By accessing or using the AGVIA website and placing orders, you agree to be bound by these Terms & Conditions. If you do not agree, please do not use our services.</p>
         </PolicySection>
         <PolicySection title="Product Descriptions">
           <p>We make every effort to accurately display product colours, textures, and embroidery details. However, due to monitor variances, actual colours may differ slightly. Handloom and hand-embroidered pieces may have minor natural variations — these are features of authentic artisanal craftsmanship, not defects.</p>
         </PolicySection>
         <PolicySection title="Pricing & Payment">
-          <p>All prices are listed in Indian Rupees (INR) and are inclusive of applicable taxes. Prices may change without prior notice. Orders are confirmed only upon successful Razorpay payment. CHITRIKA reserves the right to cancel orders in case of pricing errors.</p>
+          <p>All prices are listed in Indian Rupees (INR) and are inclusive of applicable taxes. Prices may change without prior notice. Orders are confirmed only upon successful Razorpay payment. AGVIA reserves the right to cancel orders in case of pricing errors.</p>
         </PolicySection>
         <PolicySection title="Order Cancellation">
           <p>Orders may be cancelled within 12 hours of placement at no charge. Bespoke and made-to-measure orders cannot be cancelled once tailoring has commenced. Please WhatsApp us at +91 90323 06961 for urgent cancellation requests.</p>
         </PolicySection>
         <PolicySection title="Intellectual Property">
-          <p>All content on this website — including photographs, design motifs, descriptions, logos, and brand identity — is the exclusive intellectual property of CHITRIKA Women's Wear Boutique. Reproduction or commercial use without written permission is strictly prohibited.</p>
+          <p>All content on this website — including photographs, design motifs, descriptions, logos, and brand identity — is the exclusive intellectual property of AGVIA Women's Wear Boutique. Reproduction or commercial use without written permission is strictly prohibited.</p>
         </PolicySection>
         <PolicySection title="Governing Law">
           <p>These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts of Hyderabad, Telangana.</p>
         </PolicySection>
         <p className="font-sans text-[10.5px] text-[#211D1E]/40 mt-8 border-t border-[#C9A45C]/15 pt-4">
-          Effective Date: January 2024 · CHITRIKA Women's Wear Boutique, Jubilee Hills, Hyderabad
+          Effective Date: January 2024 · AGVIA Women's Wear Boutique, Jubilee Hills, Hyderabad
         </p>
       </div>
       <Footer />
@@ -158,7 +158,7 @@ export function RefundPolicyPage() {
           <p>We offer free size exchanges within 7 days. If your preferred size is unavailable, we will offer a full refund or store credit. Contact us via WhatsApp at +91 90323 06961 to arrange an exchange.</p>
         </PolicySection>
         <p className="font-sans text-[10.5px] text-[#211D1E]/40 mt-8 border-t border-[#C9A45C]/15 pt-4">
-          Effective Date: January 2024 · CHITRIKA Women's Wear Boutique, Jubilee Hills, Hyderabad
+          Effective Date: January 2024 · AGVIA Women's Wear Boutique, Jubilee Hills, Hyderabad
         </p>
       </div>
       <Footer />
@@ -200,7 +200,7 @@ const FAQ_DATA = [
     faqs: [
       { q: 'Can I schedule a bridal consultation?', a: 'Yes! You can visit our Jubilee Hills atelier or book a virtual 1-on-1 video consultation via WhatsApp concierge at +91 90323 06961.' },
       { q: 'What is the turnaround for bespoke bridal lehengas?', a: 'Bespoke bridal pieces require 10–21 days depending on embroidery complexity. We recommend booking at least 6 weeks before your wedding date.' },
-      { q: 'How are garments packaged?', a: 'Every CHITRIKA ensemble is wrapped in breathable archival muslin, protected inside a gold-embossed keepsake trunk, and shipped in weather-sealed outer packaging.' },
+      { q: 'How are garments packaged?', a: 'Every AGVIA ensemble is wrapped in breathable archival muslin, protected inside a gold-embossed keepsake trunk, and shipped in weather-sealed outer packaging.' },
     ]
   },
 ]
@@ -233,7 +233,7 @@ export function FaqPage() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-body">
       <Navbar />
       <PageHero tag="Atelier Assistance" title="Frequently Asked Questions"
-        subtitle="Everything you need to know about CHITRIKA — from sizing to shipping, bridal to bespoke."/>
+        subtitle="Everything you need to know about AGVIA — from sizing to shipping, bridal to bespoke."/>
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-24">
         {FAQ_DATA.map((cat) => (
           <div key={cat.category} className="mb-10">
@@ -271,7 +271,7 @@ function GenericPage({ tag, title, children }) {
       <div className="max-w-3xl mx-auto px-6 pt-12 pb-24 font-sans text-[12.5px] leading-relaxed space-y-4">
         {children}
         <p className="text-[10.5px] text-[#211D1E]/40 mt-8 border-t border-[#C9A45C]/15 pt-4">
-          CHITRIKA Women's Wear Boutique, Jubilee Hills, Hyderabad
+          AGVIA Women's Wear Boutique, Jubilee Hills, Hyderabad
         </p>
       </div>
       <Footer />
@@ -289,13 +289,13 @@ export function CookiePolicyPage() {
   return <GenericPage tag="Privacy" title="Cookie Policy"><p>We use cookies to improve your boutique experience.</p></GenericPage>
 }
 export function IntellectualPropertyPage() {
-  return <GenericPage tag="Legal" title="Intellectual Property"><p>All designs and assets are copyright of CHITRIKA.</p></GenericPage>
+  return <GenericPage tag="Legal" title="Intellectual Property"><p>All designs and assets are copyright of AGVIA.</p></GenericPage>
 }
 export function DisclaimerPage() {
   return <GenericPage tag="Legal" title="Disclaimer"><p>Please read our terms carefully before purchasing.</p></GenericPage>
 }
 export function CraftsmanshipPage() {
-  return <GenericPage tag="Our Heritage" title="Craftsmanship"><p>Discover the artisanal techniques behind every CHITRIKA ensemble.</p></GenericPage>
+  return <GenericPage tag="Our Heritage" title="Craftsmanship"><p>Discover the artisanal techniques behind every AGVIA ensemble.</p></GenericPage>
 }
 export function SustainabilityPage() {
   return <GenericPage tag="Our Commitment" title="Sustainability"><p>Our dedication to sustainable, ethical fashion.</p></GenericPage>
@@ -304,13 +304,13 @@ export function ProductCarePage() {
   return <GenericPage tag="Aftercare" title="Product Care"><p>Preserve your heirlooms with our detailed care instructions.</p></GenericPage>
 }
 export function BlogsPage() {
-  return <GenericPage tag="Journal" title="Blogs & Style Guide"><p>Styling tips and the latest trends from CHITRIKA.</p></GenericPage>
+  return <GenericPage tag="Journal" title="Blogs & Style Guide"><p>Styling tips and the latest trends from AGVIA.</p></GenericPage>
 }
 export function StoreLocationsPage() {
   return <GenericPage tag="Visit Us" title="Store Locations"><p>Find our flagship boutiques and partner stores.</p></GenericPage>
 }
 export function CareersPage() {
-  return <GenericPage tag="Join Us" title="Careers"><p>Explore career opportunities at CHITRIKA.</p></GenericPage>
+  return <GenericPage tag="Join Us" title="Careers"><p>Explore career opportunities at AGVIA.</p></GenericPage>
 }
 export function BulkOrdersPage() {
   return <GenericPage tag="Wholesale" title="Bulk Orders"><p>Please contact us via WhatsApp for bulk or wholesale inquiries.</p></GenericPage>

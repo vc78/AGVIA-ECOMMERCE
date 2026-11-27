@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx'
 
 /**
- * Generates and downloads the official CHITRIKA_ORDERS.xlsx luxury workbook.
+ * Generates and downloads the official AGVIA_ORDERS.xlsx luxury workbook.
  * Contains 3 dedicated sheets:
  * 1. Orders Master
  * 2. Order Line Items
@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx'
  */
 export function generateAndDownloadOrdersExcel(orders = []) {
   if (!orders || orders.length === 0) {
-    throw new Error('No orders available to compile CHITRIKA_ORDERS.xlsx.')
+    throw new Error('No orders available to compile AGVIA_ORDERS.xlsx.')
   }
 
   // ── Sheet 1: Orders Master ──────────────────────────────────────────────────
@@ -77,7 +77,7 @@ export function generateAndDownloadOrdersExcel(orders = []) {
       itemRows.push({
         'Order ID': trackingRef,
         'Placement Date': orderDate,
-        'Product / Silhouette': 'CHITRIKA Atelier Ensemble',
+        'Product / Silhouette': 'AGVIA Atelier Ensemble',
         'SKU Identifier': 'AGV-ENS-01',
         'Unit Price (INR)': Number(o.finalAmount || o.total || 0),
         'Quantity': Number(o.items || 1),
@@ -128,6 +128,6 @@ export function generateAndDownloadOrdersExcel(orders = []) {
   XLSX.utils.book_append_sheet(workbook, wsPayments, 'Payments Ledger')
 
   // Write and trigger download
-  XLSX.writeFile(workbook, 'CHITRIKA_ORDERS.xlsx')
+  XLSX.writeFile(workbook, 'AGVIA_ORDERS.xlsx')
   return true
 }

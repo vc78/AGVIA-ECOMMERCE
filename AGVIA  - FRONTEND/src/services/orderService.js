@@ -95,7 +95,7 @@ export const orderService = {
         customer: o.userName || 'Guest',
         date: o.createdAt ? o.createdAt.split('T')[0] : 'N/A',
         items: (o.items || []).map((i) => ({
-          name: i.productName || i.name || 'CHITRIKA Couture Silhouette',
+          name: i.productName || i.name || 'AGVIA Couture Silhouette',
           price: i.price ?? i.unitPrice ?? 0,
           unit: i.unit || 'piece',
           qty: i.quantity ?? i.qty ?? 1,

@@ -22,7 +22,7 @@ public class StoreSetting {
     // --- Store Identity & Concierge ---
     @Column(name = "store_name", nullable = false)
     @Builder.Default
-    private String storeName = "CHITRIKA Women's Wear Boutique";
+    private String storeName = "AGVIA Women's Wear Boutique";
 
     @Column(name = "store_tagline")
     @Builder.Default
@@ -30,7 +30,7 @@ public class StoreSetting {
 
     @Column(name = "support_email")
     @Builder.Default
-    private String supportEmail = "care@chitrika.in";
+    private String supportEmail = "care@agvia.in";
 
     @Column(name = "support_phone")
     @Builder.Default

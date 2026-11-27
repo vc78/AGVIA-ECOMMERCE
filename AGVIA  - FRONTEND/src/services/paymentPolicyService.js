@@ -1,5 +1,5 @@
 /**
- * Centralized Payment Policy Service for CHITRIKA Ecommerce.
+ * Centralized Payment Policy Service for AGVIA Ecommerce.
  * Evaluates payment options across products, variants, and mixed carts.
  * Mirrors the backend domain logic for seamless UX synchronization.
  */

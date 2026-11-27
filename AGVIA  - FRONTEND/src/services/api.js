@@ -8,7 +8,7 @@ const RAW_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
   (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? 'https://chitrika.onrender.com/api'
+    ? 'https://agvia.onrender.com/api'
     : 'http://localhost:8080/api')
 
 // Ensure /api suffix is present and clean trailing slashes

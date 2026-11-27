@@ -136,8 +136,8 @@ export default function Checkout() {
       }
     } catch (err) {
       console.error(err)
-      if (code === 'CIRCLE15' || code === 'CHITRIKA15' || code === 'CHITRIKA_VIP10' || code === 'CHITRIKA10' || code === 'WELCOME10') {
-        const pct = (code === 'CIRCLE15' || code === 'CHITRIKA15') ? 0.15 : 0.10
+      if (code === 'CIRCLE15' || code === 'AGVIA15' || code === 'AGVIAVIP10' || code === 'AGVIA10' || code === 'WELCOME10') {
+        const pct = (code === 'CIRCLE15' || code === 'AGVIA15') ? 0.15 : 0.10
         const disc = Math.round(subtotal * pct)
         setDiscount(disc)
         setCouponCode(code)
@@ -146,7 +146,7 @@ export default function Checkout() {
           style: { background: '#8B0000', color: '#FFFDF8', borderRadius: '12px' }
         })
       } else {
-        toast.error(err?.response?.data?.message || 'Could not validate coupon. Try CIRCLE15 or CHITRIKA_VIP10')
+        toast.error(err?.response?.data?.message || 'Could not validate coupon. Try CIRCLE15 or AGVIAVIP10')
       }
     } finally {
       setValidatingCoupon(false)
@@ -341,7 +341,7 @@ export default function Checkout() {
         key: rpOrder.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: rpOrder.amountInPaise,
         currency: rpOrder.currency,
-        name: "CHITRIKA Women's Wear Boutique",
+        name: "AGVIA Women's Wear Boutique",
         description: 'Bespoke Luxury Order',
         order_id: rpOrder.razorpayOrderId,
         handler: async (response) => {

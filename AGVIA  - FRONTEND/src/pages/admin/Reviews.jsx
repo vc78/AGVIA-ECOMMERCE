@@ -78,7 +78,7 @@ export default function Reviews() {
         rating: `${Number(r.rating || 5).toFixed(1)} / 5.0`,
         statusText: r.approved ? 'Approved' : 'Pending Moderation'
       }))
-      await exportTableToPDF('CHITRIKA Patron Feedback & Reviews', exportCols, sanitizedReviews, 'chitrika_patron_reviews')
+      await exportTableToPDF('AGVIA Patron Feedback & Reviews', exportCols, sanitizedReviews, 'agvia_patron_reviews')
       toast.success(`Exported ${reviews.length} reviews to branded PDF!`, {
         id: 'rev-pdf',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
@@ -226,7 +226,7 @@ export default function Reviews() {
           rows={reviews} 
           title="Storefront Reviews"
           emptyMessage="No reviews submitted yet." 
-          exportFilename="chitrika_patron_reviews"
+          exportFilename="agvia_patron_reviews"
         />
       )}
     </AdminLayout>

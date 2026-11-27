@@ -256,7 +256,7 @@ export default function ProductDetails() {
   const detailsMock = {
     craftsmanship: '100% Certified Pure Handloom Silk and delicate organza weave. Embellished with hand-embroidered zardozi, fine cutdana beads, and antique gold metallic threads by generational master craftsmen.',
     sizing: 'Tailored with comfortable ease. Blouse and choli sets include 2-inch interior seam allowances for custom fitting. Dry clean only. Model is 5\'9" wearing size S.',
-    shipping: 'Delivered in our signature CHITRIKA embroidered keepsake box with protective muslin garment bags. Complimentary express courier across India in 3-5 business days. 7-day atelier exchange policy.',
+    shipping: 'Delivered in our signature AGVIA embroidered keepsake box with protective muslin garment bags. Complimentary express courier across India in 3-5 business days. 7-day atelier exchange policy.',
   }
 
   const toggleAccordion = (tab) => {
@@ -273,12 +273,12 @@ export default function ProductDetails() {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: product.description || `Handcrafted ${product.name} from CHITRIKA's luxury ${product.category} collection.`,
-    image: product.image ? (product.image.startsWith('http') ? product.image : `https://chitrikaboutique.com${product.image}`) : undefined,
-    sku: product.sku || `CHITRIKA-${product.id}`,
+    description: product.description || `Handcrafted ${product.name} from AGVIA's luxury ${product.category} collection.`,
+    image: product.image ? (product.image.startsWith('http') ? product.image : `https://agviaboutique.com${product.image}`) : undefined,
+    sku: product.sku || `AGVIA-${product.id}`,
     brand: {
       '@type': 'Brand',
-      name: 'CHITRIKA'
+      name: 'AGVIA'
     },
     category: product.category,
     offers: {
@@ -286,10 +286,10 @@ export default function ProductDetails() {
       price: product.price,
       priceCurrency: 'INR',
       availability: (product.stockQuantity ?? 10) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: `https://chitrikaboutique.com/products/${product.id}`,
+      url: `https://agviaboutique.com/products/${product.id}`,
       seller: {
         '@type': 'Organization',
-        name: 'CHITRIKA'
+        name: 'AGVIA'
       }
     },
     ...(reviews.length > 0 ? {
@@ -312,7 +312,7 @@ export default function ProductDetails() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-sans">
       <SEOHead
         title={product.name}
-        description={product.description || `Discover the handcrafted ${product.name} in ${product.category}. Tailored from pure fabrics with bespoke detailing at CHITRIKA.`}
+        description={product.description || `Discover the handcrafted ${product.name} in ${product.category}. Tailored from pure fabrics with bespoke detailing at AGVIA.`}
         canonicalUrl={`/products/${product.id}`}
         image={product.image}
         type="product"
@@ -584,7 +584,7 @@ export default function ProductDetails() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mt-3">
                 <a
                   href={`https://wa.me/919032306961?text=${encodeURIComponent(
-                    `Namaste CHITRIKA Atelier Concierge ✨\n\nI would like to enquire about ordering this silhouette:\n👗 Silhouette: *${product.name}*\n🏷️ Category: ${product.category || 'Atelier Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n📏 Selected Size: ${selectedSize}\n🔢 Quantity: ${qty}\n🔗 Product Link: ${getProductShareUrl(product.id)}\n\nPlease share availability, delivery timeline, and bespoke customization details.`
+                    `Namaste AGVIA Atelier Concierge ✨\n\nI would like to enquire about ordering this silhouette:\n👗 Silhouette: *${product.name}*\n🏷️ Category: ${product.category || 'Atelier Couture'}\n💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n📏 Selected Size: ${selectedSize}\n🔢 Quantity: ${qty}\n🔗 Product Link: ${getProductShareUrl(product.id)}\n\nPlease share availability, delivery timeline, and bespoke customization details.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

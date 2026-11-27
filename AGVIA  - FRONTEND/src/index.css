@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════════
-   CHITRIKA WOMEN'S WEAR BOUTIQUE — LUXURY DESIGN TOKENS & SYSTEM
+   AGVIA WOMEN'S WEAR BOUTIQUE — LUXURY DESIGN TOKENS & SYSTEM
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  /* CHITRIKA Brand Colors */
+  /* AGVIA Brand Colors */
   --agvia-burgundy: #5A1020;
   --agvia-burgundy-deep: #420B16;
   --agvia-burgundy-rich: #7A1F32;
@@ -101,7 +101,7 @@ body {
     overflow-wrap: break-word;
   }
 
-  /* Custom CHITRIKA Gold Scrollbar */
+  /* Custom AGVIA Gold Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

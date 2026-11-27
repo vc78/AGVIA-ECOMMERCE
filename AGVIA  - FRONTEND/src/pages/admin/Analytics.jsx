@@ -458,7 +458,7 @@ export default function Analytics() {
       } else if (format === 'json') {
         const fullArchive = {
           exportDate: new Date().toISOString(),
-          system: 'CHITRIKA Haute Couture Atelier ERP & Analytics Master Backup',
+          system: 'AGVIA Haute Couture Atelier ERP & Analytics Master Backup',
           status: 'Authoritative Verified Data',
           dateRange: { startDate, endDate },
           analytics: { overview, trends, funnel, topProducts, topPages, devices, sources, recentActivity },

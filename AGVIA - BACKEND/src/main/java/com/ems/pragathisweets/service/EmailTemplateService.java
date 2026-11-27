@@ -345,7 +345,7 @@ public class EmailTemplateService {
         sb.append("Grand Total: Rs. ").append(formatMoney(data.getGrandTotal())).append("\n\n");
         sb.append("Support: Email ").append(data.getSupportEmail() != null ? data.getSupportEmail() : "support@agvia.in")
                 .append(" or Phone ").append(data.getSupportPhone() != null ? data.getSupportPhone() : "+91 90323 06961").append("\n");
-        sb.append("Thank you for choosing CHITRIKA Women's Wear Boutique!\n");
+        sb.append("Thank you for choosing AGVIA Women's Wear Boutique!\n");
         return sb.toString();
     }
 

@@ -30,7 +30,7 @@ export default function ForgotPassword() {
             <KeyRound size={24} />
           </div>
           <span className="font-display text-2xl tracking-[0.18em] font-bold uppercase text-[#8B0000] leading-none">
-            CHITRIKA
+            AGVIA
           </span>
           <span className="font-body text-[8px] tracking-[0.38em] uppercase text-[#B8860B] font-semibold mt-1.5 pl-[1px]">
             RESET REQUEST

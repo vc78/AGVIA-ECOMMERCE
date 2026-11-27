@@ -10,7 +10,7 @@ import ProductShareButton from '../common/ProductShareButton'
 const CURATED_BESTSELLERS = [
   {
     id: 'bs-emerald-gown-1',
-    name: 'CHITRIKA Emerald Evening Gown',
+    name: 'AGVIA Emerald Evening Gown',
     category: 'Gowns',
     price: 7999,
     unit: 'piece',
@@ -19,7 +19,7 @@ const CURATED_BESTSELLERS = [
   },
   {
     id: 'bs-purple-anarkali',
-    name: 'CHITRIKA Royal Purple Embroidered Anarkali',
+    name: 'AGVIA Royal Purple Embroidered Anarkali',
     category: 'Anarkalis & Kurtas',
     price: 4499,
     unit: 'piece',
@@ -28,7 +28,7 @@ const CURATED_BESTSELLERS = [
   },
   {
     id: 'bs-emerald-saree',
-    name: 'CHITRIKA Emerald Weave Festive Saree',
+    name: 'AGVIA Emerald Weave Festive Saree',
     category: 'Sarees',
     price: 5999,
     unit: 'piece',
@@ -37,7 +37,7 @@ const CURATED_BESTSELLERS = [
   },
   {
     id: 'bs-royal-crimson-lehenga',
-    name: 'CHITRIKA Royal Crimson Velvet Lehenga',
+    name: 'AGVIA Royal Crimson Velvet Lehenga',
     category: 'Lehengas',
     price: 9999,
     unit: 'piece',
@@ -46,7 +46,7 @@ const CURATED_BESTSELLERS = [
   },
   {
     id: 'bs-gold-kanjeevaram',
-    name: 'CHITRIKA Kanjeevaram Gold Silk Saree',
+    name: 'AGVIA Kanjeevaram Gold Silk Saree',
     category: 'Sarees',
     price: 6499,
     unit: 'piece',
@@ -55,7 +55,7 @@ const CURATED_BESTSELLERS = [
   },
   {
     id: 'bs-blush-organza',
-    name: 'CHITRIKA Blush Pink Organza Saree',
+    name: 'AGVIA Blush Pink Organza Saree',
     category: 'Sarees',
     price: 5499,
     unit: 'piece',
@@ -64,7 +64,7 @@ const CURATED_BESTSELLERS = [
   },
   {
     id: 'bs-emerald-gown-2',
-    name: 'CHITRIKA Emerald Evening Gown',
+    name: 'AGVIA Emerald Evening Gown',
     category: 'Gowns',
     price: 7999,
     unit: 'piece',

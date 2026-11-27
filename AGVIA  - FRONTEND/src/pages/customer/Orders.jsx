@@ -167,7 +167,7 @@ export default function Orders() {
 
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <span className="text-[8px] tracking-[0.25em] text-[#B8860B] font-bold uppercase block">CHITRIKA REWARDS</span>
+                  <span className="text-[8px] tracking-[0.25em] text-[#B8860B] font-bold uppercase block">AGVIA REWARDS</span>
                   <p className="font-display text-xs text-[#B8860B] mt-1">Royale Class Membership</p>
                 </div>
                 <Award size={20} className="text-[#B8860B] animate-pulse" />
@@ -471,7 +471,7 @@ export default function Orders() {
                                               className="w-12 h-12 rounded-lg border border-[#B8860B]/10 shadow-sm shrink-0 object-cover"
                                             />
                                             <div>
-                                              <p className="font-display text-sm font-bold text-[#8B0000]">{item.name || item.productName || 'CHITRIKA Silhouette'}</p>
+                                              <p className="font-display text-sm font-bold text-[#8B0000]">{item.name || item.productName || 'AGVIA Silhouette'}</p>
                                                {(item.colorName || item.sku) && (
                                                  <div className="flex items-center gap-1.5 text-[10px] text-[#3A2D23]/60 mt-0.5">
                                                    {item.colorName && (
@@ -623,7 +623,7 @@ export default function Orders() {
 
                                   <button
                                     onClick={() => {
-                                      const text = encodeURIComponent(`Hello CHITRIKA Concierge, I would like assistance regarding my atelier order #${o.orderNumber || o.id}.`)
+                                      const text = encodeURIComponent(`Hello AGVIA Concierge, I would like assistance regarding my atelier order #${o.orderNumber || o.id}.`)
                                       safeOpenWindow(`https://wa.me/${BUSINESS.contact.whatsappRaw}?text=${text}`, 'agvia_support_window', 'noopener,noreferrer')
                                     }}
                                     className="btn-outline !py-2 !px-3.5 text-[10px] flex items-center gap-1.5 font-bold"

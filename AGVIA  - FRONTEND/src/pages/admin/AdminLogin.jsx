@@ -9,7 +9,7 @@ import { setActiveTabContext } from '../../utils/sessionManager'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
-  const [form, setForm] = useState({ email: 'admin@chitrika.com', password: 'chitrika@123' })
+  const [form, setForm] = useState({ email: 'admin@agvia.com', password: 'agvia@123' })
   const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -59,7 +59,7 @@ export default function AdminLogin() {
       setActiveTabContext('ADMIN')
       dispatch(credentialsReceived({ user: userData, token, role: 'ADMIN' }))
       broadcastAuthEvent('LOGIN', { user: userData, token, role: 'ADMIN' })
-      toast.success('Welcome to CHITRIKA Atelier Workspace', {
+      toast.success('Welcome to AGVIA Atelier Workspace', {
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
       navigate('/admin/dashboard', { replace: true })
@@ -77,16 +77,10 @@ export default function AdminLogin() {
     executeLogin(form)
   }
 
-  const handleQuickLogin = async () => {
-    const creds = { email: 'admin@chitrika.com', password: 'chitrika@123' }
+  const handleQuickLogin = () => {
+    const creds = { email: 'admin@agvia.com', password: 'agvia@123' }
     setForm(creds)
-    try {
-      await executeLogin(creds)
-    } catch {
-      const fallbackCreds = { email: 'admin@chitrika.com', password: 'agvia@123' }
-      setForm(fallbackCreds)
-      executeLogin(fallbackCreds)
-    }
+    executeLogin(creds)
   }
 
   return (
@@ -99,16 +93,9 @@ export default function AdminLogin() {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#5A1020] via-[#C9A45C] to-[#5A1020]" />
         
         <div className="flex flex-col items-center mb-6 select-none">
-          <img 
-            src="/images/chitrika-logo.webp" 
-            alt="CHITRIKA" 
-            width={64} 
-            height={72} 
-            decoding="async" 
-            className="h-14 sm:h-16 w-auto max-h-16 shrink-0 object-contain mb-3 drop-shadow-[0_4px_12px_rgba(90,16,32,0.15)]" 
-          />
+          <img src="/images/agvia-logo.webp" alt="AGVIA" width={72} height={64} decoding="async" className="h-16 w-auto object-contain mb-3" />
           <span className="font-serif text-2xl tracking-[0.2em] font-bold uppercase text-[#5A1020] leading-none">
-            CHITRIKA
+            AGVIA
           </span>
           <span className="font-sans text-[8px] tracking-[0.35em] uppercase text-[#C9A45C] font-semibold mt-1.5 pl-[1px]">
             ATELIER ADMIN CONSOLE
@@ -131,8 +118,8 @@ export default function AdminLogin() {
         {/* 1-Click Fast Admin Sign In Box */}
         <div className="mb-5 p-3.5 bg-[#5A1020]/5 border border-[#C9A45C]/35 rounded-2xl">
           <div className="flex items-center justify-between text-[11px] font-mono text-[#5A1020] mb-2 px-1">
-            <span>Admin: <strong>admin@chitrika.com</strong></span>
-            <span>Pass: <strong>chitrika@123</strong></span>
+            <span>Admin: <strong>admin@agvia.com</strong></span>
+            <span>Pass: <strong>agvia@123</strong></span>
           </div>
           <button
             type="button"
@@ -156,7 +143,7 @@ export default function AdminLogin() {
               required 
               value={form.email} 
               onChange={handleChange} 
-              placeholder="admin@chitrika.com" 
+              placeholder="admin@agvia.com" 
               className="input-field !bg-white !border-[#C9A45C]/30 focus:!border-[#5A1020] w-full" 
             />
           </div>

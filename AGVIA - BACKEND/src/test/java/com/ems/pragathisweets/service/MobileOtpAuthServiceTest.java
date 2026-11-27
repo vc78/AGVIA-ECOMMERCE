@@ -300,18 +300,18 @@ class MobileOtpAuthServiceTest {
     @Test
     @DisplayName("Sign-In: Admin authenticates directly without OTP requirement")
     void testLogin_Admin_DirectAuthentication() {
-        LoginRequest req = new LoginRequest("admin@chitrika.com", null, "agvia@123");
+        LoginRequest req = new LoginRequest("admin@agvia.com", null, "agvia@123");
 
         User adminUser = User.builder()
                 .id(1L)
-                .fullName("CHITRIKA Administrator")
-                .email("admin@chitrika.com")
+                .fullName("AGVIA Administrator")
+                .email("admin@agvia.com")
                 .password("$2a$10$hashedAdminPassword")
                 .role(Role.ROLE_ADMIN)
                 .enabled(true)
                 .build();
 
-        when(userRepository.findByEmail("admin@chitrika.com")).thenReturn(Optional.of(adminUser));
+        when(userRepository.findByEmail("admin@agvia.com")).thenReturn(Optional.of(adminUser));
         when(passwordEncoder.matches("agvia@123", "$2a$10$hashedAdminPassword")).thenReturn(true);
         when(jwtService.generateToken(any())).thenReturn("mock.admin.jwt.token");
 

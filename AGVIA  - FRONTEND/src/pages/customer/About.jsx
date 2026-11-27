@@ -98,7 +98,7 @@ const PILLARS_OF_COUTURE = [
   {
     icon: Clock,
     title: 'Heirloom Keepsake Packaging',
-    desc: 'Preserved in breathable muslin bags and gold-embossed CHITRIKA archival boxes designed to last generations.'
+    desc: 'Preserved in breathable muslin bags and gold-embossed AGVIA archival boxes designed to last generations.'
   }
 ]
 
@@ -267,7 +267,7 @@ export default function About() {
             How Heritage Became Timeless Couture
           </h2>
           <p className="text-xs text-[#211D1E]/70 mt-3 leading-relaxed">
-            Every creation at CHITRIKA is born from an uncompromising devotion to authentic Indian looms, pure handcraft, and modern regal silhouettes.
+            Every creation at AGVIA is born from an uncompromising devotion to authentic Indian looms, pure handcraft, and modern regal silhouettes.
           </p>
         </div>
 
@@ -314,7 +314,7 @@ export default function About() {
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="text-center max-w-xl mx-auto mb-14">
             <span className="text-[10px] tracking-[0.3em] font-bold text-[#C9A45C] uppercase block mb-2">
-              ✦ The CHITRIKA Creed ✦
+              ✦ The AGVIA Creed ✦
             </span>
             <h2 className="font-serif text-3xl md:text-4xl text-[#5A1020] font-bold leading-tight">
               Pillars of Haute Couture Integrity

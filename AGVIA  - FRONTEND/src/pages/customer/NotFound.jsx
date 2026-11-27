@@ -9,7 +9,7 @@ export default function NotFound() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-body flex flex-col justify-between selection:bg-[#C9A45C]/30">
       <SEOHead
         title="Page Not Found"
-        description="The page you are looking for is unavailable. Explore CHITRIKA's luxury handcrafted fashion collections."
+        description="The page you are looking for is unavailable. Explore AGVIA's luxury handcrafted fashion collections."
         noindex={true}
       />
       <Navbar />
@@ -30,7 +30,7 @@ export default function NotFound() {
               Oops! We couldn't find that page.
             </h1>
             <p className="font-sans text-sm sm:text-base text-[#211D1E]/70 max-w-md mx-auto leading-relaxed">
-              Let's get you back to CHITRIKA. The silhouette or boutique page you are seeking may have moved or is no longer available.
+              Let's get you back to AGVIA. The silhouette or boutique page you are seeking may have moved or is no longer available.
             </p>
           </div>
 

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 
 /**
- * CHITRIKA Luxury 6-Digit OTP Input
+ * AGVIA Luxury 6-Digit OTP Input
  * - Supports automatic focus advancement
  * - Backspace backward navigation
  * - Full clipboard paste of 6-digit code

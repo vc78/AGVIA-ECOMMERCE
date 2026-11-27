@@ -106,18 +106,18 @@ export default function Products() {
     : 'All Silhouettes'
 
   const pageDescription = activeCategory !== 'All'
-    ? `Explore CHITRIKA's exclusive ${activeCategory} collection. Handcrafted pure silk garments, intricate zardozi embroidery, and timeless bespoke fits.`
-    : "Explore the complete CHITRIKA catalog. Handloom sarees, designer bridal lehengas, bespoke kurtis, and contemporary royal festive wear."
+    ? `Explore AGVIA's exclusive ${activeCategory} collection. Handcrafted pure silk garments, intricate zardozi embroidery, and timeless bespoke fits.`
+    : "Explore the complete AGVIA catalog. Handloom sarees, designer bridal lehengas, bespoke kurtis, and contemporary royal festive wear."
 
   const itemListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: activeCategory === 'All' ? 'CHITRIKA Atelier Collections' : `CHITRIKA ${activeCategory} Collection`,
+    name: activeCategory === 'All' ? 'AGVIA Atelier Collections' : `AGVIA ${activeCategory} Collection`,
     itemListElement: products.slice(0, 10).map((p, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       name: p.name,
-      url: `https://chitrikaboutique.com/products/${p.id}`
+      url: `https://agviaboutique.com/products/${p.id}`
     }))
   }
 

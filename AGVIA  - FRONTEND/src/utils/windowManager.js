@@ -1,5 +1,5 @@
 /**
- * CHITRIKA Window & Tab Manager
+ * AGVIA Window & Tab Manager
  * Prevents duplicate windows, unmanaged popups, and runaway tabs in production.
  * Reuses active named windows and focuses them instead of opening duplicates.
  */

@@ -197,7 +197,7 @@ export default function PaymentSuccess() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] text-[#C9A45C] font-bold tracking-widest uppercase">CHITRIKA Atelier Circle</span>
+                <span className="text-[9px] text-[#C9A45C] font-bold tracking-widest uppercase">AGVIA Atelier Circle</span>
                 <span className="text-[8px] bg-[#C9A45C]/20 text-[#C9A45C] px-2 py-0.5 rounded-full font-bold">15% OFF NEXT ORDER</span>
               </div>
               <h4 className="font-serif text-lg font-bold text-white mt-0.5">

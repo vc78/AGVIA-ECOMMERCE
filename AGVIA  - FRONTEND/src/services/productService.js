@@ -1,12 +1,12 @@
 import api from './api'
 import { resolveImageUrl } from '../utils/media'
 
-// ── 26 Official CHITRIKA Luxury Boutique Products ───────────────────────
+// ── 26 Official AGVIA Luxury Boutique Products ───────────────────────
 export const BOUTIQUE_CATALOG_26 = [
   // ── Sarees (5) ──
   {
     id: 1,
-    name: 'CHITRIKA Classic Silk Saree',
+    name: 'AGVIA Classic Silk Saree',
     description: 'Elegant mulberry silk saree with pure gold zari borders for auspicious occasions and traditional celebrations.',
     sku: 'AGV-SAR-001',
     price: 4999,
@@ -19,7 +19,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 2,
-    name: 'CHITRIKA Floral Organza Saree',
+    name: 'AGVIA Floral Organza Saree',
     description: 'Lightweight sheer organza saree with delicate pastel floral motifs, ideal for day festivities and cocktail parties.',
     sku: 'AGV-SAR-002',
     price: 3999,
@@ -32,7 +32,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 3,
-    name: 'CHITRIKA Kanjeevaram Temple Border Silk Saree',
+    name: 'AGVIA Kanjeevaram Temple Border Silk Saree',
     description: 'Heirloom heavy Kanjeevaram silk weave with traditional korvai temple borders and rich brocade pallu.',
     sku: 'AGV-SAR-003',
     price: 6499,
@@ -45,7 +45,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 4,
-    name: 'CHITRIKA Pastel Banarasi Georgette Saree',
+    name: 'AGVIA Pastel Banarasi Georgette Saree',
     description: 'Fluid drape handwoven Banarasi georgette featuring intricate silver cutwork buttas and scalloped zari trims.',
     sku: 'AGV-SAR-004',
     price: 4599,
@@ -58,7 +58,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 5,
-    name: 'CHITRIKA Mulberry Tissue Silk Saree',
+    name: 'AGVIA Mulberry Tissue Silk Saree',
     description: 'Ultra-luminous gold tissue saree woven with fine metallic threads for a magnificent festive radiance.',
     sku: 'AGV-SAR-005',
     price: 5499,
@@ -73,7 +73,7 @@ export const BOUTIQUE_CATALOG_26 = [
   // ── Lehengas (5) ──
   {
     id: 6,
-    name: 'CHITRIKA Royal Wedding Lehenga',
+    name: 'AGVIA Royal Wedding Lehenga',
     description: 'Exquisite bridal couture lehenga handcrafted with intricate zardozi, semi-precious beadwork and double sheer dupattas.',
     sku: 'AGV-LEH-006',
     price: 8999,
@@ -86,7 +86,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 7,
-    name: 'CHITRIKA Festive Silk Lehenga Set',
+    name: 'AGVIA Festive Silk Lehenga Set',
     description: 'Graceful raw silk flared lehenga with hand-embroidered gotta patti motifs and a lightweight net dupatta.',
     sku: 'AGV-LEH-007',
     price: 5999,
@@ -99,7 +99,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 8,
-    name: 'CHITRIKA Crimson Velvet Bridal Lehenga',
+    name: 'AGVIA Crimson Velvet Bridal Lehenga',
     description: 'Regal crimson velvet bridal ensemble adorned with traditional dabka, sequins, and heritage kalis.',
     sku: 'AGV-LEH-008',
     price: 9999,
@@ -112,7 +112,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 9,
-    name: 'CHITRIKA Champagne Mirror-Work Lehenga',
+    name: 'AGVIA Champagne Mirror-Work Lehenga',
     description: 'Dazzling champagne gold lehenga embellished with hand-cut mirrors and resham threadwork, perfect for Sangeet nights.',
     sku: 'AGV-LEH-009',
     price: 6999,
@@ -125,7 +125,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 10,
-    name: 'CHITRIKA Rose Gold Zardozi Lehenga',
+    name: 'AGVIA Rose Gold Zardozi Lehenga',
     description: 'Romantic pastel lehenga featuring subtle rose gold metallic threadwork and a sweetheart neckline blouse.',
     sku: 'AGV-LEH-010',
     price: 7999,
@@ -140,7 +140,7 @@ export const BOUTIQUE_CATALOG_26 = [
   // ── Anarkalis & Kurtas (5) ──
   {
     id: 11,
-    name: 'CHITRIKA Embroidered Anarkali Set',
+    name: 'AGVIA Embroidered Anarkali Set',
     description: 'Floor-grazing silhouette with intricate hand-embroidered yoke, flared kalis and a sheer matching dupatta.',
     sku: 'AGV-ANK-011',
     price: 3499,
@@ -153,7 +153,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 12,
-    name: 'CHITRIKA Everyday Kurta Set',
+    name: 'AGVIA Everyday Kurta Set',
     description: 'Breathable pure cotton-silk straight cut kurta with tailored trousers and lightweight kota doria dupatta.',
     sku: 'AGV-ANK-012',
     price: 1999,
@@ -166,7 +166,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 13,
-    name: 'CHITRIKA Chikankari Angrakha Anarkali',
+    name: 'AGVIA Chikankari Angrakha Anarkali',
     description: 'Authentic handcrafted Lucknowi Chikankari angrakha with delicate tassel accents and flared ghera.',
     sku: 'AGV-ANK-013',
     price: 3899,
@@ -179,7 +179,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 14,
-    name: 'CHITRIKA Chanderi Silk Festive Kurta',
+    name: 'AGVIA Chanderi Silk Festive Kurta',
     description: 'Crisp Chanderi silk kurta with gold foil prints, intricate potli buttons, and cigarette pants.',
     sku: 'AGV-ANK-014',
     price: 2499,
@@ -192,7 +192,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 15,
-    name: 'CHITRIKA Emerald Velvet Festive Anarkali',
+    name: 'AGVIA Emerald Velvet Festive Anarkali',
     description: 'Opulent jewel-toned velvet suit set adorned with gold thread dori work and scalloped organza borders.',
     sku: 'AGV-ANK-015',
     price: 4499,
@@ -207,7 +207,7 @@ export const BOUTIQUE_CATALOG_26 = [
   // ── Dresses & Gowns (4) ──
   {
     id: 16,
-    name: 'CHITRIKA Evening Gown',
+    name: 'AGVIA Evening Gown',
     description: 'Sophisticated cocktail gown designed with an asymmetric neckline, subtle shimmer, and draped silhouette.',
     sku: 'AGV-DRS-016',
     price: 3499,
@@ -220,7 +220,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 17,
-    name: 'CHITRIKA Emerald Pleated Cocktail Gown',
+    name: 'AGVIA Emerald Pleated Cocktail Gown',
     description: 'Floor-sweeping pleated metallic satin gown with a cinched waistline and graceful fluid movement.',
     sku: 'AGV-DRS-017',
     price: 4299,
@@ -233,7 +233,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 18,
-    name: 'CHITRIKA Satin Wrap Resort Dress',
+    name: 'AGVIA Satin Wrap Resort Dress',
     description: 'Luxe heavyweight silk-satin wrap dress featuring a tie belt and elegant fluted sleeves.',
     sku: 'AGV-DRS-018',
     price: 2799,
@@ -246,7 +246,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 19,
-    name: 'CHITRIKA One-Shoulder Fluted Gown',
+    name: 'AGVIA One-Shoulder Fluted Gown',
     description: 'Dramatic single-shoulder gown tailored from stretch crepe with sculptural bodice pleats.',
     sku: 'AGV-DRS-019',
     price: 4799,
@@ -261,7 +261,7 @@ export const BOUTIQUE_CATALOG_26 = [
   // ── Western Wear (3) ──
   {
     id: 20,
-    name: 'CHITRIKA Co-ord Set',
+    name: 'AGVIA Co-ord Set',
     description: 'Contemporary matching tunic and pleated trouser set tailored for smart-casual and travel occasions.',
     sku: 'AGV-WST-020',
     price: 1799,
@@ -274,7 +274,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 21,
-    name: 'CHITRIKA Linen Blazer & Trousers Set',
+    name: 'AGVIA Linen Blazer & Trousers Set',
     description: 'Double-breasted tailored linen blazer with wide-leg trousers in a warm sand tone.',
     sku: 'AGV-WST-021',
     price: 3199,
@@ -287,7 +287,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 22,
-    name: 'CHITRIKA Crepe Cape & Pant Set',
+    name: 'AGVIA Crepe Cape & Pant Set',
     description: 'Flowing asymmetrical cape overlay paired with high-waisted cigarette pants for evening events.',
     sku: 'AGV-WST-022',
     price: 2899,
@@ -302,7 +302,7 @@ export const BOUTIQUE_CATALOG_26 = [
   // ── Kurtis (2) ──
   {
     id: 23,
-    name: 'CHITRIKA Festive Kurti',
+    name: 'AGVIA Festive Kurti',
     description: 'Easy-to-wear A-line festive kurti featuring mirror-embroidered yoke and delicate contrast piping.',
     sku: 'AGV-KRT-023',
     price: 1499,
@@ -315,7 +315,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 24,
-    name: 'CHITRIKA Hand-Block Printed Silk Kurti',
+    name: 'AGVIA Hand-Block Printed Silk Kurti',
     description: 'Pure Chanderi silk kurti adorned with artisanal hand-block floral motifs and subtle metallic accents.',
     sku: 'AGV-KRT-024',
     price: 1899,
@@ -330,7 +330,7 @@ export const BOUTIQUE_CATALOG_26 = [
   // ── Dupattas (2) ──
   {
     id: 25,
-    name: 'CHITRIKA Bridal Dupatta',
+    name: 'AGVIA Bridal Dupatta',
     description: 'Statement bridal veil drape crafted from fine net with heavy four-sided cutwork zardozi borders.',
     sku: 'AGV-DUP-025',
     price: 1299,
@@ -343,7 +343,7 @@ export const BOUTIQUE_CATALOG_26 = [
   },
   {
     id: 26,
-    name: 'CHITRIKA Organza Zari Scalloped Dupatta',
+    name: 'AGVIA Organza Zari Scalloped Dupatta',
     description: 'Crisp organza dupatta with hand-scalloped golden thread edging and delicate floral sprig buttas.',
     sku: 'AGV-DUP-026',
     price: 1699,
@@ -559,7 +559,7 @@ export const productService = {
     return [
       { id: 101, customer: 'Ananya Sharma', rating: 5, comment: 'The handloom weave quality and zari borders exceeded all my expectations! Wore it to a wedding reception and received endless compliments.', verified: true, date: '2026-09-12' },
       { id: 102, customer: 'Pooja Reddy', rating: 5, comment: 'Stunning craftsmanship and pure luxury. The drape is effortless and the packaging felt like an authentic atelier experience.', verified: true, date: '2026-09-08' },
-      { id: 103, customer: 'Divya Iyer', rating: 5, comment: 'Flawless tailoring and true-to-picture colors. Will definitely be ordering our bespoke bridal trousseau from CHITRIKA.', verified: true, date: '2026-08-28' },
+      { id: 103, customer: 'Divya Iyer', rating: 5, comment: 'Flawless tailoring and true-to-picture colors. Will definitely be ordering our bespoke bridal trousseau from AGVIA.', verified: true, date: '2026-08-28' },
     ]
   },
 
@@ -709,7 +709,7 @@ export const productService = {
           { sectionKey: 'TRENDING_NOW', title: 'Trending Now', active: true, displayOrder: 5 },
           { sectionKey: 'SHOP_BY_COLOR', title: 'Shop by Palette', active: true, displayOrder: 6 },
           { sectionKey: 'LIMITED_STOCK', title: 'Limited Weaves', active: true, displayOrder: 7 },
-          { sectionKey: 'BRAND_STORY', title: 'The CHITRIKA Legacy', active: true, displayOrder: 8 }
+          { sectionKey: 'BRAND_STORY', title: 'The AGVIA Legacy', active: true, displayOrder: 8 }
         ],
         bestSellers: catalog.filter(p => p.bestseller).slice(0, 8),
         trending: catalog.slice(2, 10),

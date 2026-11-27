@@ -20,9 +20,9 @@ import toast from 'react-hot-toast'
 const ORDER_STEPS = [
   { id: 'CONFIRMED', title: 'Order Confirmed', desc: 'Received & transmitted to the atelier', icon: CheckCircle2 },
   { id: 'PROCESSING', title: 'Atelier Tailoring & Quality Inspection', desc: 'Handcrafted with meticulous precision', icon: ChefHat },
-  { id: 'PACKAGED', title: 'Heirloom Keepsake Packaging', desc: 'Sealed in acid-free tissue inside luxury CHITRIKA box', icon: Box },
+  { id: 'PACKAGED', title: 'Heirloom Keepsake Packaging', desc: 'Sealed in acid-free tissue inside luxury AGVIA box', icon: Box },
   { id: 'SHIPPED', title: 'Dispatched with Insured Courier', desc: 'In transit with premium express delivery partner', icon: Truck },
-  { id: 'DELIVERED', title: 'Successfully Delivered', desc: 'Enjoy your timeless CHITRIKA couture ensemble!', icon: Sparkles }
+  { id: 'DELIVERED', title: 'Successfully Delivered', desc: 'Enjoy your timeless AGVIA couture ensemble!', icon: Sparkles }
 ]
 
 function getStepIndex(status = '') {
@@ -137,7 +137,7 @@ export default function TrackOrder() {
     try {
       const siteUrl = typeof window !== 'undefined' && window.location?.origin
         ? window.location.origin
-        : 'https://chitrika.onrender.com'
+        : 'https://agvia.onrender.com'
       const paramName = isToken ? 'token' : 'order'
       const targetUrl = `${siteUrl}/track-order?${paramName}=${encodeURIComponent(tokenOrRef)}`
 
@@ -182,7 +182,7 @@ export default function TrackOrder() {
 
   const handleProtectedAction = (actionName) => {
     if (!isAuthenticated) {
-      toast.error(`Please sign in with your CHITRIKA account to ${actionName}.`, {
+      toast.error(`Please sign in with your AGVIA account to ${actionName}.`, {
         icon: '🔒',
         style: { background: '#5A1020', color: '#FAF7F2', borderRadius: '12px' }
       })
@@ -208,7 +208,7 @@ export default function TrackOrder() {
     if (!trackingOrder) return
     const orderNum = trackingOrder.maskedOrderNumber || trackingOrder.orderNumber || trackingOrder.id
     const text = encodeURIComponent(
-      `Hello CHITRIKA Concierge! 👋\nI am tracking my atelier order *#${orderNum}* (Status: ${trackingOrder.status}). Could you please share an update on the courier dispatch schedule?\n\nThank you!`
+      `Hello AGVIA Concierge! 👋\nI am tracking my atelier order *#${orderNum}* (Status: ${trackingOrder.status}). Could you please share an update on the courier dispatch schedule?\n\nThank you!`
     )
     const storeRaw = (BUSINESS?.contact?.whatsappRaw || '919032306961').replace(/\D/g, '')
     safeOpenWindow(`https://api.whatsapp.com/send?phone=${storeRaw}&text=${text}`, 'agvia_tracking_support', 'noopener,noreferrer')
@@ -463,7 +463,7 @@ export default function TrackOrder() {
                     <span className="text-[10px] uppercase font-bold text-gray-400 block">Courier Partner</span>
                     <p className="font-bold text-[#5A1020] flex items-center gap-1.5">
                       <Truck size={14} className="text-[#C9A45C]" />
-                      {trackingOrder.carrier || 'CHITRIKA Insured Express Logistics'}
+                      {trackingOrder.carrier || 'AGVIA Insured Express Logistics'}
                     </p>
                   </div>
                 </div>
@@ -528,7 +528,7 @@ export default function TrackOrder() {
                             />
                           ) : (
                             <div className="w-10 h-10 rounded-lg bg-[#5A1020]/10 text-[#5A1020] flex items-center justify-center text-xs font-serif font-bold shrink-0">
-                              CHITRIKA
+                              AGVIA
                             </div>
                           )}
                           <div>

@@ -293,7 +293,7 @@ export default function StoreBilling() {
       setCompletedOrder(order)
 
       // Generate instant QR Code for invoice verification (clean URL without # for instant phone camera scanning)
-      const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://chitrika.vercel.app'
+      const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://agvia.vercel.app'
       const invoiceRef = order.orderNumber || String(order.id)
       const verifyUrl = `${siteOrigin}/track-order?order=${encodeURIComponent(invoiceRef)}`
       try {
@@ -371,11 +371,11 @@ export default function StoreBilling() {
     const phone = order.contactPhone || customer.phone
     const trackingRef = order.orderNumber || `#${order.id}`
     const amount = Number(order.finalAmount || 0).toLocaleString('en-IN')
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://chitrika.vercel.app'
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://agvia.vercel.app'
     const link = `${origin}/track-order?order=${encodeURIComponent(trackingRef)}`
     
     const message = encodeURIComponent(
-      `Namaste from CHITRIKA Haute Couture Atelier!\n\nThank you for visiting our boutique. Your in-store purchase bill #${trackingRef} for ₹${amount} is confirmed.\n\nView and download your digital tax invoice:\n${link}\n\nWe look forward to styling you again.`
+      `Namaste from AGVIA Haute Couture Atelier!\n\nThank you for visiting our boutique. Your in-store purchase bill #${trackingRef} for ₹${amount} is confirmed.\n\nView and download your digital tax invoice:\n${link}\n\nWe look forward to styling you again.`
     )
 
     const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : ''
@@ -1065,7 +1065,7 @@ export default function StoreBilling() {
                 {/* Store Branding & QR */}
                 <div className="flex items-start justify-between border-b border-neutral-200 pb-3">
                   <div>
-                    <h4 className="font-serif text-base font-bold text-[#5A1020]">CHITRIKA ATELIER</h4>
+                    <h4 className="font-serif text-base font-bold text-[#5A1020]">AGVIA ATELIER</h4>
                     <p className="text-[10px] text-neutral-500">Luxury Women's Wear Boutique</p>
                     <p className="text-[9px] text-neutral-400 font-mono mt-0.5">
                       GSTIN: 36AAHCA1234F1Z5 • CIN: U18101TG2026PTC099882

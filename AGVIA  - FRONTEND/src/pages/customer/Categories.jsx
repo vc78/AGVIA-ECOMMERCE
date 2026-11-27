@@ -54,13 +54,13 @@ export default function Categories() {
   const categoryItemListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'CHITRIKA Couture Categories',
+    name: 'AGVIA Couture Categories',
     itemListElement: CATS.map((cat, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       name: cat.name,
       description: cat.desc,
-      url: `https://chitrikaboutique.com${cat.path}`
+      url: `https://agviaboutique.com${cat.path}`
     }))
   }
 
@@ -73,7 +73,7 @@ export default function Categories() {
     <div className="min-h-screen bg-[#FAF7F2] text-[#211D1E] font-body selection:bg-[#C9A45C]/30">
       <SEOHead
         title="Couture Categories & Collections"
-        description="Explore luxury Indian designer categories at CHITRIKA. Handcrafted silk sarees, bridal lehengas, bespoke anarkalis, festive kurtis, and modern gowns."
+        description="Explore luxury Indian designer categories at AGVIA. Handcrafted silk sarees, bridal lehengas, bespoke anarkalis, festive kurtis, and modern gowns."
         canonicalUrl="/categories"
         type="website"
         structuredData={categoryItemListSchema}

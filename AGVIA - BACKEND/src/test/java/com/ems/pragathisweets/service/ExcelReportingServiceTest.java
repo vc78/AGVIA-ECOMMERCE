@@ -46,7 +46,7 @@ class ExcelReportingServiceTest {
     private ExcelReportingService excelReportingService;
 
     private final String testDir = "./target/test-reports";
-    private final String testFileName = "TEST_CHITRIKA_ORDERS.xlsx";
+    private final String testFileName = "TEST_AGVIA_ORDERS.xlsx";
 
     @BeforeEach
     void setUp() {
@@ -124,7 +124,7 @@ class ExcelReportingServiceTest {
         excelReportingService.regenerateExcelReport();
 
         Path generatedFile = Paths.get(testDir, testFileName);
-        assertTrue(Files.exists(generatedFile), "CHITRIKA_ORDERS.xlsx file should be created on disk");
+        assertTrue(Files.exists(generatedFile), "AGVIA_ORDERS.xlsx file should be created on disk");
         assertTrue(Files.size(generatedFile) > 0, "Generated Excel file should not be empty");
 
         // Validate Excel structure with POI

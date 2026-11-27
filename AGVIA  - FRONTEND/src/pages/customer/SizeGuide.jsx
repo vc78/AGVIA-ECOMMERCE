@@ -126,7 +126,7 @@ export default function SizeGuide() {
         <div className="bg-[#5A1020]/6 border border-[#C9A45C]/20 rounded-2xl p-6 mb-8">
           <h3 className="font-serif text-sm font-bold text-[#5A1020] mb-3">💡 Sizing Tips</h3>
           <ul className="font-sans text-[12px] text-[#211D1E]/70 space-y-2 list-disc pl-4">
-            <li>All CHITRIKA lehengas and anarkalis include 3–4 inch seam allowance for easy tailoring.</li>
+            <li>All AGVIA lehengas and anarkalis include 3–4 inch seam allowance for easy tailoring.</li>
             <li>For sarees, one size fits most (standard 5.5m length). Petite customers can request 5m.</li>
             <li>If you are between sizes, we recommend sizing up for comfort.</li>
             <li>For bespoke orders, share your exact measurements via WhatsApp for a perfect fit.</li>
